@@ -537,6 +537,12 @@ function smashEgg(index) {
   // Reduce HP
   egg.hp -= 1;
 
+  // Animate hammer swing
+  const hammerEl = $id('hammer');
+  hammerEl.classList.remove('hammer-anim');
+  void hammerEl.offsetWidth;
+  hammerEl.classList.add('hammer-anim');
+
   // Animate the egg slot
   const slots = $id('egg-tray').children;
   const slot = slots[index];
