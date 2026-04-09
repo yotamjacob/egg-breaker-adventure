@@ -393,7 +393,11 @@ function renderEggTray() {
       '<span class="egg-label">' + egg.type +
       (egg.broken ? '' : ' ' + egg.hp + '/' + egg.maxHp) + '</span>';
     if (!egg.broken) {
-      slot.onclick = function() { smashEgg(i); };
+      // Invisible tap target over the egg — catches all touches
+      const tap = document.createElement('div');
+      tap.className = 'egg-tap-target';
+      tap.onclick = function() { smashEgg(i); };
+      slot.appendChild(tap);
     }
     tray.appendChild(slot);
   });
@@ -650,8 +654,8 @@ function smashEgg(index) {
     // Egg damaged but not broken — update visual with cracks
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, damage) +
-      '<span class="egg-label">' + egg.type + ' ' + egg.hp + '/' + egg.maxHp + '</span>';
-    slot.onclick = function() { smashEgg(index); };
+      '<span class="egg-label">' + egg.type + ' ' + egg.hp + '/' + egg.maxHp + '</span>' +
+      '<div class="egg-tap-target" onclick="smashEgg(' + index + ')"></div>';
     setTimeout(() => { egg._smashing = false; }, 300);
     updateResources();
     saveGame();
