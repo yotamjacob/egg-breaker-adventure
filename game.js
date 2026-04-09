@@ -1420,18 +1420,15 @@ function renderAlbumStage(stageIdx) {
     const rarityLabel = ['', 'Common', 'Uncommon', 'Rare'][item[2]];
     const cost = featherCost(item[2], stageIdx);
 
+    const tipText = found
+      ? item[1] + (item[3] ? ' — ' + item[3] : '')
+      : (item[3] ? '??? — ' + item[3] : '???');
+    const tipEsc = tipText.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     html += '<div class="album-item ' + (found ? 'found' : 'locked') + '">';
-    if (found) {
-      // Name shown as tooltip title, quote shown as data-tip (CSS tooltip)
-      const tipText = item[1] + (item[3] ? ' — ' + item[3] : '');
-      html += '<span class="item-with-tip" data-tip="' + tipText.replace(/"/g, '&quot;').replace(/'/g, '&#39;') + '">';
-      html += '<span class="item-emoji">' + item[0] + '</span>';
-      html += '<span class="item-name">' + item[1] + '</span>';
-      html += '</span>';
-    } else {
-      html += '<span class="item-emoji">' + '❓' + '</span>';
-      html += '<span class="item-name">' + '???' + '</span>';
-    }
+    html += '<span class="item-with-tip" data-tip="' + tipEsc + '">';
+    html += '<span class="item-emoji">' + (found ? item[0] : '❓') + '</span>';
+    html += '<span class="item-name">' + (found ? item[1] : '???') + '</span>';
+    html += '</span>';
     html += '<span class="album-rarity ' + rarityClass + '">' + rarityLabel + '</span>';
     if (!found) {
       html += '<button class="feather-buy-btn" data-idx="' + i + '" data-cost="' + cost + '">' +

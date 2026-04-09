@@ -429,7 +429,7 @@ body{
 }
 .album-item.found{background:var(--panel2);border-color:var(--gold)}
 .item-with-tip{display:contents}
-.album-item:has(.item-with-tip){position:relative;cursor:help}
+.album-item{position:relative;cursor:help}
 .item-with-tip[data-tip]::after{
   content:attr(data-tip);
   position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px);
