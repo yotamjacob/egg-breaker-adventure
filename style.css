@@ -414,7 +414,10 @@ body{
   font-size:9px;transition:all .1s;overflow:hidden;
 }
 .album-item.found{background:var(--panel2);border-color:var(--gold)}
-.album-item.locked{opacity:.55}
+.album-item.locked{opacity:1}
+.album-item.locked .item-emoji{opacity:.4;filter:grayscale(.5)}
+.album-item.locked .item-name{opacity:.4}
+.album-item.locked .album-rarity{opacity:.4}
 .album-item .item-emoji{font-size:18px;flex-shrink:0}
 .album-item .item-name{color:var(--white);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .album-item.locked .item-name{color:var(--gray)}
