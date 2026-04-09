@@ -173,7 +173,13 @@ const SAVE_KEY = 'eggBreaker_v2';
 function saveGame() {
   const d = {};
   for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
-  d.roundEggs = G.roundEggs;
+  // Save eggs without transient _smashing lock
+  if (G.roundEggs) {
+    d.roundEggs = G.roundEggs.map(egg => {
+      const { _smashing, ...clean } = egg;
+      return clean;
+    });
+  }
   localStorage.setItem(SAVE_KEY, JSON.stringify(d));
 }
 
@@ -196,13 +202,14 @@ function loadGame() {
       G.monkeys = fresh;
     }
   } catch (_) {}
-  // Migrate old save data: ensure eggs have hp/maxHp
+  // Migrate/clean loaded egg data
   if (G.roundEggs) {
     G.roundEggs.forEach(egg => {
       if (egg.maxHp === undefined) {
         egg.maxHp = EGG_HP[egg.type] || 1;
         egg.hp = egg.broken ? 0 : egg.maxHp;
       }
+      delete egg._smashing; // clear stale lock from save
     });
   }
 }
@@ -585,9 +592,10 @@ function noHammerMsg() {
 
 // ==================== SMASH EGG ====================
 function smashEgg(index) {
-  if (!G.roundEggs || G.roundEggs[index].broken) return;
+  if (!G.roundEggs) { msg('no eggs loaded', '#ef4444'); return; }
+  if (G.roundEggs[index].broken) return;
   const egg = G.roundEggs[index];
-  if (egg._smashing) return;
+  if (egg._smashing) { msg('smashing...', '#9ca3af'); return; }
   egg._smashing = true;
 
   // Each hit costs 1 hammer
