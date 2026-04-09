@@ -418,6 +418,11 @@ function rollPrize(eggType) {
   if (hasBonus('starBoost'))    w.star *= 1.1;
   if (hasBonus('itemBoost'))    w.item *= 1.15;
 
+  // Achievement percentage bonuses
+  const ab = getAchievementBonuses();
+  if (ab.itemPct > 0) w.item *= (1 + ab.itemPct / 100);
+  if (ab.starPct > 0) w.star *= (1 + ab.starPct / 100);
+
   const total = Object.values(w).reduce((a, b) => a + b, 0);
   let r = Math.random() * total;
   for (const [type, weight] of Object.entries(w)) {
@@ -439,6 +444,8 @@ function resolvePrize(type, eggType) {
     let val = Math.round(baseVal * G.activeMult * silverMult * goldMult);
     if (hasBonus('moreGold')) val = Math.round(val * 1.2);
     if (hasBonus('goldBoost')) val = Math.round(val * 1.1);
+    const ab = getAchievementBonuses();
+    if (ab.goldPct > 0) val = Math.round(val * (1 + ab.goldPct / 100));
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' gold', color: '#d97706' };
   }
@@ -1107,6 +1114,29 @@ function buyShopItem(category, id) {
 // ==================== ACHIEVEMENTS ====================
 let toastTimeout = null;
 
+function grantAchievementReward(a) {
+  if (!a.reward) return;
+  const r = a.reward;
+  if (r.type === 'maxH')       { G.maxH += r.val; G.hammers = Math.min(G.maxH, G.hammers + r.val); }
+  if (r.type === 'gold')       { G.gold += r.val; G.totalGold += r.val; }
+  if (r.type === 'feathers')   { G.feathers += r.val; G.totalFeathers += r.val; }
+  if (r.type === 'starPieces') { G.starPieces += r.val; G.totalStarPieces += r.val; }
+  // goldPct, itemPct, starPct are passive — applied in getAchievementBonuses()
+}
+
+// Sum all percentage bonuses from unlocked achievements
+function getAchievementBonuses() {
+  let goldPct = 0, itemPct = 0, starPct = 0;
+  for (const id of G.achieved) {
+    const a = ACHIEVEMENT_DATA.find(a => a.id === id);
+    if (!a || !a.reward) continue;
+    if (a.reward.type === 'goldPct') goldPct += a.reward.val;
+    if (a.reward.type === 'itemPct') itemPct += a.reward.val;
+    if (a.reward.type === 'starPct') starPct += a.reward.val;
+  }
+  return { goldPct, itemPct, starPct };
+}
+
 function checkAchievements() {
   const checks = {
     // Eggs smashed
@@ -1191,6 +1221,7 @@ function checkAchievements() {
     const fn = checks[a.id];
     if (fn && fn()) {
       G.achieved.push(a.id);
+      grantAchievementReward(a);
       showAchieveToast(a);
       SFX.play('achieve');
     }
@@ -1201,7 +1232,7 @@ function showAchieveToast(a) {
   const t = $id('toast-achieve');
   $id('toast-icon').textContent = a.icon;
   $id('toast-name').textContent = a.name;
-  $id('toast-desc').textContent = a.desc;
+  $id('toast-desc').textContent = a.desc + (a.reward ? ' — ' + a.reward.label : '');
   t.classList.remove('hidden');
   // Force reflow
   void t.offsetWidth;
@@ -1569,10 +1600,13 @@ function renderStats() {
     const unlocked = G.achieved.includes(a.id);
     const card = document.createElement('div');
     card.className = 'achieve-card ' + (unlocked ? 'unlocked' : 'locked');
+    const rewardLabel = a.reward ? a.reward.label : '';
     card.innerHTML =
       '<span class="a-icon">' + a.icon + '</span>' +
       '<div><span class="a-name">' + a.name + '</span><br>' +
-      '<span class="a-desc">' + a.desc + '</span></div>';
+      '<span class="a-desc">' + a.desc + '</span>' +
+      (rewardLabel ? '<br><span class="a-reward">' + rewardLabel + '</span>' : '') +
+      '</div>';
     grid.appendChild(card);
   });
 }

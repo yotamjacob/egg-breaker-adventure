@@ -514,6 +514,7 @@ body{
 .achieve-card .a-icon{font-size:18px}
 .achieve-card .a-name{font-size:9px;color:var(--white)}
 .achieve-card .a-desc{font-size:8px;color:var(--gray)}
+.achieve-card .a-reward{font-size:7px;color:var(--green)}
 .reset-btn{
   width:100%;padding:10px;border:2px solid var(--red);border-radius:2px;
   background:var(--dark);color:var(--red);font-size:9px;font-family:var(--px);
