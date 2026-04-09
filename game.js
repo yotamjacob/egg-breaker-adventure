@@ -598,6 +598,9 @@ function smashEgg(index) {
   if (egg._smashing) return;
   egg._smashing = true;
 
+  // Visual confirm that smashEgg ran
+  $id('regen-txt').textContent = 'HIT egg ' + index + ' hp:' + egg.hp;
+
   // Each hit costs 1 hammer
   if (G.hammers < 1) {
     egg._smashing = false;
