@@ -2087,6 +2087,5 @@ setInterval(saveGame, 15000);
     wrap.addEventListener('mouseenter', () => { hammer.style.opacity = '1'; });
   }
 
-  // Prevent double-tap zoom on egg tray
-  wrap.addEventListener('touchend', (e) => { e.preventDefault(); }, { passive: false });
+  // Double-tap zoom prevention handled by CSS touch-action:manipulation
 })();
