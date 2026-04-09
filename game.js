@@ -1382,7 +1382,27 @@ function formatNum(n) {
 }
 
 // ==================== LEXICON ====================
-const LEXICON_SECTIONS = [
+function buildLexicon() {
+  const C = CONFIG;
+  const spawnTotal = C.eggSpawnWeights.normal + C.eggSpawnWeights.silver + C.eggSpawnWeights.gold;
+  const pct = (type) => (C.eggSpawnWeights[type] / spawnTotal * 100).toFixed(0);
+  const emptyPct = (type) => {
+    const w = C.prizeWeights[type];
+    const t = Object.values(w).reduce((a,b) => a + b, 0);
+    return (w.empty / t * 100).toFixed(0);
+  };
+  const uniqueMults = [...new Set(C.multiplierValues)].sort((a,b) => a - b);
+  const pityRatio = (C.itemPityMultiplier / C.itemDuplicateMultiplier).toFixed(1);
+  const minGold = C.goldValues.gold_s[0];
+  const maxGold = C.goldValues.gold_l[1];
+  const minHammer = Math.min(...C.hammerPrizeAmounts);
+  const maxHammer = Math.max(...C.hammerPrizeAmounts);
+  const dupMin = C.duplicateGoldRange[0];
+  const dupMax = C.duplicateGoldRange[1];
+  const fMin = C.featherDropRange[0];
+  const fMax = C.featherDropRange[1];
+
+  return [
   {
     id: 'basics', icon: '📖', title: 'How to Play',
     html: () => `
@@ -1397,33 +1417,33 @@ const LEXICON_SECTIONS = [
 <p>Each hit costs <strong>1 hammer</strong>. Eggs spawn randomly each round — rarer eggs take more hits but give better prizes.</p>
 <table class="lex-table">
 <tr><th>Egg</th><th>HP</th><th>Spawn Rate</th><th>Special</th></tr>
-<tr><td>🥚 Normal</td><td class="num">1</td><td class="num">~75%</td><td>Can be empty (~12%)</td></tr>
-<tr><td>🪨 Silver</td><td class="num">2</td><td class="num">~18%</td><td>Never empty, 2x prizes, can drop bonus hammers</td></tr>
-<tr><td>🌟 Gold</td><td class="num">3</td><td class="num">~7%</td><td>Never empty, 1.5x gold, best item drop rate</td></tr>
+<tr><td>🥚 Normal</td><td class="num">${C.eggHP.normal}</td><td class="num">~${pct('normal')}%</td><td>Can be empty (~${emptyPct('normal')}%)</td></tr>
+<tr><td>🪨 Silver</td><td class="num">${C.eggHP.silver}</td><td class="num">~${pct('silver')}%</td><td>Never empty, 2x prizes, can drop bonus hammers</td></tr>
+<tr><td>🌟 Gold</td><td class="num">${C.eggHP.gold}</td><td class="num">~${pct('gold')}%</td><td>Never empty, 1.5x gold, best item drop rate</td></tr>
 </table>
-<p>You start with <strong>40 hammers</strong>. They regenerate at +1 every 30s (15s with Fast Regen from the shop). Daily login gives 40 + up to 100 bonus hammers based on your streak. Tier-ups also increase your max.</p>
+<p>You start with <strong>${C.startingHammers} hammers</strong>. They regenerate at +1 every ${C.regenInterval}s (${C.fastRegenInterval}s with Fast Regen from the shop). Daily login gives ${C.dailyBaseHammers} + up to ${C.dailyBonusCap} bonus hammers based on your streak. Tier-ups also increase your max.</p>
 `
   },
   {
     id: 'prizes', icon: '🎁', title: 'What\'s Inside',
     html: () => `
-<p><strong>Gold</strong> — main currency (5–250 base, boosted by egg type, multipliers, and equipment). Spend it in the shop.</p>
-<p><strong>Star Pieces</strong> — collect 5 to trigger <strong>Starfall</strong>, which smashes all remaining eggs for free.</p>
-<p><strong>Multipliers</strong> — x2, x3, x5, x10, or x50. Stored in a queue. Click one to activate it before your next smash — it boosts gold, then gets consumed. Only affects gold prizes.</p>
-<p><strong>Feathers</strong> — bonus collectible currency.</p>
-<p><strong>Collection Items</strong> — themed items for the current stage. New ones count toward completion. Duplicates convert to 10–40 gold.</p>
-<p><strong>Bonus Hammers</strong> — Silver eggs only. 2–8 free hammers.</p>
+<p><strong>Gold</strong> — main currency (${minGold}–${maxGold} base, boosted by egg type, multipliers, and equipment). Spend it in the shop.</p>
+<p><strong>Star Pieces</strong> — collect ${C.starPiecesForStarfall} to trigger <strong>Starfall</strong>, which smashes all remaining eggs for free. Normal/Gold eggs drop ${C.starPiecesPerDrop.normal}, Silver drops ${C.starPiecesPerDrop.silver}.</p>
+<p><strong>Multipliers</strong> — ${uniqueMults.map(v => 'x' + v).join(', ')}. Stored in a queue. Click one to activate it before your next smash — it boosts gold, feathers, stars, and hammers. Other prizes get bonus gold.</p>
+<p><strong>Feathers</strong> — bonus collectible currency (${fMin}–${fMax} base, doubled from silver eggs).</p>
+<p><strong>Collection Items</strong> — themed items for the current stage. New ones count toward completion. Duplicates convert to ${dupMin}–${dupMax} gold.</p>
+<p><strong>Bonus Hammers</strong> — Silver eggs only. ${minHammer}–${maxHammer} free hammers.</p>
 `
   },
   {
     id: 'progress', icon: '📚', title: 'Stages & Collections',
     html: () => `
-<p>Each monkey has <strong>9 stages</strong>. Each stage has a themed collection of 5–8 items in three rarities (Common, Uncommon, Rare). A <strong>pity system</strong> makes uncollected items ~7x more likely to drop.</p>
+<p>Each monkey has <strong>${MONKEY_DATA[0].stages.length} stages</strong>. Each stage has a themed collection of items in three rarities (Common, Uncommon, Rare). A <strong>pity system</strong> makes uncollected items ~${pityRatio}x more likely to drop.</p>
 <table class="lex-table">
 <tr><th>Tier</th><th>Collect</th><th>Reward</th></tr>
-<tr><td class="hl">Bronze → Silver</td><td class="num">50%</td><td>+5 max hammers</td></tr>
-<tr><td class="hl">Silver → Gold</td><td class="num">75%</td><td>+10 max hammers</td></tr>
-<tr><td class="hl">Gold (done)</td><td class="num">100%</td><td>+1 Crystal Banana, next stage</td></tr>
+<tr><td class="hl">Bronze → Silver</td><td class="num">${Math.round(C.tierThresholds.bronze * 100)}%</td><td>+${C.tierRewards.silver.maxHammers} max hammers</td></tr>
+<tr><td class="hl">Silver → Gold</td><td class="num">${Math.round(C.tierThresholds.silver * 100)}%</td><td>+${C.tierRewards.gold.maxHammers} max hammers</td></tr>
+<tr><td class="hl">Gold (done)</td><td class="num">${Math.round(C.tierThresholds.gold * 100)}%</td><td>+${C.crystalBananasPerStage} Crystal Banana, next stage</td></tr>
 </table>
 <p>Later stages have more eggs per round (up to 7) but also more items to find.</p>
 `
@@ -1437,7 +1457,7 @@ const LEXICON_SECTIONS = [
           (m.cost === 0 ? 'Free' : m.cost + ' 🍌') + '</td><td>' + m.perkDesc + '</td></tr>';
       });
       return `
-<p>Each monkey is a separate adventure with 9 stages. Unlock new ones with Crystal Bananas (1 per completed stage). Perks stack with equipment.</p>
+<p>Each monkey is a separate adventure with ${MONKEY_DATA[0].stages.length} stages. Unlock new ones with Crystal Bananas (${C.crystalBananasPerStage} per completed stage). Perks stack with equipment.</p>
 <table class="lex-table">
 <tr><th>Monkey</th><th>Cost</th><th>Perk</th></tr>
 ${rows}
@@ -1447,29 +1467,41 @@ ${rows}
   },
   {
     id: 'shop', icon: '🛒', title: 'Shop',
-    html: () => `
-<p><strong>Hammers</strong> — permanent equipment, one equipped at a time. Effects range from fewer empties (Bat, 8K gold) to +20% gold (Golden, 50K gold) to +10% items (Rainbow, 100K gold).</p>
-<p><strong>Hats</strong> — permanent, one equipped. 10% free eggs (Chef, 10K), +10% gold (Crown, 20K), +10% stars (Wizard, 30K), +15% items (Pirate, 80K).</p>
-<p><strong>Supplies</strong> — consumables: hammer packs (200–700 gold), star pieces (2K), multipliers (3K), +5 max hammers (5K), fast regen (10K, one-time).</p>
+    html: () => {
+      let hRows = '';
+      SHOP_HAMMERS.forEach(h => { if (h.cost > 0) hRows += '<tr><td>' + h.emoji + ' ' + h.name + '</td><td class="num">' + formatNum(h.cost) + '</td><td>' + h.desc + '</td></tr>'; });
+      let hatRows = '';
+      SHOP_HATS.forEach(h => { if (h.cost > 0) hatRows += '<tr><td>' + h.emoji + ' ' + h.name + '</td><td class="num">' + formatNum(h.cost) + '</td><td>' + h.desc + '</td></tr>'; });
+      return `
+<p><strong>Hammers</strong> — permanent, one equipped. Click to equip/unequip.</p>
+<table class="lex-table"><tr><th>Hammer</th><th>Cost</th><th>Effect</th></tr>${hRows}</table>
+<p><strong>Hats</strong> — permanent, one equipped. Click to equip/unequip.</p>
+<table class="lex-table"><tr><th>Hat</th><th>Cost</th><th>Effect</th></tr>${hatRows}</table>
+<p><strong>Supplies</strong> — consumables: hammer packs, star pieces (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='star1').cost)}), multipliers (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='mult5').cost)}), +5 hammer cap (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='maxhammers').cost)}), fast regen (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='fastregen').cost)}, one-time).</p>
 <p>All bonuses stack multiplicatively with each other and monkey perks.</p>
-`
+`;
+    }
   },
   {
     id: 'tips', icon: '🧠', title: 'Quick Tips',
-    html: () => `
-<p><strong>Early on:</strong> use Normal eggs, claim dailies, let hammers regen naturally.</p>
-<p><strong>Mid game:</strong> switch to Silver eggs — no empties plus bonus hammer drops make them self-sustaining.</p>
-<p><strong>Late game:</strong> Gold eggs + saved multipliers = massive gold. Starfall on a 7-egg Gold round is the ultimate move.</p>
-<p><strong>Save x50 multipliers</strong> for Gold egg large-gold rolls. One lucky hit can net 30,000+ gold.</p>
+    html: () => {
+      const bigMult = Math.max(...C.multiplierValues);
+      return `
+<p><strong>Early on:</strong> smash Normal eggs, claim dailies, let hammers regen naturally.</p>
+<p><strong>Mid game:</strong> Silver eggs can't be empty and drop bonus hammers — self-sustaining once you have enough.</p>
+<p><strong>Late game:</strong> Gold eggs + saved multipliers = massive rewards. Starfall on a late-stage round is the ultimate move.</p>
+<p><strong>Save x${bigMult} multipliers</strong> for Gold egg large-gold rolls (${C.goldValues.gold_l[0]}–${C.goldValues.gold_l[1]} base). One lucky hit can net huge gold.</p>
 <p><strong>Best builds:</strong> Princess + Golden Hammer + Crown for gold farming. Space Cadette + Rainbow + Pirate for fast collection completion.</p>
-`
+`;
+    }
   },
-];
+  ];
+}
 
 function renderLexicon() {
   const content = $id('lex-content');
   content.innerHTML = '';
-  LEXICON_SECTIONS.forEach(sec => {
+  buildLexicon().forEach(sec => {
     const section = document.createElement('div');
     section.className = 'lex-section';
     section.innerHTML =
