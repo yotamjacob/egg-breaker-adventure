@@ -381,13 +381,11 @@ function renderEggTray() {
   G.roundEggs.forEach((egg, i) => {
     const slot = document.createElement('div');
     slot.className = 'egg-slot' + (egg.broken ? ' broken' : '') + (egg.type === 'gold' ? ' gold-egg' : '');
+    slot.dataset.eggIdx = i;
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, egg.broken ? egg.maxHp : damage) +
       '<span class="egg-label">' + egg.type +
       (egg.broken ? '' : ' ' + egg.hp + '/' + egg.maxHp) + '</span>';
-    if (!egg.broken) {
-      slot.addEventListener('click', () => smashEgg(i));
-    }
     tray.appendChild(slot);
   });
 }
@@ -641,8 +639,7 @@ function smashEgg(index) {
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, damage) +
       '<span class="egg-label">' + egg.type + ' ' + egg.hp + '/' + egg.maxHp + '</span>';
-    // Re-attach handler (innerHTML wipes it)
-    slot.addEventListener('click', () => smashEgg(index));
+    // data-eggIdx preserved on slot div, delegation handles the rest
     setTimeout(() => { egg._smashing = false; }, 300);
     updateResources();
     saveGame();
@@ -2064,6 +2061,14 @@ $id('stage-bar').addEventListener('click', () => {
 
 // Auto-save
 setInterval(saveGame, 15000);
+
+// Egg tray — event delegation via pointerdown (instant on touch + mouse)
+$id('egg-tray').addEventListener('pointerdown', (e) => {
+  const slot = e.target.closest('.egg-slot');
+  if (!slot || slot.classList.contains('broken')) return;
+  const idx = parseInt(slot.dataset.eggIdx);
+  if (!isNaN(idx)) smashEgg(idx);
+});
 
 // Hammer follows mouse (desktop only) + touch support
 (() => {
