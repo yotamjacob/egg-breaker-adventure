@@ -2,8 +2,6 @@
 //  Egg Breaker Adventures – Game Engine
 //  game.js  (requires data.js loaded first)
 // ============================================================
-try { _dbg('game.js executing...'); } catch(e) {}
-try {
 
 // ==================== AUDIO ====================
 const SFX = (() => {
@@ -395,8 +393,8 @@ function renderEggTray() {
       '<span class="egg-label">' + egg.type +
       (egg.broken ? '' : ' ' + egg.hp + '/' + egg.maxHp) + '</span>';
     if (!egg.broken) {
-      slot.onclick = function() { if(window._dbg) _dbg('onclick ' + i); smashEgg(i); };
-      slot.ontouchend = function(e) { e.preventDefault(); if(window._dbg) _dbg('ontouchend ' + i); smashEgg(i); };
+      slot.onclick = function() { smashEgg(i); };
+      slot.ontouchend = function(e) { e.preventDefault(); smashEgg(i); };
     }
     tray.appendChild(slot);
   });
@@ -595,14 +593,10 @@ function noHammerMsg() {
 
 // ==================== SMASH EGG ====================
 function smashEgg(index) {
-  if (window._dbg) _dbg('smashEgg(' + index + ') called');
-  try {
-  if (!G.roundEggs) { msg('ERR: no eggs', '#ef4444'); return; }
-  if (G.roundEggs[index].broken) { msg('ERR: already broken', '#ef4444'); return; }
+  if (!G.roundEggs || G.roundEggs[index].broken) return;
   const egg = G.roundEggs[index];
-  if (egg._smashing) { msg('ERR: locked', '#ef4444'); return; }
+  if (egg._smashing) return;
   egg._smashing = true;
-  if (window._dbg) _dbg('smashing egg ' + index + ' hp:' + egg.hp);
 
   // Each hit costs 1 hammer
   if (G.hammers < 1) {
@@ -699,7 +693,6 @@ function smashEgg(index) {
     updateStageBar();
     saveGame();
   }, 250);
-  } catch(err) { msg('ERR: ' + err.message, '#ef4444'); }
 }
 
 function applyPrize(prize, cx, cy) {
@@ -2079,16 +2072,6 @@ $id('stage-bar').addEventListener('click', () => {
 // Auto-save
 setInterval(saveGame, 15000);
 
-// DEBUG: catch ALL touch/click events at document level
-document.addEventListener('touchstart', function(e) {
-  var t = e.target;
-  _dbg('TOUCH: ' + t.tagName + ' id=' + (t.id||'') + ' class=' + (t.className||'').substring(0,30));
-}, true);
-document.addEventListener('click', function(e) {
-  var t = e.target;
-  _dbg('CLICK: ' + t.tagName + ' id=' + (t.id||'') + ' class=' + (t.className||'').substring(0,30));
-}, true);
-_dbg('listeners ready - tap an egg');
 
 
 // Hammer follows mouse (desktop only, hidden on touch via CSS)
@@ -2115,4 +2098,3 @@ _dbg('listeners ready - tap an egg');
 
   // Double-tap zoom prevention handled by CSS touch-action:manipulation
 })();
-} catch(e) { _dbg('CRASH: ' + e.message + ' at ' + (e.stack||'').split('\n')[1]); }
