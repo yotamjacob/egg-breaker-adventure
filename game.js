@@ -31,18 +31,19 @@ const SFX = (() => {
   function play(n) {
     if (!on) return;
     try {
-      if (n === 'hit')     { noise(.12, .25); tone(180, .08, .15, 'square'); }
-      if (n === 'coin')    { tone(880, .1, .12); setTimeout(() => tone(1320, .15, .1), 60); }
-      if (n === 'gem')     { tone(1200, .08, .1); setTimeout(() => tone(1600, .08, .08), 50); setTimeout(() => tone(2000, .2, .06), 100); }
-      if (n === 'star')    { tone(700, .1, .1); setTimeout(() => tone(1050, .12, .08), 70); setTimeout(() => tone(1400, .15, .06), 140); }
-      if (n === 'item')    { [0,80,160].forEach((t, i) => setTimeout(() => tone(600 + i * 200, .15, .1), t)); }
-      if (n === 'empty')   { tone(150, .15, .1, 'triangle'); }
-      if (n === 'starfall'){ [0,60,120,180,240,300].forEach((t, i) => setTimeout(() => tone(440 * Math.pow(2, i / 5), .2, .1), t)); }
-      if (n === 'levelup') { [0,100,200,300].forEach((t, i) => setTimeout(() => tone(523 * Math.pow(2, i / 4), .25, .1), t)); }
-      if (n === 'achieve') { tone(880, .15, .1); setTimeout(() => tone(1100, .15, .1), 100); setTimeout(() => tone(1320, .25, .08), 200); }
-      if (n === 'buy')     { tone(500, .08, .1); setTimeout(() => tone(700, .12, .08), 60); }
-      if (n === 'err')     { tone(200, .15, .1, 'square'); }
-      if (n === 'tier')    { [0,80,160,240,320].forEach((t, i) => setTimeout(() => tone(523 * Math.pow(2, i / 6), .2, .1), t)); }
+      // 16-bit chiptune style: square & triangle waves
+      if (n === 'hit')     { noise(.08, .2); tone(220, .06, .15, 'square'); tone(110, .04, .1, 'square'); }
+      if (n === 'coin')    { tone(988, .08, .12, 'square'); setTimeout(() => tone(1319, .1, .1, 'square'), 50); }
+      if (n === 'gem')     { tone(1047, .06, .1, 'square'); setTimeout(() => tone(1319, .06, .08, 'square'), 40); setTimeout(() => tone(1568, .12, .07, 'triangle'), 80); }
+      if (n === 'star')    { tone(784, .08, .1, 'square'); setTimeout(() => tone(988, .08, .08, 'square'), 60); setTimeout(() => tone(1319, .12, .07, 'triangle'), 120); }
+      if (n === 'item')    { [0,70,140].forEach((t, i) => setTimeout(() => tone(523 + i * 262, .1, .1, 'square'), t)); }
+      if (n === 'empty')   { tone(165, .12, .1, 'square'); setTimeout(() => tone(131, .1, .08, 'square'), 60); }
+      if (n === 'starfall'){ [0,50,100,150,200,250].forEach((t, i) => setTimeout(() => tone(440 * Math.pow(2, i / 5), .15, .1, 'square'), t)); }
+      if (n === 'levelup') { [0,80,160,240].forEach((t, i) => setTimeout(() => tone(523 * Math.pow(2, i / 4), .18, .1, 'square'), t)); }
+      if (n === 'achieve') { tone(880, .1, .1, 'square'); setTimeout(() => tone(1047, .1, .09, 'square'), 80); setTimeout(() => tone(1319, .15, .08, 'triangle'), 160); }
+      if (n === 'buy')     { tone(523, .06, .1, 'square'); setTimeout(() => tone(659, .08, .08, 'square'), 50); }
+      if (n === 'err')     { tone(196, .1, .12, 'square'); setTimeout(() => tone(165, .08, .1, 'square'), 60); }
+      if (n === 'tier')    { [0,70,140,210,280].forEach((t, i) => setTimeout(() => tone(523 * Math.pow(2, i / 6), .15, .1, 'square'), t)); }
     } catch (_) {}
   }
   return { play, toggle() { on = !on; return on; }, isOn() { return on; } };
@@ -52,9 +53,9 @@ const SFX = (() => {
 const Particles = (() => {
   let canvas, ctx, ps = [], running = false;
   const COLORS = {
-    normal: ['#FEF9F0','#F5E6C8','#E8D5A8','#D4C090'],
-    silver: ['#E8E8E8','#D0D0D0','#B8B8B8'],
-    gold:   ['#FEFCE8','#FDE68A','#FCD34D','#F59E0B'],
+    normal: ['#ffe8b0','#e8c878','#d4a840','#c09028'],
+    silver: ['#c8d8e8','#a0b8c8','#88a0b0','#6888a0'],
+    gold:   ['#FFD700','#FFA500','#FF8C00','#DAA520'],
   };
   function init(c) { canvas = c; ctx = c.getContext('2d'); resize(); window.addEventListener('resize', resize); }
   function resize() {
@@ -108,21 +109,18 @@ const Particles = (() => {
       ctx.translate(p.x, p.y); ctx.rotate(p.rot);
       ctx.fillStyle = p.col;
       if (p.sh === 'shell') {
-        const s = p.sz;
-        ctx.beginPath();
-        ctx.moveTo(-s, -s * .6); ctx.lineTo(s * .7, -s * .4);
-        ctx.lineTo(s * .4, s * .7); ctx.lineTo(-s * .3, s * .5);
-        ctx.closePath(); ctx.fill();
+        // Pixel-art: draw as small squares
+        const s = Math.round(p.sz);
+        ctx.fillRect(-s, -s, s * 2, s * 2);
+        // Dark pixel border
+        ctx.fillStyle = 'rgba(0,0,0,.25)';
+        ctx.fillRect(-s, s, s * 2, 1);
+        ctx.fillRect(s, -s, 1, s * 2);
       } else {
-        const s = p.sz;
-        ctx.beginPath();
-        for (let j = 0; j < 5; j++) {
-          const a2 = (j * 4 * Math.PI) / 5 - Math.PI / 2;
-          const r2 = j % 2 === 0 ? s : s * .4;
-          j === 0 ? ctx.moveTo(Math.cos(a2) * r2, Math.sin(a2) * r2)
-                   : ctx.lineTo(Math.cos(a2) * r2, Math.sin(a2) * r2);
-        }
-        ctx.closePath(); ctx.fill();
+        // Pixel-art sparkle: cross/plus shape
+        const s = Math.round(p.sz);
+        ctx.fillRect(-1, -s, 2, s * 2); // vertical
+        ctx.fillRect(-s, -1, s * 2, 2); // horizontal
       }
       ctx.restore();
     }
@@ -318,22 +316,44 @@ function newRound() {
   saveGame();
 }
 
-// ==================== EGG RENDERING ====================
+// ==================== EGG RENDERING (16-bit pixel style) ====================
 function makeEggSVG(type, broken) {
   const colors = {
-    normal: { f: '#FEF9F0', s: '#D4A853' },
-    silver: { f: '#E8E8E8', s: '#9CA3AF' },
-    gold:   { f: '#FEFCE8', s: '#EAB308' },
+    normal: { f: '#FEF9F0', s: '#D4A853', h: '#fff8e0', sh: '#b8922e' },
+    silver: { f: '#d8dde3', s: '#8899aa', h: '#eceff2', sh: '#667788' },
+    gold:   { f: '#FFD700', s: '#B8860B', h: '#ffe44d', sh: '#8B6508' },
   };
   const c = colors[type] || colors.normal;
-  const crack = broken ? `<g>
-    <path d="M40 12 L35 28 L42 40 L33 58" stroke="#7A4010" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M52 25 L45 40 L50 55" stroke="#7A4010" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  </g>` : '';
-  return `<svg width="72" height="90" viewBox="0 0 80 100">
-    <ellipse cx="40" cy="90" rx="22" ry="5" fill="rgba(0,0,0,.06)"/>
-    <ellipse cx="40" cy="55" rx="30" ry="40" fill="${c.f}" stroke="${c.s}" stroke-width="2.5"/>
-    <ellipse cx="30" cy="35" rx="8" ry="12" fill="white" opacity=".25"/>
+  // Pixel-art egg shape using rects to simulate chunky pixels
+  const crack = broken ? `
+    <rect x="36" y="20" width="3" height="3" fill="#5a3010"/>
+    <rect x="33" y="23" width="3" height="3" fill="#5a3010"/>
+    <rect x="36" y="26" width="3" height="3" fill="#5a3010"/>
+    <rect x="39" y="29" width="3" height="3" fill="#5a3010"/>
+    <rect x="36" y="32" width="3" height="3" fill="#5a3010"/>
+    <rect x="33" y="35" width="3" height="3" fill="#5a3010"/>
+    <rect x="48" y="28" width="3" height="3" fill="#5a3010"/>
+    <rect x="45" y="31" width="3" height="3" fill="#5a3010"/>
+    <rect x="48" y="34" width="3" height="3" fill="#5a3010"/>
+    <rect x="45" y="37" width="3" height="3" fill="#5a3010"/>
+    <rect x="24" y="40" width="3" height="3" fill="#5a3010"/>
+    <rect x="27" y="43" width="3" height="3" fill="#5a3010"/>
+    <rect x="24" y="46" width="3" height="3" fill="#5a3010"/>` : '';
+  // Highlight stripe for 16-bit shading
+  const highlight = `
+    <rect x="26" y="22" width="3" height="18" fill="${c.h}" opacity=".5"/>
+    <rect x="29" y="19" width="3" height="12" fill="${c.h}" opacity=".35"/>`;
+  return `<svg width="72" height="88" viewBox="0 0 80 96" shape-rendering="crispEdges">
+    <!-- Shadow -->
+    <ellipse cx="40" cy="90" rx="18" ry="4" fill="rgba(0,0,0,.25)"/>
+    <!-- Egg body - chunky outline -->
+    <ellipse cx="40" cy="50" rx="26" ry="35" fill="${c.s}" />
+    <ellipse cx="40" cy="50" rx="23" ry="32" fill="${c.f}" />
+    <!-- Top specular -->
+    <ellipse cx="40" cy="34" rx="16" ry="10" fill="${c.h}" opacity=".25"/>
+    ${highlight}
+    <!-- Bottom shadow -->
+    <ellipse cx="40" cy="68" rx="18" ry="8" fill="${c.sh}" opacity=".2"/>
     ${crack}
   </svg>`;
 }
@@ -342,7 +362,7 @@ function renderEggTray() {
   const tray = $id('egg-tray');
   tray.innerHTML = '';
   if (!G.roundEggs || G.roundEggs.length === 0) {
-    tray.innerHTML = '<p style="color:#78716c;font-size:13px;padding:40px 0">Press <strong>New Round</strong> to start!</p>';
+    tray.innerHTML = '<p style="color:var(--gray);font-size:8px;padding:40px 0;font-family:var(--px)">Press <strong style=\'color:var(--gold)\'>New Round</strong> to start!</p>';
     return;
   }
   G.roundEggs.forEach((egg, i) => {
