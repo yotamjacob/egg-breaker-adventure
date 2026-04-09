@@ -302,6 +302,7 @@ body{
   touch-action:manipulation;
   user-select:none;-webkit-user-select:none;
 }
+.egg-slot svg,.egg-slot svg *,.egg-slot .egg-label{pointer-events:none}
 .egg-slot:hover:not(.broken){transform:translateY(-4px)}
 .egg-slot.broken{opacity:.35;cursor:default;filter:grayscale(.4)}
 .egg-slot.smashing{animation:egg-smash-retro .35s steps(6)}
