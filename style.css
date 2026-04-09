@@ -589,6 +589,7 @@ body{
 .toast.hidden{display:none}
 .toast span:first-child{font-size:20px}
 .toast strong{color:var(--gold)}
+#toast-header{color:var(--amber);font-size:7px;letter-spacing:1px;text-transform:uppercase}
 .toast small{color:var(--gray);font-size:8px}
 
 /* ---------- Prize floats ---------- */

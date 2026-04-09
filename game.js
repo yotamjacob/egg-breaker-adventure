@@ -1108,7 +1108,7 @@ function showAchieveToast(a) {
   toastTimeout = setTimeout(() => {
     t.classList.remove('show');
     setTimeout(() => t.classList.add('hidden'), 400);
-  }, 3000);
+  }, 5000);
 }
 
 // ==================== SOUND ====================
