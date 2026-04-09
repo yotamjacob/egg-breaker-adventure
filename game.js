@@ -362,7 +362,7 @@ function renderEggTray() {
   const tray = $id('egg-tray');
   tray.innerHTML = '';
   if (!G.roundEggs || G.roundEggs.length === 0) {
-    tray.innerHTML = '<p style="color:var(--gray);font-size:8px;padding:40px 0;font-family:var(--px)">Press <strong style=\'color:var(--gold)\'>New Round</strong> to start!</p>';
+    tray.innerHTML = '<p style="color:var(--gray);font-size:8px;padding:40px 0;font-family:var(--px)">Press <strong style=\'color:var(--gold)\'>Refresh Eggs</strong> to start!</p>';
     return;
   }
   G.roundEggs.forEach((egg, i) => {
@@ -1293,7 +1293,7 @@ const LEXICON_SECTIONS = [
     id: 'basics', icon: '📖', title: 'How to Play',
     html: () => `
 <p>Smash eggs, win prizes, complete collections. Each round gives you 3–7 eggs — click one to break it with a hammer. Collect themed items to clear stages, earn Crystal Bananas, and unlock new monkeys.</p>
-<p><strong>Keys:</strong> Space/Enter = smash, R = new round, Ctrl+S = starfall.</p>
+<p><strong>Keys:</strong> Space/Enter = smash, R = refresh eggs, Ctrl+S = starfall.</p>
 <p>Progress auto-saves to your browser.</p>
 `
   },
