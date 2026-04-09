@@ -709,11 +709,17 @@ body{
 
 /* ---------- Responsive ---------- */
 /* ---------- Touch devices ---------- */
-@media(hover:none){
-  /* Hide hammer cursor on touch — use tap feedback instead */
+@media(hover:none),(pointer:coarse){
+  /* Hide hammer cursor on touch */
   #hammer{display:none!important}
-  .egg-tray-wrap{cursor:pointer}
-  .egg-slot{cursor:pointer}
+  .egg-tray-wrap{cursor:auto}
+  .egg-slot{cursor:auto}
+  /* Remove glow overlay that blocks touch */
+  .egg-slot:not(.broken)::after{display:none}
+  .egg-slot.gold-egg:not(.broken)::after{display:none}
+  /* Ensure nothing blocks taps */
+  #particle-canvas{z-index:-1}
+  #prize-zone{z-index:-1}
   /* Tooltips: show on tap via :active */
   .res[data-tip]::before,.res[data-tip]::after,
   .shop-card[data-tip]::before,

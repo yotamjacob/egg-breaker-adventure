@@ -2062,13 +2062,28 @@ $id('stage-bar').addEventListener('click', () => {
 // Auto-save
 setInterval(saveGame, 15000);
 
-// Egg tray — event delegation via pointerdown (instant on touch + mouse)
-$id('egg-tray').addEventListener('pointerdown', (e) => {
-  const slot = e.target.closest('.egg-slot');
-  if (!slot || slot.classList.contains('broken')) return;
-  const idx = parseInt(slot.dataset.eggIdx);
-  if (!isNaN(idx)) smashEgg(idx);
-});
+// Egg tray — event delegation for both touch and mouse
+(() => {
+  const tray = $id('egg-tray');
+  let touchHandled = false;
+
+  function handleTap(e) {
+    const slot = e.target.closest('.egg-slot');
+    if (!slot || slot.classList.contains('broken')) return;
+    const idx = parseInt(slot.dataset.eggIdx);
+    if (!isNaN(idx)) smashEgg(idx);
+  }
+
+  tray.addEventListener('touchstart', (e) => {
+    touchHandled = true;
+    handleTap(e);
+  }, { passive: true });
+
+  tray.addEventListener('click', (e) => {
+    if (touchHandled) { touchHandled = false; return; }
+    handleTap(e);
+  });
+})();
 
 // Hammer follows mouse (desktop only) + touch support
 (() => {
