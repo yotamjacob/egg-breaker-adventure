@@ -394,7 +394,6 @@ function renderEggTray() {
       (egg.broken ? '' : ' ' + egg.hp + '/' + egg.maxHp) + '</span>';
     if (!egg.broken) {
       slot.onclick = function() { smashEgg(i); };
-      slot.ontouchend = function(e) { e.preventDefault(); smashEgg(i); };
     }
     tray.appendChild(slot);
   });

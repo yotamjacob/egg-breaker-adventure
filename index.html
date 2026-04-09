@@ -174,6 +174,14 @@
 
   </div>
 
+  <div id="dbg" style="position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font:11px monospace;padding:6px;z-index:99999;max-height:100px;overflow-y:auto;white-space:pre-wrap">...</div>
+  <script>
+    var _d=document.getElementById('dbg'),_dl=[];
+    window._dbg=function(s){_dl.push(s);if(_dl.length>6)_dl.shift();_d.textContent=_dl.join('\n');};
+    window.onerror=function(m,f,l){_dbg('ERR:'+m+' @'+l);return true;};
+    document.addEventListener('touchstart',function(e){_dbg('touch:'+e.target.tagName+'#'+(e.target.id||''));},true);
+    _dbg('ready');
+  </script>
   <script src="config.js"></script>
   <script src="data.js"></script>
   <script src="game.js"></script>
