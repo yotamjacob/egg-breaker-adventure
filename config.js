@@ -14,9 +14,9 @@ const CONFIG = {
   //    A "normal:75, silver:18, gold:7" means ~75% normal, ~18% silver, ~7% gold.
   // ----------------------------------------------------------
   eggSpawnWeights: {
-    normal: 75,
-    silver: 18,
-    gold:   7,
+    normal: 80,
+    silver: 15,
+    gold:   5,
   },
 
   // HP per egg type (hits to break)
@@ -35,9 +35,9 @@ const CONFIG = {
   //           feather, item, hammers
   // ----------------------------------------------------------
   prizeWeights: {
-    normal: { empty:12, gold_s:22, gold_m:13, gold_l:5,  star:8,  mult:7,  feather:10, item:23, hammers:0 },
-    silver: { empty:0,  gold_s:10, gold_m:18, gold_l:12, star:10, mult:10, feather:10, item:22, hammers:8 },
-    gold:   { empty:0,  gold_s:0,  gold_m:15, gold_l:20, star:12, mult:10, feather:8,  item:28, hammers:7 },
+    normal: { empty:12, gold_s:22, gold_m:13, gold_l:5,  star:8,  mult:7,  feather:10, item:15, hammers:0 },
+    silver: { empty:0,  gold_s:10, gold_m:18, gold_l:12, star:10, mult:10, feather:10, item:20, hammers:8 },
+    gold:   { empty:0,  gold_s:0,  gold_m:15, gold_l:20, star:12, mult:10, feather:8,  item:25, hammers:7 },
   },
 
   // ----------------------------------------------------------
@@ -67,7 +67,7 @@ const CONFIG = {
   //    Base amount is random in [min, max], then multiplied
   //    by 2 for silver eggs.
   // ----------------------------------------------------------
-  featherDropRange: [1, 4],   // base range (before silver 2x)
+  featherDropRange: [1, 2],   // base range (before silver 2x)
 
   // ----------------------------------------------------------
   // 6. MULTIPLIER VALUES
@@ -75,7 +75,7 @@ const CONFIG = {
   //    array make that value more common.
   //    e.g. two 2's and two 3's = 25% each, one 50 = 12.5%
   // ----------------------------------------------------------
-  multiplierValues: [2, 2, 3, 3, 5, 5, 10, 50],
+  multiplierValues: [2, 2, 2, 2, 3, 3, 3, 5, 5, 10, 50],
 
   // ----------------------------------------------------------
   // 7. HAMMER PRIZES (from silver eggs only)
@@ -89,18 +89,18 @@ const CONFIG = {
   //    These control rarity weights within the item roll.
   // ----------------------------------------------------------
   itemRarityWeights: {
-    common:   10,   // rarity 1
+    common:   15,   // rarity 1
     uncommon: 5,    // rarity 2
-    rare:     2,    // rarity 3
+    rare:     1,    // rarity 3
   },
 
-  // Pity system: uncollected items get boosted, collected get reduced
-  itemPityMultiplier:      2.0,   // weight x this if NOT yet collected
-  itemDuplicateMultiplier: 0.3,   // weight x this if already collected
-  // (effective boost: pity / duplicate = ~6.67x more likely for missing items)
+  // Pity system: uncollected items get a slight nudge, collected are slightly reduced
+  itemPityMultiplier:      1.2,   // weight x this if NOT yet collected
+  itemDuplicateMultiplier: 0.8,   // weight x this if already collected
+  // (effective boost: pity / duplicate = 1.5x more likely for missing items)
 
   // Gold given when you roll a duplicate item
-  duplicateGoldRange: [10, 40],   // [min, max]
+  duplicateGoldRange: [10, 50],   // [min, max]
 
   // ----------------------------------------------------------
   // 9. CRYSTAL BANANAS
