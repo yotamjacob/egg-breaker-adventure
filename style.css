@@ -96,6 +96,18 @@ body{
 .icon-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dark)}
 .icon-btn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--dark)}
 
+.god-btn{
+  background:var(--red);color:var(--white);border:2px solid #7f1d1d;
+  border-radius:2px;padding:4px 8px;font-size:7px;font-family:var(--px);
+  cursor:pointer;box-shadow:2px 2px 0 var(--dark);
+  transition:transform .08s;letter-spacing:1px;
+  animation:god-pulse 1s steps(2) infinite;
+}
+.god-btn:hover{transform:translate(-1px,-1px)}
+.god-btn:active{transform:translate(2px,2px);box-shadow:0 0 0 transparent}
+.god-btn.hidden{display:none}
+@keyframes god-pulse{0%,100%{box-shadow:2px 2px 0 var(--dark)}50%{box-shadow:2px 2px 0 var(--dark),0 0 8px rgba(231,76,60,.5)}}
+
 .resource-bar{display:flex;gap:4px;justify-content:space-between}
 .res{
   display:flex;align-items:center;gap:3px;

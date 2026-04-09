@@ -1761,6 +1761,29 @@ function updateHammerSVG() {
   $id('hammer').innerHTML = makeHammerSVG(G.hammer);
 }
 
+// ==================== GOD MODE ====================
+(() => {
+  let taps = 0, lastTap = 0;
+  $id('monkey-avatar').addEventListener('click', () => {
+    const now = Date.now();
+    if (now - lastTap > 800) taps = 0;
+    lastTap = now;
+    taps++;
+    if (taps >= 10) {
+      $id('god-btn').classList.toggle('hidden');
+      taps = 0;
+    }
+  });
+})();
+
+function godMode() {
+  G.hammers = G.maxH;
+  msg('Hammers refilled!', '#e74c3c');
+  SFX.play('tier');
+  updateResources();
+  saveGame();
+}
+
 // ==================== INIT ====================
 loadGame();
 
