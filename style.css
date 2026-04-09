@@ -258,22 +258,26 @@ body{
   border:3px solid var(--gold3);
   box-shadow: inset 3px 3px 0 var(--inset), 4px 4px 0 var(--dark);
   overflow:hidden;
+  cursor:none;
 }
 #particle-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:20}
 
-/* Hammer */
+/* Hammer cursor */
 #hammer{
-  position:absolute;top:6px;left:50%;
-  transform:translateX(-50%) rotate(-40deg);
-  transform-origin:50% 0%;
-  z-index:15;width:40px;pointer-events:none;
+  position:absolute;top:0;left:0;
+  transform:rotate(-40deg);
+  transform-origin:22px 0;
+  z-index:30;width:40px;pointer-events:none;
+  opacity:0;
+  transition:opacity .1s;
 }
-.hammer-anim{animation:hammer-swing .4s steps(6) forwards}
+.egg-tray-wrap:hover #hammer{opacity:1}
+.hammer-anim{animation:hammer-swing .3s steps(5) forwards}
 @keyframes hammer-swing{
-  0%  {transform:translateX(-50%) rotate(-40deg)}
-  35% {transform:translateX(-50%) rotate(28deg)}
-  65% {transform:translateX(-50%) rotate(-14deg)}
-  100%{transform:translateX(-50%) rotate(-40deg)}
+  0%  {transform:rotate(-40deg)}
+  30% {transform:rotate(30deg)}
+  60% {transform:rotate(-15deg)}
+  100%{transform:rotate(-40deg)}
 }
 
 .egg-tray{
@@ -290,7 +294,7 @@ body{
 
 /* Individual egg */
 .egg-slot{
-  position:relative;cursor:pointer;transition:transform .08s steps(2);
+  position:relative;cursor:none;transition:transform .08s steps(2);
   display:flex;flex-direction:column;align-items:center;
 }
 .egg-slot:hover:not(.broken){transform:translateY(-4px)}

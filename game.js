@@ -1485,3 +1485,21 @@ if (G.hammers < G.maxH && !regenInt) startRegen();
 
 // Auto-save
 setInterval(saveGame, 15000);
+
+// Hammer follows mouse inside egg tray
+(() => {
+  const wrap = $id('egg-tray-wrap');
+  const hammer = $id('hammer');
+  wrap.addEventListener('mousemove', (e) => {
+    const r = wrap.getBoundingClientRect();
+    // Position hammer so the head (bottom of SVG) is at the cursor
+    hammer.style.left = (e.clientX - r.left - 20) + 'px';
+    hammer.style.top = (e.clientY - r.top - 80) + 'px';
+  });
+  wrap.addEventListener('mouseleave', () => {
+    hammer.style.opacity = '0';
+  });
+  wrap.addEventListener('mouseenter', () => {
+    hammer.style.opacity = '1';
+  });
+})();
