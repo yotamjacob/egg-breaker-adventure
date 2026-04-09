@@ -2077,15 +2077,16 @@ $id('stage-bar').addEventListener('click', () => {
 // Auto-save
 setInterval(saveGame, 15000);
 
-// DEBUG: tap event logging (debug bar created in HTML)
-(() => {
-  const tray = $id('egg-tray');
-  tray.addEventListener('touchstart', () => _dbg('tray touchstart'), true);
-  tray.addEventListener('touchend', () => _dbg('tray touchend'), true);
-  tray.addEventListener('click', () => _dbg('tray click'), true);
-  document.addEventListener('click', (e) => _dbg('doc click: ' + e.target.tagName + '.' + e.target.className.split(' ')[0]), true);
-  _dbg('event listeners attached');
-})();
+// DEBUG: catch ALL touch/click events at document level
+document.addEventListener('touchstart', function(e) {
+  var t = e.target;
+  _dbg('TOUCH: ' + t.tagName + ' id=' + (t.id||'') + ' class=' + (t.className||'').substring(0,30));
+}, true);
+document.addEventListener('click', function(e) {
+  var t = e.target;
+  _dbg('CLICK: ' + t.tagName + ' id=' + (t.id||'') + ' class=' + (t.className||'').substring(0,30));
+}, true);
+_dbg('listeners ready - tap an egg');
 
 
 // Hammer follows mouse (desktop only, hidden on touch via CSS)
