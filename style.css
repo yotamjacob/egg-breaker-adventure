@@ -402,37 +402,15 @@ body{
 .reset-btn:hover{background:#2a0a0a}
 
 /* ---------- Lexicon tab ---------- */
-.lex-search-wrap{margin-bottom:8px}
-.lex-search{
-  width:100%;padding:6px 10px;border:2px solid var(--gold3);border-radius:2px;
-  font-size:8px;font-family:var(--px);background:var(--bg);color:var(--white);
-  box-shadow:inset 1px 1px 0 var(--inset);
-}
-.lex-search:focus{outline:none;border-color:var(--gold)}
-.lex-search::placeholder{color:var(--gray)}
-
-.lex-toc{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px}
-.lex-toc-btn{
-  padding:3px 8px;border:2px solid var(--gray);border-radius:2px;
-  background:var(--panel);cursor:pointer;font-size:6px;font-family:var(--px);
-  color:var(--gray);box-shadow:1px 1px 0 var(--dark);transition:all .08s;
-}
-.lex-toc-btn:hover{border-color:var(--gold);color:var(--gold)}
-.lex-toc-btn.active{background:var(--panel2);border-color:var(--gold);color:var(--gold)}
-
-.lex-section{margin-bottom:10px;scroll-margin-top:8px}
-.lex-section.hidden{display:none}
+.lex-section{margin-bottom:10px}
 .lex-section-head{
   display:flex;align-items:center;gap:6px;padding:7px 10px;
   background:linear-gradient(180deg,var(--panel2),var(--panel));
   border:3px solid var(--gold3);border-radius:2px 2px 0 0;
-  cursor:pointer;user-select:none;
   box-shadow:inset 2px 2px 0 var(--raised);
 }
 .lex-section-head .lex-icon{font-size:14px}
 .lex-section-head .lex-title{font-size:8px;color:var(--gold);flex:1;text-shadow:1px 1px 0 var(--dark)}
-.lex-section-head .lex-toggle{font-size:8px;color:var(--amber);transition:transform .15s steps(3)}
-.lex-section-head.collapsed .lex-toggle{transform:rotate(-90deg)}
 
 .lex-body{
   background:var(--panel);border:3px solid var(--gold3);border-top:none;
@@ -440,8 +418,6 @@ body{
   font-size:7px;line-height:1.8;color:var(--white);
   box-shadow:inset -2px -2px 0 var(--inset),3px 3px 0 var(--dark);
 }
-.lex-section-head.collapsed + .lex-body{display:none}
-
 .lex-body h4{
   font-size:8px;color:var(--gold);margin:10px 0 4px;
   padding-bottom:3px;border-bottom:2px solid var(--gold3);
