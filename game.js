@@ -1379,7 +1379,41 @@ function renderAlbumStage(stageIdx) {
   const collected = prog.collections[stageIdx] || [];
   const div = $id('album-items');
 
-  let html = '<div class="album-grid">';
+  // Calculate pity info for this stage
+  const totalItems = stage.collection.items.length;
+  const foundCount = collected.filter(Boolean).length;
+  const missingCount = totalItems - foundCount;
+  const rw = CONFIG.itemRarityWeights;
+  const pM = CONFIG.itemPityMultiplier;
+  const dM = CONFIG.itemDuplicateMultiplier;
+
+  let pityExplain = '';
+  if (missingCount > 0 && foundCount > 0) {
+    // Calculate actual chance of getting a new item vs duplicate
+    let wMissing = 0, wFound = 0;
+    stage.collection.items.forEach((item, i) => {
+      const baseW = item[2] === 1 ? rw.common : item[2] === 2 ? rw.uncommon : rw.rare;
+      if (collected[i]) wFound += baseW * dM;
+      else wMissing += baseW * pM;
+    });
+    const newChance = Math.round(wMissing / (wMissing + wFound) * 100);
+    pityExplain = '<div class="pity-bar">' +
+      '<span class="pity-label">Pity system</span>' +
+      '<span class="pity-info">' + missingCount + ' missing — ' +
+      '<strong>' + newChance + '%</strong> chance next item drop is new</span>' +
+      '</div>';
+  } else if (missingCount > 0) {
+    pityExplain = '<div class="pity-bar">' +
+      '<span class="pity-label">Pity system</span>' +
+      '<span class="pity-info">No items found yet — all drops will be new!</span>' +
+      '</div>';
+  } else {
+    pityExplain = '<div class="pity-bar complete">' +
+      '<span class="pity-label">Collection complete!</span>' +
+      '</div>';
+  }
+
+  let html = pityExplain + '<div class="album-grid">';
   stage.collection.items.forEach((item, i) => {
     const found = collected[i];
     const rarityClass = 'rarity-' + item[2];

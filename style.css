@@ -409,6 +409,18 @@ body{
   padding:10px;box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark);
 }
 .album-coll-name{font-size:10px;color:var(--gold);margin-bottom:8px;text-shadow:1px 1px 0 var(--dark)}
+.pity-bar{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 10px;margin-bottom:8px;
+  background:var(--bg);border:2px solid var(--purple);
+  border-radius:2px;font-size:8px;
+  box-shadow:inset 1px 1px 0 var(--raised);
+}
+.pity-bar.complete{border-color:var(--green)}
+.pity-label{color:var(--purple);white-space:nowrap}
+.pity-bar.complete .pity-label{color:var(--green)}
+.pity-info{color:var(--gray)}
+.pity-info strong{color:var(--gold)}
 .album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:5px}
 .album-item{
   display:flex;align-items:center;gap:5px;padding:5px 6px;
