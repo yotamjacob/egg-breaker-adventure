@@ -366,7 +366,7 @@ function makeEggSVG(type, damage) {
   const highlight = `
     <rect x="26" y="22" width="3" height="18" fill="${c.h}" opacity=".5"/>
     <rect x="29" y="19" width="3" height="12" fill="${c.h}" opacity=".35"/>`;
-  return `<svg width="72" height="88" viewBox="0 0 80 96" shape-rendering="crispEdges" style="pointer-events:none">
+  return `<svg width="72" height="88" viewBox="0 0 80 96" shape-rendering="crispEdges">
     <ellipse cx="40" cy="90" rx="18" ry="4" fill="rgba(0,0,0,.25)"/>
     <ellipse cx="40" cy="50" rx="26" ry="35" fill="${c.s}" />
     <ellipse cx="40" cy="50" rx="23" ry="32" fill="${c.f}" />
@@ -392,13 +392,8 @@ function renderEggTray() {
     slot.innerHTML = makeEggSVG(egg.type, egg.broken ? egg.maxHp : damage) +
       '<span class="egg-label">' + egg.type +
       (egg.broken ? '' : ' ' + egg.hp + '/' + egg.maxHp) + '</span>';
-    if (!egg.broken) {
-      // Invisible tap target over the egg — catches all touches
-      const tap = document.createElement('div');
-      tap.className = 'egg-tap-target';
-      tap.onclick = function() { smashEgg(i); };
-      slot.appendChild(tap);
-    }
+    slot.dataset.idx = i;
+    if (!egg.broken) slot.onclick = function() { smashEgg(i); };
     tray.appendChild(slot);
   });
 }
@@ -601,9 +596,6 @@ function smashEgg(index) {
   if (egg._smashing) return;
   egg._smashing = true;
 
-  // Visual confirm that smashEgg ran
-  $id('regen-txt').textContent = 'HIT egg ' + index + ' hp:' + egg.hp;
-
   // Each hit costs 1 hammer
   if (G.hammers < 1) {
     egg._smashing = false;
@@ -654,8 +646,7 @@ function smashEgg(index) {
     // Egg damaged but not broken — update visual with cracks
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, damage) +
-      '<span class="egg-label">' + egg.type + ' ' + egg.hp + '/' + egg.maxHp + '</span>' +
-      '<div class="egg-tap-target" onclick="smashEgg(' + index + ')"></div>';
+      '<span class="egg-label">' + egg.type + ' ' + egg.hp + '/' + egg.maxHp + '</span>';
     setTimeout(() => { egg._smashing = false; }, 300);
     updateResources();
     saveGame();
