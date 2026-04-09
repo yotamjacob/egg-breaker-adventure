@@ -174,22 +174,36 @@
 
   </div>
 
+  <div id="dbg" style="position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font:11px monospace;padding:6px;z-index:99999;white-space:pre-wrap">...</div>
   <script>
-    // Mobile touch handler — walks from SVG elements up to egg-slot parent.
-    // Must be registered early, at document level, with capture phase,
-    // because Android Chrome doesn't bubble click from SVG to non-SVG divs.
+    var _d=document.getElementById('dbg'),_dl=[];
+    window._dbg=function(s){_dl.push(s);if(_dl.length>6)_dl.shift();_d.textContent=_dl.join('\n');};
+    window.onerror=function(m,f,l){_dbg('ERR:'+m+' @'+l);return true;};
+
     document.addEventListener('touchstart', function(e) {
       var el = e.target;
-      while (el && el !== document) {
-        if (el.dataset && el.dataset.idx !== undefined && !el.classList.contains('broken')) {
-          e.preventDefault();
-          var idx = parseInt(el.dataset.idx);
-          if (typeof smashEgg === 'function') smashEgg(idx);
+      var path = [];
+      while (el && el !== document.body) {
+        var tag = el.tagName || '?';
+        var attr = el.getAttribute ? el.getAttribute('data-idx') : null;
+        path.push(tag + (attr !== null ? '['+attr+']' : ''));
+        if (attr !== null) {
+          var broken = el.classList && el.classList.contains('broken');
+          if (!broken) {
+            e.preventDefault();
+            var idx = parseInt(attr);
+            _dbg('SMASH idx=' + idx + ' path=' + path.join('>'));
+            if (typeof smashEgg === 'function') smashEgg(idx);
+          } else {
+            _dbg('BROKEN idx=' + attr);
+          }
           return;
         }
-        el = el.parentElement;
+        el = el.parentNode;
       }
+      _dbg('NO EGG path=' + path.join('>'));
     }, { capture: true, passive: false });
+    _dbg('touch handler ready');
   </script>
   <script src="config.js"></script>
   <script src="data.js"></script>
