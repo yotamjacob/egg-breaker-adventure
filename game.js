@@ -879,6 +879,7 @@ function checkCollectionComplete() {
       if (prog.stage < curMonkey().stages.length - 1) {
         prog.stage++;
         prog.tier = 0;
+        G.hammers = G.maxH; // refill hammers on new stage
         setTimeout(() => {
           newRound();
           renderAll();
