@@ -366,7 +366,7 @@ function makeEggSVG(type, damage) {
   const highlight = `
     <rect x="26" y="22" width="3" height="18" fill="${c.h}" opacity=".5"/>
     <rect x="29" y="19" width="3" height="12" fill="${c.h}" opacity=".35"/>`;
-  return `<svg width="72" height="88" viewBox="0 0 80 96" shape-rendering="crispEdges">
+  return `<svg width="72" height="88" viewBox="0 0 80 96" shape-rendering="crispEdges" style="pointer-events:none">
     <ellipse cx="40" cy="90" rx="18" ry="4" fill="rgba(0,0,0,.25)"/>
     <ellipse cx="40" cy="50" rx="26" ry="35" fill="${c.s}" />
     <ellipse cx="40" cy="50" rx="23" ry="32" fill="${c.f}" />
