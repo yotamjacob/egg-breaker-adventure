@@ -184,7 +184,8 @@ function loadGame() {
     if (!raw) return;
     const d = JSON.parse(raw);
     for (const k of Object.keys(DEFAULT_STATE)) {
-      if (d[k] !== undefined && d[k] !== null) G[k] = d[k];
+      if (!Object.prototype.hasOwnProperty.call(DEFAULT_STATE, k)) continue;
+      if (d[k] !== undefined && d[k] !== null && typeof d[k] === typeof DEFAULT_STATE[k]) G[k] = d[k];
     }
     if (d.roundEggs) G.roundEggs = d.roundEggs;
     if (!G.monkeys || G.monkeys.length < MONKEY_DATA.length) {
