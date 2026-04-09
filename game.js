@@ -2053,20 +2053,22 @@ $id('stage-bar').addEventListener('click', () => {
 // Auto-save
 setInterval(saveGame, 15000);
 
-// Hammer follows mouse inside egg tray
+// Hammer follows mouse (desktop only) + touch support
 (() => {
   const wrap = $id('egg-tray-wrap');
   const hammer = $id('hammer');
-  wrap.addEventListener('mousemove', (e) => {
-    const r = wrap.getBoundingClientRect();
-    // Head is at bottom of 90px SVG; place handle (top) above cursor
-    hammer.style.left = (e.clientX - r.left - 20) + 'px';
-    hammer.style.top = (e.clientY - r.top - 80) + 'px';
-  });
-  wrap.addEventListener('mouseleave', () => {
-    hammer.style.opacity = '0';
-  });
-  wrap.addEventListener('mouseenter', () => {
-    hammer.style.opacity = '1';
-  });
+  const isTouch = matchMedia('(hover:none)').matches;
+
+  if (!isTouch) {
+    wrap.addEventListener('mousemove', (e) => {
+      const r = wrap.getBoundingClientRect();
+      hammer.style.left = (e.clientX - r.left - 20) + 'px';
+      hammer.style.top = (e.clientY - r.top - 80) + 'px';
+    });
+    wrap.addEventListener('mouseleave', () => { hammer.style.opacity = '0'; });
+    wrap.addEventListener('mouseenter', () => { hammer.style.opacity = '1'; });
+  }
+
+  // Prevent double-tap zoom on egg tray
+  wrap.addEventListener('touchend', (e) => { e.preventDefault(); }, { passive: false });
 })();

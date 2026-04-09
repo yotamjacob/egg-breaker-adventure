@@ -261,6 +261,7 @@ body{
   box-shadow: inset 3px 3px 0 var(--inset), 4px 4px 0 var(--dark);
   overflow:visible;
   cursor:none;
+  touch-action:manipulation;
 }
 #particle-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:20}
 
@@ -299,6 +300,8 @@ body{
   position:relative;cursor:none;transition:transform .08s steps(2);
   display:flex;flex-direction:column;align-items:center;
   width:76px;min-height:100px;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
 }
 .egg-slot:hover:not(.broken){transform:translateY(-4px)}
 .egg-slot:active:not(.broken){transform:scale(0.92)}
@@ -327,6 +330,7 @@ body{
   font-size:10px;font-family:var(--px);cursor:pointer;
   transition:transform .08s;
   text-shadow:1px 1px 0 var(--dark);
+  -webkit-tap-highlight-color:transparent;
 }
 .action-btn:disabled{opacity:.35;cursor:not-allowed}
 .action-btn:not(:disabled):hover{transform:translate(-1px,-1px)}
@@ -704,11 +708,50 @@ body{
 }
 
 /* ---------- Responsive ---------- */
+/* ---------- Touch devices ---------- */
+@media(hover:none){
+  /* Hide hammer cursor on touch — use tap feedback instead */
+  #hammer{display:none!important}
+  .egg-tray-wrap{cursor:pointer}
+  .egg-slot{cursor:pointer}
+  /* Tooltips: show on tap via :active */
+  .res[data-tip]::before,.res[data-tip]::after,
+  .shop-card[data-tip]::before,
+  .album-item[data-tip]::after{transition:none}
+  .res[data-tip]:active::before,.res[data-tip]:active::after{opacity:1;transform:translateX(-50%) translateY(0)}
+  .shop-card[data-tip]:active::before{opacity:1;transform:translateX(-50%) translateY(0)}
+  .album-item[data-tip]:active::after{opacity:1;transform:translateX(-50%) translateY(0)}
+}
+
+/* ---------- Small screens ---------- */
 @media(max-width:420px){
-  .resource-bar{flex-wrap:wrap}
-  .res{padding:2px 4px;font-size:9px}
+  body{padding:6px 4px 30px;font-size:9px}
+  .resource-bar{flex-wrap:wrap;gap:3px}
+  .res{padding:3px 5px;font-size:8px;min-width:0}
+  .res strong{font-size:9px}
   .shop-grid{grid-template-columns:1fr 1fr}
   .monkey-grid{grid-template-columns:1fr}
   .album-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+  .nav-tabs{gap:1px;padding:2px}
   .nav-tab{font-size:7px;padding:6px 1px}
+  .title-text h1{font-size:10px}
+  .egg-slot{width:65px;min-height:90px}
+  .egg-slot .egg-label{font-size:7px}
+  .action-btn{font-size:9px;padding:8px 2px}
+  .stage-name{font-size:9px}
+  .popup{padding:16px 20px;max-width:280px}
+  .popup strong{font-size:10px}
+  .pop-icon{font-size:36px}
+  .achieve-grid{grid-template-columns:1fr}
+  .life-stats{grid-template-columns:1fr}
+  .daily-box{flex-wrap:wrap;gap:4px}
+  .daily-detail{margin-left:0}
+}
+
+/* ---------- Very small screens ---------- */
+@media(max-width:340px){
+  .nav-tab{font-size:6px;padding:5px 0}
+  .res{font-size:7px;padding:2px 3px}
+  .title-text h1{font-size:9px}
+  .subtitle{font-size:6px}
 }
