@@ -1809,9 +1809,9 @@ setInterval(saveGame, 15000);
   const hammer = $id('hammer');
   wrap.addEventListener('mousemove', (e) => {
     const r = wrap.getBoundingClientRect();
-    // Position hammer so the head (bottom of SVG) is at the cursor
+    // Position hammer so the head (flipped to top) is at the cursor
     hammer.style.left = (e.clientX - r.left - 20) + 'px';
-    hammer.style.top = (e.clientY - r.top - 80) + 'px';
+    hammer.style.top = (e.clientY - r.top - 10) + 'px';
   });
   wrap.addEventListener('mouseleave', () => {
     hammer.style.opacity = '0';
