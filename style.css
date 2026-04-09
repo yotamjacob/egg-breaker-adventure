@@ -303,7 +303,6 @@ body{
   user-select:none;-webkit-user-select:none;
 }
 .egg-slot:hover:not(.broken){transform:translateY(-4px)}
-.egg-slot:active:not(.broken){transform:scale(0.92)}
 .egg-slot.broken{opacity:.35;cursor:default;filter:grayscale(.4)}
 .egg-slot.smashing{animation:egg-smash-retro .35s steps(6)}
 .egg-slot .egg-label{
