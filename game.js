@@ -134,7 +134,7 @@ const DEFAULT_STATE = {
   hammers: CONFIG.startingHammers, maxH: CONFIG.startingMaxHammers, gold: 0, starPieces: 0, crystalBananas: 0,
   feathers: 0,
   multQueue: [],     // multipliers in hand
-  activeMult: 1,     // product of all selected mults
+  activeMult: 1,     // sum of all selected mults
   _selectedMults: [], // indices of selected multipliers in multQueue
   hammer: 'default', hat: 'none',
   ownedHammers: ['default'], ownedHats: ['none'],
@@ -398,7 +398,10 @@ function getSelectedMultValues() {
 }
 
 function multEquation(base, multVals, result, unit) {
-  return base + ' ' + multVals.map(v => 'x' + v).join(' ') + ' = ' + result + ' ' + unit;
+  if (multVals.length === 1) {
+    return base + ' x' + multVals[0] + ' = ' + result + ' ' + unit;
+  }
+  return base + ' x(' + multVals.join('+') + ') = ' + result + ' ' + unit;
 }
 
 // ==================== PRIZE ROLLING ====================
@@ -951,7 +954,7 @@ function recalcActiveMult() {
   if (!G._selectedMults || G._selectedMults.length === 0) {
     G.activeMult = 1;
   } else {
-    G.activeMult = G._selectedMults.reduce((prod, idx) => prod * G.multQueue[idx], 1);
+    G.activeMult = G._selectedMults.reduce((sum, idx) => sum + G.multQueue[idx], 0);
   }
   $id('active-mult').textContent = 'x' + G.activeMult;
 }
