@@ -986,6 +986,7 @@ function buyShopItem(category, id) {
       // Toggle: unequip if already equipped, otherwise equip
       G.hammer = G.hammer === id ? 'default' : id;
       SFX.play('buy');
+      updateHammerSVG();
       renderShop();
       saveGame();
       return;
@@ -996,6 +997,7 @@ function buyShopItem(category, id) {
     G.hammer = id;
     G.purchases = (G.purchases || 0) + 1;
     SFX.play('buy');
+    updateHammerSVG();
     msg('Bought ' + item.name + '!', '#16a34a');
   }
 
@@ -1188,6 +1190,7 @@ function renderAll() {
 
   updateResources();
   updateStageBar();
+  updateHammerSVG();
   renderEggTray();
   renderMultQueue();
   renderAlbum();
@@ -1508,6 +1511,48 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyS' && e.ctrlKey) { e.preventDefault(); useStarfall(); }
 });
+
+// ==================== HAMMER CURSOR VISUALS ====================
+const HAMMER_STYLES = {
+  default:   { handle: '#8B4513', handleStroke: '#6B3410', collar: '#7a5c1e', head: '#585858', headStroke: '#383838', shine: '#7a7a7a', tip: '#888' },
+  drumstick: { handle: '#D2691E', handleStroke: '#8B4513', collar: '#a0522d', head: '#F4A460', headStroke: '#CD853F', shine: '#FFDEAD', tip: '#DEB887' },
+  bat:       { handle: '#2c2c3a', handleStroke: '#1a1a28', collar: '#3d1a5c', head: '#1a1a2e', headStroke: '#0f0f1e', shine: '#3a3a50', tip: '#2a2a3e' },
+  crystal:   { handle: '#6B4E9B', handleStroke: '#4B3070', collar: '#7B5EAB', head: '#9B7ED8', headStroke: '#7B5EB8', shine: '#C9B0FF', tip: '#B090E8' },
+  golden:    { handle: '#B8860B', handleStroke: '#8B6508', collar: '#DAA520', head: '#FFD700', headStroke: '#DAA520', shine: '#FFE44D', tip: '#FFC700' },
+  rainbow:   { handle: '#8B4513', handleStroke: '#6B3410', collar: '#7a5c1e', head: 'url(#rainbow-grad)', headStroke: '#888', shine: 'url(#rainbow-shine)', tip: 'url(#rainbow-tip)' },
+};
+
+function makeHammerSVG(hammerId) {
+  const s = HAMMER_STYLES[hammerId] || HAMMER_STYLES.default;
+  const isRainbow = hammerId === 'rainbow';
+  const defs = isRainbow ? `<defs>
+    <linearGradient id="rainbow-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff6b6b"/><stop offset="20%" stop-color="#ffa500"/>
+      <stop offset="40%" stop-color="#ffd700"/><stop offset="60%" stop-color="#4ade80"/>
+      <stop offset="80%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+    <linearGradient id="rainbow-shine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff9b9b"/><stop offset="50%" stop-color="#ffe44d"/>
+      <stop offset="100%" stop-color="#90d5ff"/>
+    </linearGradient>
+    <linearGradient id="rainbow-tip" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffa500"/><stop offset="50%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>` : '';
+  return `<svg width="40" height="90" viewBox="0 0 44 100" shape-rendering="crispEdges">
+    ${defs}
+    <rect x="19" y="0" width="6" height="74" rx="1" fill="${s.handle}" stroke="${s.handleStroke}" stroke-width="1"/>
+    <rect x="17" y="60" width="10" height="10" rx="1" fill="${s.collar}"/>
+    <rect x="2"  y="68" width="40" height="24" rx="2" fill="${s.head}" stroke="${s.headStroke}" stroke-width="1"/>
+    <rect x="2"  y="68" width="40" height="9"  rx="2" fill="${s.shine}"/>
+    <rect x="2"  y="86" width="40" height="6"  rx="1" fill="${s.tip}"/>
+  </svg>`;
+}
+
+function updateHammerSVG() {
+  $id('hammer').innerHTML = makeHammerSVG(G.hammer);
+}
 
 // ==================== INIT ====================
 loadGame();
