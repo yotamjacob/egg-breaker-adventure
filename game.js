@@ -2062,36 +2062,21 @@ $id('stage-bar').addEventListener('click', () => {
 // Auto-save
 setInterval(saveGame, 15000);
 
-// Egg tray — event delegation for both touch and mouse
-(() => {
-  const tray = $id('egg-tray');
-  let touchHandled = false;
+// Egg tray — simple click delegation (egg tray is topmost z-index, nothing blocks it)
+$id('egg-tray').addEventListener('click', (e) => {
+  const slot = e.target.closest('.egg-slot');
+  if (!slot || slot.classList.contains('broken')) return;
+  const idx = parseInt(slot.dataset.eggIdx);
+  if (!isNaN(idx)) smashEgg(idx);
+});
 
-  function handleTap(e) {
-    const slot = e.target.closest('.egg-slot');
-    if (!slot || slot.classList.contains('broken')) return;
-    const idx = parseInt(slot.dataset.eggIdx);
-    if (!isNaN(idx)) smashEgg(idx);
-  }
-
-  tray.addEventListener('touchstart', (e) => {
-    touchHandled = true;
-    handleTap(e);
-  }, { passive: true });
-
-  tray.addEventListener('click', (e) => {
-    if (touchHandled) { touchHandled = false; return; }
-    handleTap(e);
-  });
-})();
-
-// Hammer follows mouse (desktop only) + touch support
+// Hammer follows mouse (desktop only, hidden on touch via CSS)
 (() => {
   const wrap = $id('egg-tray-wrap');
   const hammer = $id('hammer');
-  const isTouch = matchMedia('(hover:none)').matches;
 
-  if (!isTouch) {
+  if (matchMedia('(hover:hover)').matches) {
+    wrap.style.cursor = 'none';
     let _rafPending = false;
     wrap.addEventListener('mousemove', (e) => {
       if (_rafPending) return;

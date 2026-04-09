@@ -260,21 +260,30 @@ body{
   border:3px solid var(--gold3);
   box-shadow: inset 3px 3px 0 var(--inset), 4px 4px 0 var(--dark);
   overflow:visible;
-  cursor:none;
-  touch-action:manipulation;
 }
-#particle-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:20}
 
-/* Hammer cursor — handle at top, head at bottom (near cursor), pivots from handle */
+/* Egg tray — topmost, receives all taps/clicks */
+.egg-tray{
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  gap:10px;padding:20px 12px;min-height:200px;
+  position:relative;z-index:10;
+}
+
+.hint{
+  text-align:center;font-size:9px;color:var(--gray);padding:4px 0;
+  animation:blink-retro 1s steps(2) infinite;
+}
+.hint.hidden{display:none}
+
+/* Decorative overlays — behind egg tray, no interaction */
+#particle-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#prize-zone{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:visible;z-index:2}
 #hammer{
   position:absolute;top:0;left:0;
-  transform:rotate(-40deg);
-  transform-origin:20px 0;
-  z-index:30;width:40px;pointer-events:none;
-  opacity:0;
-  transition:opacity .1s;
+  transform:rotate(-40deg);transform-origin:20px 0;
+  z-index:3;width:40px;pointer-events:none;
+  opacity:0;transition:opacity .1s;
 }
-.egg-tray-wrap:hover #hammer{opacity:1}
 .hammer-anim{animation:hammer-swing .3s steps(5) forwards}
 @keyframes hammer-swing{
   0%  {transform:rotate(-40deg)}
@@ -283,25 +292,15 @@ body{
   100%{transform:rotate(-40deg)}
 }
 
-.egg-tray{
-  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
-  gap:10px;padding:20px 12px;min-height:200px;position:relative;z-index:30;
-}
-.hint{
-  position:absolute;bottom:6px;width:100%;text-align:center;
-  font-size:9px;color:var(--gray);
-  animation:blink-retro 1s steps(2) infinite;
-}
-.hint.hidden{display:none}
-#prize-zone{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:visible;z-index:25}
-
 /* Individual egg */
 .egg-slot{
-  position:relative;cursor:none;transition:transform .08s steps(2);
+  position:relative;cursor:pointer;
+  transition:transform .08s steps(2);
   display:flex;flex-direction:column;align-items:center;
   width:76px;min-height:100px;
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
+  user-select:none;-webkit-user-select:none;
 }
 .egg-slot:hover:not(.broken){transform:translateY(-4px)}
 .egg-slot:active:not(.broken){transform:scale(0.92)}
@@ -311,16 +310,6 @@ body{
   font-size:8px;color:var(--gray);margin-top:3px;
   font-family:var(--px);text-transform:uppercase;letter-spacing:1px;
   text-align:center;width:100%;
-}
-
-.egg-slot:not(.broken)::after{
-  content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);
-  width:50px;height:60px;border-radius:50%;
-  background:radial-gradient(ellipse,rgba(245,197,66,.08),transparent 70%);
-  pointer-events:none;
-}
-.egg-slot.gold-egg:not(.broken)::after{
-  background:radial-gradient(ellipse,rgba(245,197,66,.2),transparent 60%);
 }
 
 /* ---------- Action row ---------- */
@@ -710,16 +699,8 @@ body{
 /* ---------- Responsive ---------- */
 /* ---------- Touch devices ---------- */
 @media(hover:none),(pointer:coarse){
-  /* Hide hammer cursor on touch */
   #hammer{display:none!important}
   .egg-tray-wrap{cursor:auto}
-  .egg-slot{cursor:auto}
-  /* Remove glow overlay that blocks touch */
-  .egg-slot:not(.broken)::after{display:none}
-  .egg-slot.gold-egg:not(.broken)::after{display:none}
-  /* Ensure nothing blocks taps */
-  #particle-canvas{z-index:-1}
-  #prize-zone{z-index:-1}
   /* Tooltips: show on tap via :active */
   .res[data-tip]::before,.res[data-tip]::after,
   .shop-card[data-tip]::before,

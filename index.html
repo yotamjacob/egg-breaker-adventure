@@ -74,14 +74,12 @@
 
       <!-- Egg tray -->
       <div class="egg-tray-wrap" id="egg-tray-wrap">
-        <canvas id="particle-canvas"></canvas>
-
-        <!-- Hammer (updated dynamically by updateHammerSVG) -->
-        <div id="hammer"></div>
-
         <div class="egg-tray" id="egg-tray"></div>
+        <p class="hint" id="hint-txt">Tap an egg to smash it!</p>
+        <!-- Overlays below egg tray in DOM so they don't block touches -->
+        <canvas id="particle-canvas"></canvas>
         <div id="prize-zone"></div>
-        <p class="hint" id="hint-txt">Click an egg to smash it!</p>
+        <div id="hammer"></div>
       </div>
 
       <!-- Action row -->
