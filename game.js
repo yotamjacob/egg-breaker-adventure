@@ -983,8 +983,8 @@ function buyShopItem(category, id) {
     const item = SHOP_HAMMERS.find(h => h.id === id);
     if (!item || item.cost === 0) return;
     if (G.ownedHammers.includes(id)) {
-      // Equip it
-      G.hammer = id;
+      // Toggle: unequip if already equipped, otherwise equip
+      G.hammer = G.hammer === id ? 'default' : id;
       SFX.play('buy');
       renderShop();
       saveGame();
@@ -1003,7 +1003,7 @@ function buyShopItem(category, id) {
     const item = SHOP_HATS.find(h => h.id === id);
     if (!item || item.cost === 0) return;
     if (G.ownedHats.includes(id)) {
-      G.hat = id;
+      G.hat = G.hat === id ? 'none' : id;
       SFX.play('buy');
       renderShop();
       saveGame();
@@ -1297,7 +1297,7 @@ function renderShop() {
       '<span class="s-name">' + h.name + '</span>' +
       '<span class="s-desc">' + h.desc + '</span>' +
       (owned
-        ? '<span class="s-status">' + (equipped ? 'EQUIPPED' : 'Click to equip') + '</span>'
+        ? '<span class="s-status">' + (equipped ? 'EQUIPPED (click to unequip)' : 'Click to equip') + '</span>'
         : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
     card.addEventListener('click', () => buyShopItem('hammer', h.id));
     hGrid.appendChild(card);
@@ -1317,7 +1317,7 @@ function renderShop() {
       '<span class="s-name">' + h.name + '</span>' +
       '<span class="s-desc">' + h.desc + '</span>' +
       (owned
-        ? '<span class="s-status">' + (equipped ? 'EQUIPPED' : 'Click to equip') + '</span>'
+        ? '<span class="s-status">' + (equipped ? 'EQUIPPED (click to unequip)' : 'Click to equip') + '</span>'
         : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
     card.addEventListener('click', () => buyShopItem('hat', h.id));
     hatGrid.appendChild(card);
