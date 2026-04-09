@@ -177,7 +177,8 @@ const GOLD_VALUES = { gold_s: [5,15], gold_m: [20,60], gold_l: [80,250] };
 const MULT_VALUES = [2, 2, 3, 3, 5, 5, 10, 50];
 const HAMMER_PRIZES = [2, 3, 5, 5, 8];
 
-const EGG_COST = { normal: 1, silver: 2, gold: 3 };
+const EGG_HP = { normal: 1, silver: 2, gold: 3 };
+const EGG_SPAWN_WEIGHTS = { normal: 75, silver: 18, gold: 7 };
 
 const ACHIEVEMENT_DATA = [
   { id:'first_smash',  name:'First Crack',      desc:'Break your first egg',         icon:'🥚' },

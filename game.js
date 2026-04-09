@@ -196,6 +196,15 @@ function loadGame() {
       G.monkeys = fresh;
     }
   } catch (_) {}
+  // Migrate old save data: ensure eggs have hp/maxHp
+  if (G.roundEggs) {
+    G.roundEggs.forEach(egg => {
+      if (egg.maxHp === undefined) {
+        egg.maxHp = EGG_HP[egg.type] || 1;
+        egg.hp = egg.broken ? 0 : egg.maxHp;
+      }
+    });
+  }
 }
 
 function resetGame() {
@@ -299,15 +308,14 @@ function newRound() {
   const stage = curStage();
   const count = stage.eggs;
   const eggs = [];
+  const spawnTotal = EGG_SPAWN_WEIGHTS.normal + EGG_SPAWN_WEIGHTS.silver + EGG_SPAWN_WEIGHTS.gold;
   for (let i = 0; i < count; i++) {
-    // Determine egg type: mostly what player selected, chance for silver/gold upgrades
-    let type = G.eggType;
-    // Random upgrade chance based on stage progress
-    const r = Math.random();
-    if (type === 'normal' && r < 0.08) type = 'silver';
-    if (type === 'normal' && r < 0.02) type = 'gold';
-    if (type === 'silver' && r < 0.05) type = 'gold';
-    eggs.push({ type, broken: false });
+    const r = Math.random() * spawnTotal;
+    let type = 'normal';
+    if (r < EGG_SPAWN_WEIGHTS.gold) type = 'gold';
+    else if (r < EGG_SPAWN_WEIGHTS.gold + EGG_SPAWN_WEIGHTS.silver) type = 'silver';
+    const hp = EGG_HP[type];
+    eggs.push({ type, hp, maxHp: hp, broken: false });
   }
   G.roundEggs = eggs;
   $id('hint-txt').classList.remove('hidden');
@@ -317,44 +325,48 @@ function newRound() {
 }
 
 // ==================== EGG RENDERING (16-bit pixel style) ====================
-function makeEggSVG(type, broken) {
+// damage: 0 = pristine, 1 = light cracks, 2 = heavy cracks, 3+ = broken
+function makeEggSVG(type, damage) {
   const colors = {
     normal: { f: '#FEF9F0', s: '#D4A853', h: '#fff8e0', sh: '#b8922e' },
     silver: { f: '#d8dde3', s: '#8899aa', h: '#eceff2', sh: '#667788' },
     gold:   { f: '#FFD700', s: '#B8860B', h: '#ffe44d', sh: '#8B6508' },
   };
   const c = colors[type] || colors.normal;
-  // Pixel-art egg shape using rects to simulate chunky pixels
-  const crack = broken ? `
-    <rect x="36" y="20" width="3" height="3" fill="#5a3010"/>
-    <rect x="33" y="23" width="3" height="3" fill="#5a3010"/>
-    <rect x="36" y="26" width="3" height="3" fill="#5a3010"/>
-    <rect x="39" y="29" width="3" height="3" fill="#5a3010"/>
-    <rect x="36" y="32" width="3" height="3" fill="#5a3010"/>
-    <rect x="33" y="35" width="3" height="3" fill="#5a3010"/>
-    <rect x="48" y="28" width="3" height="3" fill="#5a3010"/>
-    <rect x="45" y="31" width="3" height="3" fill="#5a3010"/>
-    <rect x="48" y="34" width="3" height="3" fill="#5a3010"/>
-    <rect x="45" y="37" width="3" height="3" fill="#5a3010"/>
-    <rect x="24" y="40" width="3" height="3" fill="#5a3010"/>
-    <rect x="27" y="43" width="3" height="3" fill="#5a3010"/>
-    <rect x="24" y="46" width="3" height="3" fill="#5a3010"/>` : '';
-  // Highlight stripe for 16-bit shading
+  const crk = '#5a3010';
+  let cracks = '';
+  if (damage >= 1) {
+    // Light cracks — top-center zigzag
+    cracks += `
+    <rect x="36" y="20" width="3" height="3" fill="${crk}"/>
+    <rect x="33" y="23" width="3" height="3" fill="${crk}"/>
+    <rect x="36" y="26" width="3" height="3" fill="${crk}"/>
+    <rect x="39" y="29" width="3" height="3" fill="${crk}"/>
+    <rect x="36" y="32" width="3" height="3" fill="${crk}"/>`;
+  }
+  if (damage >= 2) {
+    // Heavy cracks — right side + left side
+    cracks += `
+    <rect x="48" y="28" width="3" height="3" fill="${crk}"/>
+    <rect x="45" y="31" width="3" height="3" fill="${crk}"/>
+    <rect x="48" y="34" width="3" height="3" fill="${crk}"/>
+    <rect x="45" y="37" width="3" height="3" fill="${crk}"/>
+    <rect x="24" y="40" width="3" height="3" fill="${crk}"/>
+    <rect x="27" y="43" width="3" height="3" fill="${crk}"/>
+    <rect x="24" y="46" width="3" height="3" fill="${crk}"/>
+    <rect x="33" y="35" width="3" height="3" fill="${crk}"/>`;
+  }
   const highlight = `
     <rect x="26" y="22" width="3" height="18" fill="${c.h}" opacity=".5"/>
     <rect x="29" y="19" width="3" height="12" fill="${c.h}" opacity=".35"/>`;
   return `<svg width="72" height="88" viewBox="0 0 80 96" shape-rendering="crispEdges">
-    <!-- Shadow -->
     <ellipse cx="40" cy="90" rx="18" ry="4" fill="rgba(0,0,0,.25)"/>
-    <!-- Egg body - chunky outline -->
     <ellipse cx="40" cy="50" rx="26" ry="35" fill="${c.s}" />
     <ellipse cx="40" cy="50" rx="23" ry="32" fill="${c.f}" />
-    <!-- Top specular -->
     <ellipse cx="40" cy="34" rx="16" ry="10" fill="${c.h}" opacity=".25"/>
     ${highlight}
-    <!-- Bottom shadow -->
     <ellipse cx="40" cy="68" rx="18" ry="8" fill="${c.sh}" opacity=".2"/>
-    ${crack}
+    ${cracks}
   </svg>`;
 }
 
@@ -368,8 +380,10 @@ function renderEggTray() {
   G.roundEggs.forEach((egg, i) => {
     const slot = document.createElement('div');
     slot.className = 'egg-slot' + (egg.broken ? ' broken' : '') + (egg.type === 'gold' ? ' gold-egg' : '');
-    slot.innerHTML = makeEggSVG(egg.type, egg.broken) +
-      '<span class="egg-label">' + egg.type + '</span>';
+    const damage = egg.maxHp - egg.hp;
+    slot.innerHTML = makeEggSVG(egg.type, egg.broken ? egg.maxHp : damage) +
+      '<span class="egg-label">' + egg.type +
+      (egg.broken ? '' : ' ' + egg.hp + '/' + egg.maxHp) + '</span>';
     if (!egg.broken) {
       slot.addEventListener('click', () => smashEgg(i));
     }
@@ -494,28 +508,29 @@ function getHatBonus() {
 function smashEgg(index) {
   if (!G.roundEggs || G.roundEggs[index].broken) return;
   const egg = G.roundEggs[index];
-  const cost = EGG_COST[egg.type];
-  if (G.hammers < cost) {
-    msg('Need ' + cost + ' hammer' + (cost > 1 ? 's' : '') + '!', '#ef4444');
+
+  // Each hit costs 1 hammer
+  if (G.hammers < 1) {
+    msg('Need a hammer!', '#ef4444');
     SFX.play('err');
     return;
   }
 
-  G.hammers -= cost;
+  G.hammers -= 1;
 
-  // Chef hat: 10% chance egg was free
+  // Chef hat: 10% chance hit was free
   if (getHatBonus() === 'freeEgg' && Math.random() < 0.1) {
-    G.hammers = Math.min(G.maxH, G.hammers + cost);
-    msg('Free egg! (Chef\'s Hat)', '#16a34a');
+    G.hammers = Math.min(G.maxH, G.hammers + 1);
+    msg('Free hit! (Chef\'s Hat)', '#16a34a');
   }
-
-  G.totalEggs++;
-  egg.broken = true;
 
   // Start regen if needed
   if (!regenInt && G.hammers < G.maxH) startRegen();
 
   $id('hint-txt').classList.add('hidden');
+
+  // Reduce HP
+  egg.hp -= 1;
 
   // Animate the egg slot
   const slots = $id('egg-tray').children;
@@ -523,25 +538,47 @@ function smashEgg(index) {
   slot.classList.add('smashing');
   setTimeout(() => slot.classList.remove('smashing'), 450);
 
-  // Sound & particles
+  // Sound & particles (more particles as egg gets weaker)
   SFX.play('hit');
   const rect = slot.getBoundingClientRect();
   const wrapRect = $id('egg-tray-wrap').getBoundingClientRect();
   const cx = rect.left - wrapRect.left + rect.width / 2;
   const cy = rect.top - wrapRect.top + rect.height / 2;
-  Particles.emit(cx, cy, egg.type, 8 + Math.random() * 5 | 0);
-  shake(egg.type === 'gold' ? 'md' : 'sm');
+  const particleCount = 4 + (egg.maxHp - egg.hp) * 3;
+  Particles.emit(cx, cy, egg.type, particleCount);
+  shake(egg.hp <= 0 ? 'md' : 'sm');
+
+  if (egg.hp > 0) {
+    // Egg damaged but not broken — update visual with cracks
+    const damage = egg.maxHp - egg.hp;
+    slot.innerHTML = makeEggSVG(egg.type, damage) +
+      '<span class="egg-label">' + egg.type + ' ' + egg.hp + '/' + egg.maxHp + '</span>';
+    // Re-attach click handler (innerHTML wipes it)
+    slot.addEventListener('click', () => smashEgg(index));
+    updateResources();
+    saveGame();
+    return;
+  }
+
+  // === Egg broken! ===
+  egg.broken = true;
+  G.totalEggs++;
+
+  // Track egg type smashes
+  if (egg.type === 'silver') G.silverSmashed = (G.silverSmashed || 0) + 1;
+  if (egg.type === 'gold') G.goldSmashed = (G.goldSmashed || 0) + 1;
 
   // Roll prize
   const prize = rollPrize(egg.type);
 
-  // Apply prize
+  // Apply prize after short delay
   setTimeout(() => {
     applyPrize(prize, cx, cy);
 
-    // Update egg visual to broken
+    // Update egg visual to fully broken
     slot.classList.add('broken');
-    slot.innerHTML = makeEggSVG(egg.type, true) + '<span class="egg-label">' + egg.type + '</span>';
+    slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) +
+      '<span class="egg-label">' + egg.type + '</span>';
 
     // Check if all eggs broken
     if (G.roundEggs.every(e => e.broken)) {
@@ -662,8 +699,9 @@ function useStarfall() {
 
   unbroken.forEach((idx, i) => {
     setTimeout(() => {
-      // Free smash - don't cost hammers
+      // Starfall instantly breaks egg regardless of HP
       const egg = G.roundEggs[idx];
+      egg.hp = 0;
       egg.broken = true;
       G.totalEggs++;
 
@@ -676,7 +714,7 @@ function useStarfall() {
       const wrapRect = wrap.getBoundingClientRect();
       const cx = rect.left - wrapRect.left + rect.width / 2;
       const cy = rect.top - wrapRect.top + rect.height / 2;
-      Particles.emit(cx, cy, egg.type, 12);
+      Particles.emit(cx, cy, egg.type, 14);
       Particles.sparkle(cx, cy, 8, '#FFD700');
       shake('sm');
       SFX.play('hit');
@@ -685,7 +723,7 @@ function useStarfall() {
       setTimeout(() => {
         applyPrize(prize, cx, cy);
         slot.classList.add('broken');
-        slot.innerHTML = makeEggSVG(egg.type, true) + '<span class="egg-label">' + egg.type + '</span>';
+        slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + '<span class="egg-label">' + egg.type + '</span>';
         updateResources();
         updateStageBar();
         saveGame();
@@ -850,14 +888,6 @@ function startRegen() {
     }
     updateResources();
   }, 1000);
-}
-
-// ==================== EGG TYPE ====================
-function pickEggType(type) {
-  G.eggType = type;
-  document.querySelectorAll('.epick').forEach(b => b.classList.remove('active'));
-  document.querySelector('.epick[data-type="' + type + '"]').classList.add('active');
-  saveGame();
 }
 
 // ==================== MONKEY MANAGEMENT ====================
@@ -1300,13 +1330,13 @@ const LEXICON_SECTIONS = [
   {
     id: 'eggs', icon: '🥚', title: 'Eggs & Hammers',
     html: () => `
+<p>Each hit costs <strong>1 hammer</strong>. Eggs spawn randomly each round — rarer eggs take more hits but give better prizes.</p>
 <table class="lex-table">
-<tr><th>Egg</th><th>Cost</th><th>Special</th></tr>
-<tr><td>🥚 Normal</td><td class="num">1🔨</td><td>Can be empty (~12%)</td></tr>
-<tr><td>🪨 Silver</td><td class="num">2🔨</td><td>Never empty, 2x prizes, can drop bonus hammers</td></tr>
-<tr><td>🌟 Gold</td><td class="num">3🔨</td><td>Never empty, 1.5x gold, best item drop rate</td></tr>
+<tr><th>Egg</th><th>HP</th><th>Spawn Rate</th><th>Special</th></tr>
+<tr><td>🥚 Normal</td><td class="num">1</td><td class="num">~75%</td><td>Can be empty (~12%)</td></tr>
+<tr><td>🪨 Silver</td><td class="num">2</td><td class="num">~18%</td><td>Never empty, 2x prizes, can drop bonus hammers</td></tr>
+<tr><td>🌟 Gold</td><td class="num">3</td><td class="num">~7%</td><td>Never empty, 1.5x gold, best item drop rate</td></tr>
 </table>
-<p>Eggs can randomly <strong>upgrade</strong> when a round starts: Normal has an 8% chance to become Silver and 2% to become Gold. Silver has a 5% chance to become Gold.</p>
 <p>You start with <strong>40 hammers</strong>. They regenerate at +1 every 30s (15s with Fast Regen from the shop). Daily login gives 40 + up to 100 bonus hammers based on your streak. Tier-ups also increase your max.</p>
 `
   },
