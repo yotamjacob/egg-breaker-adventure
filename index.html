@@ -182,6 +182,12 @@
     window.onerror = function(m, f, l) { _dbg('ERROR: ' + m + ' at ' + f + ':' + l); };
     _dbg('scripts loading...');
   </script>
+  <script>
+    // Test if basic tapping works at all
+    document.getElementById('egg-tray').onclick = function(e) { _dbg('TRAY TAP: ' + e.target.tagName); };
+    document.addEventListener('touchstart', function(e) { _dbg('ANYTOUCH: ' + e.target.id + ' ' + e.target.className.substring(0,20)); }, true);
+    _dbg('inline test ready');
+  </script>
   <script src="config.js" onerror="_dbg('FAIL: config.js')"></script>
   <script>_dbg('config.js OK')</script>
   <script src="data.js" onerror="_dbg('FAIL: data.js')"></script>
