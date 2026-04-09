@@ -1237,6 +1237,537 @@ function formatNum(n) {
   return String(n);
 }
 
+// ==================== LEXICON ====================
+const LEXICON_SECTIONS = [
+  {
+    id: 'overview', icon: '📖', title: 'Game Overview',
+    html: () => `
+<p>Egg Breaker Adventures is a recreation of the classic Facebook Flash game originally developed by <strong>DJArts Games</strong> (later Codename Entertainment) which ran from 2008 to 2016. Over its lifetime, players collectively broke more than <strong>70 billion eggs</strong>.</p>
+<h4>Core Loop</h4>
+<p>Each round presents a set of eggs. Click an egg to smash it with a hammer, revealing a random prize inside. Collect items to complete stage collections, advance through tiers, earn Crystal Bananas, and unlock new monkeys with unique adventures.</p>
+<h4>Goal</h4>
+<p>Complete all <strong>9 stages</strong> for each of the <strong>4 monkeys</strong> by collecting every item in each stage's collection. Each stage has <strong>3 tiers</strong> (Bronze, Silver, Gold) to push through.</p>
+<h4>Keyboard Shortcuts</h4>
+<table class="lex-table">
+<tr><th>Key</th><th>Action</th></tr>
+<tr><td><strong>Space</strong> or <strong>Enter</strong></td><td>Smash the next unbroken egg</td></tr>
+<tr><td><strong>R</strong></td><td>Start a new round</td></tr>
+<tr><td><strong>Ctrl+S</strong></td><td>Trigger Starfall (if available)</td></tr>
+</table>
+<p class="lex-tip">Your progress is automatically saved to your browser's local storage every 15 seconds and after every action.</p>
+`
+  },
+  {
+    id: 'hammers', icon: '🔨', title: 'Hammers',
+    html: () => `
+<p>Hammers are the primary resource spent to break eggs. Each egg type costs a different number of hammers.</p>
+<h4>Hammer Costs per Egg</h4>
+<table class="lex-table">
+<tr><th>Egg Type</th><th>Cost</th></tr>
+<tr><td>🥚 Normal</td><td class="num">1 hammer</td></tr>
+<tr><td>🪨 Silver</td><td class="num">2 hammers</td></tr>
+<tr><td>🌟 Gold</td><td class="num">3 hammers</td></tr>
+</table>
+<h4>Starting Hammers</h4>
+<p>You begin with <strong>40 hammers</strong> and a max capacity of <strong>40</strong>. Max capacity increases through tier-ups and shop upgrades.</p>
+<h4>Regeneration</h4>
+<p>When below max, hammers regenerate automatically:</p>
+<table class="lex-table">
+<tr><th>Mode</th><th>Rate</th></tr>
+<tr><td>Standard</td><td class="num">+1 every 30 seconds</td></tr>
+<tr><td>Fast Regen (shop upgrade)</td><td class="num">+1 every 15 seconds</td></tr>
+</table>
+<h4>Other Sources</h4>
+<p><strong>Daily bonus</strong> — 40 + streak bonus hammers per day.<br>
+<strong>Silver eggs</strong> — only egg type that can contain hammers as a prize (2, 3, 5, 5, or 8).<br>
+<strong>Shop</strong> — buy +5 or +20 hammer packs.<br>
+<strong>Tier-ups</strong> — Silver tier gives +5 max hammers & refill; Gold tier gives +10 max hammers & refill.<br>
+<strong>Stage complete</strong> — reaching Gold tier refills 5 hammers.</p>
+`
+  },
+  {
+    id: 'eggs', icon: '🥚', title: 'Egg Types',
+    html: () => {
+      // Calculate actual percentages from PRIZE_WEIGHTS
+      function pcts(type) {
+        const w = PRIZE_WEIGHTS[type];
+        const total = Object.values(w).reduce((a, b) => a + b, 0);
+        const r = {};
+        for (const [k, v] of Object.entries(w)) r[k] = ((v / total) * 100).toFixed(1);
+        return r;
+      }
+      const n = pcts('normal'), s = pcts('silver'), g = pcts('gold');
+      return `
+<h4>Normal Egg 🥚</h4>
+<p>Cost: <strong>1 hammer</strong>. The standard egg. Can be empty. Good for early-game grinding.</p>
+<p>During round generation, each Normal egg has an <strong>8% chance</strong> to upgrade to Silver and a <strong>2% chance</strong> to upgrade to Gold (checked independently).</p>
+
+<h4>Silver Egg 🪨</h4>
+<p>Cost: <strong>2 hammers</strong>. All prize values are <strong>doubled</strong> (gold amounts multiplied by 2, star pieces give 2 instead of 1, feather amounts doubled). <strong>Cannot be empty.</strong> The <em>only</em> egg type that can contain bonus hammers.</p>
+<p>During round generation, Silver eggs have a <strong>5% chance</strong> to upgrade to Gold.</p>
+
+<h4>Gold Egg 🌟</h4>
+<p>Cost: <strong>3 hammers</strong>. <strong>Guaranteed never empty</strong> and no small-gold drops. All gold values get a <strong>1.5x bonus</strong>. Highest chance for collection items and large gold.</p>
+
+<h4>Prize Drop Rates by Egg Type</h4>
+<table class="lex-table">
+<tr><th>Prize</th><th>Normal</th><th>Silver</th><th>Gold</th></tr>
+<tr><td>Empty</td><td class="num">${n.empty}%</td><td class="num">${s.empty}%</td><td class="num">${g.empty}%</td></tr>
+<tr><td>Gold (small: 5–15)</td><td class="num">${n.gold_s}%</td><td class="num">${s.gold_s}%</td><td class="num">${g.gold_s}%</td></tr>
+<tr><td>Gold (medium: 20–60)</td><td class="num">${n.gold_m}%</td><td class="num">${s.gold_m}%</td><td class="num">${g.gold_m}%</td></tr>
+<tr><td>Gold (large: 80–250)</td><td class="num">${n.gold_l}%</td><td class="num">${s.gold_l}%</td><td class="num">${g.gold_l}%</td></tr>
+<tr><td>Star Piece</td><td class="num">${n.star}%</td><td class="num">${s.star}%</td><td class="num">${g.star}%</td></tr>
+<tr><td>Multiplier</td><td class="num">${n.mult}%</td><td class="num">${s.mult}%</td><td class="num">${g.mult}%</td></tr>
+<tr><td>Feather</td><td class="num">${n.feather}%</td><td class="num">${s.feather}%</td><td class="num">${g.feather}%</td></tr>
+<tr><td>Collection Item</td><td class="num">${n.item}%</td><td class="num">${s.item}%</td><td class="num">${g.item}%</td></tr>
+<tr><td>Bonus Hammers</td><td class="num">${n.hammers}%</td><td class="num">${s.hammers}%</td><td class="num">${g.hammers}%</td></tr>
+</table>
+<p class="lex-warn">These are base rates before equipment and monkey perk modifiers are applied.</p>
+`;
+    }
+  },
+  {
+    id: 'prizes', icon: '🎁', title: 'Prizes & Rewards',
+    html: () => `
+<h4>Gold (Currency)</h4>
+<p>The primary currency. Used to buy hammers, equipment, and supplies from the shop.</p>
+<table class="lex-table">
+<tr><th>Tier</th><th>Base Range</th><th>Silver (2x)</th><th>Gold (1.5x)</th></tr>
+<tr><td>Small</td><td class="num">5 – 15</td><td class="num">10 – 30</td><td class="hl">N/A (Gold eggs skip small)</td></tr>
+<tr><td>Medium</td><td class="num">20 – 60</td><td class="num">40 – 120</td><td class="num">30 – 90</td></tr>
+<tr><td>Large</td><td class="num">80 – 250</td><td class="num">160 – 500</td><td class="num">120 – 375</td></tr>
+</table>
+<p>Gold values are further multiplied by any <strong>active multiplier</strong>, plus equipment and monkey perk bonuses.</p>
+<p class="lex-formula">Final Gold = base x egg_bonus x active_mult x equipment_bonus x monkey_perk</p>
+
+<h4>Star Pieces ⭐</h4>
+<p>Collect <strong>5 star pieces</strong> to activate <strong>Starfall</strong>, which instantly breaks all remaining eggs in the current round for free (no hammer cost). Normal eggs drop 1 piece; Silver eggs drop 2.</p>
+
+<h4>Multipliers ✖️</h4>
+<p>Found inside eggs, multipliers are stored in your <strong>multiplier queue</strong>. Click one to activate it before your next smash — it multiplies the gold value of that smash, then is consumed.</p>
+<table class="lex-table">
+<tr><th>Possible Values</th><th>Relative Chance</th></tr>
+<tr><td class="num">x2</td><td>Common (2 in 8 = 25%)</td></tr>
+<tr><td class="num">x3</td><td>Common (2 in 8 = 25%)</td></tr>
+<tr><td class="num">x5</td><td>Uncommon (2 in 8 = 25%)</td></tr>
+<tr><td class="num">x10</td><td>Rare (1 in 8 = 12.5%)</td></tr>
+<tr><td class="num">x50</td><td>Very Rare (1 in 8 = 12.5%)</td></tr>
+</table>
+
+<h4>Feathers 🪶</h4>
+<p>Stage currency. Base drop: <strong>1–4 feathers</strong> (randomized), doubled from Silver eggs. Currently used as a collectible resource tracked in your stats.</p>
+
+<h4>Bonus Hammers 🔨</h4>
+<p><strong>Only found in Silver eggs.</strong> Possible amounts: 2, 3, 5, 5, or 8 hammers (equal chance each). Added directly to your hammer count, up to your max.</p>
+
+<h4>Collection Items 📦</h4>
+<p>Themed items specific to each stage (see <strong>Collections</strong> section). New items trigger a popup and count toward stage completion. Duplicates are converted to <strong>10–40 bonus gold</strong>.</p>
+
+<h4>Empty 😅</h4>
+<p>No prize. Only possible from Normal eggs (${((PRIZE_WEIGHTS.normal.empty / Object.values(PRIZE_WEIGHTS.normal).reduce((a,b)=>a+b,0)) * 100).toFixed(1)}% base chance). Silver and Gold eggs can never be empty.</p>
+`
+  },
+  {
+    id: 'collections', icon: '📚', title: 'Collections & Stages',
+    html: () => {
+      let stageTable = '';
+      const m = MONKEY_DATA[0]; // Use Mr. Monkey as example
+      m.stages.forEach((s, i) => {
+        stageTable += '<tr><td>' + (i+1) + '</td><td>' + s.name + '</td><td class="num">' +
+          s.eggs + '</td><td>' + s.collection.name + '</td><td class="num">' +
+          s.collection.items.length + '</td></tr>';
+      });
+      return `
+<h4>How Collections Work</h4>
+<p>Each stage has one <strong>collection</strong> — a set of themed items you find inside eggs. Items have three rarities:</p>
+<table class="lex-table">
+<tr><th>Rarity</th><th>Base Drop Weight</th><th>Pity Weight (uncollected)</th><th>Duplicate Weight</th></tr>
+<tr><td class="hl">Common (1)</td><td class="num">10</td><td class="num">20 (2x)</td><td class="num">3 (0.3x)</td></tr>
+<tr><td class="hl">Uncommon (2)</td><td class="num">5</td><td class="num">10 (2x)</td><td class="num">1.5 (0.3x)</td></tr>
+<tr><td class="hl">Rare (3)</td><td class="num">2</td><td class="num">4 (2x)</td><td class="num">0.6 (0.3x)</td></tr>
+</table>
+<p class="lex-tip">The pity system gives uncollected items <strong>6.67x higher relative weight</strong> than already-collected items, so it gets progressively easier to find your missing pieces.</p>
+
+<h4>Stage Tiers</h4>
+<p>Each stage progresses through three tiers based on how many items you've found:</p>
+<table class="lex-table">
+<tr><th>Tier</th><th>Threshold</th><th>Reward</th></tr>
+<tr><td class="hl">Bronze → Silver</td><td>Collect <strong>50%</strong> of items</td><td>+5 max hammers, +5 hammer refill</td></tr>
+<tr><td class="hl">Silver → Gold</td><td>Collect <strong>75%</strong> of items</td><td>+10 max hammers, +5 hammer refill</td></tr>
+<tr><td class="hl">Gold (Complete)</td><td>Collect <strong>100%</strong> of items</td><td>+1 Crystal Banana, advance to next stage</td></tr>
+</table>
+
+<h4>Eggs Per Round by Stage (Mr. Monkey example)</h4>
+<table class="lex-table">
+<tr><th>Stage</th><th>Name</th><th>Eggs</th><th>Collection</th><th>Items</th></tr>
+${stageTable}
+</table>
+<p>Later stages have more eggs per round but also more items to collect.</p>
+
+<h4>Duplicate Items</h4>
+<p>If you roll an item you already own, it's converted to <strong>10–40 bonus gold</strong> (random within range).</p>
+`;
+    }
+  },
+  {
+    id: 'monkeys', icon: '🐵', title: 'Monkeys',
+    html: () => {
+      let rows = '';
+      MONKEY_DATA.forEach(m => {
+        const totalItems = m.stages.reduce((sum, s) => sum + s.collection.items.length, 0);
+        rows += '<tr><td>' + m.emoji + ' ' + m.name + '</td><td class="num">' +
+          (m.cost === 0 ? 'Free (starter)' : m.cost + ' 🍌') + '</td><td>' +
+          m.perkDesc + '</td><td class="num">' + m.stages.length +
+          '</td><td class="num">' + totalItems + '</td></tr>';
+      });
+      return `
+<p>Each monkey is a separate adventure with its own set of 9 stages. Switch between unlocked monkeys freely — progress is tracked independently.</p>
+<table class="lex-table">
+<tr><th>Monkey</th><th>Unlock Cost</th><th>Perk</th><th>Stages</th><th>Total Items</th></tr>
+${rows}
+</table>
+
+<h4>Perk Details</h4>
+<table class="lex-table">
+<tr><th>Perk</th><th>Effect on Prize Weights</th></tr>
+<tr><td>🐵 Mr. Monkey</td><td>None (baseline)</td></tr>
+<tr><td>🔧 Steampunk — +15% star pieces</td><td>Star Piece drop weight multiplied by <strong>1.15</strong></td></tr>
+<tr><td>👸 Princess — +20% gold</td><td>All gold prize values multiplied by <strong>1.2</strong></td></tr>
+<tr><td>🚀 Space Cadette — +10% items</td><td>Collection Item drop weight multiplied by <strong>1.1</strong></td></tr>
+</table>
+<p class="lex-tip">Monkey perks stack with equipment bonuses. For example, Steampunk Monkey + Drumstick Hammer gives a combined 1.15 x 1.15 = <strong>1.32x star piece weight</strong>.</p>
+
+<h4>Crystal Bananas 🍌</h4>
+<p>Earned by completing a stage at Gold tier (<strong>1 per stage</strong>). Spent to unlock new monkeys (<strong>9 Crystal Bananas each</strong>). With 4 monkeys x 9 stages, you can earn up to 36 Crystal Bananas total.</p>
+`;
+    }
+  },
+  {
+    id: 'starfall', icon: '🌟', title: 'Starfall',
+    html: () => `
+<p>Starfall is a powerful ability that breaks <strong>all remaining unbroken eggs</strong> in the current round — completely free, no hammer cost.</p>
+<h4>How to Activate</h4>
+<p>Collect <strong>5 Star Pieces</strong>, then click the <strong>⭐ Starfall</strong> button (or press <strong>Ctrl+S</strong>).</p>
+<h4>How It Works</h4>
+<p>All unbroken eggs are smashed in rapid sequence (one every <strong>400ms</strong>). Each egg produces its own independent prize roll, particle effects, and sounds. The screen glows golden during the cascade.</p>
+<h4>Star Piece Sources</h4>
+<table class="lex-table">
+<tr><th>Source</th><th>Amount</th></tr>
+<tr><td>Normal or Gold egg (star prize)</td><td class="num">1 piece</td></tr>
+<tr><td>Silver egg (star prize)</td><td class="num">2 pieces</td></tr>
+<tr><td>Shop purchase</td><td class="num">1 piece for 2,000 gold</td></tr>
+</table>
+<p class="lex-tip">Save Starfall for rounds with many eggs (stages 7–9 have 5–7 eggs) to maximize value. Using it on a Gold egg round means every egg is guaranteed non-empty!</p>
+`
+  },
+  {
+    id: 'multipliers', icon: '✖️', title: 'Multipliers',
+    html: () => `
+<p>Multipliers boost the <strong>gold value</strong> of your next smash. They are single-use and consumed after one hit.</p>
+<h4>Using Multipliers</h4>
+<ol style="margin:4px 0 8px 18px">
+<li>Find a multiplier inside an egg — it's added to your <strong>multiplier queue</strong> (shown above the egg tray)</li>
+<li>Click a multiplier chip to <strong>activate</strong> it (turns orange)</li>
+<li>Smash an egg — the gold value is multiplied, then the multiplier is consumed</li>
+<li>Click an active multiplier again to <strong>deactivate</strong> it</li>
+</ol>
+<h4>Multiplier Values</h4>
+<table class="lex-table">
+<tr><th>Value</th><th>Probability</th></tr>
+<tr><td class="num">x2</td><td>25% <em class="sub">(2 of 8 entries)</em></td></tr>
+<tr><td class="num">x3</td><td>25% <em class="sub">(2 of 8 entries)</em></td></tr>
+<tr><td class="num">x5</td><td>25% <em class="sub">(2 of 8 entries)</em></td></tr>
+<tr><td class="num">x10</td><td>12.5% <em class="sub">(1 of 8 entries)</em></td></tr>
+<tr><td class="num">x50</td><td>12.5% <em class="sub">(1 of 8 entries)</em></td></tr>
+</table>
+<p class="lex-warn">Multipliers only affect gold prizes. Star pieces, feathers, items, and hammer prizes are not multiplied.</p>
+<p class="lex-tip">Stack a x50 multiplier with a Gold egg's large gold range (80–250) and Princess Monkey's +20% bonus for massive payouts. Maximum theoretical single smash: 250 x 50 x 1.5 x 1.2 x 1.1 = <strong>24,750 gold</strong>.</p>
+`
+  },
+  {
+    id: 'dailylogin', icon: '📅', title: 'Daily Login & Streaks',
+    html: () => `
+<p>Each day you can claim a <strong>daily hammer bonus</strong> from the box on the Play tab.</p>
+<h4>Daily Bonus Formula</h4>
+<p class="lex-formula">Hammers = 40 + min(consecutive_days x 5, 100)</p>
+<table class="lex-table">
+<tr><th>Streak Days</th><th>Bonus</th><th>Total Hammers</th></tr>
+<tr><td class="num">Day 1</td><td class="num">+0</td><td class="num">40</td></tr>
+<tr><td class="num">Day 2</td><td class="num">+10</td><td class="num">50</td></tr>
+<tr><td class="num">Day 5</td><td class="num">+25</td><td class="num">65</td></tr>
+<tr><td class="num">Day 10</td><td class="num">+50</td><td class="num">90</td></tr>
+<tr><td class="num">Day 20+</td><td class="num">+100 (cap)</td><td class="num">140</td></tr>
+</table>
+<p class="lex-warn">Missing a day resets your streak to 1. The bonus is capped at your current max hammer capacity.</p>
+`
+  },
+  {
+    id: 'shop', icon: '🛒', title: 'Shop & Equipment',
+    html: () => {
+      let hammerRows = '';
+      SHOP_HAMMERS.forEach(h => {
+        if (h.cost === 0) return;
+        hammerRows += '<tr><td>' + h.emoji + ' ' + h.name + '</td><td class="num">' +
+          formatNum(h.cost) + ' gold</td><td>' + h.desc + '</td></tr>';
+      });
+      let hatRows = '';
+      SHOP_HATS.forEach(h => {
+        if (h.cost === 0) return;
+        hatRows += '<tr><td>' + h.emoji + ' ' + h.name + '</td><td class="num">' +
+          formatNum(h.cost) + ' gold</td><td>' + h.desc + '</td></tr>';
+      });
+      return `
+<p>Equipment is permanent — buy once, equip anytime. You can own multiple hammers and hats but only equip one of each at a time.</p>
+
+<h4>Special Hammers</h4>
+<table class="lex-table">
+<tr><th>Hammer</th><th>Cost</th><th>Effect</th></tr>
+${hammerRows}
+</table>
+<h4>Hammer Bonus Details</h4>
+<table class="lex-table">
+<tr><th>Bonus</th><th>Exact Mechanic</th></tr>
+<tr><td>🍗 +15% star pieces</td><td>Star Piece drop weight x <strong>1.15</strong></td></tr>
+<tr><td>🦇 Fewer empty eggs</td><td>Empty weight x <strong>0.4</strong> (60% reduction)</td></tr>
+<tr><td>🔮 +20% feathers</td><td>Feather drop weight x <strong>1.2</strong></td></tr>
+<tr><td>⭐ 2x gold</td><td>All gold prize values x <strong>1.2</strong> (stacks with other gold bonuses)</td></tr>
+<tr><td>🌈 +10% collection items</td><td>Item drop weight x <strong>1.1</strong></td></tr>
+</table>
+
+<h4>Hats</h4>
+<table class="lex-table">
+<tr><th>Hat</th><th>Cost</th><th>Effect</th></tr>
+${hatRows}
+</table>
+<h4>Hat Bonus Details</h4>
+<table class="lex-table">
+<tr><th>Bonus</th><th>Exact Mechanic</th></tr>
+<tr><td>👨‍🍳 10% chance egg was free</td><td>After paying, <strong>10% chance</strong> hammers are refunded</td></tr>
+<tr><td>👑 +10% gold</td><td>All gold prize values x <strong>1.1</strong></td></tr>
+<tr><td>🧙 +10% stars</td><td>Star Piece drop weight x <strong>1.1</strong></td></tr>
+<tr><td>🎩 Multipliers last longer</td><td><em>Reserved for future implementation</em></td></tr>
+<tr><td>🏴‍☠️ +15% collection items</td><td>Item drop weight x <strong>1.15</strong></td></tr>
+</table>
+
+<h4>Supplies (Consumables)</h4>
+<table class="lex-table">
+<tr><th>Item</th><th>Cost</th><th>Effect</th><th>Repeatable?</th></tr>
+<tr><td>🔨 +5 Hammers</td><td class="num">200 gold</td><td>Adds 5 hammers (up to max)</td><td>Yes</td></tr>
+<tr><td>🔨 +20 Hammers</td><td class="num">700 gold</td><td>Adds 20 hammers (up to max)</td><td>Yes</td></tr>
+<tr><td>⭐ Star Piece</td><td class="num">2,000 gold</td><td>Adds 1 star piece</td><td>Yes</td></tr>
+<tr><td>✖️ x5 Multiplier</td><td class="num">3,000 gold</td><td>Adds x5 to multiplier queue</td><td>Yes</td></tr>
+<tr><td>📦 +5 Hammer Cap</td><td class="num">5,000 gold</td><td>Max hammers +5 permanently</td><td>Yes</td></tr>
+<tr><td>⚡ Fast Regen</td><td class="num">10,000 gold</td><td>Regen rate: 30s → 15s</td><td>Once only</td></tr>
+</table>
+`;
+    }
+  },
+  {
+    id: 'goldcalc', icon: '🪙', title: 'Gold Calculation Formula',
+    html: () => `
+<p>When you smash an egg and roll a gold prize, the final value is computed by stacking several multipliers:</p>
+<p class="lex-formula">Final = floor(base_roll x active_multiplier x egg_bonus x hammer_bonus x hat_bonus x monkey_perk)</p>
+<h4>Multiplier Stack Breakdown</h4>
+<table class="lex-table">
+<tr><th>Layer</th><th>Value</th><th>Source</th></tr>
+<tr><td>Base Roll</td><td class="num">5–250</td><td>Random within tier range</td></tr>
+<tr><td>Active Multiplier</td><td class="num">x1 to x50</td><td>Selected from multiplier queue</td></tr>
+<tr><td>Egg Bonus</td><td class="num">x1 / x2 / x1.5</td><td>Normal / Silver / Gold</td></tr>
+<tr><td>Hammer Perk</td><td class="num">x1 or x1.2</td><td>Golden Hammer equipped</td></tr>
+<tr><td>Hat Perk</td><td class="num">x1 or x1.1</td><td>Crown equipped</td></tr>
+<tr><td>Monkey Perk</td><td class="num">x1 or x1.2</td><td>Princess Monkey active</td></tr>
+</table>
+<h4>Maximum Possible Single Gold Win</h4>
+<p class="lex-formula">250 x 50 x 2 (silver) x 1.2 (hammer) x 1.1 (hat) x 1.2 (monkey) = <strong>39,600 gold</strong></p>
+<p class="lex-tip">In practice, the best consistent setup is Gold eggs + Princess Monkey + Golden Hammer + Crown + a x50 multiplier, yielding up to 250 x 50 x 1.5 x 1.2 x 1.1 x 1.2 = <strong>29,700 gold</strong> per smash.</p>
+`
+  },
+  {
+    id: 'rounds', icon: '🎯', title: 'Rounds & Egg Generation',
+    html: () => `
+<h4>Round Structure</h4>
+<p>Each round generates a set of eggs equal to the current stage's <strong>egg count</strong> (3–7 depending on stage). Click "New Round" to generate a fresh set at any time.</p>
+<h4>Egg Upgrade Rolls</h4>
+<p>When a round is generated, each egg starts as your selected type, then has a chance to upgrade:</p>
+<table class="lex-table">
+<tr><th>Selected Type</th><th>Upgrade Chance</th></tr>
+<tr><td>Normal → Silver</td><td class="num">8%</td></tr>
+<tr><td>Normal → Gold</td><td class="num">2%</td></tr>
+<tr><td>Silver → Gold</td><td class="num">5%</td></tr>
+<tr><td>Gold</td><td>No further upgrades</td></tr>
+</table>
+<p class="lex-warn">The 2% Normal→Gold and 8% Normal→Silver are checked independently — the Gold check happens first, so effective Silver upgrade rate on Normal is ~7.84%.</p>
+<h4>Eggs Per Stage</h4>
+<p>Early stages offer 3 eggs per round; later stages offer up to 7. This scales the amount of prizes per round but also requires more hammers.</p>
+`
+  },
+  {
+    id: 'pity', icon: '🎰', title: 'Pity System & Drop Mechanics',
+    html: () => `
+<h4>Collection Item Pity</h4>
+<p>When rolling a collection item, the game uses a <strong>weighted pity system</strong> to prevent endless grinding for the last item:</p>
+<table class="lex-table">
+<tr><th>Item State</th><th>Weight Multiplier</th></tr>
+<tr><td>Not yet collected</td><td class="num"><strong>2.0x</strong> base weight</td></tr>
+<tr><td>Already collected</td><td class="num"><strong>0.3x</strong> base weight</td></tr>
+</table>
+<p>This means an uncollected item is <strong>6.67 times more likely</strong> to drop than one you already own. Combined with rarity weights:</p>
+<table class="lex-table">
+<tr><th>Rarity</th><th>Base Weight</th><th>If Uncollected</th><th>If Collected</th></tr>
+<tr><td>Common</td><td class="num">10</td><td class="num">20</td><td class="num">3</td></tr>
+<tr><td>Uncommon</td><td class="num">5</td><td class="num">10</td><td class="num">1.5</td></tr>
+<tr><td>Rare</td><td class="num">2</td><td class="num">4</td><td class="num">0.6</td></tr>
+</table>
+<p class="lex-tip">Even Rare items are heavily favored when uncollected. If you're missing one last Rare item and own everything else, your odds are approximately 4 / (sum of all collected weights + 4), which can be 40%+ per item roll.</p>
+<h4>Prize Type Selection</h4>
+<p>Prize type is selected via weighted random from the prize table. Equipment and monkey perks modify these weights <em>before</em> the roll. All modifiers are multiplicative on the raw weight values.</p>
+`
+  },
+  {
+    id: 'equipment', icon: '⚔️', title: 'Bonus Stacking Rules',
+    html: () => `
+<h4>How Bonuses Combine</h4>
+<p>Equipment bonuses modify the <strong>prize weight table</strong> (affecting what you roll) or the <strong>prize value</strong> (affecting how much you get). They stack multiplicatively:</p>
+<h4>Weight Modifiers (affect drop chance)</h4>
+<table class="lex-table">
+<tr><th>Bonus Source</th><th>Affected Weight</th><th>Multiplier</th></tr>
+<tr><td>Bat Hammer</td><td>Empty</td><td class="num">x0.4</td></tr>
+<tr><td>Drumstick Hammer</td><td>Star Piece</td><td class="num">x1.15</td></tr>
+<tr><td>Crystal Hammer</td><td>Feather</td><td class="num">x1.2</td></tr>
+<tr><td>Rainbow Hammer</td><td>Item</td><td class="num">x1.1</td></tr>
+<tr><td>Wizard Hat</td><td>Star Piece</td><td class="num">x1.1</td></tr>
+<tr><td>Pirate Hat</td><td>Item</td><td class="num">x1.15</td></tr>
+<tr><td>Steampunk Monkey</td><td>Star Piece</td><td class="num">x1.15</td></tr>
+<tr><td>Space Cadette</td><td>Item</td><td class="num">x1.1</td></tr>
+</table>
+<p><strong>Example:</strong> Steampunk Monkey + Drumstick Hammer + Wizard Hat on Star Pieces:<br>
+<span class="lex-formula">8 (base) x 1.15 x 1.15 x 1.1 = <strong>11.6 weight</strong></span> (vs 8 baseline = 45% higher star chance)</p>
+
+<h4>Value Modifiers (affect gold amounts)</h4>
+<table class="lex-table">
+<tr><th>Bonus Source</th><th>Multiplier</th></tr>
+<tr><td>Silver Egg</td><td class="num">x2.0</td></tr>
+<tr><td>Gold Egg</td><td class="num">x1.5</td></tr>
+<tr><td>Active Multiplier</td><td class="num">x2 to x50</td></tr>
+<tr><td>Golden Hammer</td><td class="num">x1.2</td></tr>
+<tr><td>Crown Hat</td><td class="num">x1.1</td></tr>
+<tr><td>Princess Monkey</td><td class="num">x1.2</td></tr>
+</table>
+`
+  },
+  {
+    id: 'achievements', icon: '🏆', title: 'Achievements',
+    html: () => {
+      let rows = '';
+      ACHIEVEMENT_DATA.forEach(a => {
+        const unlocked = G.achieved.includes(a.id);
+        rows += '<tr><td>' + a.icon + '</td><td><strong>' + a.name + '</strong></td><td>' +
+          a.desc + '</td><td>' + (unlocked ? '✅' : '—') + '</td></tr>';
+      });
+      return `
+<p>There are <strong>${ACHIEVEMENT_DATA.length} achievements</strong> to unlock. They are tracked automatically and a toast notification appears when you earn one. Achievements have no gameplay effect — they are purely for bragging rights.</p>
+<table class="lex-table">
+<tr><th></th><th>Name</th><th>Requirement</th><th>Status</th></tr>
+${rows}
+</table>
+`;
+    }
+  },
+  {
+    id: 'strategy', icon: '🧠', title: 'Strategy Guide',
+    html: () => `
+<h4>Early Game (Stages 1–3)</h4>
+<p>Use <strong>Normal eggs</strong> to conserve hammers. Focus on filling collections. Save gold — don't buy hammers from the shop early; let regeneration do the work. Claim your daily bonus every day to build a streak.</p>
+
+<h4>Mid Game (Stages 4–6)</h4>
+<p>Switch to <strong>Silver eggs</strong> when you have a comfortable hammer supply (60+). Silver eggs can't be empty and have a chance to drop bonus hammers, making them self-sustaining. Buy the <strong>Bat Hammer</strong> early for 60% fewer empties on Normal eggs.</p>
+
+<h4>Late Game (Stages 7–9)</h4>
+<p>Use <strong>Gold eggs</strong> for guaranteed value. Save multipliers for Gold egg rounds. Consider the <strong>Golden Hammer</strong> and <strong>Crown Hat</strong> for maximum gold income. Starfall becomes critical — 5–7 free Gold egg smashes per Starfall is extremely powerful.</p>
+
+<h4>Optimal Equipment Builds</h4>
+<table class="lex-table">
+<tr><th>Goal</th><th>Hammer</th><th>Hat</th><th>Monkey</th></tr>
+<tr><td>Max Gold Income</td><td>⭐ Golden</td><td>👑 Crown</td><td>👸 Princess</td></tr>
+<tr><td>Fast Collection</td><td>🌈 Rainbow</td><td>🏴‍☠️ Pirate</td><td>🚀 Space Cadette</td></tr>
+<tr><td>Star Farming</td><td>🍗 Drumstick</td><td>🧙 Wizard</td><td>🔧 Steampunk</td></tr>
+<tr><td>Hammer Economy</td><td>🦇 Bat</td><td>👨‍🍳 Chef's</td><td>Any</td></tr>
+</table>
+
+<h4>Multiplier Strategy</h4>
+<p>Always save <strong>x10 and x50 multipliers</strong> for Gold eggs' large gold tier (80–250 base). A x50 on a 250-gold roll with full bonuses can yield <strong>30,000+ gold</strong> in one hit.</p>
+
+<h4>Starfall Timing</h4>
+<p>Save Starfall for rounds with the most unbroken eggs. Ideal: start a new round on a late stage (5–7 eggs), use Starfall immediately for maximum free prizes. Even better with Gold eggs selected.</p>
+`
+  },
+];
+
+let activeLexSection = null;
+
+function renderLexicon() {
+  const toc = $id('lex-toc');
+  const content = $id('lex-content');
+  toc.innerHTML = '';
+  content.innerHTML = '';
+
+  LEXICON_SECTIONS.forEach((sec, i) => {
+    // TOC button
+    const btn = document.createElement('button');
+    btn.className = 'lex-toc-btn';
+    btn.textContent = sec.icon + ' ' + sec.title;
+    btn.addEventListener('click', () => {
+      const el = document.getElementById('lex-' + sec.id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelectorAll('.lex-toc-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+    toc.appendChild(btn);
+
+    // Section
+    const section = document.createElement('div');
+    section.className = 'lex-section';
+    section.id = 'lex-' + sec.id;
+
+    const head = document.createElement('div');
+    head.className = 'lex-section-head';
+    head.innerHTML = '<span class="lex-icon">' + sec.icon + '</span>' +
+      '<span class="lex-title">' + sec.title + '</span>' +
+      '<span class="lex-toggle">▼</span>';
+    head.addEventListener('click', () => {
+      head.classList.toggle('collapsed');
+    });
+
+    const body = document.createElement('div');
+    body.className = 'lex-body';
+    body.innerHTML = sec.html();
+
+    section.appendChild(head);
+    section.appendChild(body);
+    content.appendChild(section);
+  });
+}
+
+function filterLexicon() {
+  const q = $id('lex-search').value.toLowerCase().trim();
+  const sections = document.querySelectorAll('.lex-section');
+  sections.forEach(sec => {
+    if (!q) {
+      sec.classList.remove('hidden');
+      const head = sec.querySelector('.lex-section-head');
+      if (head) head.classList.remove('collapsed');
+      return;
+    }
+    const text = sec.textContent.toLowerCase();
+    const match = text.includes(q);
+    sec.classList.toggle('hidden', !match);
+    if (match) {
+      const head = sec.querySelector('.lex-section-head');
+      if (head) head.classList.remove('collapsed');
+    }
+  });
+}
+
 // ==================== NAVIGATION ====================
 $id('nav-tabs').addEventListener('click', (e) => {
   const tab = e.target.closest('.nav-tab');
@@ -1251,6 +1782,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (name === 'monkeys') renderMonkeys();
   if (name === 'shop') renderShop();
   if (name === 'stats') renderStats();
+  if (name === 'lexicon') renderLexicon();
 });
 
 // ==================== KEYBOARD ====================

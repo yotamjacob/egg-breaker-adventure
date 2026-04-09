@@ -54,7 +54,7 @@ body{
 }
 .nav-tab{
   flex:1;padding:7px 0;border:none;background:none;
-  border-radius:8px;cursor:pointer;font-size:11px;
+  border-radius:8px;cursor:pointer;font-size:10px;
   font-weight:700;color:#78716c;font-family:inherit;
   transition:all .15s;
 }
@@ -294,6 +294,96 @@ body{
   cursor:pointer;font-family:inherit;margin-top:8px;
 }
 .reset-btn:hover{background:#fee2e2}
+
+/* ---------- Lexicon tab ---------- */
+.lex-search-wrap{margin-bottom:10px}
+.lex-search{
+  width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:9px;
+  font-size:13px;font-family:inherit;background:white;
+  transition:border-color .15s;
+}
+.lex-search:focus{outline:none;border-color:#f59e0b}
+
+.lex-toc{
+  display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;
+}
+.lex-toc-btn{
+  padding:4px 10px;border:1px solid #e5e7eb;border-radius:7px;
+  background:white;cursor:pointer;font-size:10px;font-weight:700;
+  font-family:inherit;color:#78716c;transition:all .12s;
+}
+.lex-toc-btn:hover{border-color:#fcd34d;color:#92400e}
+.lex-toc-btn.active{background:#fffbeb;border-color:#f59e0b;color:#92400e}
+
+.lex-content{}
+
+.lex-section{
+  margin-bottom:14px;scroll-margin-top:8px;
+}
+.lex-section.hidden{display:none}
+.lex-section-head{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;
+  background:linear-gradient(135deg,#fffbeb,#fef3c7);
+  border:1px solid #fde68a;border-radius:10px 10px 0 0;
+  cursor:pointer;user-select:none;
+}
+.lex-section-head .lex-icon{font-size:18px}
+.lex-section-head .lex-title{font-size:13px;font-weight:800;color:#92400e;flex:1}
+.lex-section-head .lex-toggle{font-size:11px;color:#b45309;transition:transform .2s}
+.lex-section-head.collapsed .lex-toggle{transform:rotate(-90deg)}
+
+.lex-body{
+  background:white;border:1px solid #e5e7eb;border-top:none;
+  border-radius:0 0 10px 10px;padding:10px 14px;
+  font-size:12px;line-height:1.7;color:#44403c;
+}
+.lex-section-head.collapsed + .lex-body{display:none}
+
+.lex-body h4{
+  font-size:12px;font-weight:700;color:#92400e;
+  margin:10px 0 4px;padding-bottom:2px;
+  border-bottom:1px solid #fde68a;
+}
+.lex-body h4:first-child{margin-top:0}
+
+.lex-body p{margin-bottom:6px}
+.lex-body strong{color:#1c1917}
+.lex-body em{color:#78716c;font-style:normal}
+
+.lex-table{
+  width:100%;border-collapse:collapse;margin:6px 0 10px;font-size:11px;
+}
+.lex-table th{
+  text-align:left;padding:4px 8px;background:#fef3c7;
+  color:#92400e;font-weight:700;border:1px solid #fde68a;
+  font-size:10px;letter-spacing:.5px;
+}
+.lex-table td{
+  padding:4px 8px;border:1px solid #e5e7eb;vertical-align:top;
+}
+.lex-table tr:nth-child(even) td{background:#fafaf9}
+.lex-table .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:#1c1917}
+.lex-table .hl{color:#b45309;font-weight:600}
+.lex-table .sub{color:#78716c;font-size:10px}
+
+.lex-formula{
+  display:inline-block;background:#f5f5f4;border:1px solid #e5e7eb;
+  border-radius:6px;padding:2px 8px;font-family:'SF Mono',Consolas,monospace;
+  font-size:11px;color:#1c1917;margin:2px 0;
+}
+
+.lex-tip{
+  background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;
+  padding:6px 10px;margin:6px 0;font-size:11px;color:#1e40af;
+}
+.lex-tip::before{content:'Tip: ';font-weight:700}
+
+.lex-warn{
+  background:#fef2f2;border:1px solid #fecaca;border-radius:8px;
+  padding:6px 10px;margin:6px 0;font-size:11px;color:#991b1b;
+}
+.lex-warn::before{content:'Note: ';font-weight:700}
 
 /* ---------- Popups / overlays ---------- */
 .overlay{
