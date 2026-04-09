@@ -281,7 +281,7 @@ function spawnFloat(zone, text, color, cls) {
   el.style.top = (10 + Math.random() * 30) + '%';
   el.textContent = text;
   zone.appendChild(el);
-  setTimeout(() => el.remove(), cls === 'mega' ? 2000 : 1300);
+  setTimeout(() => el.remove(), cls === 'mega' ? 3200 : cls === 'big' ? 2700 : 2200);
 }
 
 function shake(level) {
