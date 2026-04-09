@@ -2,6 +2,8 @@
 //  Egg Breaker Adventures – Game Engine
 //  game.js  (requires data.js loaded first)
 // ============================================================
+try { _dbg('game.js executing...'); } catch(e) {}
+try {
 
 // ==================== AUDIO ====================
 const SFX = (() => {
@@ -2113,3 +2115,4 @@ _dbg('listeners ready - tap an egg');
 
   // Double-tap zoom prevention handled by CSS touch-action:manipulation
 })();
+} catch(e) { _dbg('CRASH: ' + e.message + ' at ' + (e.stack||'').split('\n')[1]); }
