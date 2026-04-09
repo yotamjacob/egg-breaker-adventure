@@ -254,12 +254,11 @@ body{
 
 /* ---------- Egg tray ---------- */
 .egg-tray-wrap{
-  position:relative;min-height:220px;margin-bottom:8px;
+  position:relative;z-index:2;min-height:220px;margin-bottom:8px;
   border-radius:2px;
   background:var(--bg2);
   border:3px solid var(--gold3);
   box-shadow: inset 3px 3px 0 var(--inset), 4px 4px 0 var(--dark);
-  overflow:visible;
 }
 
 /* Egg tray — topmost, receives all taps/clicks */
@@ -275,13 +274,14 @@ body{
 }
 .hint.hidden{display:none}
 
-/* Decorative overlays — behind egg tray, no interaction */
-#particle-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
-#prize-zone{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:visible;z-index:2}
+/* Overlay layer — separate from egg tray, receives no touch/click */
+#overlay-layer{z-index:1}
+#particle-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+#prize-zone{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:visible}
 #hammer{
   position:absolute;top:0;left:0;
   transform:rotate(-40deg);transform-origin:20px 0;
-  z-index:3;width:40px;pointer-events:none;
+  width:40px;pointer-events:none;
   opacity:0;transition:opacity .1s;
 }
 .hammer-anim{animation:hammer-swing .3s steps(5) forwards}
