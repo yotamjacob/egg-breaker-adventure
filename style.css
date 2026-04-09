@@ -308,6 +308,7 @@ body{
 .egg-slot{
   position:relative;cursor:none;transition:transform .08s steps(2);
   display:flex;flex-direction:column;align-items:center;
+  width:76px;min-height:100px;
 }
 .egg-slot:hover:not(.broken){transform:translateY(-4px)}
 .egg-slot:active:not(.broken){transform:scale(0.92)}
