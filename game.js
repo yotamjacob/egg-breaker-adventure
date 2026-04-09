@@ -1078,6 +1078,7 @@ function checkAchievements() {
     streak_5: () => G.consecutiveDays >= 5,
     streak_20: () => G.consecutiveDays >= 20,
     mult_50: () => G.highestMult >= 50,
+    mult_123: () => G.highestMult >= 123,
     buy_hammer: () => G.ownedHammers.length > 1,
     buy_hat: () => G.ownedHats.length > 1,
     daily_100: () => (G.totalDailyClaims || 0) >= 100,

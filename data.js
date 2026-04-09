@@ -194,6 +194,7 @@ const ACHIEVEMENT_DATA = [
   { id:'streak_5',     name:'On a Roll',          desc:'5-day login streak',           icon:'📅' },
   { id:'streak_20',    name:'Dedicated',           desc:'20-day login streak',          icon:'🔥' },
   { id:'mult_50',      name:'Multiplied!',        desc:'Use a x50 multiplier',         icon:'✖️' },
+  { id:'mult_123',     name:'Jackpot!',           desc:'Find the legendary x123',      icon:'🎰' },
   { id:'buy_hammer',   name:'Tool Upgrade',       desc:'Buy a special hammer',         icon:'🔨' },
   { id:'buy_hat',      name:'Hat Collector',      desc:'Buy a hat',                    icon:'🎩' },
   { id:'daily_100',    name:'Centurion',          desc:'Claim daily bonus 100 times',  icon:'💯' },
