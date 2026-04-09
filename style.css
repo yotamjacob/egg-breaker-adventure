@@ -49,16 +49,6 @@ body{
 }
 #app{width:100%;max-width:540px;position:relative}
 
-/* -- Retro pixel border mixin via box-shadow -- */
-.retro-box {
-  background: var(--panel);
-  border: 3px solid var(--border);
-  box-shadow:
-    inset 2px 2px 0 var(--raised),
-    inset -2px -2px 0 var(--inset),
-    4px 4px 0 var(--dark);
-}
-
 /* ---------- Top bar ---------- */
 .top-bar{
   background: linear-gradient(180deg, var(--panel2), var(--panel));
@@ -354,22 +344,6 @@ body{
   letter-spacing:1px;text-shadow:none;
 }
 
-/* ---------- Egg type pick ---------- */
-.egg-pick{display:flex;gap:4px;margin-bottom:8px}
-.epick{
-  flex:1;padding:6px 3px;
-  border:2px solid var(--gray);border-radius:2px;
-  background:var(--panel);cursor:pointer;text-align:center;
-  font-size:10px;font-family:var(--px);
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  transition:all .08s;color:var(--white);
-  box-shadow:2px 2px 0 var(--dark);
-  text-shadow:1px 1px 0 var(--dark);
-}
-.epick small{font-size:8px;color:var(--gray);text-shadow:none}
-.epick.active{border-color:var(--gold);background:var(--panel2);color:var(--gold);box-shadow:0 0 6px rgba(245,197,66,.3),2px 2px 0 var(--dark)}
-.epick:hover:not(.active){border-color:var(--white)}
-
 /* ---------- Status row ---------- */
 .status-row{display:flex;justify-content:space-between;font-size:9px;min-height:16px;margin-bottom:6px}
 #regen-txt{color:var(--gray)}
@@ -408,7 +382,6 @@ body{
   background:var(--panel);border:3px solid var(--gold3);border-radius:2px;
   padding:10px;box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark);
 }
-.album-coll-name{font-size:10px;color:var(--gold);margin-bottom:8px;text-shadow:1px 1px 0 var(--dark)}
 .pity-bar{
   display:flex;align-items:center;gap:6px;
   padding:5px 10px;margin-bottom:8px;
@@ -423,13 +396,13 @@ body{
 .pity-info strong{color:var(--gold)}
 .album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:5px}
 .album-item{
+  position:relative;cursor:help;
   display:flex;align-items:center;gap:5px;padding:5px 6px;
   border-radius:2px;border:2px solid var(--gray);background:var(--bg);
   font-size:9px;transition:all .1s;
 }
 .album-item.found{background:var(--panel2);border-color:var(--gold)}
-.album-item[data-tip]{position:relative;cursor:help}
-.album-item[data-tip]:hover{z-index:200}
+.album-item:hover{z-index:200}
 .album-item[data-tip]::after{
   content:attr(data-tip);
   position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px);

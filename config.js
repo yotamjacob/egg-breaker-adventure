@@ -111,7 +111,7 @@ const CONFIG = {
   featherStageMultiplier: 1.5,  // cost multiplied by this^(stageIndex) — stage1=1x, stage2=1.5x, stage3=2.25x...
 
   // Gold given when you roll a duplicate item
-  duplicateGoldRange: [10, 50],   // [min, max]
+  duplicateGoldRange: [10, 750],   // [min, max]
 
   // ----------------------------------------------------------
   // 9. CRYSTAL BANANAS

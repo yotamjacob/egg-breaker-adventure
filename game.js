@@ -138,7 +138,6 @@ const DEFAULT_STATE = {
   _selectedMults: [], // indices of selected multipliers in multQueue
   hammer: 'default', hat: 'none',
   ownedHammers: ['default'], ownedHats: ['none'],
-  eggType: 'normal',
   activeMonkey: 0,
   monkeys: null,     // built in initMonkeys()
   // Round
