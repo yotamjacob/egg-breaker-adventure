@@ -142,6 +142,32 @@ body{
 .res[data-tip]:last-child:hover::before{transform:translateX(0) translateY(0)}
 .res[data-tip]:last-child::after{left:auto;right:10px}
 
+/* ---------- Overall progress ---------- */
+.overall-prog{
+  background:var(--panel);border:3px solid var(--gold3);
+  border-radius:2px;padding:6px 10px;margin-bottom:8px;
+  box-shadow:inset 2px 2px 0 var(--raised),inset -2px -2px 0 var(--inset),3px 3px 0 var(--dark);
+}
+.overall-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.overall-label{font-size:8px;color:var(--gray);letter-spacing:1px}
+.overall-pct{font-size:10px;color:var(--gold);text-shadow:1px 1px 0 var(--dark)}
+.overall-track{
+  background:var(--dark);border:2px solid #444;
+  border-radius:1px;height:12px;overflow:hidden;margin-bottom:4px;
+  box-shadow:inset 1px 1px 0 rgba(0,0,0,.5);
+}
+.overall-fill{
+  height:100%;width:0%;
+  background:repeating-linear-gradient(90deg,var(--gold),var(--gold) 4px,var(--gold2) 4px,var(--gold2) 8px);
+  border-radius:0;transition:width .5s steps(25);
+}
+.overall-detail{
+  display:flex;justify-content:space-between;font-size:8px;color:var(--gray);
+  gap:6px;flex-wrap:wrap;
+}
+.overall-detail span{white-space:nowrap}
+.overall-detail strong{color:var(--gold)}
+
 /* ---------- Nav tabs ---------- */
 .nav-tabs{
   display:flex;gap:2px;margin-bottom:8px;

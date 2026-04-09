@@ -1034,6 +1034,37 @@ function updateResources() {
   }
 
   updateStarBtn();
+  updateOverallProgress();
+}
+
+function updateOverallProgress() {
+  let totalItems = 0, foundItems = 0;
+  let totalStages = 0, doneStages = 0;
+  let unlockedMonkeys = 0;
+
+  MONKEY_DATA.forEach((m, mi) => {
+    const mp = G.monkeys[mi];
+    if (mp.unlocked) unlockedMonkeys++;
+    m.stages.forEach((s, si) => {
+      totalStages++;
+      const items = s.collection.items;
+      totalItems += items.length;
+      if (mp.unlocked && mp.collections[si]) {
+        foundItems += mp.collections[si].filter(Boolean).length;
+      }
+      if (mp.unlocked && (si < mp.stage || (si === mp.stage && mp.tier >= 3))) {
+        doneStages++;
+      }
+    });
+  });
+
+  const pct = totalItems > 0 ? Math.round((foundItems / totalItems) * 100) : 0;
+  $id('overall-pct').textContent = pct + '%';
+  $id('overall-fill').style.width = pct + '%';
+  $id('overall-detail').innerHTML =
+    '<span>Items: <strong>' + foundItems + '/' + totalItems + '</strong></span>' +
+    '<span>Stages: <strong>' + doneStages + '/' + totalStages + '</strong></span>' +
+    '<span>Monkeys: <strong>' + unlockedMonkeys + '/' + MONKEY_DATA.length + '</strong></span>';
 }
 
 function updateStageBar() {
