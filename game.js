@@ -393,7 +393,8 @@ function renderEggTray() {
       '<span class="egg-label">' + egg.type +
       (egg.broken ? '' : ' ' + egg.hp + '/' + egg.maxHp) + '</span>';
     if (!egg.broken) {
-      slot.onclick = function() { smashEgg(i); };
+      slot.onclick = function() { if(window._dbg) _dbg('onclick ' + i); smashEgg(i); };
+      slot.ontouchend = function(e) { e.preventDefault(); if(window._dbg) _dbg('ontouchend ' + i); smashEgg(i); };
     }
     tray.appendChild(slot);
   });
@@ -592,11 +593,14 @@ function noHammerMsg() {
 
 // ==================== SMASH EGG ====================
 function smashEgg(index) {
-  if (!G.roundEggs) { msg('no eggs loaded', '#ef4444'); return; }
-  if (G.roundEggs[index].broken) return;
+  if (window._dbg) _dbg('smashEgg(' + index + ') called');
+  try {
+  if (!G.roundEggs) { msg('ERR: no eggs', '#ef4444'); return; }
+  if (G.roundEggs[index].broken) { msg('ERR: already broken', '#ef4444'); return; }
   const egg = G.roundEggs[index];
-  if (egg._smashing) { msg('smashing...', '#9ca3af'); return; }
+  if (egg._smashing) { msg('ERR: locked', '#ef4444'); return; }
   egg._smashing = true;
+  if (window._dbg) _dbg('smashing egg ' + index + ' hp:' + egg.hp);
 
   // Each hit costs 1 hammer
   if (G.hammers < 1) {
@@ -693,6 +697,7 @@ function smashEgg(index) {
     updateStageBar();
     saveGame();
   }, 250);
+  } catch(err) { msg('ERR: ' + err.message, '#ef4444'); }
 }
 
 function applyPrize(prize, cx, cy) {
@@ -2071,6 +2076,21 @@ $id('stage-bar').addEventListener('click', () => {
 
 // Auto-save
 setInterval(saveGame, 15000);
+
+// DEBUG: visible tap log for mobile debugging
+(() => {
+  const dbg = document.createElement('div');
+  dbg.id = 'dbg';
+  dbg.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font:10px monospace;padding:4px 8px;z-index:9999;max-height:80px;overflow-y:auto';
+  document.body.appendChild(dbg);
+  let lines = [];
+  window._dbg = function(s) { lines.push(s); if (lines.length > 6) lines.shift(); dbg.textContent = lines.join('\n'); };
+  const tray = $id('egg-tray');
+  tray.addEventListener('touchstart', () => _dbg('tray touchstart'), true);
+  tray.addEventListener('touchend', () => _dbg('tray touchend'), true);
+  tray.addEventListener('click', () => _dbg('tray click'), true);
+  document.addEventListener('click', (e) => _dbg('doc click: ' + e.target.tagName + '.' + e.target.className.split(' ')[0]), true);
+})();
 
 
 // Hammer follows mouse (desktop only, hidden on touch via CSS)
