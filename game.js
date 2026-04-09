@@ -1062,7 +1062,6 @@ function renderAll() {
   const monkey = curMonkey();
   $id('monkey-avatar').textContent = monkey.emoji;
   $id('monkey-subtitle').textContent = monkey.name;
-  if (!G.soundOn) SFX.toggle(); // sync sound state
   $id('sound-btn').textContent = G.soundOn ? '🔊' : '🔇';
 
   updateResources();
