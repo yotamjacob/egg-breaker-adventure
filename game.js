@@ -387,7 +387,6 @@ function renderEggTray() {
       (egg.broken ? '' : ' ' + egg.hp + '/' + egg.maxHp) + '</span>';
     if (!egg.broken) {
       slot.addEventListener('click', () => smashEgg(i));
-      slot.addEventListener('touchstart', (e) => { e.preventDefault(); smashEgg(i); }, { passive: false });
     }
     tray.appendChild(slot);
   });
@@ -642,9 +641,8 @@ function smashEgg(index) {
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, damage) +
       '<span class="egg-label">' + egg.type + ' ' + egg.hp + '/' + egg.maxHp + '</span>';
-    // Re-attach handlers (innerHTML wipes them)
+    // Re-attach handler (innerHTML wipes it)
     slot.addEventListener('click', () => smashEgg(index));
-    slot.addEventListener('touchstart', (e) => { e.preventDefault(); smashEgg(index); }, { passive: false });
     setTimeout(() => { egg._smashing = false; }, 300);
     updateResources();
     saveGame();
