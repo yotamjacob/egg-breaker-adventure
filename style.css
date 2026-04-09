@@ -317,6 +317,7 @@ body{
 .egg-slot .egg-label{
   font-size:8px;color:var(--gray);margin-top:3px;
   font-family:var(--px);text-transform:uppercase;letter-spacing:1px;
+  text-align:center;width:100%;
 }
 
 .egg-slot:not(.broken)::after{
