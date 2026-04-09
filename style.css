@@ -428,19 +428,20 @@ body{
   font-size:9px;transition:all .1s;overflow:hidden;
 }
 .album-item.found{background:var(--panel2);border-color:var(--gold)}
-.album-item[data-tip]{position:relative;cursor:help}
-.album-item[data-tip]::before{
+.item-with-tip{display:contents}
+.album-item:has(.item-with-tip){position:relative;cursor:help}
+.item-with-tip[data-tip]::after{
   content:attr(data-tip);
   position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%) translateY(4px);
   background:var(--dark);border:2px solid var(--amber);
-  border-radius:2px;padding:4px 8px;
-  font-family:var(--px);font-size:7px;font-style:italic;line-height:1.5;
-  color:var(--amber);white-space:pre-line;width:200px;
+  border-radius:2px;padding:5px 10px;
+  font-family:var(--px);font-size:7px;font-style:italic;line-height:1.6;
+  color:var(--amber);white-space:normal;width:210px;
   text-align:center;z-index:200;pointer-events:none;
   box-shadow:3px 3px 0 rgba(0,0,0,.6);
   opacity:0;transition:opacity .12s steps(3);
 }
-.album-item[data-tip]:hover::before{opacity:1;transform:translateX(-50%) translateY(0)}
+.album-item:hover .item-with-tip[data-tip]::after{opacity:1;transform:translateX(-50%) translateY(0)}
 .album-item.locked{opacity:1}
 .album-item.locked .item-emoji{opacity:.4;filter:grayscale(.5)}
 .album-item.locked .item-name{opacity:.4}
