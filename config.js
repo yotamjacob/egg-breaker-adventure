@@ -100,6 +100,16 @@ const CONFIG = {
   itemDuplicateMultiplier: 0.8,   // weight x this if already collected
   // (effective boost: pity / duplicate = 1.5x more likely for missing items)
 
+  // Feather cost to buy an album item directly.
+  // Cost = base cost for rarity x stage multiplier.
+  // Stage multiplier = featherStageMult[0] for stage 1, increasing per stage.
+  featherItemCost: {
+    common:   3,    // rarity 1 base cost
+    uncommon: 8,    // rarity 2 base cost
+    rare:     20,   // rarity 3 base cost
+  },
+  featherStageMultiplier: 1.5,  // cost multiplied by this^(stageIndex) — stage1=1x, stage2=1.5x, stage3=2.25x...
+
   // Gold given when you roll a duplicate item
   duplicateGoldRange: [10, 50],   // [min, max]
 

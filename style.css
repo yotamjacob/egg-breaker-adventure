@@ -419,6 +419,14 @@ body{
 .album-item .item-name{color:var(--white);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .album-item.locked .item-name{color:var(--gray)}
 .album-rarity{font-size:7px;border-radius:1px;padding:1px 4px;flex-shrink:0;border:1px solid;white-space:nowrap}
+.feather-buy-btn{
+  background:var(--green2);color:var(--white);border:1px solid var(--green);
+  border-radius:2px;padding:2px 6px;font-size:7px;font-family:var(--px);
+  cursor:pointer;box-shadow:1px 1px 0 var(--dark);white-space:nowrap;
+  flex-shrink:0;transition:transform .08s;
+}
+.feather-buy-btn:hover{transform:translate(-1px,-1px);background:var(--green)}
+.feather-buy-btn:active{transform:translate(1px,1px);box-shadow:0 0 0 transparent}
 .rarity-1{background:#143d2b;color:var(--green);border-color:var(--green2)}
 .rarity-2{background:#2d1854;color:#c084fc;border-color:var(--purple)}
 .rarity-3{background:#4a2800;color:var(--gold);border-color:var(--gold3)}

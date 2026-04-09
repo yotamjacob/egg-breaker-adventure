@@ -1255,32 +1255,84 @@ function renderAlbum() {
   renderAlbumStage(prog.stage);
 }
 
+function featherCost(rarity, stageIdx) {
+  const C = CONFIG;
+  const rarityKey = rarity === 1 ? 'common' : rarity === 2 ? 'uncommon' : 'rare';
+  const base = C.featherItemCost[rarityKey];
+  return Math.round(base * Math.pow(C.featherStageMultiplier, stageIdx));
+}
+
+let _albumStageIdx = 0; // track which stage the album is viewing
+
 function renderAlbumStage(stageIdx) {
+  _albumStageIdx = stageIdx;
   const monkey = curMonkey();
   const prog = curProgress();
   const stage = monkey.stages[stageIdx];
   const collected = prog.collections[stageIdx] || [];
   const div = $id('album-items');
 
-  let html = '';
-  html += '<div class="album-grid">';
+  let html = '<div class="album-grid">';
   stage.collection.items.forEach((item, i) => {
     const found = collected[i];
     const rarityClass = 'rarity-' + item[2];
     const rarityLabel = ['', 'Common', 'Uncommon', 'Rare'][item[2]];
+    const cost = featherCost(item[2], stageIdx);
+
     html += '<div class="album-item ' + (found ? 'found' : 'locked') + '">';
     html += '<span class="item-emoji">' + (found ? item[0] : '❓') + '</span>';
     html += '<span class="item-name">' + (found ? item[1] : '???') + '</span>';
     html += '<span class="album-rarity ' + rarityClass + '">' + rarityLabel + '</span>';
+    if (!found) {
+      html += '<button class="feather-buy-btn" data-idx="' + i + '" data-cost="' + cost + '">' +
+        cost + ' 🪶</button>';
+    }
     html += '</div>';
   });
   html += '</div>';
   div.innerHTML = html;
 
+  // Attach buy handlers
+  div.querySelectorAll('.feather-buy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      buyAlbumItem(stageIdx, parseInt(btn.dataset.idx), parseInt(btn.dataset.cost));
+    });
+  });
+
   // Update active button
   document.querySelectorAll('.album-stage-btn').forEach((b, i) => {
     b.classList.toggle('active', i === stageIdx);
   });
+}
+
+function buyAlbumItem(stageIdx, itemIdx, cost) {
+  if (G.feathers < cost) {
+    msg('Need ' + cost + ' feathers!', '#ef4444');
+    SFX.play('err');
+    return;
+  }
+  const prog = curProgress();
+  if (prog.collections[stageIdx][itemIdx]) {
+    msg('Already found!', '#9ca3af');
+    return;
+  }
+  G.feathers -= cost;
+  G.totalFeathers -= 0; // don't reduce lifetime stat
+  prog.collections[stageIdx][itemIdx] = true;
+  G.totalItems++;
+  SFX.play('item');
+
+  const monkey = curMonkey();
+  const item = monkey.stages[stageIdx].collection.items[itemIdx];
+  msg('Bought ' + item[0] + ' ' + item[1] + '!', '#059669');
+
+  checkCollectionComplete();
+  checkAchievements();
+  updateResources();
+  updateStageBar();
+  updateOverallProgress();
+  renderAlbumStage(stageIdx);
+  saveGame();
 }
 
 function renderMonkeys() {
@@ -1464,7 +1516,7 @@ function buildLexicon() {
 <p><strong>Gold</strong> — main currency (${minGold}–${maxGold} base, boosted by egg type, multipliers, and equipment). Spend it in the shop.</p>
 <p><strong>Star Pieces</strong> — collect ${C.starPiecesForStarfall} to trigger <strong>Starfall</strong>, which smashes all remaining eggs for free. Normal/Gold eggs drop ${C.starPiecesPerDrop.normal}, Silver drops ${C.starPiecesPerDrop.silver}.</p>
 <p><strong>Multipliers</strong> — ${uniqueMults.map(v => 'x' + v).join(', ')}. Stored in a queue. Click one to activate it before your next smash — it boosts gold, feathers, stars, and hammers. Other prizes get bonus gold.</p>
-<p><strong>Feathers</strong> — bonus collectible currency (${fMin}–${fMax} base, doubled from silver eggs).</p>
+<p><strong>Feathers</strong> — spend in the Album tab to buy missing collection items directly (${fMin}–${fMax} per drop, doubled from silver eggs). Prices increase with stage and rarity.</p>
 <p><strong>Collection Items</strong> — themed items for the current stage. New ones count toward completion. Duplicates convert to ${dupMin}–${dupMax} gold.</p>
 <p><strong>Bonus Hammers</strong> — Silver eggs only. ${minHammer}–${maxHammer} free hammers.</p>
 `
