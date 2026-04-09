@@ -1392,16 +1392,53 @@ function renderMonkeys() {
   });
 }
 
+// Bonus descriptions for tooltips
+const BONUS_INFO = {
+  lessEmpty:    { stat: 'Empty egg chance',   effect: 'x0.4 (60% reduction)', unit: '' },
+  moreStars:    { stat: 'Star piece weight',  effect: 'x1.15 (+15%)',         unit: '' },
+  moreFeathers: { stat: 'Feather weight',     effect: 'x1.2 (+20%)',          unit: '' },
+  moreItems:    { stat: 'Item drop weight',   effect: 'x1.1 (+10%)',          unit: '' },
+  moreGold:     { stat: 'Gold value',         effect: 'x1.2 (+20%)',          unit: '' },
+  freeEgg:      { stat: 'Free hit chance',    effect: '10%',                  unit: '' },
+  goldBoost:    { stat: 'Gold value',         effect: 'x1.1 (+10%)',          unit: '' },
+  starBoost:    { stat: 'Star piece weight',  effect: 'x1.1 (+10%)',          unit: '' },
+  multBoost:    { stat: 'Multiplier duration', effect: 'Extended',            unit: '' },
+  itemBoost:    { stat: 'Item drop weight',   effect: 'x1.15 (+15%)',         unit: '' },
+};
+
+function buildShopTooltip(bonus, owned) {
+  if (!bonus || !BONUS_INFO[bonus]) return '';
+  const info = BONUS_INFO[bonus];
+  if (owned) return info.stat + ': ' + info.effect + ' (active)';
+  const already = hasBonus(bonus);
+  if (already) return info.stat + ': already active from another source';
+  return info.stat + ': ' + info.effect + ' on purchase';
+}
+
+function buildSupplyTooltip(id) {
+  switch (id) {
+    case 'hammers5':   return 'Adds 5 hammers (current: ' + G.hammers + '/' + G.maxH + ')';
+    case 'hammers20':  return 'Adds 20 hammers (current: ' + G.hammers + '/' + G.maxH + ')';
+    case 'star1':      return 'Adds 1 star piece (current: ' + G.starPieces + '/' + CONFIG.starPiecesForStarfall + ')';
+    case 'mult5':      return 'Adds x5 to your multiplier queue (current queue: ' + G.multQueue.length + ')';
+    case 'maxhammers': return 'Hammer cap +5 (current max: ' + G.maxH + ' → ' + (G.maxH + 5) + ')';
+    case 'fastregen':  return 'Hammer regen: ' + CONFIG.regenInterval + 's → ' + CONFIG.fastRegenInterval + 's per hammer';
+    default: return '';
+  }
+}
+
 function renderShop() {
   // Hammers
   const hGrid = $id('shop-hammers');
   hGrid.innerHTML = '';
   SHOP_HAMMERS.forEach(h => {
-    if (h.cost === 0) return; // skip default
+    if (h.cost === 0) return;
     const owned = G.ownedHammers.includes(h.id);
     const isCursor = G.hammer === h.id;
+    const tip = buildShopTooltip(h.bonus, owned);
     const card = document.createElement('div');
     card.className = 'shop-card' + (owned ? ' owned' : '') + (isCursor ? ' equipped' : '');
+    if (tip) card.setAttribute('data-tip', tip);
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
       '<span class="s-name">' + h.name + '</span>' +
@@ -1419,8 +1456,10 @@ function renderShop() {
   SHOP_HATS.forEach(h => {
     if (h.cost === 0) return;
     const owned = G.ownedHats.includes(h.id);
+    const tip = buildShopTooltip(h.bonus, owned);
     const card = document.createElement('div');
     card.className = 'shop-card' + (owned ? ' owned' : '');
+    if (tip) card.setAttribute('data-tip', tip);
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
       '<span class="s-name">' + h.name + '</span>' +
@@ -1437,8 +1476,10 @@ function renderShop() {
   sGrid.innerHTML = '';
   SHOP_SUPPLIES.forEach(s => {
     const isOwned = s.unique && G['owned_' + s.id];
+    const tip = buildSupplyTooltip(s.id);
     const card = document.createElement('div');
     card.className = 'shop-card' + (isOwned ? ' owned' : '');
+    if (tip) card.setAttribute('data-tip', tip);
     card.innerHTML =
       '<span class="s-emoji">' + s.emoji + '</span>' +
       '<span class="s-name">' + s.name + '</span>' +

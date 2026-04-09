@@ -471,6 +471,21 @@ body{
   box-shadow:2px 2px 0 var(--dark);
 }
 .shop-card:hover:not(.owned){transform:translate(-1px,-1px);border-color:var(--gold);box-shadow:3px 3px 0 var(--dark)}
+
+/* Shop card tooltips */
+.shop-card[data-tip]{position:relative}
+.shop-card[data-tip]::before{
+  content:attr(data-tip);
+  position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(4px);
+  background:var(--dark);border:2px solid var(--gold);
+  border-radius:2px;padding:5px 8px;
+  font-family:var(--px);font-size:8px;line-height:1.5;
+  color:var(--white);white-space:normal;width:190px;
+  text-align:center;z-index:100;pointer-events:none;
+  box-shadow:3px 3px 0 rgba(0,0,0,.6);
+  opacity:0;transition:opacity .12s steps(3),transform .12s steps(3);
+}
+.shop-card[data-tip]:hover::before{opacity:1;transform:translateX(-50%) translateY(0)}
 .shop-card.owned{background:#143d2b;border-color:var(--green)}
 .shop-card.equipped{border-color:var(--gold);border-width:3px;box-shadow:0 0 8px rgba(245,197,66,.3),2px 2px 0 var(--dark)}
 .shop-card .s-emoji{font-size:24px}
