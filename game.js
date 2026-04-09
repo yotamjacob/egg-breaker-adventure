@@ -1150,7 +1150,7 @@ function toggleSound() {
 
 // ==================== UI RENDERING ====================
 function updateResources() {
-  $id('res-h').textContent = G.hammers + (G.hammers > G.maxH ? '!' : '');
+  $id('res-h').textContent = G.hammers + '/' + G.maxH;
   $id('res-g').textContent = formatNum(G.gold);
   $id('res-s').textContent = G.starPieces + '/' + CONFIG.starPiecesForStarfall;
   $id('res-b').textContent = G.crystalBananas;
