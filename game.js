@@ -508,9 +508,12 @@ function getHatBonus() {
 function smashEgg(index) {
   if (!G.roundEggs || G.roundEggs[index].broken) return;
   const egg = G.roundEggs[index];
+  if (egg._smashing) return;
+  egg._smashing = true;
 
   // Each hit costs 1 hammer
   if (G.hammers < 1) {
+    egg._smashing = false;
     msg('Need a hammer!', '#ef4444');
     SFX.play('err');
     return;
@@ -555,6 +558,7 @@ function smashEgg(index) {
       '<span class="egg-label">' + egg.type + ' ' + egg.hp + '/' + egg.maxHp + '</span>';
     // Re-attach click handler (innerHTML wipes it)
     slot.addEventListener('click', () => smashEgg(index));
+    setTimeout(() => { egg._smashing = false; }, 300);
     updateResources();
     saveGame();
     return;
