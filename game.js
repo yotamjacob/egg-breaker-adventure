@@ -151,7 +151,7 @@ const DEFAULT_STATE = {
   totalEggs: 0, totalGold: 0, totalStarPieces: 0, totalFeathers: 0,
   totalItems: 0, biggestWin: 0, highestMult: 1,
   starfallsUsed: 0, collectionsCompleted: 0, stagesCompleted: 0,
-  roundClears: 0,
+  roundClears: 0, feathersBought: 0, maxMultUsed: 0,
   achieved: [],
   soundOn: true,
 };
@@ -984,6 +984,8 @@ function renderMultQueue() {
 
 function consumeMultiplier() {
   if (G.activeMult > 1 && G._selectedMults && G._selectedMults.length > 0) {
+    G.maxMultUsed = Math.max(G.maxMultUsed || 0, G.activeMult);
+    G._lastMultCount = G._selectedMults.length; // for achievement check
     // Remove selected indices from queue (highest first to preserve indices)
     const sorted = [...G._selectedMults].sort((a, b) => b - a);
     for (const idx of sorted) {
@@ -1107,31 +1109,81 @@ let toastTimeout = null;
 
 function checkAchievements() {
   const checks = {
-    first_smash: () => G.totalEggs >= 1,
-    smash_50: () => G.totalEggs >= 50,
-    smash_200: () => G.totalEggs >= 200,
-    smash_1000: () => G.totalEggs >= 1000,
-    gold_1000: () => G.totalGold >= 1000,
-    gold_50000: () => G.totalGold >= 50000,
-    gold_500000: () => G.totalGold >= 500000,
-    stars_10: () => G.totalStarPieces >= 10,
-    starfall_1: () => G.starfallsUsed >= 1,
-    starfall_10: () => G.starfallsUsed >= 10,
-    coll_1: () => G.collectionsCompleted >= 1,
-    coll_5: () => G.collectionsCompleted >= 5,
-    coll_15: () => G.collectionsCompleted >= 15,
-    stage_1: () => G.stagesCompleted >= 1,
-    stage_9: () => G.stagesCompleted >= 9,
-    monkey_2: () => G.monkeys.filter(m => m.unlocked).length >= 2,
-    monkey_all: () => G.monkeys.every(m => m.unlocked),
-    streak_5: () => G.consecutiveDays >= 5,
-    streak_20: () => G.consecutiveDays >= 20,
-    mult_50: () => G.highestMult >= 50,
-    mult_123: () => G.highestMult >= 123,
-    buy_hammer: () => G.ownedHammers.length > 1,
-    buy_hat: () => G.ownedHats.length > 1,
-    daily_100: () => (G.totalDailyClaims || 0) >= 100,
-    round_clear: () => G.roundClears >= 1,
+    // Eggs smashed
+    first_smash:  () => G.totalEggs >= 1,
+    smash_50:     () => G.totalEggs >= 50,
+    smash_200:    () => G.totalEggs >= 200,
+    smash_1000:   () => G.totalEggs >= 1000,
+    smash_5000:   () => G.totalEggs >= 5000,
+    smash_10000:  () => G.totalEggs >= 10000,
+    // Gold earned
+    gold_1000:    () => G.totalGold >= 1000,
+    gold_50000:   () => G.totalGold >= 50000,
+    gold_500000:  () => G.totalGold >= 500000,
+    gold_2000000: () => G.totalGold >= 2000000,
+    // Star pieces
+    stars_10:     () => G.totalStarPieces >= 10,
+    stars_50:     () => G.totalStarPieces >= 50,
+    stars_200:    () => G.totalStarPieces >= 200,
+    // Starfall
+    starfall_1:   () => G.starfallsUsed >= 1,
+    starfall_10:  () => G.starfallsUsed >= 10,
+    starfall_50:  () => G.starfallsUsed >= 50,
+    // Collections
+    coll_1:       () => G.collectionsCompleted >= 1,
+    coll_5:       () => G.collectionsCompleted >= 5,
+    coll_15:      () => G.collectionsCompleted >= 15,
+    coll_30:      () => G.collectionsCompleted >= 30,
+    // Items found
+    items_10:     () => G.totalItems >= 10,
+    items_50:     () => G.totalItems >= 50,
+    items_100:    () => G.totalItems >= 100,
+    items_200:    () => G.totalItems >= 200,
+    // Stages
+    stage_1:      () => G.stagesCompleted >= 1,
+    stage_9:      () => G.stagesCompleted >= 9,
+    stage_18:     () => G.stagesCompleted >= 18,
+    stage_36:     () => G.stagesCompleted >= 36,
+    // Monkeys
+    monkey_2:     () => G.monkeys.filter(m => m.unlocked).length >= 2,
+    monkey_all:   () => G.monkeys.every(m => m.unlocked),
+    // Feathers
+    feathers_50:  () => G.totalFeathers >= 50,
+    feathers_500: () => G.totalFeathers >= 500,
+    feather_buy:  () => (G.feathersBought || 0) >= 1,
+    feather_buy10:() => (G.feathersBought || 0) >= 10,
+    // Multipliers
+    mult_found:   () => G.highestMult >= 2,
+    mult_50:      () => G.highestMult >= 50,
+    mult_123:     () => G.highestMult >= 123,
+    mult_stack:   () => (G._lastMultCount || 0) >= 3,
+    mult_big:     () => (G.maxMultUsed || 0) >= 20,
+    // Silver & Gold eggs
+    silver_10:    () => (G.silverSmashed || 0) >= 10,
+    silver_100:   () => (G.silverSmashed || 0) >= 100,
+    gold_egg_10:  () => (G.goldSmashed || 0) >= 10,
+    gold_egg_50:  () => (G.goldSmashed || 0) >= 50,
+    // Daily login
+    streak_5:     () => G.consecutiveDays >= 5,
+    streak_20:    () => G.consecutiveDays >= 20,
+    daily_10:     () => (G.totalDailyClaims || 0) >= 10,
+    daily_100:    () => (G.totalDailyClaims || 0) >= 100,
+    // Shopping
+    buy_hammer:   () => G.ownedHammers.length > 1,
+    buy_hat:      () => G.ownedHats.length > 1,
+    buy_all_h:    () => G.ownedHammers.length >= SHOP_HAMMERS.length,
+    buy_all_hat:  () => G.ownedHats.length >= SHOP_HATS.length,
+    shop_10:      () => (G.purchases || 0) >= 10,
+    // Rounds
+    round_clear:  () => G.roundClears >= 1,
+    round_50:     () => G.roundClears >= 50,
+    round_500:    () => G.roundClears >= 500,
+    // Biggest win
+    bigwin_500:   () => G.biggestWin >= 500,
+    bigwin_5000:  () => G.biggestWin >= 5000,
+    bigwin_50000: () => G.biggestWin >= 50000,
+    // Hammer overflow
+    overflow:     () => G.hammers > G.maxH,
   };
 
   for (const a of ACHIEVEMENT_DATA) {
@@ -1340,9 +1392,9 @@ function buyAlbumItem(stageIdx, itemIdx, cost) {
     return;
   }
   G.feathers -= cost;
-  G.totalFeathers -= 0; // don't reduce lifetime stat
   prog.collections[stageIdx][itemIdx] = true;
   G.totalItems++;
+  G.feathersBought = (G.feathersBought || 0) + 1;
   SFX.play('item');
 
   const monkey = curMonkey();

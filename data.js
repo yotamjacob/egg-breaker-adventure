@@ -174,29 +174,79 @@ const EGG_HP         = CONFIG.eggHP;
 const EGG_SPAWN_WEIGHTS = CONFIG.eggSpawnWeights;
 
 const ACHIEVEMENT_DATA = [
-  { id:'first_smash',  name:'First Crack',      desc:'Break your first egg',         icon:'🥚' },
-  { id:'smash_50',     name:'Egg Smasher',       desc:'Break 50 eggs',                icon:'💪' },
-  { id:'smash_200',    name:'Egg Destroyer',      desc:'Break 200 eggs',               icon:'🔥' },
-  { id:'smash_1000',   name:'Egg Annihilator',    desc:'Break 1,000 eggs',             icon:'💥' },
-  { id:'gold_1000',    name:'Coin Collector',     desc:'Earn 1,000 total gold',        icon:'🪙' },
-  { id:'gold_50000',   name:'Rich Monkey',        desc:'Earn 50,000 total gold',       icon:'💰' },
-  { id:'gold_500000',  name:'Gold Tycoon',        desc:'Earn 500,000 total gold',      icon:'🤑' },
-  { id:'stars_10',     name:'Stargazer',          desc:'Collect 10 star pieces',       icon:'⭐' },
-  { id:'starfall_1',   name:'Starfall!',          desc:'Use your first starfall',      icon:'🌟' },
-  { id:'starfall_10',  name:'Star Storm',         desc:'Use 10 starfalls',             icon:'☄️' },
-  { id:'coll_1',       name:'Collector',          desc:'Complete 1 collection',        icon:'📖' },
-  { id:'coll_5',       name:'Curator',            desc:'Complete 5 collections',       icon:'🏛️' },
-  { id:'coll_15',      name:'Archivist',          desc:'Complete 15 collections',      icon:'📚' },
-  { id:'stage_1',      name:'Stage Clear',        desc:'Complete a stage (gold tier)',  icon:'🎯' },
-  { id:'stage_9',      name:'World Champion',     desc:'Complete all 9 stages',        icon:'🏆' },
-  { id:'monkey_2',     name:'New Friend',         desc:'Unlock a second monkey',       icon:'🐒' },
-  { id:'monkey_all',   name:'Monkey Business',    desc:'Unlock all monkeys',           icon:'🐵' },
-  { id:'streak_5',     name:'On a Roll',          desc:'5-day login streak',           icon:'📅' },
-  { id:'streak_20',    name:'Dedicated',           desc:'20-day login streak',          icon:'🔥' },
-  { id:'mult_50',      name:'Multiplied!',        desc:'Use a x50 multiplier',         icon:'✖️' },
-  { id:'mult_123',     name:'Jackpot!',           desc:'Find the legendary x123',      icon:'🎰' },
-  { id:'buy_hammer',   name:'Tool Upgrade',       desc:'Buy a special hammer',         icon:'🔨' },
-  { id:'buy_hat',      name:'Hat Collector',      desc:'Buy a hat',                    icon:'🎩' },
-  { id:'daily_100',    name:'Centurion',          desc:'Claim daily bonus 100 times',  icon:'💯' },
-  { id:'round_clear',  name:'Clean Sweep',        desc:'Break all eggs in one round',  icon:'🧹' },
+  // -- Eggs smashed --
+  { id:'first_smash',  name:'First Crack',       desc:'Break your first egg',          icon:'🥚' },
+  { id:'smash_50',     name:'Egg Smasher',        desc:'Break 50 eggs',                 icon:'💪' },
+  { id:'smash_200',    name:'Egg Destroyer',       desc:'Break 200 eggs',                icon:'🔥' },
+  { id:'smash_1000',   name:'Egg Annihilator',     desc:'Break 1,000 eggs',              icon:'💥' },
+  { id:'smash_5000',   name:'Egg Apocalypse',      desc:'Break 5,000 eggs',              icon:'☄️' },
+  { id:'smash_10000',  name:'Egg Extinction',      desc:'Break 10,000 eggs',             icon:'🌋' },
+  // -- Gold earned --
+  { id:'gold_1000',    name:'Coin Collector',      desc:'Earn 1,000 total gold',         icon:'🪙' },
+  { id:'gold_50000',   name:'Rich Monkey',         desc:'Earn 50,000 total gold',        icon:'💰' },
+  { id:'gold_500000',  name:'Gold Tycoon',         desc:'Earn 500,000 total gold',       icon:'🤑' },
+  { id:'gold_2000000', name:'Gold Hoarder',        desc:'Earn 2,000,000 total gold',     icon:'🏦' },
+  // -- Star pieces --
+  { id:'stars_10',     name:'Stargazer',           desc:'Collect 10 star pieces',        icon:'⭐' },
+  { id:'stars_50',     name:'Star Catcher',        desc:'Collect 50 star pieces',        icon:'🌠' },
+  { id:'stars_200',    name:'Constellation',       desc:'Collect 200 star pieces',       icon:'🌌' },
+  // -- Starfall --
+  { id:'starfall_1',   name:'Starfall!',           desc:'Use your first starfall',       icon:'🌟' },
+  { id:'starfall_10',  name:'Star Storm',          desc:'Use 10 starfalls',              icon:'💫' },
+  { id:'starfall_50',  name:'Meteor Shower',       desc:'Use 50 starfalls',              icon:'🌠' },
+  // -- Collections --
+  { id:'coll_1',       name:'Collector',           desc:'Complete 1 collection',         icon:'📖' },
+  { id:'coll_5',       name:'Curator',             desc:'Complete 5 collections',        icon:'🏛️' },
+  { id:'coll_15',      name:'Archivist',           desc:'Complete 15 collections',       icon:'📚' },
+  { id:'coll_30',      name:'Completionist',       desc:'Complete 30 collections',       icon:'🗂️' },
+  // -- Items found --
+  { id:'items_10',     name:'Treasure Hunter',     desc:'Find 10 collection items',      icon:'🔍' },
+  { id:'items_50',     name:'Relic Seeker',        desc:'Find 50 collection items',      icon:'🗿' },
+  { id:'items_100',    name:'Artifact Master',     desc:'Find 100 collection items',     icon:'🏺' },
+  { id:'items_200',    name:'Museum Curator',      desc:'Find 200 collection items',     icon:'🖼️' },
+  // -- Stages --
+  { id:'stage_1',      name:'Stage Clear',         desc:'Complete a stage (gold tier)',   icon:'🎯' },
+  { id:'stage_9',      name:'World Champion',      desc:'Complete all 9 stages',         icon:'🏆' },
+  { id:'stage_18',     name:'Double Trouble',      desc:'Complete 18 stages',            icon:'⚡' },
+  { id:'stage_36',     name:'Grand Master',        desc:'Complete all 36 stages',        icon:'👑' },
+  // -- Monkeys --
+  { id:'monkey_2',     name:'New Friend',          desc:'Unlock a second monkey',        icon:'🐒' },
+  { id:'monkey_all',   name:'Monkey Business',     desc:'Unlock all monkeys',            icon:'🐵' },
+  // -- Feathers --
+  { id:'feathers_50',  name:'Plucked',             desc:'Collect 50 feathers',           icon:'🪶' },
+  { id:'feathers_500', name:'Feather Duster',      desc:'Collect 500 feathers',          icon:'🦚' },
+  { id:'feather_buy',  name:'Shortcut',            desc:'Buy an item with feathers',     icon:'🛍️' },
+  { id:'feather_buy10',name:'Big Spender',         desc:'Buy 10 items with feathers',    icon:'💸' },
+  // -- Multipliers --
+  { id:'mult_found',   name:'Lucky Find',          desc:'Find your first multiplier',    icon:'🔢' },
+  { id:'mult_50',      name:'Multiplied!',         desc:'Use a x50 multiplier',          icon:'✖️' },
+  { id:'mult_123',     name:'Jackpot!',            desc:'Find the legendary x123',       icon:'🎰' },
+  { id:'mult_stack',   name:'Stacked!',            desc:'Use 3+ multipliers at once',    icon:'📚' },
+  { id:'mult_big',     name:'Mega Combo',          desc:'Get a x20+ combined multiplier',icon:'🔥' },
+  // -- Silver & Gold eggs --
+  { id:'silver_10',    name:'Silver Streak',       desc:'Break 10 silver eggs',          icon:'🥈' },
+  { id:'silver_100',   name:'Silver Mine',         desc:'Break 100 silver eggs',         icon:'⛏️' },
+  { id:'gold_egg_10',  name:'Golden Touch',        desc:'Break 10 gold eggs',            icon:'🥇' },
+  { id:'gold_egg_50',  name:'Gold Rush',           desc:'Break 50 gold eggs',            icon:'🏅' },
+  // -- Daily login --
+  { id:'streak_5',     name:'On a Roll',           desc:'5-day login streak',            icon:'📅' },
+  { id:'streak_20',    name:'Dedicated',            desc:'20-day login streak',           icon:'🔥' },
+  { id:'daily_10',     name:'Regular',             desc:'Claim daily bonus 10 times',    icon:'📆' },
+  { id:'daily_100',    name:'Centurion',           desc:'Claim daily bonus 100 times',   icon:'💯' },
+  // -- Shopping --
+  { id:'buy_hammer',   name:'Tool Upgrade',        desc:'Buy a special hammer',          icon:'🔨' },
+  { id:'buy_hat',      name:'Hat Collector',       desc:'Buy a hat',                     icon:'🎩' },
+  { id:'buy_all_h',    name:'Arsenal',             desc:'Buy all special hammers',       icon:'🗡️' },
+  { id:'buy_all_hat',  name:'Millinery',           desc:'Buy all hats',                  icon:'🎪' },
+  { id:'shop_10',      name:'Shopaholic',          desc:'Make 10 shop purchases',        icon:'🛒' },
+  // -- Rounds --
+  { id:'round_clear',  name:'Clean Sweep',         desc:'Break all eggs in one round',   icon:'🧹' },
+  { id:'round_50',     name:'Marathon',            desc:'Clear 50 rounds',               icon:'🏃' },
+  { id:'round_500',    name:'Unstoppable',         desc:'Clear 500 rounds',              icon:'🚂' },
+  // -- Biggest win --
+  { id:'bigwin_500',   name:'Payday',              desc:'Win 500+ gold in one smash',    icon:'💵' },
+  { id:'bigwin_5000',  name:'Windfall',            desc:'Win 5,000+ gold in one smash',  icon:'💎' },
+  { id:'bigwin_50000', name:'Legendary Loot',      desc:'Win 50,000+ gold in one smash', icon:'🌟' },
+  // -- Hammer overflow --
+  { id:'overflow',     name:'Overloaded',          desc:'Have more hammers than your max',icon:'📦' },
 ];
