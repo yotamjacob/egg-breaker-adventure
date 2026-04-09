@@ -1187,7 +1187,7 @@ function updateStageBar() {
   const fill = $id('stage-fill');
   fill.style.width = pct + '%';
   fill.className = 'prog-fill' + (found >= total ? ' complete' : '');
-  $id('stage-detail').textContent = found + '/' + total + ' items • ' + stage.collection.name;
+  $id('stage-detail').textContent = found + '/' + total + ' items';
 }
 
 function renderAll() {
@@ -1235,7 +1235,7 @@ function renderAlbumStage(stageIdx) {
   const collected = prog.collections[stageIdx] || [];
   const div = $id('album-items');
 
-  let html = '<div class="album-coll-name">' + stage.collection.name + '</div>';
+  let html = '';
   html += '<div class="album-grid">';
   stage.collection.items.forEach((item, i) => {
     const found = collected[i];
