@@ -165,20 +165,13 @@ const SHOP_SUPPLIES = [
   { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', cost: 10000, currency: 'gold', type: 'upgrade', unique: true },
 ];
 
-// Prize type weights per egg type
-// Types: 'empty','gold_s','gold_m','gold_l','star','mult','feather','item','hammers'
-const PRIZE_WEIGHTS = {
-  normal: { empty:12, gold_s:22, gold_m:13, gold_l:5, star:8, mult:7, feather:10, item:23, hammers:0 },
-  silver: { empty:0,  gold_s:10, gold_m:18, gold_l:12,star:10,mult:10,feather:10, item:22, hammers:8 },
-  gold:   { empty:0,  gold_s:0,  gold_m:15, gold_l:20,star:12,mult:10,feather:8,  item:28, hammers:7 },
-};
-
-const GOLD_VALUES = { gold_s: [5,15], gold_m: [20,60], gold_l: [80,250] };
-const MULT_VALUES = [2, 2, 3, 3, 5, 5, 10, 50];
-const HAMMER_PRIZES = [2, 3, 5, 5, 8];
-
-const EGG_HP = { normal: 1, silver: 2, gold: 3 };
-const EGG_SPAWN_WEIGHTS = { normal: 75, silver: 18, gold: 7 };
+// All tuning values are read from CONFIG (config.js)
+const PRIZE_WEIGHTS  = CONFIG.prizeWeights;
+const GOLD_VALUES    = CONFIG.goldValues;
+const MULT_VALUES    = CONFIG.multiplierValues;
+const HAMMER_PRIZES  = CONFIG.hammerPrizeAmounts;
+const EGG_HP         = CONFIG.eggHP;
+const EGG_SPAWN_WEIGHTS = CONFIG.eggSpawnWeights;
 
 const ACHIEVEMENT_DATA = [
   { id:'first_smash',  name:'First Crack',      desc:'Break your first egg',         icon:'🥚' },

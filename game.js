@@ -131,7 +131,7 @@ const Particles = (() => {
 
 // ==================== GAME STATE ====================
 const DEFAULT_STATE = {
-  hammers: 40, maxH: 40, gold: 0, starPieces: 0, crystalBananas: 0,
+  hammers: CONFIG.startingHammers, maxH: CONFIG.startingMaxHammers, gold: 0, starPieces: 0, crystalBananas: 0,
   feathers: 0,
   multQueue: [],     // multipliers in hand
   activeMult: 1,     // currently selected mult (1 = none)
@@ -146,7 +146,7 @@ const DEFAULT_STATE = {
   // Daily
   lastLoginDate: null, consecutiveDays: 0, dailyClaimed: false, totalDailyClaims: 0,
   // Regen
-  regenCD: 30, fastRegen: false,
+  regenCD: CONFIG.regenInterval, fastRegen: false,
   // Stats
   totalEggs: 0, totalGold: 0, totalStarPieces: 0, totalFeathers: 0,
   totalItems: 0, biggestWin: 0, highestMult: 1,
@@ -241,14 +241,14 @@ function checkDaily() {
   $id('daily-btn').disabled = false;
   $id('daily-btn').textContent = 'Claim!';
   $id('daily-day').textContent = G.consecutiveDays;
-  const bonus = Math.min(G.consecutiveDays * 5, 100);
-  $id('daily-detail').textContent = '+' + (40 + bonus) + ' hammers';
+  const bonus = Math.min(G.consecutiveDays * CONFIG.dailyBonusPerDay, CONFIG.dailyBonusCap);
+  $id('daily-detail').textContent = '+' + (CONFIG.dailyBaseHammers + bonus) + ' hammers';
 }
 
 function claimDaily() {
   if (G.dailyClaimed) return;
-  const bonus = Math.min(G.consecutiveDays * 5, 100);
-  const total = 40 + bonus;
+  const bonus = Math.min(G.consecutiveDays * CONFIG.dailyBonusPerDay, CONFIG.dailyBonusCap);
+  const total = CONFIG.dailyBaseHammers + bonus;
   G.hammers = Math.min(G.maxH, G.hammers + total);
   G.dailyClaimed = true;
   G.totalDailyClaims = (G.totalDailyClaims || 0) + 1;
@@ -439,7 +439,8 @@ function resolvePrize(type, eggType) {
   }
 
   if (type === 'feather') {
-    const baseVal = Math.ceil((1 + Math.random() * 3) * silverMult);
+    const fRange = CONFIG.featherDropRange;
+    const baseVal = Math.ceil((fRange[0] + Math.random() * (fRange[1] - fRange[0])) * silverMult);
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
     const usedMult = G.activeMult > 1 ? G.activeMult : 0;
     return { type: 'feather', value: val, baseVal, usedMult, label: '+' + val + ' feather' + (val > 1 ? 's' : ''), color: '#059669' };
@@ -453,14 +454,14 @@ function resolvePrize(type, eggType) {
   }
 
   if (type === 'star') {
-    const baseVal = silverMult > 1 ? 2 : 1;
+    const baseVal = silverMult > 1 ? CONFIG.starPiecesPerDrop.silver : CONFIG.starPiecesPerDrop.normal;
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
     const usedMult = G.activeMult > 1 ? G.activeMult : 0;
     return { type: 'star', value: val, baseVal, usedMult, label: '+' + val + ' star piece' + (val > 1 ? 's' : ''), color: '#f59e0b' };
   }
 
   // For prize types not directly multiplied, give bonus gold when mult is active
-  const bonusGold = G.activeMult > 1 ? Math.round(10 * G.activeMult) : 0;
+  const bonusGold = G.activeMult > 1 ? Math.round(CONFIG.multBonusGoldBase * G.activeMult) : 0;
   const usedMultBonus = G.activeMult > 1 ? G.activeMult : 0;
 
   if (type === 'mult') {
@@ -487,8 +488,9 @@ function rollCollectionItem(eggType) {
   // Weight uncollected items higher (pity system)
   const weights = items.map((item, i) => {
     const rarity = item[2]; // 1=common, 2=uncommon, 3=rare
-    const baseW = rarity === 1 ? 10 : rarity === 2 ? 5 : 2;
-    return collected[i] ? baseW * 0.3 : baseW * 2; // strong pity for uncollected
+    const rw = CONFIG.itemRarityWeights;
+    const baseW = rarity === 1 ? rw.common : rarity === 2 ? rw.uncommon : rw.rare;
+    return collected[i] ? baseW * CONFIG.itemDuplicateMultiplier : baseW * CONFIG.itemPityMultiplier;
   });
 
   const total = weights.reduce((a, b) => a + b, 0);
@@ -721,7 +723,8 @@ function applyPrize(prize, cx, cy) {
       checkCollectionComplete();
     } else {
       // Duplicate - give some gold instead
-      const dupeGold = 10 + Math.floor(Math.random() * 30);
+      const dRange = CONFIG.duplicateGoldRange;
+      const dupeGold = dRange[0] + Math.floor(Math.random() * (dRange[1] - dRange[0] + 1));
       G.gold += dupeGold;
       G.totalGold += dupeGold;
       msg('Duplicate! +' + dupeGold + ' gold', '#78716c');
@@ -739,8 +742,8 @@ function applyPrize(prize, cx, cy) {
 
 // ==================== STARFALL ====================
 function useStarfall() {
-  if (G.starPieces < 5 || !G.roundEggs) return;
-  G.starPieces -= 5;
+  if (G.starPieces < CONFIG.starPiecesForStarfall || !G.roundEggs) return;
+  G.starPieces -= CONFIG.starPiecesForStarfall;
   G.starfallsUsed++;
   SFX.play('starfall');
   msg('STARFALL! All eggs smashed!', '#f59e0b');
@@ -798,7 +801,7 @@ function useStarfall() {
 
 function updateStarBtn() {
   const btn = $id('star-btn');
-  btn.disabled = G.starPieces < 5 || !G.roundEggs || G.roundEggs.every(e => e.broken);
+  btn.disabled = G.starPieces < CONFIG.starPiecesForStarfall || !G.roundEggs || G.roundEggs.every(e => e.broken);
   $id('star-lbl').textContent = '(' + G.starPieces + '/5)';
 }
 
@@ -811,10 +814,11 @@ function checkCollectionComplete() {
   const found = collected.filter(Boolean).length;
 
   // Tier thresholds
+  const tt = CONFIG.tierThresholds;
   const thresholds = [
-    Math.ceil(total * 0.5),  // bronze
-    Math.ceil(total * 0.75), // silver
-    total,                    // gold (all)
+    Math.ceil(total * tt.bronze),
+    Math.ceil(total * tt.silver),
+    Math.ceil(total * tt.gold),
   ];
 
   if (prog.tier < 3 && found >= thresholds[prog.tier]) {
@@ -826,12 +830,12 @@ function checkCollectionComplete() {
     if (prog.tier >= 3) {
       // Stage complete!
       G.stagesCompleted++;
-      G.crystalBananas++;
+      G.crystalBananas += CONFIG.crystalBananasPerStage;
       SFX.play('tier');
 
       showStagePopup(
         'Stage Complete!',
-        stage.name + ' - Gold! +1 Crystal Banana'
+        stage.name + ' - Gold! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana'
       );
 
       // Advance to next stage
@@ -848,12 +852,12 @@ function checkCollectionComplete() {
     } else {
       // Tier up reward
       SFX.play('tier');
-      const rewards = ['+5 max hammers', '+10 max hammers'];
-      G.maxH += prog.tier === 1 ? 5 : 10;
-      G.hammers = Math.min(G.maxH, G.hammers + 5);
+      const reward = prog.tier === 1 ? CONFIG.tierRewards.silver : CONFIG.tierRewards.gold;
+      G.maxH += reward.maxHammers;
+      G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
       showStagePopup(
         tierNames[prog.tier] + ' Tier!',
-        stage.name + ' - ' + rewards[prog.tier - 1]
+        stage.name + ' - +' + reward.maxHammers + ' max hammers'
       );
     }
     G.collectionsCompleted = calcTotalCollections();
@@ -932,7 +936,7 @@ function consumeMultiplier() {
 
 // ==================== HAMMER REGEN ====================
 function startRegen() {
-  G.regenCD = G.fastRegen ? 15 : 30;
+  G.regenCD = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
   regenInt = setInterval(() => {
     G.regenCD--;
     if (G.regenCD <= 0) {
@@ -940,7 +944,7 @@ function startRegen() {
       if (G.hammers >= G.maxH) {
         clearInterval(regenInt); regenInt = null;
       } else {
-        G.regenCD = G.fastRegen ? 15 : 30;
+        G.regenCD = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
       }
     }
     updateResources();
@@ -1109,7 +1113,7 @@ function toggleSound() {
 function updateResources() {
   $id('res-h').textContent = G.hammers;
   $id('res-g').textContent = formatNum(G.gold);
-  $id('res-s').textContent = G.starPieces + '/5';
+  $id('res-s').textContent = G.starPieces + '/' + CONFIG.starPiecesForStarfall;
   $id('res-b').textContent = G.crystalBananas;
   $id('res-f').textContent = G.feathers;
 

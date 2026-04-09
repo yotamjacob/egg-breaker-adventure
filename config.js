@@ -1,0 +1,154 @@
+// ============================================================
+//  Egg Breaker Adventures – Tuning Config
+//  config.js  (load before data.js and game.js)
+//
+//  All drop rates, spawn chances, and reward values in one place.
+//  Tweak these numbers to balance the game.
+// ============================================================
+
+const CONFIG = {
+
+  // ----------------------------------------------------------
+  // 1. EGG SPAWNING
+  //    Relative weights — higher = more common.
+  //    A "normal:75, silver:18, gold:7" means ~75% normal, ~18% silver, ~7% gold.
+  // ----------------------------------------------------------
+  eggSpawnWeights: {
+    normal: 75,
+    silver: 18,
+    gold:   7,
+  },
+
+  // HP per egg type (hits to break)
+  eggHP: {
+    normal: 1,
+    silver: 2,
+    gold:   3,
+  },
+
+  // ----------------------------------------------------------
+  // 2. PRIZE TYPE WEIGHTS (per egg type)
+  //    What kind of reward drops when an egg breaks.
+  //    Relative weights — they don't need to sum to 100.
+  //
+  //    Types: empty, gold_s, gold_m, gold_l, star, mult,
+  //           feather, item, hammers
+  // ----------------------------------------------------------
+  prizeWeights: {
+    normal: { empty:12, gold_s:22, gold_m:13, gold_l:5,  star:8,  mult:7,  feather:10, item:23, hammers:0 },
+    silver: { empty:0,  gold_s:10, gold_m:18, gold_l:12, star:10, mult:10, feather:10, item:22, hammers:8 },
+    gold:   { empty:0,  gold_s:0,  gold_m:15, gold_l:20, star:12, mult:10, feather:8,  item:28, hammers:7 },
+  },
+
+  // ----------------------------------------------------------
+  // 3. GOLD DROP RANGES
+  //    [min, max] for each gold tier.
+  // ----------------------------------------------------------
+  goldValues: {
+    gold_s: [5,   15],   // small
+    gold_m: [20,  60],   // medium
+    gold_l: [80, 250],   // large
+  },
+
+  // ----------------------------------------------------------
+  // 4. STAR PIECES (Starfall Shards)
+  //    Drop chance is controlled by prizeWeights above.
+  //    These control how many pieces drop per find.
+  // ----------------------------------------------------------
+  starPiecesPerDrop: {
+    normal: 1,    // from normal or gold eggs
+    silver: 2,    // silver eggs give double
+  },
+  starPiecesForStarfall: 5,   // how many needed to trigger starfall
+
+  // ----------------------------------------------------------
+  // 5. FEATHERS
+  //    Drop chance is controlled by prizeWeights above.
+  //    Base amount is random in [min, max], then multiplied
+  //    by 2 for silver eggs.
+  // ----------------------------------------------------------
+  featherDropRange: [1, 4],   // base range (before silver 2x)
+
+  // ----------------------------------------------------------
+  // 6. MULTIPLIER VALUES
+  //    Pool of possible multiplier drops. Duplicates in the
+  //    array make that value more common.
+  //    e.g. two 2's and two 3's = 25% each, one 50 = 12.5%
+  // ----------------------------------------------------------
+  multiplierValues: [2, 2, 3, 3, 5, 5, 10, 50],
+
+  // ----------------------------------------------------------
+  // 7. HAMMER PRIZES (from silver eggs only)
+  //    Pool of possible amounts. Equal chance each.
+  // ----------------------------------------------------------
+  hammerPrizeAmounts: [2, 3, 5, 5, 8],
+
+  // ----------------------------------------------------------
+  // 8. COLLECTION ITEMS (Album)
+  //    Drop chance is controlled by prizeWeights "item" weight.
+  //    These control rarity weights within the item roll.
+  // ----------------------------------------------------------
+  itemRarityWeights: {
+    common:   10,   // rarity 1
+    uncommon: 5,    // rarity 2
+    rare:     2,    // rarity 3
+  },
+
+  // Pity system: uncollected items get boosted, collected get reduced
+  itemPityMultiplier:      2.0,   // weight x this if NOT yet collected
+  itemDuplicateMultiplier: 0.3,   // weight x this if already collected
+  // (effective boost: pity / duplicate = ~6.67x more likely for missing items)
+
+  // Gold given when you roll a duplicate item
+  duplicateGoldRange: [10, 40],   // [min, max]
+
+  // ----------------------------------------------------------
+  // 9. CRYSTAL BANANAS
+  //    Earned by completing stages. Controls how many per completion
+  //    and how many needed to unlock a monkey.
+  // ----------------------------------------------------------
+  crystalBananasPerStage: 1,    // earned when finishing a stage at gold tier
+  crystalBananasToUnlock: 9,    // cost to unlock a new monkey
+
+  // ----------------------------------------------------------
+  // 10. STAGE TIER THRESHOLDS
+  //     Fraction of collection items needed to advance tiers.
+  // ----------------------------------------------------------
+  tierThresholds: {
+    bronze: 0.50,   // 50% of items → silver tier
+    silver: 0.75,   // 75% of items → gold tier
+    gold:   1.00,   // 100% of items → stage complete
+  },
+
+  // Rewards for tier-ups (max hammer increases)
+  tierRewards: {
+    silver: { maxHammers: 5,  hammerRefill: 5 },
+    gold:   { maxHammers: 10, hammerRefill: 5 },
+  },
+
+  // ----------------------------------------------------------
+  // 11. MULTIPLIER BONUS GOLD
+  //     When a multiplier is active and the prize type can't be
+  //     multiplied directly (multipliers, items), give bonus gold.
+  // ----------------------------------------------------------
+  multBonusGoldBase: 10,   // bonus gold = this x activeMult
+
+  // ----------------------------------------------------------
+  // 12. DAILY LOGIN
+  // ----------------------------------------------------------
+  dailyBaseHammers:    40,    // hammers on day 1
+  dailyBonusPerDay:    5,     // extra hammers per consecutive day
+  dailyBonusCap:       100,   // max streak bonus
+
+  // ----------------------------------------------------------
+  // 13. HAMMER REGENERATION
+  // ----------------------------------------------------------
+  regenInterval:       30,    // seconds per hammer (standard)
+  fastRegenInterval:   15,    // seconds per hammer (with upgrade)
+
+  // ----------------------------------------------------------
+  // 14. STARTING RESOURCES
+  // ----------------------------------------------------------
+  startingHammers:     40,
+  startingMaxHammers:  40,
+};
