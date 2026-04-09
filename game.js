@@ -398,17 +398,13 @@ function rollPrize(eggType) {
   const monkey = curMonkey();
   const prog = curProgress();
 
-  // Equipment bonuses
-  const hammerBonus = getHammerBonus();
-  const hatBonus = getHatBonus();
-  const monkeyPerk = monkey.perk;
-
-  if (hammerBonus === 'lessEmpty') w.empty = Math.max(0, w.empty * 0.4);
-  if (hammerBonus === 'moreStars' || monkeyPerk === 'moreStars') w.star *= 1.15;
-  if (hammerBonus === 'moreFeathers') w.feather *= 1.2;
-  if (hammerBonus === 'moreItems' || monkeyPerk === 'moreItems') w.item *= 1.1;
-  if (hatBonus === 'starBoost') w.star *= 1.1;
-  if (hatBonus === 'itemBoost') w.item *= 1.15;
+  // All owned equipment + unlocked monkey perks stack permanently
+  if (hasBonus('lessEmpty'))    w.empty = Math.max(0, w.empty * 0.4);
+  if (hasBonus('moreStars'))    w.star *= 1.15;
+  if (hasBonus('moreFeathers')) w.feather *= 1.2;
+  if (hasBonus('moreItems'))    w.item *= 1.1;
+  if (hasBonus('starBoost'))    w.star *= 1.1;
+  if (hasBonus('itemBoost'))    w.item *= 1.15;
 
   const total = Object.values(w).reduce((a, b) => a + b, 0);
   let r = Math.random() * total;
@@ -422,9 +418,6 @@ function rollPrize(eggType) {
 function resolvePrize(type, eggType) {
   const silverMult = eggType === 'silver' ? 2 : 1;
   const goldMult = eggType === 'gold' ? 1.5 : 1;
-  const hammerBonus = getHammerBonus();
-  const hatBonus = getHatBonus();
-  const monkeyPerk = curMonkey().perk;
 
   if (type === 'empty') return { type: 'empty', value: 0, label: 'Empty!', color: '#9ca3af' };
 
@@ -432,8 +425,8 @@ function resolvePrize(type, eggType) {
     const range = GOLD_VALUES[type];
     const baseVal = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
     let val = Math.round(baseVal * G.activeMult * silverMult * goldMult);
-    if (hammerBonus === 'moreGold' || monkeyPerk === 'moreGold') val = Math.round(val * 1.2);
-    if (hatBonus === 'goldBoost') val = Math.round(val * 1.1);
+    if (hasBonus('moreGold')) val = Math.round(val * 1.2);
+    if (hasBonus('goldBoost')) val = Math.round(val * 1.1);
     const usedMult = G.activeMult > 1 ? G.activeMult : 0;
     return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' gold', color: '#d97706' };
   }
@@ -512,13 +505,31 @@ function rollCollectionItem(eggType) {
   return { type: 'gold', value: 50, label: '+50 gold', color: '#d97706' };
 }
 
-function getHammerBonus() {
-  const h = SHOP_HAMMERS.find(h => h.id === G.hammer);
-  return h ? h.bonus : null;
+// All owned hammers/hats/monkeys give permanent bonuses (accumulative)
+function getAllBonuses() {
+  const bonuses = new Set();
+  // All owned hammers (not just equipped)
+  for (const id of G.ownedHammers) {
+    const h = SHOP_HAMMERS.find(h => h.id === id);
+    if (h && h.bonus) bonuses.add(h.bonus);
+  }
+  // All owned hats
+  for (const id of G.ownedHats) {
+    const h = SHOP_HATS.find(h => h.id === id);
+    if (h && h.bonus) bonuses.add(h.bonus);
+  }
+  // All unlocked monkey perks
+  for (let i = 0; i < G.monkeys.length; i++) {
+    if (G.monkeys[i].unlocked) {
+      const perk = MONKEY_DATA[i].perk;
+      if (perk && perk !== 'none') bonuses.add(perk);
+    }
+  }
+  return bonuses;
 }
-function getHatBonus() {
-  const h = SHOP_HATS.find(h => h.id === G.hat);
-  return h ? h.bonus : null;
+
+function hasBonus(name) {
+  return getAllBonuses().has(name);
 }
 
 // ==================== SMASH EGG ====================
@@ -539,7 +550,7 @@ function smashEgg(index) {
   G.hammers -= 1;
 
   // Chef hat: 10% chance hit was free
-  if (getHatBonus() === 'freeEgg' && Math.random() < 0.1) {
+  if (hasBonus('freeEgg') && Math.random() < 0.1) {
     G.hammers = Math.min(G.maxH, G.hammers + 1);
     msg('Free hit! (Chef\'s Hat)', '#16a34a');
   }
@@ -983,7 +994,7 @@ function buyShopItem(category, id) {
     const item = SHOP_HAMMERS.find(h => h.id === id);
     if (!item || item.cost === 0) return;
     if (G.ownedHammers.includes(id)) {
-      // Toggle: unequip if already equipped, otherwise equip
+      // Toggle cursor appearance (bonus is always active regardless)
       G.hammer = G.hammer === id ? 'default' : id;
       SFX.play('buy');
       updateHammerSVG();
@@ -1005,10 +1016,7 @@ function buyShopItem(category, id) {
     const item = SHOP_HATS.find(h => h.id === id);
     if (!item || item.cost === 0) return;
     if (G.ownedHats.includes(id)) {
-      G.hat = G.hat === id ? 'none' : id;
-      SFX.play('buy');
-      renderShop();
-      saveGame();
+      msg('Already owned — bonus is always active!', '#9ca3af');
       return;
     }
     if (G.gold < item.cost) { msg('Need ' + item.cost + ' gold!', '#ef4444'); SFX.play('err'); return; }
@@ -1292,15 +1300,15 @@ function renderShop() {
   SHOP_HAMMERS.forEach(h => {
     if (h.cost === 0) return; // skip default
     const owned = G.ownedHammers.includes(h.id);
-    const equipped = G.hammer === h.id;
+    const isCursor = G.hammer === h.id;
     const card = document.createElement('div');
-    card.className = 'shop-card' + (owned ? ' owned' : '') + (equipped ? ' equipped' : '');
+    card.className = 'shop-card' + (owned ? ' owned' : '') + (isCursor ? ' equipped' : '');
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
       '<span class="s-name">' + h.name + '</span>' +
       '<span class="s-desc">' + h.desc + '</span>' +
       (owned
-        ? '<span class="s-status">' + (equipped ? 'EQUIPPED (click to unequip)' : 'Click to equip') + '</span>'
+        ? '<span class="s-status">OWNED' + (isCursor ? ' (cursor)' : ' — click for cursor') + '</span>'
         : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
     card.addEventListener('click', () => buyShopItem('hammer', h.id));
     hGrid.appendChild(card);
@@ -1312,17 +1320,16 @@ function renderShop() {
   SHOP_HATS.forEach(h => {
     if (h.cost === 0) return;
     const owned = G.ownedHats.includes(h.id);
-    const equipped = G.hat === h.id;
     const card = document.createElement('div');
-    card.className = 'shop-card' + (owned ? ' owned' : '') + (equipped ? ' equipped' : '');
+    card.className = 'shop-card' + (owned ? ' owned' : '');
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
       '<span class="s-name">' + h.name + '</span>' +
       '<span class="s-desc">' + h.desc + '</span>' +
       (owned
-        ? '<span class="s-status">' + (equipped ? 'EQUIPPED (click to unequip)' : 'Click to equip') + '</span>'
+        ? '<span class="s-status">OWNED (always active)</span>'
         : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
-    card.addEventListener('click', () => buyShopItem('hat', h.id));
+    if (!owned) card.addEventListener('click', () => buyShopItem('hat', h.id));
     hatGrid.appendChild(card);
   });
 
@@ -1473,12 +1480,12 @@ ${rows}
       let hatRows = '';
       SHOP_HATS.forEach(h => { if (h.cost > 0) hatRows += '<tr><td>' + h.emoji + ' ' + h.name + '</td><td class="num">' + formatNum(h.cost) + '</td><td>' + h.desc + '</td></tr>'; });
       return `
-<p><strong>Hammers</strong> — permanent, one equipped. Click to equip/unequip.</p>
+<p><strong>Hammers</strong> — permanent. Once bought, the bonus is always active. Click to change your cursor appearance.</p>
 <table class="lex-table"><tr><th>Hammer</th><th>Cost</th><th>Effect</th></tr>${hRows}</table>
-<p><strong>Hats</strong> — permanent, one equipped. Click to equip/unequip.</p>
+<p><strong>Hats</strong> — permanent. Once bought, the bonus is always active. All bonuses stack.</p>
 <table class="lex-table"><tr><th>Hat</th><th>Cost</th><th>Effect</th></tr>${hatRows}</table>
 <p><strong>Supplies</strong> — consumables: hammer packs, star pieces (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='star1').cost)}), multipliers (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='mult5').cost)}), +5 hammer cap (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='maxhammers').cost)}), fast regen (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='fastregen').cost)}, one-time).</p>
-<p>All bonuses stack multiplicatively with each other and monkey perks.</p>
+<p>All bonuses are permanent once purchased and stack multiplicatively — hammers, hats, and monkey perks all accumulate.</p>
 `;
     }
   },
