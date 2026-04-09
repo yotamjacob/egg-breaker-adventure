@@ -430,11 +430,12 @@ function resolvePrize(type, eggType) {
 
   if (type.startsWith('gold_')) {
     const range = GOLD_VALUES[type];
-    let val = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
-    val = Math.round(val * G.activeMult * silverMult * goldMult);
+    const baseVal = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
+    let val = Math.round(baseVal * G.activeMult * silverMult * goldMult);
     if (hammerBonus === 'moreGold' || monkeyPerk === 'moreGold') val = Math.round(val * 1.2);
     if (hatBonus === 'goldBoost') val = Math.round(val * 1.1);
-    return { type: 'gold', value: val, label: '+' + val + ' gold', color: '#d97706' };
+    const usedMult = G.activeMult > 1 ? G.activeMult : 0;
+    return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' gold', color: '#d97706' };
   }
 
   if (type === 'star') {
@@ -618,9 +619,14 @@ function applyPrize(prize, cx, cy) {
     G.gold += prize.value;
     G.totalGold += prize.value;
     G.biggestWin = Math.max(G.biggestWin, prize.value);
-    const cls = prize.value >= 200 ? 'big' : prize.value >= 500 ? 'mega' : '';
-    spawnFloat(zone, prize.label, '#d97706', cls);
-    msg(prize.label, '#d97706');
+    const cls = prize.value >= 500 ? 'mega' : prize.value >= 200 ? 'big' : '';
+    if (prize.usedMult) {
+      spawnFloat(zone, prize.baseVal + ' x' + prize.usedMult + ' = ' + prize.value + ' gold', '#d97706', cls || 'big');
+      msg(prize.baseVal + ' x' + prize.usedMult + ' = +' + prize.value + ' gold!', '#d97706');
+    } else {
+      spawnFloat(zone, prize.label, '#d97706', cls);
+      msg(prize.label, '#d97706');
+    }
     SFX.play('coin');
     if (prize.value >= 200) Particles.sparkle(cx, cy, 12, '#FFD700');
   }
