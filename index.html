@@ -1,224 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Egg Breaker Adventures</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🥚</text></svg>">
-  </head>
-  <body>
-    <div id="app">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Egg Breaker Adventures</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🥚</text></svg>">
+</head>
+<body>
+  <div id="app">
 
-      <!-- Title row -->
+    <!-- ===== Top bar ===== -->
+    <div class="top-bar">
       <div class="title-row">
-        <svg class="monkey" width="48" height="48" viewBox="0 0 48 48">
-          <ellipse cx="24" cy="36" rx="15" ry="10" fill="#7A5C1E"/>
-          <ellipse cx="24" cy="20" rx="15" ry="13" fill="#9A7028"/>
-          <circle cx="8"  cy="20" r="6" fill="#9A7028"/><circle cx="8" cy="20" r="3.5" fill="#C8922A"/>
-          <circle cx="40" cy="20" r="6" fill="#9A7028"/><circle cx="40" cy="20" r="3.5" fill="#C8922A"/>
-          <ellipse cx="24" cy="24" rx="10" ry="8" fill="#C8922A"/>
-          <circle cx="19.5" cy="17" r="2.5" fill="#2D1B06"/>
-          <circle cx="28.5" cy="17" r="2.5" fill="#2D1B06"/>
-          <circle cx="20.2" cy="16.3" r=".9" fill="white"/>
-          <circle cx="29.2" cy="16.3" r=".9" fill="white"/>
-          <ellipse cx="24" cy="22.5" rx="2.5" ry="1.8" fill="#7A5010"/>
-          <circle cx="22.5" cy="21.5" r=".7" fill="#5A3B08"/>
-          <circle cx="25.5" cy="21.5" r=".7" fill="#5A3B08"/>
-          <path d="M20 27 Q24 31 28 27" stroke="#5C3D17" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-        </svg>
-        <div>
+        <div class="monkey-avatar" id="monkey-avatar">🐵</div>
+        <div class="title-text">
           <h1>Egg Breaker Adventures</h1>
-          <p class="subtitle">BROUGHT BACK TO LIFE</p>
+          <p class="subtitle" id="monkey-subtitle">Mr. Monkey</p>
         </div>
-        <button id="sound-btn" class="icon-btn" onclick="toggleSound()" title="Toggle sound">
-          <span id="sound-icon">🔊</span>
-        </button>
+        <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="Toggle sound">🔊</button>
+      </div>
+      <div class="resource-bar">
+        <div class="res" title="Hammers"><span>🔨</span><strong id="res-h">40</strong></div>
+        <div class="res" title="Gold"><span>🪙</span><strong id="res-g">0</strong></div>
+        <div class="res star-res" title="Star Pieces"><span>⭐</span><strong id="res-s">0/5</strong></div>
+        <div class="res" title="Crystal Bananas"><span>🍌</span><strong id="res-b">0</strong></div>
+        <div class="res" title="Feathers"><span>🪶</span><strong id="res-f">0</strong></div>
+      </div>
+    </div>
+
+    <!-- ===== Nav tabs ===== -->
+    <nav class="nav-tabs" id="nav-tabs">
+      <button class="nav-tab active" data-tab="play">Play</button>
+      <button class="nav-tab" data-tab="album">Album</button>
+      <button class="nav-tab" data-tab="monkeys">Monkeys</button>
+      <button class="nav-tab" data-tab="shop">Shop</button>
+      <button class="nav-tab" data-tab="stats">Stats</button>
+    </nav>
+
+    <!-- ===== PLAY TAB ===== -->
+    <section class="tab-panel active" id="panel-play">
+      <!-- Stage info -->
+      <div class="stage-bar">
+        <div class="stage-header">
+          <span class="stage-name" id="stage-name">Stage 1: Tropical Paradise</span>
+          <span class="stage-tier" id="stage-tier">Bronze</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" id="stage-fill"></div></div>
+        <span class="stage-detail" id="stage-detail">0/5 items</span>
       </div>
 
-      <!-- Level bar -->
-      <div class="level-bar">
-        <span class="level-badge" id="level-num">Lv 1</span>
-        <div class="xp-track">
-          <div class="xp-fill" id="xp-fill"></div>
-        </div>
-        <span class="xp-text" id="xp-text">0 / 100 XP</span>
+      <!-- Multiplier queue -->
+      <div class="mult-bar" id="mult-bar">
+        <span class="mult-label">Active: <strong id="active-mult">x1</strong></span>
+        <div class="mult-queue" id="mult-queue"></div>
       </div>
 
-      <!-- Stats bar -->
-      <div class="stats-grid">
-        <div class="stat-card yellow">
-          <span class="stat-label">HAMMERS</span>
-          <span class="stat-value" id="st-h">10</span>
-        </div>
-        <div class="stat-card amber">
-          <span class="stat-label">COINS</span>
-          <span class="stat-value" id="st-c">0</span>
-        </div>
-        <div class="stat-card purple">
-          <span class="stat-label">GEMS</span>
-          <span class="stat-value" id="st-g">0</span>
-        </div>
-        <div class="stat-card green">
-          <span class="stat-label">SCORE</span>
-          <span class="stat-value" id="st-s">0</span>
-        </div>
-      </div>
-
-      <!-- Multiplier bar -->
-      <div class="mult-container">
-        <div class="mult-header">
-          <span class="mult-title">Combo multiplier</span>
-          <span class="mult-value" id="mult-lbl">1.0x</span>
-          <span class="streak-badge hidden" id="streak-badge">0 streak</span>
-        </div>
-        <div class="mult-track">
-          <div class="mult-fill" id="mult-bar"></div>
-        </div>
-      </div>
-
-      <!-- Egg play area -->
-      <div id="egg-area" onclick="smash()">
+      <!-- Egg tray -->
+      <div class="egg-tray-wrap" id="egg-tray-wrap">
         <canvas id="particle-canvas"></canvas>
-
-        <!-- Hammer -->
-        <div id="hammer">
-          <svg width="44" height="100" viewBox="0 0 44 100">
-            <rect x="19" y="0" width="6" height="74" rx="3" fill="#8B4513" stroke="#6B3410" stroke-width=".5"/>
-            <rect x="17" y="60" width="10" height="10" rx="2" fill="#7a5c1e"/>
-            <rect x="2"  y="68" width="40" height="24" rx="5" fill="#585858" stroke="#383838" stroke-width=".5"/>
-            <rect x="2"  y="68" width="40" height="9"  rx="5" fill="#7a7a7a"/>
-            <rect x="2"  y="86" width="40" height="6"  rx="3" fill="#888"/>
-          </svg>
-        </div>
-
-        <!-- Egg -->
-        <div id="egg-wrap">
-          <svg width="138" height="163" viewBox="0 0 138 163">
-            <ellipse cx="69" cy="156" rx="36" ry="7" fill="rgba(0,0,0,.07)"/>
-            <ellipse id="egg-body" cx="69" cy="90" rx="51" ry="67"
-              fill="#FEF9F0" stroke="#D4A853" stroke-width="2.5"/>
-            <ellipse cx="49" cy="61" rx="12" ry="17" fill="white" opacity=".3"/>
-            <g id="cracks" class="cracks-hidden">
-              <path d="M69 27 L61 52 L72 68 L57 95"
-                stroke="#7A4010" stroke-width="2" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M91 63 L78 80 L85 102 L72 130"
-                stroke="#7A4010" stroke-width="1.8" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M47 80 L60 95 L52 116"
-                stroke="#7A4010" stroke-width="1.4" fill="none"
-                stroke-linecap="round"/>
-            </g>
-          </svg>
-        </div>
-
-        <p id="hint-txt">tap egg or press SMASH!</p>
+        <div class="egg-tray" id="egg-tray"></div>
         <div id="prize-zone"></div>
+        <p class="hint" id="hint-txt">Click an egg to smash it!</p>
       </div>
 
-      <!-- Egg type tabs -->
-      <div class="egg-tabs" id="egg-tabs">
-        <button class="egg-tab selected" id="tab-normal" onclick="selEgg(event,'normal')">
-          <span class="tab-icon">🥚</span>
-          <span class="tab-name normal-name">Normal</span>
-          <span class="tab-cost">1 hammer</span>
-        </button>
-        <button class="egg-tab" id="tab-silver" onclick="selEgg(event,'silver')">
-          <span class="tab-icon">🪨</span>
-          <span class="tab-name silver-name">Silver</span>
-          <span class="tab-cost">2 hammers</span>
-          <span class="tab-req" id="sil-req">Lv 3</span>
-        </button>
-        <button class="egg-tab" id="tab-gold" onclick="selEgg(event,'gold')">
-          <span class="tab-icon">🌟</span>
-          <span class="tab-name gold-name">Gold</span>
-          <span class="tab-cost">3 hammers</span>
-          <span class="tab-req" id="gld-req">Lv 6</span>
-        </button>
-        <button class="egg-tab" id="tab-crystal" onclick="selEgg(event,'crystal')">
-          <span class="tab-icon">🔮</span>
-          <span class="tab-name crystal-name">Crystal</span>
-          <span class="tab-cost">5 hammers</span>
-          <span class="tab-req" id="cry-req">Lv 10</span>
-        </button>
+      <!-- Action row -->
+      <div class="action-row">
+        <button class="action-btn" id="star-btn" onclick="useStarfall()" disabled>⭐ Starfall <span id="star-lbl">(0/5)</span></button>
+        <button class="action-btn primary" id="round-btn" onclick="newRound()">New Round</button>
       </div>
 
-      <!-- Smash button -->
-      <button id="smash-btn" onclick="smash()">SMASH!</button>
+      <!-- Egg type pick -->
+      <div class="egg-pick" id="egg-pick">
+        <button class="epick active" data-type="normal" onclick="pickEggType('normal')">🥚 Normal<small>1🔨</small></button>
+        <button class="epick" data-type="silver" onclick="pickEggType('silver')">🪨 Silver<small>2🔨 2x</small></button>
+        <button class="epick" data-type="gold" onclick="pickEggType('gold')">🌟 Gold<small>3🔨 no empty</small></button>
+      </div>
 
-      <!-- Status row -->
+      <!-- Status & daily -->
       <div class="status-row">
         <span id="regen-txt"></span>
-        <span id="prize-txt"></span>
+        <span id="status-txt"></span>
       </div>
-
-      <!-- Achievements -->
-      <details class="achievements-panel" id="achievements-panel">
-        <summary class="achievements-header">
-          ACHIEVEMENTS <span class="achieve-count" id="achieve-count">0 / 0</span>
-        </summary>
-        <div class="achievements-grid" id="achievements-grid"></div>
-      </details>
-
-      <!-- Shop -->
-      <div class="shop">
-        <p class="shop-title">SHOP</p>
-        <div class="shop-grid">
-          <button class="shop-btn" onclick="buy('h')">
-            +5 Hammers<br><strong>10 coins</strong>
-          </button>
-          <button class="shop-btn" onclick="buy('cap')">
-            +5 Max Hammers<br><strong>30 coins</strong>
-          </button>
-          <button class="shop-btn" onclick="buy('m')">
-            Better Mult<br><strong>25 coins</strong>
-          </button>
-          <button class="shop-btn gem-btn" onclick="buy('g')">
-            2x Gems<br><strong>50 coins</strong>
-          </button>
-          <button class="shop-btn gem-btn" onclick="buy('auto')">
-            Auto-Regen+<br><strong>3 gems</strong>
-          </button>
-          <button class="shop-btn gem-btn" onclick="buy('luck')">
-            Lucky Charm<br><strong>8 gems</strong>
-          </button>
-        </div>
+      <div class="daily-box" id="daily-box">
+        <span>📅 Day <strong id="daily-day">1</strong> streak</span>
+        <span class="daily-detail" id="daily-detail">+40 hammers</span>
+        <button class="daily-btn" id="daily-btn" onclick="claimDaily()">Claim!</button>
       </div>
+    </section>
 
-      <!-- Total stats -->
-      <div class="total-stats" id="total-stats">
-        <p class="shop-title">LIFETIME STATS</p>
-        <div class="total-stats-grid">
-          <span>Eggs smashed: <strong id="ts-smash">0</strong></span>
-          <span>Coins earned: <strong id="ts-coins">0</strong></span>
-          <span>Gems found: <strong id="ts-gems">0</strong></span>
-          <span>Best streak: <strong id="ts-streak">0</strong></span>
-          <span>Critical hits: <strong id="ts-crit">0</strong></span>
-          <span>Jackpots: <strong id="ts-jack">0</strong></span>
-        </div>
+    <!-- ===== ALBUM TAB ===== -->
+    <section class="tab-panel" id="panel-album">
+      <div class="album-stages" id="album-stages"></div>
+      <div class="album-items" id="album-items"></div>
+    </section>
+
+    <!-- ===== MONKEYS TAB ===== -->
+    <section class="tab-panel" id="panel-monkeys">
+      <div class="monkey-grid" id="monkey-grid"></div>
+    </section>
+
+    <!-- ===== SHOP TAB ===== -->
+    <section class="tab-panel" id="panel-shop">
+      <h3 class="section-title">Special Hammers</h3>
+      <div class="shop-grid" id="shop-hammers"></div>
+      <h3 class="section-title">Hats</h3>
+      <div class="shop-grid" id="shop-hats"></div>
+      <h3 class="section-title">Supplies</h3>
+      <div class="shop-grid" id="shop-supplies"></div>
+    </section>
+
+    <!-- ===== STATS TAB ===== -->
+    <section class="tab-panel" id="panel-stats">
+      <h3 class="section-title">Lifetime Stats</h3>
+      <div class="life-stats" id="life-stats"></div>
+      <h3 class="section-title">Achievements</h3>
+      <div class="achieve-grid" id="achieve-grid"></div>
+      <button class="reset-btn" onclick="resetGame()">Reset All Progress</button>
+    </section>
+
+    <!-- ===== POPUPS ===== -->
+    <div class="overlay hidden" id="overlay-item">
+      <div class="popup pop-item">
+        <div class="pop-icon" id="pop-item-icon"></div>
+        <strong id="pop-item-name"></strong>
+        <span class="pop-sub">New collection item found!</span>
+        <button class="pop-btn" onclick="closeOverlay('overlay-item')">Nice!</button>
       </div>
+    </div>
 
-      <!-- Achievement popup -->
-      <div id="achieve-popup" class="achieve-popup hidden">
-        <span id="achieve-popup-icon"></span>
-        <div>
-          <strong id="achieve-popup-name"></strong>
-          <span id="achieve-popup-desc"></span>
-        </div>
+    <div class="overlay hidden" id="overlay-stage">
+      <div class="popup pop-stage">
+        <div class="pop-icon">🎉</div>
+        <strong id="pop-stage-title"></strong>
+        <span class="pop-sub" id="pop-stage-detail"></span>
+        <button class="pop-btn" onclick="closeOverlay('overlay-stage')">Continue!</button>
       </div>
+    </div>
 
-      <!-- Level up overlay -->
-      <div id="levelup-overlay" class="levelup-overlay hidden">
-        <div class="levelup-content">
-          <span class="levelup-star">&#11088;</span>
-          <strong id="levelup-text">LEVEL UP!</strong>
-          <span id="levelup-detail"></span>
-        </div>
+    <div class="overlay hidden" id="overlay-levelup">
+      <div class="popup pop-levelup">
+        <div class="pop-icon spin">⭐</div>
+        <strong id="pop-level-title"></strong>
+        <span class="pop-sub" id="pop-level-detail"></span>
+        <button class="pop-btn" onclick="closeOverlay('overlay-levelup')">Let's go!</button>
       </div>
+    </div>
 
-    </div><!-- /#app -->
+    <div class="toast hidden" id="toast-achieve">
+      <span id="toast-icon"></span>
+      <div><strong id="toast-name"></strong><br><small id="toast-desc"></small></div>
+    </div>
 
-    <script src="game.js"></script>
-  </body>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="game.js"></script>
+</body>
 </html>

@@ -1,874 +1,1287 @@
 // ============================================================
-//  Egg Breaker Adventures
-//  game.js
+//  Egg Breaker Adventures – Game Engine
+//  game.js  (requires data.js loaded first)
 // ============================================================
 
-// ==================== AUDIO ENGINE ====================
+// ==================== AUDIO ====================
 const SFX = (() => {
-  let ctx;
-  let enabled = true;
-
+  let ctx, on = true;
   function ensure() {
     if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
   }
-
-  function noise(duration, volume, freqStart, freqEnd) {
-    const c = ensure();
-    const len = c.sampleRate * duration;
-    const buf = c.createBuffer(1, len, c.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) {
-      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
-    }
-    const src = c.createBufferSource();
-    src.buffer = buf;
-    const g = c.createGain();
-    g.gain.value = volume;
-    const f = c.createBiquadFilter();
-    f.type = 'bandpass';
-    f.frequency.setValueAtTime(freqStart, c.currentTime);
-    f.frequency.exponentialRampToValueAtTime(freqEnd, c.currentTime + duration);
-    f.Q.value = 1;
-    src.connect(f).connect(g).connect(c.destination);
-    src.start();
+  function tone(freq, dur, vol, type) {
+    const c = ensure(), o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, c.currentTime);
+    g.gain.setValueAtTime(vol, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.connect(g).connect(c.destination);
+    o.start(); o.stop(c.currentTime + dur);
   }
-
-  function tone(freq, duration, volume, type) {
-    const c = ensure();
-    const osc = c.createOscillator();
-    const g = c.createGain();
-    osc.type = type || 'sine';
-    osc.frequency.setValueAtTime(freq, c.currentTime);
-    g.gain.setValueAtTime(volume, c.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
-    osc.connect(g).connect(c.destination);
-    osc.start();
-    osc.stop(c.currentTime + duration);
+  function noise(dur, vol) {
+    const c = ensure(), len = c.sampleRate * dur;
+    const buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
+    const s = c.createBufferSource(); s.buffer = buf;
+    const g = c.createGain(); g.gain.value = vol;
+    s.connect(g).connect(c.destination); s.start();
   }
-
-  function play(name) {
-    if (!enabled) return;
+  function play(n) {
+    if (!on) return;
     try {
-      switch (name) {
-        case 'hit':
-          noise(0.12, 0.25, 2000, 400);
-          tone(180, 0.08, 0.15, 'square');
-          break;
-        case 'coin':
-          tone(880, 0.1, 0.12, 'sine');
-          setTimeout(() => tone(1320, 0.15, 0.1, 'sine'), 60);
-          break;
-        case 'gem':
-          tone(1200, 0.08, 0.1, 'sine');
-          setTimeout(() => tone(1600, 0.08, 0.08, 'sine'), 50);
-          setTimeout(() => tone(2000, 0.2, 0.06, 'sine'), 100);
-          break;
-        case 'empty':
-          tone(150, 0.15, 0.1, 'triangle');
-          break;
-        case 'critical':
-          tone(600, 0.1, 0.15, 'square');
-          setTimeout(() => tone(900, 0.1, 0.12, 'square'), 80);
-          setTimeout(() => tone(1400, 0.2, 0.1, 'sine'), 160);
-          break;
-        case 'jackpot':
-          [0, 80, 160, 240, 320].forEach((t, i) =>
-            setTimeout(() => tone(440 * Math.pow(2, i / 5), 0.3, 0.1, 'sine'), t)
-          );
-          break;
-        case 'levelup':
-          [0, 100, 200, 300].forEach((t, i) =>
-            setTimeout(() => tone(523 * Math.pow(2, i / 4), 0.25, 0.12, 'sine'), t)
-          );
-          break;
-        case 'achieve':
-          tone(880, 0.15, 0.1, 'sine');
-          setTimeout(() => tone(1100, 0.15, 0.1, 'sine'), 100);
-          setTimeout(() => tone(1320, 0.25, 0.08, 'sine'), 200);
-          break;
-        case 'buy':
-          tone(500, 0.08, 0.1, 'sine');
-          setTimeout(() => tone(700, 0.12, 0.08, 'sine'), 60);
-          break;
-        case 'error':
-          tone(200, 0.15, 0.12, 'square');
-          break;
-      }
+      if (n === 'hit')     { noise(.12, .25); tone(180, .08, .15, 'square'); }
+      if (n === 'coin')    { tone(880, .1, .12); setTimeout(() => tone(1320, .15, .1), 60); }
+      if (n === 'gem')     { tone(1200, .08, .1); setTimeout(() => tone(1600, .08, .08), 50); setTimeout(() => tone(2000, .2, .06), 100); }
+      if (n === 'star')    { tone(700, .1, .1); setTimeout(() => tone(1050, .12, .08), 70); setTimeout(() => tone(1400, .15, .06), 140); }
+      if (n === 'item')    { [0,80,160].forEach((t, i) => setTimeout(() => tone(600 + i * 200, .15, .1), t)); }
+      if (n === 'empty')   { tone(150, .15, .1, 'triangle'); }
+      if (n === 'starfall'){ [0,60,120,180,240,300].forEach((t, i) => setTimeout(() => tone(440 * Math.pow(2, i / 5), .2, .1), t)); }
+      if (n === 'levelup') { [0,100,200,300].forEach((t, i) => setTimeout(() => tone(523 * Math.pow(2, i / 4), .25, .1), t)); }
+      if (n === 'achieve') { tone(880, .15, .1); setTimeout(() => tone(1100, .15, .1), 100); setTimeout(() => tone(1320, .25, .08), 200); }
+      if (n === 'buy')     { tone(500, .08, .1); setTimeout(() => tone(700, .12, .08), 60); }
+      if (n === 'err')     { tone(200, .15, .1, 'square'); }
+      if (n === 'tier')    { [0,80,160,240,320].forEach((t, i) => setTimeout(() => tone(523 * Math.pow(2, i / 6), .2, .1), t)); }
     } catch (_) {}
   }
-
-  function toggle() { enabled = !enabled; return enabled; }
-  function isOn() { return enabled; }
-
-  return { play, toggle, isOn };
+  return { play, toggle() { on = !on; return on; }, isOn() { return on; } };
 })();
 
-// ==================== PARTICLE SYSTEM ====================
+// ==================== PARTICLES ====================
 const Particles = (() => {
-  let canvas, ctx;
-  const particles = [];
-  let running = false;
-
-  function init(canvasEl) {
-    canvas = canvasEl;
-    ctx = canvas.getContext('2d');
-    resize();
-    window.addEventListener('resize', resize);
-  }
-
+  let canvas, ctx, ps = [], running = false;
+  const COLORS = {
+    normal: ['#FEF9F0','#F5E6C8','#E8D5A8','#D4C090'],
+    silver: ['#E8E8E8','#D0D0D0','#B8B8B8'],
+    gold:   ['#FEFCE8','#FDE68A','#FCD34D','#F59E0B'],
+  };
+  function init(c) { canvas = c; ctx = c.getContext('2d'); resize(); window.addEventListener('resize', resize); }
   function resize() {
     if (!canvas.parentElement) return;
-    const r = canvas.parentElement.getBoundingClientRect();
-    canvas.width = r.width * (window.devicePixelRatio || 1);
-    canvas.height = r.height * (window.devicePixelRatio || 1);
-    canvas.style.width = r.width + 'px';
-    canvas.style.height = r.height + 'px';
-    ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+    const r = canvas.parentElement.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    canvas.width = r.width * dpr; canvas.height = r.height * dpr;
+    canvas.style.width = r.width + 'px'; canvas.style.height = r.height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
-
-  const SHELL_COLORS = {
-    normal:  ['#FEF9F0', '#F5E6C8', '#E8D5A8', '#D4C090'],
-    silver:  ['#E8E8E8', '#D0D0D0', '#B8B8B8', '#C0C0C0'],
-    gold:    ['#FEFCE8', '#FDE68A', '#FCD34D', '#F59E0B'],
-    crystal: ['#E9D5FF', '#C4B5FD', '#A78BFA', '#8B5CF6'],
-  };
-
   function emit(cx, cy, type, count) {
-    const colors = SHELL_COLORS[type] || SHELL_COLORS.normal;
+    const cols = COLORS[type] || COLORS.normal;
     for (let i = 0; i < count; i++) {
-      const angle = (Math.PI * 2 / count) * i + (Math.random() - 0.5) * 0.8;
-      const speed = 3 + Math.random() * 5;
-      particles.push({
+      const a = (Math.PI * 2 / count) * i + (Math.random() - .5) * .8;
+      const sp = 3 + Math.random() * 5;
+      ps.push({
         x: cx, y: cy,
-        vx: Math.cos(angle) * speed * (0.7 + Math.random() * 0.6),
-        vy: Math.sin(angle) * speed - 2 - Math.random() * 2,
-        life: 1,
-        decay: 0.012 + Math.random() * 0.008,
-        size: 3 + Math.random() * 5,
-        rot: Math.random() * Math.PI * 2,
-        rotV: (Math.random() - 0.5) * 0.3,
-        gravity: 0.12 + Math.random() * 0.06,
-        color: colors[Math.random() * colors.length | 0],
-        shape: 'shell',
+        vx: Math.cos(a) * sp * (.7 + Math.random() * .6),
+        vy: Math.sin(a) * sp - 2 - Math.random() * 2,
+        life: 1, decay: .012 + Math.random() * .008,
+        sz: 3 + Math.random() * 5,
+        rot: Math.random() * Math.PI * 2, rv: (Math.random() - .5) * .3,
+        grav: .12 + Math.random() * .06,
+        col: cols[Math.random() * cols.length | 0], sh: 'shell',
       });
     }
     if (!running) loop();
   }
-
-  function sparkle(cx, cy, count, color) {
+  function sparkle(cx, cy, count, col) {
     for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 1 + Math.random() * 3;
-      particles.push({
-        x: cx, y: cy,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 1,
-        life: 1,
-        decay: 0.02 + Math.random() * 0.015,
-        size: 1.5 + Math.random() * 2.5,
-        rot: 0, rotV: 0,
-        gravity: 0.02,
-        color: color || '#FFD700',
-        shape: 'star',
+      const a = Math.random() * Math.PI * 2, sp = 1 + Math.random() * 3;
+      ps.push({
+        x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1,
+        life: 1, decay: .02 + Math.random() * .015, sz: 1.5 + Math.random() * 2.5,
+        rot: 0, rv: 0, grav: .02, col: col || '#FFD700', sh: 'star',
       });
     }
     if (!running) loop();
   }
-
-  function update() {
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
-      p.vx *= 0.98;
-      p.vy += p.gravity;
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rot += p.rotV;
-      p.life -= p.decay;
-      if (p.life <= 0) particles.splice(i, 1);
-    }
-  }
-
-  function draw() {
+  function loop() {
+    running = true;
     const w = canvas.width / (window.devicePixelRatio || 1);
     const h = canvas.height / (window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, w, h);
-
-    for (const p of particles) {
+    for (let i = ps.length - 1; i >= 0; i--) {
+      const p = ps[i];
+      p.vx *= .98; p.vy += p.grav; p.x += p.vx; p.y += p.vy;
+      p.rot += p.rv; p.life -= p.decay;
+      if (p.life <= 0) { ps.splice(i, 1); continue; }
       ctx.save();
       ctx.globalAlpha = Math.min(1, p.life * 2.5);
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.fillStyle = p.color;
-
-      if (p.shape === 'shell') {
-        const s = p.size;
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.col;
+      if (p.sh === 'shell') {
+        const s = p.sz;
         ctx.beginPath();
-        ctx.moveTo(-s, -s * 0.6);
-        ctx.lineTo(s * 0.7, -s * 0.4);
-        ctx.lineTo(s * 0.4, s * 0.7);
-        ctx.lineTo(-s * 0.3, s * 0.5);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-        ctx.lineWidth = 0.5;
-        ctx.stroke();
+        ctx.moveTo(-s, -s * .6); ctx.lineTo(s * .7, -s * .4);
+        ctx.lineTo(s * .4, s * .7); ctx.lineTo(-s * .3, s * .5);
+        ctx.closePath(); ctx.fill();
       } else {
-        // star / sparkle
-        const s = p.size;
+        const s = p.sz;
         ctx.beginPath();
         for (let j = 0; j < 5; j++) {
-          const a = (j * 4 * Math.PI) / 5 - Math.PI / 2;
-          const r = j % 2 === 0 ? s : s * 0.4;
-          if (j === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
-          else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+          const a2 = (j * 4 * Math.PI) / 5 - Math.PI / 2;
+          const r2 = j % 2 === 0 ? s : s * .4;
+          j === 0 ? ctx.moveTo(Math.cos(a2) * r2, Math.sin(a2) * r2)
+                   : ctx.lineTo(Math.cos(a2) * r2, Math.sin(a2) * r2);
         }
-        ctx.closePath();
-        ctx.fill();
+        ctx.closePath(); ctx.fill();
       }
       ctx.restore();
     }
+    if (ps.length > 0) requestAnimationFrame(loop); else running = false;
   }
-
-  function loop() {
-    running = true;
-    update();
-    draw();
-    if (particles.length > 0) {
-      requestAnimationFrame(loop);
-    } else {
-      running = false;
-    }
-  }
-
   return { init, emit, sparkle, resize };
 })();
 
-// ==================== ACHIEVEMENTS ====================
-const ACHIEVEMENTS = [
-  { id: 'first_smash',  name: 'First Crack',     desc: 'Break your first egg',        icon: '🥚', check: s => s.totalSmashes >= 1 },
-  { id: 'smash_10',     name: 'Egg Smasher',      desc: 'Break 10 eggs',               icon: '💪', check: s => s.totalSmashes >= 10 },
-  { id: 'smash_50',     name: 'Egg Destroyer',     desc: 'Break 50 eggs',               icon: '🔥', check: s => s.totalSmashes >= 50 },
-  { id: 'smash_100',    name: 'Egg Annihilator',   desc: 'Break 100 eggs',              icon: '💥', check: s => s.totalSmashes >= 100 },
-  { id: 'smash_500',    name: 'Egg Apocalypse',    desc: 'Break 500 eggs',              icon: '☄️',  check: s => s.totalSmashes >= 500 },
-  { id: 'coins_100',    name: 'Coin Collector',    desc: 'Earn 100 total coins',        icon: '🪙', check: s => s.totalCoins >= 100 },
-  { id: 'coins_1000',   name: 'Rich Monkey',       desc: 'Earn 1,000 total coins',      icon: '💰', check: s => s.totalCoins >= 1000 },
-  { id: 'gems_10',      name: 'Gem Finder',        desc: 'Find 10 total gems',          icon: '💎', check: s => s.totalGems >= 10 },
-  { id: 'gems_50',      name: 'Gem Hoarder',       desc: 'Find 50 total gems',          icon: '👑', check: s => s.totalGems >= 50 },
-  { id: 'combo_max',    name: 'Combo King',        desc: 'Reach maximum combo',         icon: '⚡', check: s => s.maxComboReached },
-  { id: 'level_5',      name: 'Adventurer',        desc: 'Reach level 5',               icon: '⭐', check: s => s.level >= 5 },
-  { id: 'level_10',     name: 'Veteran',           desc: 'Reach level 10',              icon: '🌟', check: s => s.level >= 10 },
-  { id: 'level_20',     name: 'Legend',             desc: 'Reach level 20',              icon: '🏆', check: s => s.level >= 20 },
-  { id: 'silver_egg',   name: 'Silver Standard',   desc: 'Break a silver egg',          icon: '🥈', check: s => s.silverSmashed > 0 },
-  { id: 'gold_egg',     name: 'Golden Touch',      desc: 'Break a gold egg',            icon: '🥇', check: s => s.goldSmashed > 0 },
-  { id: 'crystal_egg',  name: 'Crystal Clear',     desc: 'Break a crystal egg',         icon: '🔮', check: s => s.crystalSmashed > 0 },
-  { id: 'critical',     name: 'Critical Hit!',     desc: 'Land a critical hit',         icon: '💫', check: s => s.criticalHits > 0 },
-  { id: 'jackpot',      name: 'JACKPOT!',          desc: 'Hit the jackpot',             icon: '🎰', check: s => s.jackpots > 0 },
-  { id: 'shop_first',   name: 'First Purchase',    desc: 'Buy from the shop',           icon: '🛒', check: s => s.purchases > 0 },
-  { id: 'streak_10',    name: 'Hot Streak',         desc: 'Get 10 prizes in a row',      icon: '🔥', check: s => s.bestStreak >= 10 },
-];
-
 // ==================== GAME STATE ====================
 const DEFAULT_STATE = {
-  hammers: 10, maxH: 10, coins: 0, gems: 0, score: 0,
-  level: 1, xp: 0,
-  mult: 1, maxMult: 5, egg: 'normal',
-  smashing: false,
-  mBoosted: false, gBoosted: false, autoRegen: false, luckyCharm: false,
-  regenCD: 30,
-  streak: 0,
-  // Lifetime stats
-  totalSmashes: 0, totalCoins: 0, totalGems: 0,
-  silverSmashed: 0, goldSmashed: 0, crystalSmashed: 0,
-  criticalHits: 0, jackpots: 0, purchases: 0,
-  bestStreak: 0, maxComboReached: false,
-  // Unlocked achievements
+  hammers: 40, maxH: 40, gold: 0, starPieces: 0, crystalBananas: 0,
+  feathers: 0,
+  multQueue: [],     // multipliers in hand
+  activeMult: 1,     // currently selected mult (1 = none)
+  _activeMultIdx: -1,
+  hammer: 'default', hat: 'none',
+  ownedHammers: ['default'], ownedHats: ['none'],
+  eggType: 'normal',
+  activeMonkey: 0,
+  monkeys: null,     // built in initMonkeys()
+  // Round
+  roundEggs: null,
+  // Daily
+  lastLoginDate: null, consecutiveDays: 0, dailyClaimed: false, totalDailyClaims: 0,
+  // Regen
+  regenCD: 30, fastRegen: false,
+  // Stats
+  totalEggs: 0, totalGold: 0, totalStarPieces: 0, totalFeathers: 0,
+  totalItems: 0, biggestWin: 0, highestMult: 1,
+  starfallsUsed: 0, collectionsCompleted: 0, stagesCompleted: 0,
+  roundClears: 0,
   achieved: [],
+  soundOn: true,
 };
 
-let G = { ...DEFAULT_STATE };
+let G = {};
 let regenInt = null;
-let decayTO = null;
 
-// ==================== PRIZE TABLES ====================
-const PRIZES = {
-  normal: [
-    { t: 'x', w: 15, v: 0  },
-    { t: 'c', w: 35, v: 1  },
-    { t: 'c', w: 25, v: 3  },
-    { t: 'c', w: 15, v: 5  },
-    { t: 'g', w: 7,  v: 1  },
-    { t: 'g', w: 3,  v: 3  },
-  ],
-  silver: [
-    { t: 'x', w: 8,  v: 0  },
-    { t: 'c', w: 30, v: 3  },
-    { t: 'c', w: 28, v: 6  },
-    { t: 'c', w: 18, v: 12 },
-    { t: 'c', w: 8,  v: 20 },
-    { t: 'g', w: 6,  v: 2  },
-    { t: 'g', w: 2,  v: 5  },
-  ],
-  gold: [
-    { t: 'x', w: 5,  v: 0  },
-    { t: 'c', w: 25, v: 10 },
-    { t: 'c', w: 28, v: 20 },
-    { t: 'c', w: 22, v: 40 },
-    { t: 'c', w: 10, v: 80 },
-    { t: 'g', w: 7,  v: 3  },
-    { t: 'g', w: 3,  v: 10 },
-  ],
-  crystal: [
-    { t: 'x', w: 3,  v: 0  },
-    { t: 'c', w: 20, v: 30 },
-    { t: 'c', w: 25, v: 60 },
-    { t: 'c', w: 25, v: 120},
-    { t: 'c', w: 12, v: 250},
-    { t: 'g', w: 10, v: 5  },
-    { t: 'g', w: 5,  v: 15 },
-  ],
-};
-
-const EGG_COST = { normal: 1, silver: 2, gold: 3, crystal: 5 };
-const EGG_UNLOCK_LEVEL = { normal: 1, silver: 3, gold: 6, crystal: 10 };
-const EGG_COLORS = {
-  normal:  { fill: '#FEF9F0', stroke: '#D4A853' },
-  silver:  { fill: '#E8E8E8', stroke: '#9CA3AF' },
-  gold:    { fill: '#FEFCE8', stroke: '#EAB308' },
-  crystal: { fill: '#EDE9FE', stroke: '#8B5CF6' },
-};
-
-// ==================== HELPERS ====================
-function $id(id) { return document.getElementById(id); }
-
-function roll(type) {
-  const table = PRIZES[type];
-  let total = table.reduce((s, p) => s + p.w, 0);
-  // Lucky charm reduces empty weight
-  if (G.luckyCharm) {
-    const adjusted = table.map(p => ({
-      ...p,
-      w: p.t === 'x' ? Math.max(1, p.w * 0.4) : p.w
-    }));
-    total = adjusted.reduce((s, p) => s + p.w, 0);
-    let r = Math.random() * total;
-    for (const prize of adjusted) {
-      r -= prize.w;
-      if (r <= 0) return prize;
-    }
-    return adjusted[adjusted.length - 1];
-  }
-  let r = Math.random() * total;
-  for (const prize of table) {
-    r -= prize.w;
-    if (r <= 0) return prize;
-  }
-  return table[table.length - 1];
-}
-
-function msg(text, color) {
-  const el = $id('prize-txt');
-  el.style.color = color || '#d97706';
-  el.textContent = text;
-  clearTimeout(el._timeout);
-  el._timeout = setTimeout(() => { el.textContent = ''; }, 2600);
-}
-
-function spawnFloat(text, color, cls) {
-  const zone = $id('prize-zone');
-  const el = document.createElement('div');
-  el.className = 'prize-float' + (cls ? ' ' + cls : '');
-  el.style.color = color;
-  el.style.left = (22 + Math.random() * 56) + '%';
-  el.style.top = (10 + Math.random() * 22) + '%';
-  el.textContent = text;
-  zone.appendChild(el);
-  setTimeout(() => el.remove(), cls === 'jackpot' ? 2000 : 1300);
-}
-
-function shake(level) {
-  const area = $id('egg-area');
-  area.classList.remove('shake-light', 'shake-medium', 'shake-heavy');
-  void area.offsetWidth;
-  area.classList.add('shake-' + level);
-}
-
-function bumpStat(id) {
-  const el = $id(id);
-  el.classList.remove('stat-bump');
-  void el.offsetWidth;
-  el.classList.add('stat-bump');
-}
-
-// ==================== XP / LEVELS ====================
-function xpForLevel(level) {
-  return Math.floor(100 * Math.pow(1.35, level - 1));
-}
-
-function addXP(amount) {
-  G.xp += amount;
-  let leveled = false;
-  while (G.xp >= xpForLevel(G.level)) {
-    G.xp -= xpForLevel(G.level);
-    G.level++;
-    G.maxH += 2;
-    G.hammers = Math.min(G.maxH, G.hammers + 5); // bonus hammers on level up
-    leveled = true;
-  }
-  if (leveled) {
-    SFX.play('levelup');
-    showLevelUp();
-  }
-}
-
-function showLevelUp() {
-  const overlay = $id('levelup-overlay');
-  $id('levelup-text').textContent = 'LEVEL ' + G.level + '!';
-  $id('levelup-detail').textContent = 'Max hammers: ' + G.maxH + ' | +5 hammers refilled';
-  overlay.classList.remove('hidden');
-  setTimeout(() => overlay.classList.add('hidden'), 2200);
+function initMonkeys() {
+  return MONKEY_DATA.map((m, i) => ({
+    unlocked: i === 0,
+    stage: 0, tier: 0,  // 0=bronze,1=silver,2=gold
+    collections: m.stages.map(s => s.collection.items.map(() => false)),
+    completed: false,
+  }));
 }
 
 // ==================== SAVE / LOAD ====================
-const SAVE_KEY = 'eggBreaker_save';
+const SAVE_KEY = 'eggBreaker_v2';
 
 function saveGame() {
-  const data = { ...G };
-  delete data.smashing; // don't persist transient state
-  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  const d = {};
+  for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
+  d.roundEggs = G.roundEggs;
+  localStorage.setItem(SAVE_KEY, JSON.stringify(d));
 }
 
 function loadGame() {
+  G = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null };
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return;
-    const data = JSON.parse(raw);
-    // Merge with defaults so new fields are populated
-    for (const key of Object.keys(DEFAULT_STATE)) {
-      if (key in data) G[key] = data[key];
+    const d = JSON.parse(raw);
+    for (const k of Object.keys(DEFAULT_STATE)) {
+      if (d[k] !== undefined && d[k] !== null) G[k] = d[k];
     }
-    G.smashing = false;
+    if (d.roundEggs) G.roundEggs = d.roundEggs;
+    if (!G.monkeys || G.monkeys.length < MONKEY_DATA.length) {
+      const fresh = initMonkeys();
+      if (G.monkeys) {
+        for (let i = 0; i < G.monkeys.length; i++) fresh[i] = G.monkeys[i];
+      }
+      G.monkeys = fresh;
+    }
   } catch (_) {}
 }
 
 function resetGame() {
-  if (!confirm('Reset all progress? This cannot be undone!')) return;
+  if (!confirm('Reset ALL progress? This cannot be undone!')) return;
   localStorage.removeItem(SAVE_KEY);
-  G = { ...DEFAULT_STATE, achieved: [] };
+  G = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null };
   regenInt = null;
-  decayTO = null;
-  updateUI();
-  renderAchievements();
+  newRound();
+  renderAll();
   msg('Progress reset!', '#ef4444');
 }
 
-// ==================== UI UPDATE ====================
-function updateUI() {
-  // Stats
-  $id('st-h').textContent = G.hammers;
-  $id('st-c').textContent = G.coins;
-  $id('st-g').textContent = G.gems;
-  $id('st-s').textContent = G.score;
-
-  // Level / XP
-  const xpNeeded = xpForLevel(G.level);
-  $id('level-num').textContent = 'Lv ' + G.level;
-  $id('xp-fill').style.width = Math.min(100, (G.xp / xpNeeded) * 100) + '%';
-  $id('xp-text').textContent = G.xp + ' / ' + xpNeeded + ' XP';
-
-  // Multiplier
-  const pct = Math.min(100, ((G.mult - 1) / (G.maxMult - 1)) * 100);
-  $id('mult-bar').style.width = pct + '%';
-  $id('mult-lbl').textContent = G.mult.toFixed(1) + 'x';
-  const multFill = $id('mult-bar');
-  if (G.mult >= G.maxMult) multFill.classList.add('maxed');
-  else multFill.classList.remove('maxed');
-
-  // Streak badge
-  const sb = $id('streak-badge');
-  if (G.streak > 0) {
-    sb.classList.remove('hidden');
-    sb.textContent = G.streak + ' streak';
-    if (G.streak >= 5) sb.classList.add('hot');
-    else sb.classList.remove('hot');
+// ==================== DAILY LOGIN ====================
+function checkDaily() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (G.lastLoginDate === today) {
+    if (G.dailyClaimed) {
+      $id('daily-box').classList.add('claimed');
+      $id('daily-btn').disabled = true;
+      $id('daily-btn').textContent = 'Claimed!';
+    }
+    return;
+  }
+  // New day
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (G.lastLoginDate === yesterday) {
+    G.consecutiveDays++;
   } else {
-    sb.classList.add('hidden');
+    G.consecutiveDays = 1;
   }
+  G.lastLoginDate = today;
+  G.dailyClaimed = false;
+  $id('daily-box').classList.remove('claimed');
+  $id('daily-btn').disabled = false;
+  $id('daily-btn').textContent = 'Claim!';
+  $id('daily-day').textContent = G.consecutiveDays;
+  const bonus = Math.min(G.consecutiveDays * 5, 100);
+  $id('daily-detail').textContent = '+' + (40 + bonus) + ' hammers';
+}
 
-  // Smash button
-  const cost = EGG_COST[G.egg];
-  $id('smash-btn').disabled = G.hammers < cost || G.smashing;
-
-  // Egg type tabs
-  for (const type of Object.keys(EGG_UNLOCK_LEVEL)) {
-    const tab = $id('tab-' + type);
-    if (!tab) continue;
-    const unlocked = G.level >= EGG_UNLOCK_LEVEL[type];
-    tab.classList.toggle('locked', !unlocked);
-    const reqEl = tab.querySelector('.tab-req');
-    if (reqEl) reqEl.style.display = unlocked ? 'none' : '';
-  }
-
-  // Egg appearance
-  const body = $id('egg-body');
-  const c = EGG_COLORS[G.egg];
-  body.setAttribute('fill', c.fill);
-  body.setAttribute('stroke', c.stroke);
-
-  // Hammer regen
-  if (G.hammers < G.maxH) {
-    const cd = G.autoRegen ? Math.max(10, G.regenCD) : G.regenCD;
-    $id('regen-txt').textContent = 'Next hammer in ' + G.regenCD + 's';
-  } else {
-    $id('regen-txt').textContent = 'Hammers full!';
-  }
-
-  // Sound icon
-  $id('sound-icon').textContent = SFX.isOn() ? '🔊' : '🔇';
-
-  // Lifetime stats
-  $id('ts-smash').textContent = G.totalSmashes;
-  $id('ts-coins').textContent = G.totalCoins;
-  $id('ts-gems').textContent = G.totalGems;
-  $id('ts-streak').textContent = G.bestStreak;
-  $id('ts-crit').textContent = G.criticalHits;
-  $id('ts-jack').textContent = G.jackpots;
-
+function claimDaily() {
+  if (G.dailyClaimed) return;
+  const bonus = Math.min(G.consecutiveDays * 5, 100);
+  const total = 40 + bonus;
+  G.hammers = Math.min(G.maxH, G.hammers + total);
+  G.dailyClaimed = true;
+  G.totalDailyClaims = (G.totalDailyClaims || 0) + 1;
+  $id('daily-box').classList.add('claimed');
+  $id('daily-btn').disabled = true;
+  $id('daily-btn').textContent = 'Claimed!';
+  msg('+' + total + ' hammers!', '#16a34a');
+  SFX.play('coin');
+  checkAchievements();
+  updateResources();
   saveGame();
 }
 
-// ==================== CORE SMASH ====================
-function smash() {
-  const cost = EGG_COST[G.egg];
-  if (G.hammers < cost || G.smashing) return;
+// ==================== HELPERS ====================
+function $id(id) { return document.getElementById(id); }
 
-  G.smashing = true;
+function msg(text, color) {
+  const el = $id('status-txt');
+  el.style.color = color || '#d97706';
+  el.textContent = text;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.textContent = ''; }, 2800);
+}
+
+function spawnFloat(zone, text, color, cls) {
+  const el = document.createElement('div');
+  el.className = 'prize-float' + (cls ? ' ' + cls : '');
+  el.style.color = color;
+  el.style.left = (20 + Math.random() * 60) + '%';
+  el.style.top = (10 + Math.random() * 30) + '%';
+  el.textContent = text;
+  zone.appendChild(el);
+  setTimeout(() => el.remove(), cls === 'mega' ? 2000 : 1300);
+}
+
+function shake(level) {
+  const el = $id('egg-tray-wrap');
+  el.classList.remove('shake-sm', 'shake-md', 'shake-lg');
+  void el.offsetWidth;
+  el.classList.add('shake-' + level);
+}
+
+function curMonkey() { return MONKEY_DATA[G.activeMonkey]; }
+function curProgress() { return G.monkeys[G.activeMonkey]; }
+function curStage() { return curMonkey().stages[curProgress().stage]; }
+
+// ==================== ROUND MANAGEMENT ====================
+function newRound() {
+  const prog = curProgress();
+  if (prog.completed && prog.stage >= curMonkey().stages.length - 1) {
+    // All stages done for this monkey
+    msg('All stages complete! Try another monkey.', '#7c3aed');
+    G.roundEggs = null;
+    renderEggTray();
+    return;
+  }
+  const stage = curStage();
+  const count = stage.eggs;
+  const eggs = [];
+  for (let i = 0; i < count; i++) {
+    // Determine egg type: mostly what player selected, chance for silver/gold upgrades
+    let type = G.eggType;
+    // Random upgrade chance based on stage progress
+    const r = Math.random();
+    if (type === 'normal' && r < 0.08) type = 'silver';
+    if (type === 'normal' && r < 0.02) type = 'gold';
+    if (type === 'silver' && r < 0.05) type = 'gold';
+    eggs.push({ type, broken: false });
+  }
+  G.roundEggs = eggs;
+  $id('hint-txt').classList.remove('hidden');
+  renderEggTray();
+  updateResources();
+  saveGame();
+}
+
+// ==================== EGG RENDERING ====================
+function makeEggSVG(type, broken) {
+  const colors = {
+    normal: { f: '#FEF9F0', s: '#D4A853' },
+    silver: { f: '#E8E8E8', s: '#9CA3AF' },
+    gold:   { f: '#FEFCE8', s: '#EAB308' },
+  };
+  const c = colors[type] || colors.normal;
+  const crack = broken ? `<g>
+    <path d="M40 12 L35 28 L42 40 L33 58" stroke="#7A4010" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M52 25 L45 40 L50 55" stroke="#7A4010" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </g>` : '';
+  return `<svg width="72" height="90" viewBox="0 0 80 100">
+    <ellipse cx="40" cy="90" rx="22" ry="5" fill="rgba(0,0,0,.06)"/>
+    <ellipse cx="40" cy="55" rx="30" ry="40" fill="${c.f}" stroke="${c.s}" stroke-width="2.5"/>
+    <ellipse cx="30" cy="35" rx="8" ry="12" fill="white" opacity=".25"/>
+    ${crack}
+  </svg>`;
+}
+
+function renderEggTray() {
+  const tray = $id('egg-tray');
+  tray.innerHTML = '';
+  if (!G.roundEggs || G.roundEggs.length === 0) {
+    tray.innerHTML = '<p style="color:#78716c;font-size:13px;padding:40px 0">Press <strong>New Round</strong> to start!</p>';
+    return;
+  }
+  G.roundEggs.forEach((egg, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'egg-slot' + (egg.broken ? ' broken' : '') + (egg.type === 'gold' ? ' gold-egg' : '');
+    slot.innerHTML = makeEggSVG(egg.type, egg.broken) +
+      '<span class="egg-label">' + egg.type + '</span>';
+    if (!egg.broken) {
+      slot.addEventListener('click', () => smashEgg(i));
+    }
+    tray.appendChild(slot);
+  });
+}
+
+// ==================== PRIZE ROLLING ====================
+function rollPrize(eggType) {
+  const w = { ...PRIZE_WEIGHTS[eggType] };
+  const monkey = curMonkey();
+  const prog = curProgress();
+
+  // Equipment bonuses
+  const hammerBonus = getHammerBonus();
+  const hatBonus = getHatBonus();
+  const monkeyPerk = monkey.perk;
+
+  if (hammerBonus === 'lessEmpty') w.empty = Math.max(0, w.empty * 0.4);
+  if (hammerBonus === 'moreStars' || monkeyPerk === 'moreStars') w.star *= 1.15;
+  if (hammerBonus === 'moreFeathers') w.feather *= 1.2;
+  if (hammerBonus === 'moreItems' || monkeyPerk === 'moreItems') w.item *= 1.1;
+  if (hatBonus === 'starBoost') w.star *= 1.1;
+  if (hatBonus === 'itemBoost') w.item *= 1.15;
+
+  const total = Object.values(w).reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (const [type, weight] of Object.entries(w)) {
+    r -= weight;
+    if (r <= 0) return resolvePrize(type, eggType);
+  }
+  return resolvePrize('gold_s', eggType);
+}
+
+function resolvePrize(type, eggType) {
+  const silverMult = eggType === 'silver' ? 2 : 1;
+  const goldMult = eggType === 'gold' ? 1.5 : 1;
+  const hammerBonus = getHammerBonus();
+  const hatBonus = getHatBonus();
+  const monkeyPerk = curMonkey().perk;
+
+  if (type === 'empty') return { type: 'empty', value: 0, label: 'Empty!', color: '#9ca3af' };
+
+  if (type.startsWith('gold_')) {
+    const range = GOLD_VALUES[type];
+    let val = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
+    val = Math.round(val * G.activeMult * silverMult * goldMult);
+    if (hammerBonus === 'moreGold' || monkeyPerk === 'moreGold') val = Math.round(val * 1.2);
+    if (hatBonus === 'goldBoost') val = Math.round(val * 1.1);
+    return { type: 'gold', value: val, label: '+' + val + ' gold', color: '#d97706' };
+  }
+
+  if (type === 'star') {
+    const val = silverMult > 1 ? 2 : 1;
+    return { type: 'star', value: val, label: '+' + val + ' star piece' + (val > 1 ? 's' : ''), color: '#f59e0b' };
+  }
+
+  if (type === 'mult') {
+    const val = MULT_VALUES[Math.floor(Math.random() * MULT_VALUES.length)];
+    return { type: 'mult', value: val, label: 'x' + val + ' multiplier!', color: '#7c3aed' };
+  }
+
+  if (type === 'feather') {
+    const val = Math.ceil((1 + Math.random() * 3) * silverMult);
+    return { type: 'feather', value: val, label: '+' + val + ' feather' + (val > 1 ? 's' : ''), color: '#059669' };
+  }
+
+  if (type === 'hammers') {
+    const val = HAMMER_PRIZES[Math.floor(Math.random() * HAMMER_PRIZES.length)];
+    return { type: 'hammers', value: val, label: '+' + val + ' hammers!', color: '#b45309' };
+  }
+
+  if (type === 'item') {
+    return rollCollectionItem(eggType);
+  }
+
+  return { type: 'empty', value: 0, label: 'Empty!', color: '#9ca3af' };
+}
+
+function rollCollectionItem(eggType) {
+  const stage = curStage();
+  const prog = curProgress();
+  const items = stage.collection.items;
+  const collected = prog.collections[prog.stage];
+
+  // Weight uncollected items higher (pity system)
+  const weights = items.map((item, i) => {
+    const rarity = item[2]; // 1=common, 2=uncommon, 3=rare
+    const baseW = rarity === 1 ? 10 : rarity === 2 ? 5 : 2;
+    return collected[i] ? baseW * 0.3 : baseW * 2; // strong pity for uncollected
+  });
+
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < items.length; i++) {
+    r -= weights[i];
+    if (r <= 0) {
+      const item = items[i];
+      const isNew = !collected[i];
+      return {
+        type: 'item', index: i, isNew,
+        emoji: item[0], name: item[1], rarity: item[2],
+        label: item[0] + ' ' + item[1] + (isNew ? ' (NEW!)' : ''),
+        color: isNew ? '#b45309' : '#78716c',
+      };
+    }
+  }
+  // Fallback: give gold instead
+  return { type: 'gold', value: 50, label: '+50 gold', color: '#d97706' };
+}
+
+function getHammerBonus() {
+  const h = SHOP_HAMMERS.find(h => h.id === G.hammer);
+  return h ? h.bonus : null;
+}
+function getHatBonus() {
+  const h = SHOP_HATS.find(h => h.id === G.hat);
+  return h ? h.bonus : null;
+}
+
+// ==================== SMASH EGG ====================
+function smashEgg(index) {
+  if (!G.roundEggs || G.roundEggs[index].broken) return;
+  const egg = G.roundEggs[index];
+  const cost = EGG_COST[egg.type];
+  if (G.hammers < cost) {
+    msg('Need ' + cost + ' hammer' + (cost > 1 ? 's' : '') + '!', '#ef4444');
+    SFX.play('err');
+    return;
+  }
+
   G.hammers -= cost;
-  G.totalSmashes++;
 
-  // Track egg type smashes
-  if (G.egg === 'silver') G.silverSmashed = (G.silverSmashed || 0) + 1;
-  if (G.egg === 'gold') G.goldSmashed = (G.goldSmashed || 0) + 1;
-  if (G.egg === 'crystal') G.crystalSmashed = (G.crystalSmashed || 0) + 1;
+  // Chef hat: 10% chance egg was free
+  if (getHatBonus() === 'freeEgg' && Math.random() < 0.1) {
+    G.hammers = Math.min(G.maxH, G.hammers + cost);
+    msg('Free egg! (Chef\'s Hat)', '#16a34a');
+  }
+
+  G.totalEggs++;
+  egg.broken = true;
 
   // Start regen if needed
   if (!regenInt && G.hammers < G.maxH) startRegen();
 
-  // Hide hint
   $id('hint-txt').classList.add('hidden');
 
-  // Animate hammer
-  const hammerEl = $id('hammer');
-  hammerEl.classList.remove('hammer-anim');
-  void hammerEl.offsetWidth;
-  hammerEl.classList.add('hammer-anim');
+  // Animate the egg slot
+  const slots = $id('egg-tray').children;
+  const slot = slots[index];
+  slot.classList.add('smashing');
+  setTimeout(() => slot.classList.remove('smashing'), 450);
 
-  // Animate egg
-  const eggEl = $id('egg-wrap');
-  eggEl.classList.remove('egg-anim');
-  void eggEl.offsetWidth;
-  eggEl.classList.add('egg-anim');
-
-  // Play hit sound
+  // Sound & particles
   SFX.play('hit');
+  const rect = slot.getBoundingClientRect();
+  const wrapRect = $id('egg-tray-wrap').getBoundingClientRect();
+  const cx = rect.left - wrapRect.left + rect.width / 2;
+  const cy = rect.top - wrapRect.top + rect.height / 2;
+  Particles.emit(cx, cy, egg.type, 8 + Math.random() * 5 | 0);
+  shake(egg.type === 'gold' ? 'md' : 'sm');
 
-  // Emit shell particles
-  const area = $id('egg-area');
-  const rect = area.getBoundingClientRect();
-  const eggCX = rect.width / 2;
-  const eggCY = 155;
-  Particles.emit(eggCX, eggCY, G.egg, 10 + Math.random() * 6 | 0);
+  // Roll prize
+  const prize = rollPrize(egg.type);
 
-  // Screen shake
-  const shakeLevel = { normal: 'light', silver: 'light', gold: 'medium', crystal: 'heavy' }[G.egg];
-  shake(shakeLevel);
-
-  updateUI();
-
-  // Reveal prize after impact
+  // Apply prize
   setTimeout(() => {
-    const prize = roll(G.egg);
+    applyPrize(prize, cx, cy);
 
-    // Critical hit chance (5%, or 8% with lucky charm)
-    const critChance = G.luckyCharm ? 0.08 : 0.05;
-    const isCritical = prize.t !== 'x' && Math.random() < critChance;
+    // Update egg visual to broken
+    slot.classList.add('broken');
+    slot.innerHTML = makeEggSVG(egg.type, true) + '<span class="egg-label">' + egg.type + '</span>';
 
-    // Jackpot (0.5% on gold/crystal, 0.2% otherwise)
-    const jackpotChance = (G.egg === 'gold' || G.egg === 'crystal') ? 0.005 : 0.002;
-    const isJackpot = prize.t !== 'x' && Math.random() < jackpotChance;
-
-    $id('cracks').className = 'cracks-shown';
-
-    let xpGained = 1; // base XP for any smash
-
-    if (prize.t === 'x') {
-      // Empty
-      spawnFloat('Empty!', '#9ca3af');
-      msg('Nothing this time...', '#9ca3af');
-      SFX.play('empty');
-      G.streak = 0;
-
-    } else if (prize.t === 'c') {
-      // Coins
-      let earned = Math.round(prize.v * G.mult);
-      if (isCritical) earned *= 3;
-      if (isJackpot) earned *= 10;
-
-      G.coins += earned;
-      G.score += earned;
-      G.totalCoins += earned;
-      G.streak++;
-      G.bestStreak = Math.max(G.bestStreak, G.streak);
-      xpGained = Math.max(1, Math.floor(earned / 3));
-
-      if (isJackpot) {
-        G.jackpots++;
-        spawnFloat('JACKPOT! +' + earned, '#f59e0b', 'jackpot');
-        msg('JACKPOT! ' + earned + ' coins!!!', '#f59e0b');
-        SFX.play('jackpot');
-        shake('heavy');
-        Particles.sparkle(eggCX, eggCY, 30, '#FFD700');
-      } else if (isCritical) {
-        G.criticalHits++;
-        spawnFloat('CRIT! +' + earned, '#ef4444', 'critical');
-        msg('Critical Hit! ' + earned + ' coins!', '#ef4444');
-        SFX.play('critical');
-        shake('medium');
-        Particles.sparkle(eggCX, eggCY, 15, '#FF6B6B');
-      } else {
-        spawnFloat('+' + earned + ' coins', '#d97706');
-        msg(earned + ' coin' + (earned !== 1 ? 's' : '') + ' (' + G.mult.toFixed(1) + 'x)');
-        SFX.play('coin');
-      }
-      bumpStat('st-c');
-
-    } else {
-      // Gems
-      let gemVal = G.gBoosted ? prize.v * 2 : prize.v;
-      if (isCritical) gemVal *= 3;
-      if (isJackpot) gemVal *= 10;
-
-      G.gems += gemVal;
-      G.score += gemVal * 10;
-      G.totalGems += gemVal;
-      G.streak++;
-      G.bestStreak = Math.max(G.bestStreak, G.streak);
-      xpGained = gemVal * 3;
-
-      if (isJackpot) {
-        G.jackpots++;
-        spawnFloat('JACKPOT! +' + gemVal + ' gems!', '#7c3aed', 'jackpot');
-        msg('GEM JACKPOT! ' + gemVal + ' gems!!!', '#7c3aed');
-        SFX.play('jackpot');
-        shake('heavy');
-        Particles.sparkle(eggCX, eggCY, 30, '#A78BFA');
-      } else if (isCritical) {
-        G.criticalHits++;
-        spawnFloat('CRIT! +' + gemVal + ' gems!', '#7c3aed', 'critical');
-        msg('Critical! ' + gemVal + ' gem' + (gemVal !== 1 ? 's' : '') + '!', '#7c3aed');
-        SFX.play('critical');
-        shake('medium');
-        Particles.sparkle(eggCX, eggCY, 15, '#C084FC');
-      } else {
-        spawnFloat('+' + gemVal + ' gems', '#7c3aed');
-        msg('Rare! ' + gemVal + ' gem' + (gemVal !== 1 ? 's' : '') + '!', '#7c3aed');
-        SFX.play('gem');
-      }
-      bumpStat('st-g');
+    // Check if all eggs broken
+    if (G.roundEggs.every(e => e.broken)) {
+      G.roundClears++;
+      checkAchievements();
     }
 
-    // XP
-    addXP(xpGained);
+    // Consume the active multiplier after use
+    if (G.activeMult > 1) {
+      consumeMultiplier();
+      renderMultQueue();
+    }
 
-    // Combo multiplier
-    G.mult = Math.min(G.maxMult, +(G.mult + 0.5).toFixed(1));
-    if (G.mult >= G.maxMult) G.maxComboReached = true;
-    if (decayTO) clearTimeout(decayTO);
-    decayTO = setTimeout(decayMult, 4000);
-
-    // Check achievements
-    checkAchievements();
-
-    // Clean up
-    setTimeout(() => {
-      $id('cracks').className = 'cracks-hidden';
-      hammerEl.classList.remove('hammer-anim');
-      G.smashing = false;
-      updateUI();
-    }, 560);
-
-    updateUI();
-  }, 280);
+    updateResources();
+    updateStageBar();
+    saveGame();
+  }, 250);
 }
 
-// ==================== MULTIPLIER DECAY ====================
-function decayMult() {
-  if (G.mult > 1) {
-    G.mult = Math.max(1, +(G.mult - 0.5).toFixed(1));
-    updateUI();
-    if (G.mult > 1) {
-      decayTO = setTimeout(decayMult, 720);
+function applyPrize(prize, cx, cy) {
+  const zone = $id('prize-zone');
+
+  if (prize.type === 'empty') {
+    spawnFloat(zone, 'Empty!', '#9ca3af');
+    msg('Nothing this time...', '#9ca3af');
+    SFX.play('empty');
+    return;
+  }
+
+  if (prize.type === 'gold') {
+    G.gold += prize.value;
+    G.totalGold += prize.value;
+    G.biggestWin = Math.max(G.biggestWin, prize.value);
+    const cls = prize.value >= 200 ? 'big' : prize.value >= 500 ? 'mega' : '';
+    spawnFloat(zone, prize.label, '#d97706', cls);
+    msg(prize.label, '#d97706');
+    SFX.play('coin');
+    if (prize.value >= 200) Particles.sparkle(cx, cy, 12, '#FFD700');
+  }
+
+  if (prize.type === 'star') {
+    G.starPieces += prize.value;
+    G.totalStarPieces += prize.value;
+    spawnFloat(zone, prize.label, '#f59e0b', 'big');
+    msg(prize.label, '#f59e0b');
+    SFX.play('star');
+    Particles.sparkle(cx, cy, 10, '#FCD34D');
+    updateStarBtn();
+  }
+
+  if (prize.type === 'mult') {
+    G.multQueue.push(prize.value);
+    G.highestMult = Math.max(G.highestMult, prize.value);
+    spawnFloat(zone, prize.label, '#7c3aed', 'big');
+    msg(prize.label, '#7c3aed');
+    SFX.play('gem');
+    renderMultQueue();
+  }
+
+  if (prize.type === 'feather') {
+    G.feathers += prize.value;
+    G.totalFeathers += prize.value;
+    spawnFloat(zone, prize.label, '#059669');
+    msg(prize.label, '#059669');
+    SFX.play('coin');
+  }
+
+  if (prize.type === 'hammers') {
+    G.hammers = Math.min(G.maxH, G.hammers + prize.value);
+    spawnFloat(zone, prize.label, '#b45309', 'big');
+    msg(prize.label, '#b45309');
+    SFX.play('coin');
+  }
+
+  if (prize.type === 'item') {
+    const prog = curProgress();
+    const wasNew = prize.isNew;
+    if (wasNew) {
+      prog.collections[prog.stage][prize.index] = true;
+      G.totalItems++;
     }
+    spawnFloat(zone, prize.label, prize.color, wasNew ? 'big' : '');
+    if (wasNew) {
+      SFX.play('item');
+      Particles.sparkle(cx, cy, 15, '#F59E0B');
+      // Show popup for new item
+      setTimeout(() => showItemPopup(prize), 400);
+      // Check collection completion
+      checkCollectionComplete();
+    } else {
+      // Duplicate - give some gold instead
+      const dupeGold = 10 + Math.floor(Math.random() * 30);
+      G.gold += dupeGold;
+      G.totalGold += dupeGold;
+      msg('Duplicate! +' + dupeGold + ' gold', '#78716c');
+      SFX.play('coin');
+    }
+  }
+
+  checkAchievements();
+}
+
+// ==================== STARFALL ====================
+function useStarfall() {
+  if (G.starPieces < 5 || !G.roundEggs) return;
+  G.starPieces -= 5;
+  G.starfallsUsed++;
+  SFX.play('starfall');
+  msg('STARFALL! All eggs smashed!', '#f59e0b');
+
+  const wrap = $id('egg-tray-wrap');
+  wrap.style.animation = 'starfall-glow 1s ease';
+  setTimeout(() => wrap.style.animation = '', 1000);
+
+  // Break all unbroken eggs in sequence
+  const unbroken = [];
+  G.roundEggs.forEach((e, i) => { if (!e.broken) unbroken.push(i); });
+
+  unbroken.forEach((idx, i) => {
+    setTimeout(() => {
+      // Free smash - don't cost hammers
+      const egg = G.roundEggs[idx];
+      egg.broken = true;
+      G.totalEggs++;
+
+      const slots = $id('egg-tray').children;
+      const slot = slots[idx];
+      slot.classList.add('smashing');
+      setTimeout(() => slot.classList.remove('smashing'), 450);
+
+      const rect = slot.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      const cx = rect.left - wrapRect.left + rect.width / 2;
+      const cy = rect.top - wrapRect.top + rect.height / 2;
+      Particles.emit(cx, cy, egg.type, 12);
+      Particles.sparkle(cx, cy, 8, '#FFD700');
+      shake('sm');
+      SFX.play('hit');
+
+      const prize = rollPrize(egg.type);
+      setTimeout(() => {
+        applyPrize(prize, cx, cy);
+        slot.classList.add('broken');
+        slot.innerHTML = makeEggSVG(egg.type, true) + '<span class="egg-label">' + egg.type + '</span>';
+        updateResources();
+        updateStageBar();
+        saveGame();
+      }, 200);
+    }, i * 400);
+  });
+
+  setTimeout(() => {
+    G.roundClears++;
+    checkAchievements();
+    updateStarBtn();
+    updateResources();
+  }, unbroken.length * 400 + 300);
+}
+
+function updateStarBtn() {
+  const btn = $id('star-btn');
+  btn.disabled = G.starPieces < 5 || !G.roundEggs || G.roundEggs.every(e => e.broken);
+  $id('star-lbl').textContent = '(' + G.starPieces + '/5)';
+}
+
+// ==================== COLLECTION / STAGE ====================
+function checkCollectionComplete() {
+  const prog = curProgress();
+  const stage = curStage();
+  const collected = prog.collections[prog.stage];
+  const total = stage.collection.items.length;
+  const found = collected.filter(Boolean).length;
+
+  // Tier thresholds
+  const thresholds = [
+    Math.ceil(total * 0.5),  // bronze
+    Math.ceil(total * 0.75), // silver
+    total,                    // gold (all)
+  ];
+
+  if (prog.tier < 3 && found >= thresholds[prog.tier]) {
+    // Tier up!
+    const tierNames = ['Bronze', 'Silver', 'Gold'];
+    const oldTier = prog.tier;
+    prog.tier++;
+
+    if (prog.tier >= 3) {
+      // Stage complete!
+      G.stagesCompleted++;
+      G.crystalBananas++;
+      SFX.play('tier');
+
+      showStagePopup(
+        'Stage Complete!',
+        stage.name + ' - Gold! +1 Crystal Banana'
+      );
+
+      // Advance to next stage
+      if (prog.stage < curMonkey().stages.length - 1) {
+        prog.stage++;
+        prog.tier = 0;
+        setTimeout(() => {
+          newRound();
+          renderAll();
+        }, 300);
+      } else {
+        prog.completed = true;
+      }
+    } else {
+      // Tier up reward
+      SFX.play('tier');
+      const rewards = ['+5 max hammers', '+10 max hammers'];
+      G.maxH += prog.tier === 1 ? 5 : 10;
+      G.hammers = Math.min(G.maxH, G.hammers + 5);
+      showStagePopup(
+        tierNames[prog.tier] + ' Tier!',
+        stage.name + ' - ' + rewards[prog.tier - 1]
+      );
+    }
+    G.collectionsCompleted = calcTotalCollections();
+    checkAchievements();
+    saveGame();
+  }
+}
+
+function calcTotalCollections() {
+  let count = 0;
+  G.monkeys.forEach((mp, mi) => {
+    if (!mp.unlocked) return;
+    const monkey = MONKEY_DATA[mi];
+    mp.collections.forEach((coll, si) => {
+      if (coll.every(Boolean) && si <= mp.stage) count++;
+    });
+  });
+  return count;
+}
+
+function showItemPopup(prize) {
+  $id('pop-item-icon').textContent = prize.emoji;
+  $id('pop-item-name').textContent = prize.name;
+  $id('overlay-item').classList.remove('hidden');
+}
+
+function showStagePopup(title, detail) {
+  $id('pop-stage-title').textContent = title;
+  $id('pop-stage-detail').textContent = detail;
+  $id('overlay-stage').classList.remove('hidden');
+}
+
+function closeOverlay(id) {
+  $id(id).classList.add('hidden');
+}
+
+// ==================== MULTIPLIER QUEUE ====================
+function renderMultQueue() {
+  const q = $id('mult-queue');
+  q.innerHTML = '';
+  G.multQueue.forEach((val, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'mult-chip' + (G.activeMult === val && G._activeMultIdx === i ? ' active' : '');
+    chip.textContent = 'x' + val;
+    chip.addEventListener('click', () => {
+      if (G.activeMult === val && G._activeMultIdx === i) {
+        // Deselect
+        G.activeMult = 1;
+        G._activeMultIdx = -1;
+      } else {
+        G.activeMult = val;
+        G._activeMultIdx = i;
+      }
+      renderMultQueue();
+      $id('active-mult').textContent = 'x' + G.activeMult;
+    });
+    q.appendChild(chip);
+  });
+  $id('active-mult').textContent = 'x' + G.activeMult;
+
+  // After using a multiplier, remove it from queue
+  if (G.activeMult > 1 && G._activeMultIdx >= 0) {
+    // Will be consumed after smash
+  }
+}
+
+// Consume the active multiplier after smash (called in smashEgg)
+// Actually let's handle this properly: when activeMult > 1 is used, remove from queue
+function consumeMultiplier() {
+  if (G.activeMult > 1 && G._activeMultIdx >= 0 && G._activeMultIdx < G.multQueue.length) {
+    G.multQueue.splice(G._activeMultIdx, 1);
+    G.activeMult = 1;
+    G._activeMultIdx = -1;
   }
 }
 
 // ==================== HAMMER REGEN ====================
 function startRegen() {
-  G.regenCD = G.autoRegen ? 15 : 30;
+  G.regenCD = G.fastRegen ? 15 : 30;
   regenInt = setInterval(() => {
     G.regenCD--;
     if (G.regenCD <= 0) {
       G.hammers = Math.min(G.maxH, G.hammers + 1);
       if (G.hammers >= G.maxH) {
-        clearInterval(regenInt);
-        regenInt = null;
+        clearInterval(regenInt); regenInt = null;
       } else {
-        G.regenCD = G.autoRegen ? 15 : 30;
+        G.regenCD = G.fastRegen ? 15 : 30;
       }
     }
-    updateUI();
+    updateResources();
   }, 1000);
 }
 
-// ==================== EGG SELECTION ====================
-function selEgg(e, type) {
-  e.stopPropagation();
-  if (G.level < EGG_UNLOCK_LEVEL[type]) {
-    msg('Reach level ' + EGG_UNLOCK_LEVEL[type] + ' first!', '#ef4444');
-    SFX.play('error');
+// ==================== EGG TYPE ====================
+function pickEggType(type) {
+  G.eggType = type;
+  document.querySelectorAll('.epick').forEach(b => b.classList.remove('active'));
+  document.querySelector('.epick[data-type="' + type + '"]').classList.add('active');
+  saveGame();
+}
+
+// ==================== MONKEY MANAGEMENT ====================
+function switchMonkey(index) {
+  if (!G.monkeys[index].unlocked) return;
+  G.activeMonkey = index;
+  G.roundEggs = null;
+  newRound();
+  renderAll();
+  saveGame();
+}
+
+function unlockMonkey(index) {
+  if (G.crystalBananas < MONKEY_DATA[index].cost) {
+    msg('Need ' + MONKEY_DATA[index].cost + ' Crystal Bananas!', '#ef4444');
+    SFX.play('err');
     return;
   }
-  G.egg = type;
-  document.querySelectorAll('.egg-tab').forEach(b => b.classList.remove('selected'));
-  $id('tab-' + type).classList.add('selected');
-  updateUI();
+  G.crystalBananas -= MONKEY_DATA[index].cost;
+  G.monkeys[index].unlocked = true;
+  SFX.play('levelup');
+  msg(MONKEY_DATA[index].name + ' unlocked!', '#16a34a');
+  checkAchievements();
+  renderMonkeys();
+  updateResources();
+  saveGame();
 }
 
 // ==================== SHOP ====================
-function buy(item) {
-  if (item === 'h') {
-    if (G.coins < 10) { msg('Need 10 coins!', '#ef4444'); SFX.play('error'); return; }
-    G.coins -= 10;
-    G.hammers = Math.min(G.maxH, G.hammers + 5);
-    msg('+5 hammers!', '#16a34a');
-
-  } else if (item === 'cap') {
-    if (G.coins < 30) { msg('Need 30 coins!', '#ef4444'); SFX.play('error'); return; }
-    G.coins -= 30;
-    G.maxH += 5;
-    msg('Max hammers now ' + G.maxH + '!', '#16a34a');
-
-  } else if (item === 'm') {
-    if (G.coins < 25) { msg('Need 25 coins!', '#ef4444'); SFX.play('error'); return; }
-    if (G.mBoosted) { msg('Already purchased!', '#9ca3af'); return; }
-    G.coins -= 25;
-    G.maxMult = 8;
-    G.mBoosted = true;
-    msg('Multiplier cap raised to 8x!', '#16a34a');
-
-  } else if (item === 'g') {
-    if (G.coins < 50) { msg('Need 50 coins!', '#ef4444'); SFX.play('error'); return; }
-    if (G.gBoosted) { msg('Already purchased!', '#9ca3af'); return; }
-    G.coins -= 50;
-    G.gBoosted = true;
-    msg('Gems now give 2x!', '#7c3aed');
-
-  } else if (item === 'auto') {
-    if (G.gems < 3) { msg('Need 3 gems!', '#ef4444'); SFX.play('error'); return; }
-    if (G.autoRegen) { msg('Already purchased!', '#9ca3af'); return; }
-    G.gems -= 3;
-    G.autoRegen = true;
-    msg('Hammer regen is now 2x faster!', '#16a34a');
-
-  } else if (item === 'luck') {
-    if (G.gems < 8) { msg('Need 8 gems!', '#ef4444'); SFX.play('error'); return; }
-    if (G.luckyCharm) { msg('Already purchased!', '#9ca3af'); return; }
-    G.gems -= 8;
-    G.luckyCharm = true;
-    msg('Lucky Charm active! Fewer empty eggs!', '#16a34a');
+function buyShopItem(category, id) {
+  if (category === 'hammer') {
+    const item = SHOP_HAMMERS.find(h => h.id === id);
+    if (!item || item.cost === 0) return;
+    if (G.ownedHammers.includes(id)) {
+      // Equip it
+      G.hammer = id;
+      SFX.play('buy');
+      renderShop();
+      saveGame();
+      return;
+    }
+    if (G.gold < item.cost) { msg('Need ' + item.cost + ' gold!', '#ef4444'); SFX.play('err'); return; }
+    G.gold -= item.cost;
+    G.ownedHammers.push(id);
+    G.hammer = id;
+    G.purchases = (G.purchases || 0) + 1;
+    SFX.play('buy');
+    msg('Bought ' + item.name + '!', '#16a34a');
   }
 
-  G.purchases++;
-  SFX.play('buy');
+  if (category === 'hat') {
+    const item = SHOP_HATS.find(h => h.id === id);
+    if (!item || item.cost === 0) return;
+    if (G.ownedHats.includes(id)) {
+      G.hat = id;
+      SFX.play('buy');
+      renderShop();
+      saveGame();
+      return;
+    }
+    if (G.gold < item.cost) { msg('Need ' + item.cost + ' gold!', '#ef4444'); SFX.play('err'); return; }
+    G.gold -= item.cost;
+    G.ownedHats.push(id);
+    G.hat = id;
+    G.purchases = (G.purchases || 0) + 1;
+    SFX.play('buy');
+    msg('Bought ' + item.name + '!', '#16a34a');
+  }
+
+  if (category === 'supply') {
+    const item = SHOP_SUPPLIES.find(s => s.id === id);
+    if (!item) return;
+    if (item.unique && G['owned_' + id]) { msg('Already purchased!', '#9ca3af'); return; }
+    if (G.gold < item.cost) { msg('Need ' + item.cost + ' gold!', '#ef4444'); SFX.play('err'); return; }
+    G.gold -= item.cost;
+    G.purchases = (G.purchases || 0) + 1;
+
+    if (id === 'hammers5') G.hammers = Math.min(G.maxH, G.hammers + 5);
+    if (id === 'hammers20') G.hammers = Math.min(G.maxH, G.hammers + 20);
+    if (id === 'star1') { G.starPieces++; G.totalStarPieces++; updateStarBtn(); }
+    if (id === 'mult5') { G.multQueue.push(5); renderMultQueue(); }
+    if (id === 'maxhammers') G.maxH += 5;
+    if (id === 'fastregen') { G.fastRegen = true; G['owned_fastregen'] = true; }
+
+    SFX.play('buy');
+    msg('Purchased!', '#16a34a');
+  }
+
   checkAchievements();
-  updateUI();
+  updateResources();
+  renderShop();
+  saveGame();
 }
 
 // ==================== ACHIEVEMENTS ====================
-let achievePopupTimeout = null;
+let toastTimeout = null;
 
 function checkAchievements() {
-  for (const a of ACHIEVEMENTS) {
+  const checks = {
+    first_smash: () => G.totalEggs >= 1,
+    smash_50: () => G.totalEggs >= 50,
+    smash_200: () => G.totalEggs >= 200,
+    smash_1000: () => G.totalEggs >= 1000,
+    gold_1000: () => G.totalGold >= 1000,
+    gold_50000: () => G.totalGold >= 50000,
+    gold_500000: () => G.totalGold >= 500000,
+    stars_10: () => G.totalStarPieces >= 10,
+    starfall_1: () => G.starfallsUsed >= 1,
+    starfall_10: () => G.starfallsUsed >= 10,
+    coll_1: () => G.collectionsCompleted >= 1,
+    coll_5: () => G.collectionsCompleted >= 5,
+    coll_15: () => G.collectionsCompleted >= 15,
+    stage_1: () => G.stagesCompleted >= 1,
+    stage_9: () => G.stagesCompleted >= 9,
+    monkey_2: () => G.monkeys.filter(m => m.unlocked).length >= 2,
+    monkey_all: () => G.monkeys.every(m => m.unlocked),
+    streak_5: () => G.consecutiveDays >= 5,
+    streak_20: () => G.consecutiveDays >= 20,
+    mult_50: () => G.highestMult >= 50,
+    buy_hammer: () => G.ownedHammers.length > 1,
+    buy_hat: () => G.ownedHats.length > 1,
+    daily_100: () => (G.totalDailyClaims || 0) >= 100,
+    round_clear: () => G.roundClears >= 1,
+  };
+
+  for (const a of ACHIEVEMENT_DATA) {
     if (G.achieved.includes(a.id)) continue;
-    if (a.check(G)) {
+    const fn = checks[a.id];
+    if (fn && fn()) {
       G.achieved.push(a.id);
-      showAchievePopup(a);
+      showAchieveToast(a);
       SFX.play('achieve');
     }
   }
-  renderAchievements();
 }
 
-function showAchievePopup(a) {
-  const popup = $id('achieve-popup');
-  $id('achieve-popup-icon').textContent = a.icon;
-  $id('achieve-popup-name').textContent = a.name;
-  $id('achieve-popup-desc').textContent = a.desc;
-  popup.classList.remove('hidden');
-  popup.classList.add('show');
-  clearTimeout(achievePopupTimeout);
-  achievePopupTimeout = setTimeout(() => {
-    popup.classList.remove('show');
-    setTimeout(() => popup.classList.add('hidden'), 400);
+function showAchieveToast(a) {
+  const t = $id('toast-achieve');
+  $id('toast-icon').textContent = a.icon;
+  $id('toast-name').textContent = a.name;
+  $id('toast-desc').textContent = a.desc;
+  t.classList.remove('hidden');
+  // Force reflow
+  void t.offsetWidth;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.classList.add('hidden'), 400);
   }, 3000);
 }
 
-function renderAchievements() {
-  const grid = $id('achievements-grid');
+// ==================== SOUND ====================
+function toggleSound() {
+  const on = SFX.toggle();
+  G.soundOn = on;
+  $id('sound-btn').textContent = on ? '🔊' : '🔇';
+  saveGame();
+}
+
+// ==================== UI RENDERING ====================
+function updateResources() {
+  $id('res-h').textContent = G.hammers;
+  $id('res-g').textContent = formatNum(G.gold);
+  $id('res-s').textContent = G.starPieces + '/5';
+  $id('res-b').textContent = G.crystalBananas;
+  $id('res-f').textContent = G.feathers;
+
+  // Regen text
+  if (G.hammers < G.maxH) {
+    $id('regen-txt').textContent = 'Next hammer: ' + G.regenCD + 's';
+  } else {
+    $id('regen-txt').textContent = 'Hammers: ' + G.hammers + '/' + G.maxH;
+  }
+
+  updateStarBtn();
+}
+
+function updateStageBar() {
+  const prog = curProgress();
+  const stage = curStage();
+  const items = stage.collection.items;
+  const collected = prog.collections[prog.stage];
+  const found = collected.filter(Boolean).length;
+  const total = items.length;
+  const tierNames = ['Bronze', 'Silver', 'Gold'];
+  const tierIdx = Math.min(prog.tier, 2);
+
+  $id('stage-name').textContent = 'Stage ' + (prog.stage + 1) + ': ' + stage.name;
+  const tierEl = $id('stage-tier');
+  tierEl.textContent = prog.tier >= 3 ? 'Complete' : tierNames[tierIdx];
+  tierEl.className = 'stage-tier ' + (prog.tier >= 3 ? 'complete' : tierNames[tierIdx].toLowerCase());
+
+  const pct = Math.min(100, (found / total) * 100);
+  const fill = $id('stage-fill');
+  fill.style.width = pct + '%';
+  fill.className = 'prog-fill' + (found >= total ? ' complete' : '');
+  $id('stage-detail').textContent = found + '/' + total + ' items • ' + stage.collection.name;
+}
+
+function renderAll() {
+  const monkey = curMonkey();
+  $id('monkey-avatar').textContent = monkey.emoji;
+  $id('monkey-subtitle').textContent = monkey.name;
+  if (!G.soundOn) SFX.toggle(); // sync sound state
+  $id('sound-btn').textContent = G.soundOn ? '🔊' : '🔇';
+
+  updateResources();
+  updateStageBar();
+  renderEggTray();
+  renderMultQueue();
+  renderAlbum();
+  renderMonkeys();
+  renderShop();
+  renderStats();
+  checkDaily();
+}
+
+function renderAlbum() {
+  const monkey = curMonkey();
+  const prog = curProgress();
+  const stagesDiv = $id('album-stages');
+  stagesDiv.innerHTML = '';
+
+  monkey.stages.forEach((stage, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'album-stage-btn';
+    if (i === prog.stage) btn.classList.add('active');
+    if (i < prog.stage || (i === prog.stage && prog.tier >= 3)) btn.classList.add('complete');
+    btn.textContent = (i + 1) + '. ' + stage.name;
+    btn.disabled = i > prog.stage;
+    btn.addEventListener('click', () => renderAlbumStage(i));
+    stagesDiv.appendChild(btn);
+  });
+
+  renderAlbumStage(prog.stage);
+}
+
+function renderAlbumStage(stageIdx) {
+  const monkey = curMonkey();
+  const prog = curProgress();
+  const stage = monkey.stages[stageIdx];
+  const collected = prog.collections[stageIdx] || [];
+  const div = $id('album-items');
+
+  let html = '<div class="album-coll-name">' + stage.collection.name + '</div>';
+  html += '<div class="album-grid">';
+  stage.collection.items.forEach((item, i) => {
+    const found = collected[i];
+    const rarityClass = 'rarity-' + item[2];
+    const rarityLabel = ['', 'Common', 'Uncommon', 'Rare'][item[2]];
+    html += '<div class="album-item ' + (found ? 'found' : 'locked') + '">';
+    html += '<span class="item-emoji">' + (found ? item[0] : '❓') + '</span>';
+    html += '<span class="item-name">' + (found ? item[1] : '???') + '</span>';
+    html += '<span class="album-rarity ' + rarityClass + '">' + rarityLabel + '</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+  div.innerHTML = html;
+
+  // Update active button
+  document.querySelectorAll('.album-stage-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === stageIdx);
+  });
+}
+
+function renderMonkeys() {
+  const grid = $id('monkey-grid');
   grid.innerHTML = '';
-  for (const a of ACHIEVEMENTS) {
+  MONKEY_DATA.forEach((m, i) => {
+    const mp = G.monkeys[i];
+    const isActive = i === G.activeMonkey;
+    const card = document.createElement('div');
+    card.className = 'monkey-card' + (isActive ? ' active' : '') + (!mp.unlocked ? ' locked' : '');
+
+    let inner = '<span class="m-emoji">' + m.emoji + '</span>';
+    inner += '<span class="m-name">' + m.name + '</span>';
+    inner += '<span class="m-perk">' + m.perkDesc + '</span>';
+
+    if (mp.unlocked) {
+      const stageNum = mp.completed ? curMonkey().stages.length : mp.stage + 1;
+      inner += '<span class="m-progress">Stage ' + stageNum + '/' + m.stages.length + '</span>';
+      if (!isActive) {
+        card.addEventListener('click', () => switchMonkey(i));
+      }
+    } else {
+      inner += '<span class="m-cost">' + m.cost + ' 🍌 Crystal Bananas</span>';
+      inner += '<button class="monkey-unlock-btn" ' +
+        (G.crystalBananas < m.cost ? 'disabled' : '') +
+        '>Unlock</button>';
+    }
+
+    card.innerHTML = inner;
+
+    if (!mp.unlocked) {
+      const btn = card.querySelector('.monkey-unlock-btn');
+      if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); unlockMonkey(i); });
+    }
+
+    grid.appendChild(card);
+  });
+}
+
+function renderShop() {
+  // Hammers
+  const hGrid = $id('shop-hammers');
+  hGrid.innerHTML = '';
+  SHOP_HAMMERS.forEach(h => {
+    if (h.cost === 0) return; // skip default
+    const owned = G.ownedHammers.includes(h.id);
+    const equipped = G.hammer === h.id;
+    const card = document.createElement('div');
+    card.className = 'shop-card' + (owned ? ' owned' : '') + (equipped ? ' equipped' : '');
+    card.innerHTML =
+      '<span class="s-emoji">' + h.emoji + '</span>' +
+      '<span class="s-name">' + h.name + '</span>' +
+      '<span class="s-desc">' + h.desc + '</span>' +
+      (owned
+        ? '<span class="s-status">' + (equipped ? 'EQUIPPED' : 'Click to equip') + '</span>'
+        : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
+    card.addEventListener('click', () => buyShopItem('hammer', h.id));
+    hGrid.appendChild(card);
+  });
+
+  // Hats
+  const hatGrid = $id('shop-hats');
+  hatGrid.innerHTML = '';
+  SHOP_HATS.forEach(h => {
+    if (h.cost === 0) return;
+    const owned = G.ownedHats.includes(h.id);
+    const equipped = G.hat === h.id;
+    const card = document.createElement('div');
+    card.className = 'shop-card' + (owned ? ' owned' : '') + (equipped ? ' equipped' : '');
+    card.innerHTML =
+      '<span class="s-emoji">' + h.emoji + '</span>' +
+      '<span class="s-name">' + h.name + '</span>' +
+      '<span class="s-desc">' + h.desc + '</span>' +
+      (owned
+        ? '<span class="s-status">' + (equipped ? 'EQUIPPED' : 'Click to equip') + '</span>'
+        : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
+    card.addEventListener('click', () => buyShopItem('hat', h.id));
+    hatGrid.appendChild(card);
+  });
+
+  // Supplies
+  const sGrid = $id('shop-supplies');
+  sGrid.innerHTML = '';
+  SHOP_SUPPLIES.forEach(s => {
+    const isOwned = s.unique && G['owned_' + s.id];
+    const card = document.createElement('div');
+    card.className = 'shop-card' + (isOwned ? ' owned' : '');
+    card.innerHTML =
+      '<span class="s-emoji">' + s.emoji + '</span>' +
+      '<span class="s-name">' + s.name + '</span>' +
+      (isOwned
+        ? '<span class="s-status">PURCHASED</span>'
+        : '<span class="s-cost">' + formatNum(s.cost) + ' 🪙</span>');
+    if (!isOwned) card.addEventListener('click', () => buyShopItem('supply', s.id));
+    sGrid.appendChild(card);
+  });
+}
+
+function renderStats() {
+  const stats = $id('life-stats');
+  stats.innerHTML = [
+    ['Eggs broken', G.totalEggs],
+    ['Gold earned', formatNum(G.totalGold)],
+    ['Star pieces', G.totalStarPieces],
+    ['Feathers', G.totalFeathers],
+    ['Items found', G.totalItems],
+    ['Biggest win', formatNum(G.biggestWin)],
+    ['Highest mult', 'x' + G.highestMult],
+    ['Starfalls', G.starfallsUsed],
+    ['Collections', G.collectionsCompleted],
+    ['Stages done', G.stagesCompleted],
+    ['Round clears', G.roundClears],
+    ['Daily claims', G.totalDailyClaims || 0],
+  ].map(([k, v]) => '<span>' + k + ': <strong>' + v + '</strong></span>').join('');
+
+  const grid = $id('achieve-grid');
+  grid.innerHTML = '';
+  ACHIEVEMENT_DATA.forEach(a => {
     const unlocked = G.achieved.includes(a.id);
     const card = document.createElement('div');
     card.className = 'achieve-card ' + (unlocked ? 'unlocked' : 'locked');
     card.innerHTML =
-      '<span class="achieve-icon">' + a.icon + '</span>' +
-      '<div class="achieve-info">' +
-        '<span class="achieve-name">' + a.name + '</span>' +
-        '<span class="achieve-desc">' + a.desc + '</span>' +
-      '</div>';
+      '<span class="a-icon">' + a.icon + '</span>' +
+      '<div><span class="a-name">' + a.name + '</span><br>' +
+      '<span class="a-desc">' + a.desc + '</span></div>';
     grid.appendChild(card);
-  }
-  $id('achieve-count').textContent = G.achieved.length + ' / ' + ACHIEVEMENTS.length;
+  });
 }
 
-// ==================== SOUND TOGGLE ====================
-function toggleSound() {
-  SFX.toggle();
-  updateUI();
+function formatNum(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 10000) return (n / 1000).toFixed(1) + 'K';
+  return String(n);
 }
 
-// ==================== KEYBOARD SUPPORT ====================
+// ==================== NAVIGATION ====================
+$id('nav-tabs').addEventListener('click', (e) => {
+  const tab = e.target.closest('.nav-tab');
+  if (!tab) return;
+  const name = tab.dataset.tab;
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+  $id('panel-' + name).classList.add('active');
+  // Refresh content when switching tabs
+  if (name === 'album') renderAlbum();
+  if (name === 'monkeys') renderMonkeys();
+  if (name === 'shop') renderShop();
+  if (name === 'stats') renderStats();
+});
+
+// ==================== KEYBOARD ====================
 document.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'Enter') {
     e.preventDefault();
-    smash();
+    // Smash first unbroken egg
+    if (G.roundEggs) {
+      const idx = G.roundEggs.findIndex(egg => !egg.broken);
+      if (idx >= 0) smashEgg(idx);
+    }
   }
+  if (e.code === 'KeyR') newRound();
+  if (e.code === 'KeyS' && e.ctrlKey) { e.preventDefault(); useStarfall(); }
 });
 
 // ==================== INIT ====================
 loadGame();
-Particles.init($id('particle-canvas'));
-renderAchievements();
-updateUI();
 
-// Start regen timer if needed after load
+// Ensure sound state matches saved preference
+if (G.soundOn === false && SFX.isOn()) SFX.toggle();
+
+Particles.init($id('particle-canvas'));
+
+// Generate initial round if none
+if (!G.roundEggs || G.roundEggs.length === 0) newRound();
+
+renderAll();
+
+// Start regen if needed
 if (G.hammers < G.maxH && !regenInt) startRegen();
 
-// Auto-save periodically
-setInterval(saveGame, 10000);
-
-// Close level-up overlay on click
-$id('levelup-overlay').addEventListener('click', function () {
-  this.classList.add('hidden');
-});
+// Auto-save
+setInterval(saveGame, 15000);
