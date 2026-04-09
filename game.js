@@ -2077,19 +2077,14 @@ $id('stage-bar').addEventListener('click', () => {
 // Auto-save
 setInterval(saveGame, 15000);
 
-// DEBUG: visible tap log for mobile debugging
+// DEBUG: tap event logging (debug bar created in HTML)
 (() => {
-  const dbg = document.createElement('div');
-  dbg.id = 'dbg';
-  dbg.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font:10px monospace;padding:4px 8px;z-index:9999;max-height:80px;overflow-y:auto';
-  document.body.appendChild(dbg);
-  let lines = [];
-  window._dbg = function(s) { lines.push(s); if (lines.length > 6) lines.shift(); dbg.textContent = lines.join('\n'); };
   const tray = $id('egg-tray');
   tray.addEventListener('touchstart', () => _dbg('tray touchstart'), true);
   tray.addEventListener('touchend', () => _dbg('tray touchend'), true);
   tray.addEventListener('click', () => _dbg('tray click'), true);
   document.addEventListener('click', (e) => _dbg('doc click: ' + e.target.tagName + '.' + e.target.className.split(' ')[0]), true);
+  _dbg('event listeners attached');
 })();
 
 
