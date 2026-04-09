@@ -423,7 +423,7 @@ body{
   background:var(--dark);border:2px solid var(--amber);
   border-radius:2px;padding:4px 8px;
   font-family:var(--px);font-size:7px;font-style:italic;line-height:1.5;
-  color:var(--amber);white-space:normal;width:180px;
+  color:var(--amber);white-space:pre-line;width:200px;
   text-align:center;z-index:200;pointer-events:none;
   box-shadow:3px 3px 0 rgba(0,0,0,.6);
   opacity:0;transition:opacity .12s steps(3);

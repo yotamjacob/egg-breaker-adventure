@@ -1386,9 +1386,9 @@ function renderAlbumStage(stageIdx) {
     const rarityLabel = ['', 'Common', 'Uncommon', 'Rare'][item[2]];
     const cost = featherCost(item[2], stageIdx);
 
-    const quote = found && item[3] ? item[3] : '';
+    const tip = found ? (item[0] + ' ' + item[1] + (item[3] ? '\n' + item[3] : '')) : '';
     html += '<div class="album-item ' + (found ? 'found' : 'locked') + '"' +
-      (quote ? ' data-tip="' + quote.replace(/"/g, '&quot;') + '"' : '') + '>';
+      (tip ? ' data-tip="' + tip.replace(/"/g, '&quot;') + '"' : '') + '>';
     html += '<span class="item-emoji">' + (found ? item[0] : '❓') + '</span>';
     html += '<span class="item-name">' + (found ? item[1] : '???') + '</span>';
     html += '<span class="album-rarity ' + rarityClass + '">' + rarityLabel + '</span>';
