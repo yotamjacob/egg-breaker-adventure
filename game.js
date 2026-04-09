@@ -524,25 +524,31 @@ function rollCollectionItem(eggType) {
 }
 
 // All owned hammers/hats/monkeys give permanent bonuses (accumulative)
+// Cached — call invalidateBonusCache() when equipment or monkeys change
+let _bonusCache = null;
+let _achieveBonusCache = null;
+
+function invalidateBonusCache() { _bonusCache = null; }
+function invalidateAchieveCache() { _achieveBonusCache = null; }
+
 function getAllBonuses() {
+  if (_bonusCache) return _bonusCache;
   const bonuses = new Set();
-  // All owned hammers (not just equipped)
   for (const id of G.ownedHammers) {
     const h = SHOP_HAMMERS.find(h => h.id === id);
     if (h && h.bonus) bonuses.add(h.bonus);
   }
-  // All owned hats
   for (const id of G.ownedHats) {
     const h = SHOP_HATS.find(h => h.id === id);
     if (h && h.bonus) bonuses.add(h.bonus);
   }
-  // All unlocked monkey perks
   for (let i = 0; i < G.monkeys.length; i++) {
     if (G.monkeys[i].unlocked) {
       const perk = MONKEY_DATA[i].perk;
       if (perk && perk !== 'none') bonuses.add(perk);
     }
   }
+  _bonusCache = bonuses;
   return bonuses;
 }
 
@@ -1038,6 +1044,7 @@ function unlockMonkey(index) {
   }
   G.crystalBananas -= MONKEY_DATA[index].cost;
   G.monkeys[index].unlocked = true;
+  invalidateBonusCache();
   SFX.play('levelup');
   msg(MONKEY_DATA[index].name + ' unlocked!', '#16a34a');
   checkAchievements();
@@ -1063,6 +1070,7 @@ function buyShopItem(category, id) {
     if (G.gold < item.cost) { msg('Need ' + item.cost + ' gold!', '#ef4444'); SFX.play('err'); return; }
     G.gold -= item.cost;
     G.ownedHammers.push(id);
+    invalidateBonusCache();
     G.hammer = id;
     G.purchases = (G.purchases || 0) + 1;
     SFX.play('buy');
@@ -1080,6 +1088,7 @@ function buyShopItem(category, id) {
     if (G.gold < item.cost) { msg('Need ' + item.cost + ' gold!', '#ef4444'); SFX.play('err'); return; }
     G.gold -= item.cost;
     G.ownedHats.push(id);
+    invalidateBonusCache();
     G.hat = id;
     G.purchases = (G.purchases || 0) + 1;
     SFX.play('buy');
@@ -1124,8 +1133,9 @@ function grantAchievementReward(a) {
   // goldPct, itemPct, starPct are passive — applied in getAchievementBonuses()
 }
 
-// Sum all percentage bonuses from unlocked achievements
+// Sum all percentage bonuses from unlocked achievements (cached)
 function getAchievementBonuses() {
+  if (_achieveBonusCache) return _achieveBonusCache;
   let goldPct = 0, itemPct = 0, starPct = 0;
   for (const id of G.achieved) {
     const a = ACHIEVEMENT_DATA.find(a => a.id === id);
@@ -1134,7 +1144,8 @@ function getAchievementBonuses() {
     if (a.reward.type === 'itemPct') itemPct += a.reward.val;
     if (a.reward.type === 'starPct') starPct += a.reward.val;
   }
-  return { goldPct, itemPct, starPct };
+  _achieveBonusCache = { goldPct, itemPct, starPct };
+  return _achieveBonusCache;
 }
 
 function checkAchievements() {
@@ -1221,6 +1232,7 @@ function checkAchievements() {
     const fn = checks[a.id];
     if (fn && fn()) {
       G.achieved.push(a.id);
+      invalidateAchieveCache();
       grantAchievementReward(a);
       showAchieveToast(a);
       SFX.play('achieve');
@@ -1437,12 +1449,11 @@ function renderAlbumStage(stageIdx) {
   html += '</div>';
   div.innerHTML = html;
 
-  // Attach buy handlers
-  div.querySelectorAll('.feather-buy-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      buyAlbumItem(stageIdx, parseInt(btn.dataset.idx), parseInt(btn.dataset.cost));
-    });
-  });
+  // Event delegation for buy buttons
+  div.onclick = (e) => {
+    const btn = e.target.closest('.feather-buy-btn');
+    if (btn) buyAlbumItem(stageIdx, parseInt(btn.dataset.idx), parseInt(btn.dataset.cost));
+  };
 
   // Update active button
   document.querySelectorAll('.album-stage-btn').forEach((b, i) => {
@@ -2060,10 +2071,16 @@ setInterval(saveGame, 15000);
   const isTouch = matchMedia('(hover:none)').matches;
 
   if (!isTouch) {
+    let _rafPending = false;
     wrap.addEventListener('mousemove', (e) => {
-      const r = wrap.getBoundingClientRect();
-      hammer.style.left = (e.clientX - r.left - 20) + 'px';
-      hammer.style.top = (e.clientY - r.top - 80) + 'px';
+      if (_rafPending) return;
+      _rafPending = true;
+      requestAnimationFrame(() => {
+        const r = wrap.getBoundingClientRect();
+        hammer.style.left = (e.clientX - r.left - 20) + 'px';
+        hammer.style.top = (e.clientY - r.top - 80) + 'px';
+        _rafPending = false;
+      });
     });
     wrap.addEventListener('mouseleave', () => { hammer.style.opacity = '0'; });
     wrap.addEventListener('mouseenter', () => { hammer.style.opacity = '1'; });
