@@ -732,7 +732,8 @@ function applyPrize(prize, cx, cy) {
   }
 
   if (prize.type === 'hammers') {
-    G.hammers = Math.min(G.maxH, G.hammers + prize.value);
+    // Silver egg hammer prizes allow overflow above max
+    G.hammers += prize.value;
     if (prize.usedMult) {
       spawnFloat(zone, prize.baseVal + ' x' + prize.usedMult + ' = ' + prize.value + ' hammers', '#b45309', 'big');
       msg(prize.baseVal + ' x' + prize.usedMult + ' = +' + prize.value + ' hammers!', '#b45309');
@@ -1149,7 +1150,7 @@ function toggleSound() {
 
 // ==================== UI RENDERING ====================
 function updateResources() {
-  $id('res-h').textContent = G.hammers;
+  $id('res-h').textContent = G.hammers + (G.hammers > G.maxH ? '!' : '');
   $id('res-g').textContent = formatNum(G.gold);
   $id('res-s').textContent = G.starPieces + '/' + CONFIG.starPiecesForStarfall;
   $id('res-b').textContent = G.crystalBananas;
