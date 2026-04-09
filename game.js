@@ -514,7 +514,7 @@ function rollCollectionItem(eggType) {
       const isNew = !collected[i];
       return {
         type: 'item', index: i, isNew,
-        emoji: item[0], name: item[1], rarity: item[2],
+        emoji: item[0], name: item[1], rarity: item[2], quote: item[3] || '',
         label: item[0] + ' ' + item[1] + (isNew ? ' (NEW!)' : ''),
         color: isNew ? '#b45309' : '#78716c',
       };
@@ -943,6 +943,7 @@ function calcTotalCollections() {
 function showItemPopup(prize) {
   $id('pop-item-icon').textContent = prize.emoji;
   $id('pop-item-name').textContent = prize.name;
+  $id('pop-item-quote').textContent = prize.quote || '';
   $id('overlay-item').classList.remove('hidden');
 }
 
@@ -1385,7 +1386,9 @@ function renderAlbumStage(stageIdx) {
     const rarityLabel = ['', 'Common', 'Uncommon', 'Rare'][item[2]];
     const cost = featherCost(item[2], stageIdx);
 
-    html += '<div class="album-item ' + (found ? 'found' : 'locked') + '">';
+    const quote = found && item[3] ? item[3] : '';
+    html += '<div class="album-item ' + (found ? 'found' : 'locked') + '"' +
+      (quote ? ' data-tip="' + quote.replace(/"/g, '&quot;') + '"' : '') + '>';
     html += '<span class="item-emoji">' + (found ? item[0] : '❓') + '</span>';
     html += '<span class="item-name">' + (found ? item[1] : '???') + '</span>';
     html += '<span class="album-rarity ' + rarityClass + '">' + rarityLabel + '</span>';
