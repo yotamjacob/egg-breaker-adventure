@@ -438,28 +438,37 @@ function resolvePrize(type, eggType) {
     return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' gold', color: '#d97706' };
   }
 
+  if (type === 'feather') {
+    const baseVal = Math.ceil((1 + Math.random() * 3) * silverMult);
+    const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
+    const usedMult = G.activeMult > 1 ? G.activeMult : 0;
+    return { type: 'feather', value: val, baseVal, usedMult, label: '+' + val + ' feather' + (val > 1 ? 's' : ''), color: '#059669' };
+  }
+
+  // For prize types not directly multiplied, give bonus gold when mult is active
+  const bonusGold = G.activeMult > 1 ? Math.round(10 * G.activeMult) : 0;
+  const usedMultBonus = G.activeMult > 1 ? G.activeMult : 0;
+
+  if (type === 'hammers') {
+    const val = HAMMER_PRIZES[Math.floor(Math.random() * HAMMER_PRIZES.length)];
+    return { type: 'hammers', value: val, bonusGold, usedMult: usedMultBonus, label: '+' + val + ' hammers!', color: '#b45309' };
+  }
+
   if (type === 'star') {
     const val = silverMult > 1 ? 2 : 1;
-    return { type: 'star', value: val, label: '+' + val + ' star piece' + (val > 1 ? 's' : ''), color: '#f59e0b' };
+    return { type: 'star', value: val, bonusGold, usedMult: usedMultBonus, label: '+' + val + ' star piece' + (val > 1 ? 's' : ''), color: '#f59e0b' };
   }
 
   if (type === 'mult') {
     const val = MULT_VALUES[Math.floor(Math.random() * MULT_VALUES.length)];
-    return { type: 'mult', value: val, label: 'x' + val + ' multiplier!', color: '#7c3aed' };
-  }
-
-  if (type === 'feather') {
-    const val = Math.ceil((1 + Math.random() * 3) * silverMult);
-    return { type: 'feather', value: val, label: '+' + val + ' feather' + (val > 1 ? 's' : ''), color: '#059669' };
-  }
-
-  if (type === 'hammers') {
-    const val = HAMMER_PRIZES[Math.floor(Math.random() * HAMMER_PRIZES.length)];
-    return { type: 'hammers', value: val, label: '+' + val + ' hammers!', color: '#b45309' };
+    return { type: 'mult', value: val, bonusGold, usedMult: usedMultBonus, label: 'x' + val + ' multiplier!', color: '#7c3aed' };
   }
 
   if (type === 'item') {
-    return rollCollectionItem(eggType);
+    const result = rollCollectionItem(eggType);
+    result.bonusGold = bonusGold;
+    result.usedMult = usedMultBonus;
+    return result;
   }
 
   return { type: 'empty', value: 0, label: 'Empty!', color: '#9ca3af' };
@@ -645,6 +654,11 @@ function applyPrize(prize, cx, cy) {
     SFX.play('star');
     Particles.sparkle(cx, cy, 10, '#FCD34D');
     updateStarBtn();
+    if (prize.bonusGold) {
+      G.gold += prize.bonusGold;
+      G.totalGold += prize.bonusGold;
+      spawnFloat(zone, '+' + prize.bonusGold + ' gold (x' + prize.usedMult + ' bonus)', '#d97706');
+    }
   }
 
   if (prize.type === 'mult') {
@@ -654,13 +668,23 @@ function applyPrize(prize, cx, cy) {
     msg(prize.label, '#7c3aed');
     SFX.play('gem');
     renderMultQueue();
+    if (prize.bonusGold) {
+      G.gold += prize.bonusGold;
+      G.totalGold += prize.bonusGold;
+      spawnFloat(zone, '+' + prize.bonusGold + ' gold (x' + prize.usedMult + ' bonus)', '#d97706');
+    }
   }
 
   if (prize.type === 'feather') {
     G.feathers += prize.value;
     G.totalFeathers += prize.value;
-    spawnFloat(zone, prize.label, '#059669');
-    msg(prize.label, '#059669');
+    if (prize.usedMult) {
+      spawnFloat(zone, prize.baseVal + ' x' + prize.usedMult + ' = ' + prize.value + ' feathers', '#059669', 'big');
+      msg(prize.baseVal + ' x' + prize.usedMult + ' = +' + prize.value + ' feathers!', '#059669');
+    } else {
+      spawnFloat(zone, prize.label, '#059669');
+      msg(prize.label, '#059669');
+    }
     SFX.play('coin');
   }
 
@@ -669,6 +693,11 @@ function applyPrize(prize, cx, cy) {
     spawnFloat(zone, prize.label, '#b45309', 'big');
     msg(prize.label, '#b45309');
     SFX.play('coin');
+    if (prize.bonusGold) {
+      G.gold += prize.bonusGold;
+      G.totalGold += prize.bonusGold;
+      spawnFloat(zone, '+' + prize.bonusGold + ' gold (x' + prize.usedMult + ' bonus)', '#d97706');
+    }
   }
 
   if (prize.type === 'item') {
@@ -693,6 +722,11 @@ function applyPrize(prize, cx, cy) {
       G.totalGold += dupeGold;
       msg('Duplicate! +' + dupeGold + ' gold', '#78716c');
       SFX.play('coin');
+    }
+    if (prize.bonusGold) {
+      G.gold += prize.bonusGold;
+      G.totalGold += prize.bonusGold;
+      spawnFloat(zone, '+' + prize.bonusGold + ' gold (x' + prize.usedMult + ' bonus)', '#d97706');
     }
   }
 
