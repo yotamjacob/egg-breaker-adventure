@@ -532,6 +532,32 @@ function hasBonus(name) {
   return getAllBonuses().has(name);
 }
 
+const NO_HAMMER_MSGS = [
+  'No hammers? How embarrassing.',
+  'Use hammers much?',
+  'No more hammers, boo-hoo.',
+  'Hammers machine broke.',
+  'Nice clicking. Shame about the hammers.',
+  'That egg is laughing at you.',
+  'The egg wins this round.',
+  'Your hammer bag is empty, genius.',
+  'Maybe try waiting? Just a thought.',
+  'Broke. Literally.',
+  'The monkey is disappointed.',
+  'Hammer inventory: absolute zero.',
+  'Tap harder, that\'ll help. (It won\'t.)',
+  'Out of hammers. Out of luck.',
+  'Have you tried buying some?',
+  'Error 404: hammers not found.',
+  'The eggs feel safe right now.',
+  'All out. Go touch grass.',
+  'Zero hammers. Infinite sadness.',
+  'Patience is a virtue you don\'t have.',
+];
+function noHammerMsg() {
+  return NO_HAMMER_MSGS[Math.floor(Math.random() * NO_HAMMER_MSGS.length)];
+}
+
 // ==================== SMASH EGG ====================
 function smashEgg(index) {
   if (!G.roundEggs || G.roundEggs[index].broken) return;
@@ -542,7 +568,7 @@ function smashEgg(index) {
   // Each hit costs 1 hammer
   if (G.hammers < 1) {
     egg._smashing = false;
-    msg('Need a hammer!', '#ef4444');
+    msg(noHammerMsg(), '#ef4444');
     SFX.play('err');
     return;
   }
