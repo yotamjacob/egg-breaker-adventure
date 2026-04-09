@@ -134,8 +134,8 @@ const DEFAULT_STATE = {
   hammers: CONFIG.startingHammers, maxH: CONFIG.startingMaxHammers, gold: 0, starPieces: 0, crystalBananas: 0,
   feathers: 0,
   multQueue: [],     // multipliers in hand
-  activeMult: 1,     // currently selected mult (1 = none)
-  _activeMultIdx: -1,
+  activeMult: 1,     // product of all selected mults
+  _selectedMults: [], // indices of selected multipliers in multQueue
   hammer: 'default', hat: 'none',
   ownedHammers: ['default'], ownedHats: ['none'],
   eggType: 'normal',
@@ -392,6 +392,15 @@ function renderEggTray() {
   });
 }
 
+function getSelectedMultValues() {
+  if (!G._selectedMults || G._selectedMults.length === 0) return [];
+  return G._selectedMults.map(i => G.multQueue[i]);
+}
+
+function multEquation(base, multVals, result, unit) {
+  return base + ' ' + multVals.map(v => 'x' + v).join(' ') + ' = ' + result + ' ' + unit;
+}
+
 // ==================== PRIZE ROLLING ====================
 function rollPrize(eggType) {
   const w = { ...PRIZE_WEIGHTS[eggType] };
@@ -427,7 +436,7 @@ function resolvePrize(type, eggType) {
     let val = Math.round(baseVal * G.activeMult * silverMult * goldMult);
     if (hasBonus('moreGold')) val = Math.round(val * 1.2);
     if (hasBonus('goldBoost')) val = Math.round(val * 1.1);
-    const usedMult = G.activeMult > 1 ? G.activeMult : 0;
+    const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' gold', color: '#d97706' };
   }
 
@@ -435,27 +444,27 @@ function resolvePrize(type, eggType) {
     const fRange = CONFIG.featherDropRange;
     const baseVal = Math.ceil((fRange[0] + Math.random() * (fRange[1] - fRange[0])) * silverMult);
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
-    const usedMult = G.activeMult > 1 ? G.activeMult : 0;
+    const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'feather', value: val, baseVal, usedMult, label: '+' + val + ' feather' + (val > 1 ? 's' : ''), color: '#059669' };
   }
 
   if (type === 'hammers') {
     const baseVal = HAMMER_PRIZES[Math.floor(Math.random() * HAMMER_PRIZES.length)];
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
-    const usedMult = G.activeMult > 1 ? G.activeMult : 0;
+    const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'hammers', value: val, baseVal, usedMult, label: '+' + val + ' hammers!', color: '#b45309' };
   }
 
   if (type === 'star') {
     const baseVal = silverMult > 1 ? CONFIG.starPiecesPerDrop.silver : CONFIG.starPiecesPerDrop.normal;
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
-    const usedMult = G.activeMult > 1 ? G.activeMult : 0;
+    const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'star', value: val, baseVal, usedMult, label: '+' + val + ' star piece' + (val > 1 ? 's' : ''), color: '#f59e0b' };
   }
 
   // For prize types not directly multiplied, give bonus gold when mult is active
   const bonusGold = G.activeMult > 1 ? Math.round(CONFIG.multBonusGoldBase * G.activeMult) : 0;
-  const usedMultBonus = G.activeMult > 1 ? G.activeMult : 0;
+  const usedMultBonus = G.activeMult > 1 ? getSelectedMultValues() : null;
 
   if (type === 'mult') {
     const val = MULT_VALUES[Math.floor(Math.random() * MULT_VALUES.length)];
@@ -679,8 +688,9 @@ function applyPrize(prize, cx, cy) {
     G.biggestWin = Math.max(G.biggestWin, prize.value);
     const cls = prize.value >= 500 ? 'mega' : prize.value >= 200 ? 'big' : '';
     if (prize.usedMult) {
-      spawnFloat(zone, prize.baseVal + ' x' + prize.usedMult + ' = ' + prize.value + ' gold', '#d97706', cls || 'big');
-      msg(prize.baseVal + ' x' + prize.usedMult + ' = +' + prize.value + ' gold!', '#d97706');
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'gold');
+      spawnFloat(zone, eq, '#d97706', cls || 'big');
+      msg(eq + '!', '#d97706');
     } else {
       spawnFloat(zone, prize.label, '#d97706', cls);
       msg(prize.label, '#d97706');
@@ -693,8 +703,9 @@ function applyPrize(prize, cx, cy) {
     G.starPieces += prize.value;
     G.totalStarPieces += prize.value;
     if (prize.usedMult) {
-      spawnFloat(zone, prize.baseVal + ' x' + prize.usedMult + ' = ' + prize.value + ' stars', '#f59e0b', 'big');
-      msg(prize.baseVal + ' x' + prize.usedMult + ' = +' + prize.value + ' star pieces!', '#f59e0b');
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'stars');
+      spawnFloat(zone, eq, '#f59e0b', 'big');
+      msg(eq + '!', '#f59e0b');
     } else {
       spawnFloat(zone, prize.label, '#f59e0b', 'big');
       msg(prize.label, '#f59e0b');
@@ -714,7 +725,7 @@ function applyPrize(prize, cx, cy) {
     if (prize.bonusGold) {
       G.gold += prize.bonusGold;
       G.totalGold += prize.bonusGold;
-      spawnFloat(zone, '+' + prize.bonusGold + ' gold (x' + prize.usedMult + ' bonus)', '#d97706');
+      spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706');
     }
   }
 
@@ -722,8 +733,9 @@ function applyPrize(prize, cx, cy) {
     G.feathers += prize.value;
     G.totalFeathers += prize.value;
     if (prize.usedMult) {
-      spawnFloat(zone, prize.baseVal + ' x' + prize.usedMult + ' = ' + prize.value + ' feathers', '#059669', 'big');
-      msg(prize.baseVal + ' x' + prize.usedMult + ' = +' + prize.value + ' feathers!', '#059669');
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'feathers');
+      spawnFloat(zone, eq, '#059669', 'big');
+      msg(eq + '!', '#059669');
     } else {
       spawnFloat(zone, prize.label, '#059669');
       msg(prize.label, '#059669');
@@ -735,8 +747,9 @@ function applyPrize(prize, cx, cy) {
     // Silver egg hammer prizes allow overflow above max
     G.hammers += prize.value;
     if (prize.usedMult) {
-      spawnFloat(zone, prize.baseVal + ' x' + prize.usedMult + ' = ' + prize.value + ' hammers', '#b45309', 'big');
-      msg(prize.baseVal + ' x' + prize.usedMult + ' = +' + prize.value + ' hammers!', '#b45309');
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'hammers');
+      spawnFloat(zone, eq, '#b45309', 'big');
+      msg(eq + '!', '#b45309');
     } else {
       spawnFloat(zone, prize.label, '#b45309', 'big');
       msg(prize.label, '#b45309');
@@ -771,7 +784,7 @@ function applyPrize(prize, cx, cy) {
     if (prize.bonusGold) {
       G.gold += prize.bonusGold;
       G.totalGold += prize.bonusGold;
-      spawnFloat(zone, '+' + prize.bonusGold + ' gold (x' + prize.usedMult + ' bonus)', '#d97706');
+      spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706');
     }
   }
 
@@ -934,42 +947,47 @@ function closeOverlay(id) {
 }
 
 // ==================== MULTIPLIER QUEUE ====================
+function recalcActiveMult() {
+  if (!G._selectedMults || G._selectedMults.length === 0) {
+    G.activeMult = 1;
+  } else {
+    G.activeMult = G._selectedMults.reduce((prod, idx) => prod * G.multQueue[idx], 1);
+  }
+  $id('active-mult').textContent = 'x' + G.activeMult;
+}
+
 function renderMultQueue() {
   const q = $id('mult-queue');
   q.innerHTML = '';
+  if (!G._selectedMults) G._selectedMults = [];
   G.multQueue.forEach((val, i) => {
     const chip = document.createElement('span');
-    chip.className = 'mult-chip' + (G.activeMult === val && G._activeMultIdx === i ? ' active' : '');
+    const isSelected = G._selectedMults.includes(i);
+    chip.className = 'mult-chip' + (isSelected ? ' active' : '');
     chip.textContent = 'x' + val;
     chip.addEventListener('click', () => {
-      if (G.activeMult === val && G._activeMultIdx === i) {
-        // Deselect
-        G.activeMult = 1;
-        G._activeMultIdx = -1;
+      if (isSelected) {
+        G._selectedMults = G._selectedMults.filter(idx => idx !== i);
       } else {
-        G.activeMult = val;
-        G._activeMultIdx = i;
+        G._selectedMults.push(i);
       }
+      recalcActiveMult();
       renderMultQueue();
-      $id('active-mult').textContent = 'x' + G.activeMult;
     });
     q.appendChild(chip);
   });
-  $id('active-mult').textContent = 'x' + G.activeMult;
-
-  // After using a multiplier, remove it from queue
-  if (G.activeMult > 1 && G._activeMultIdx >= 0) {
-    // Will be consumed after smash
-  }
+  recalcActiveMult();
 }
 
-// Consume the active multiplier after smash (called in smashEgg)
-// Actually let's handle this properly: when activeMult > 1 is used, remove from queue
 function consumeMultiplier() {
-  if (G.activeMult > 1 && G._activeMultIdx >= 0 && G._activeMultIdx < G.multQueue.length) {
-    G.multQueue.splice(G._activeMultIdx, 1);
+  if (G.activeMult > 1 && G._selectedMults && G._selectedMults.length > 0) {
+    // Remove selected indices from queue (highest first to preserve indices)
+    const sorted = [...G._selectedMults].sort((a, b) => b - a);
+    for (const idx of sorted) {
+      G.multQueue.splice(idx, 1);
+    }
+    G._selectedMults = [];
     G.activeMult = 1;
-    G._activeMultIdx = -1;
   }
 }
 
