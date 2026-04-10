@@ -33,6 +33,7 @@
 
 /* ---------- Reset & base ---------- */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%;overflow:hidden}
 body{
   font-family: var(--px);
   background: var(--bg);
@@ -42,15 +43,17 @@ body{
   background-attachment: fixed;
   color: var(--white);
   display:flex;justify-content:center;
-  padding:10px 6px 40px;
-  min-height:100vh;
+  padding:6px 6px 0;
+  height:100%;overflow:hidden;
   font-size:10px;
   line-height:1.7;
 }
-#app{width:100%;max-width:540px;position:relative}
+#app{width:100%;max-width:540px;position:relative;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.tab-panel{overflow-y:auto;flex:1;min-height:0}
+.tab-panel.active{display:flex;flex-direction:column}
 
 /* ---------- Top bar ---------- */
-.top-bar{
+.top-bar{flex-shrink:0;
   background: linear-gradient(180deg, var(--panel2), var(--panel));
   border: 3px solid var(--border);
   box-shadow:
@@ -173,6 +176,7 @@ body{
 
 /* ---------- Nav tabs ---------- */
 .nav-tabs{
+  flex-shrink:0;
   display:flex;flex-direction:column;gap:2px;margin-bottom:8px;
   background:var(--dark);border:2px solid var(--gold3);
   border-radius:2px;padding:3px;
@@ -205,6 +209,7 @@ body{
 
 /* ---------- Stage bar ---------- */
 .stage-bar{
+  flex-shrink:0;
   background:var(--panel);border:3px solid var(--gold3);
   border-radius:2px;padding:8px 10px;margin-bottom:8px;
   box-shadow: inset 2px 2px 0 var(--raised), inset -2px -2px 0 var(--inset), 3px 3px 0 var(--dark);
@@ -237,6 +242,7 @@ body{
 
 /* ---------- Multiplier bar ---------- */
 .mult-bar{
+  flex-shrink:0;
   display:flex;align-items:center;gap:6px;
   padding:5px 10px;background:var(--bg);border:2px solid var(--purple);
   border-radius:2px;margin-bottom:8px;font-size:10px;
@@ -264,7 +270,7 @@ body{
 
 /* ---------- Egg tray ---------- */
 .egg-tray-wrap{
-  position:relative;z-index:2;min-height:220px;margin-bottom:8px;
+  position:relative;z-index:2;height:200px;min-height:200px;flex-shrink:0;margin-bottom:8px;
   border-radius:2px;
   background:var(--bg2);
   border:3px solid var(--gold3);
@@ -322,7 +328,7 @@ body{
 }
 
 /* ---------- Action row ---------- */
-.action-row{display:flex;gap:5px;margin-bottom:8px}
+.action-row{display:flex;gap:5px;margin-bottom:8px;flex-shrink:0}
 .action-btn{
   flex:1;padding:10px 4px;border:none;border-radius:2px;
   font-size:10px;font-family:var(--px);cursor:pointer;
@@ -347,7 +353,7 @@ body{
 }
 
 /* ---------- Status row ---------- */
-.status-row{display:flex;justify-content:space-between;font-size:9px;min-height:16px;margin-bottom:6px}
+.status-row{display:flex;justify-content:space-between;font-size:9px;min-height:16px;margin-bottom:6px;flex-shrink:0}
 #regen-txt{color:var(--gray)}
 #status-txt{color:var(--gold)}
 
@@ -534,7 +540,7 @@ body{
 .reset-btn:hover{background:#2a0a0a}
 
 .version-tag{
-  text-align:center;padding:12px 0 4px;
+  text-align:center;padding:4px 0 2px;flex-shrink:0;
   font-size:7px;color:var(--gray);letter-spacing:1px;
   opacity:.5;
 }
