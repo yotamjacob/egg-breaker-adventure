@@ -100,13 +100,14 @@ body{
 
 .resource-bar{display:flex;gap:4px;justify-content:space-between}
 .res{
-  display:flex;align-items:center;gap:3px;
+  display:flex;align-items:center;gap:2px;
   background:var(--bg);border:2px solid var(--gold3);
-  border-radius:2px;padding:4px 6px;font-size:10px;flex:1;justify-content:center;
+  border-radius:2px;padding:3px 4px;font-size:9px;flex:1;justify-content:center;
   box-shadow: inset 1px 1px 0 var(--raised);
+  overflow:hidden;min-width:0;white-space:nowrap;
 }
-.res span{font-size:13px}
-.res strong{color:var(--gold);font-size:11px}
+.res span{font-size:11px;flex-shrink:0}
+.res strong{color:var(--gold);font-size:9px;overflow:hidden;text-overflow:ellipsis}
 .star-res strong{color:var(--amber)}
 
 /* Resource tooltips */
@@ -716,8 +717,9 @@ body{
 @media(max-width:420px){
   body{padding:6px 4px 30px;font-size:9px}
   .resource-bar{flex-wrap:wrap;gap:3px}
-  .res{padding:3px 5px;font-size:8px;min-width:0}
-  .res strong{font-size:9px}
+  .res{padding:2px 3px;font-size:7px}
+  .res span{font-size:10px}
+  .res strong{font-size:7px}
   .shop-grid{grid-template-columns:1fr 1fr}
   .monkey-grid{grid-template-columns:1fr}
   .album-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
@@ -740,7 +742,9 @@ body{
 /* ---------- Very small screens ---------- */
 @media(max-width:340px){
   .nav-tab{font-size:8px;padding:8px 1px}
-  .res{font-size:7px;padding:2px 3px}
+  .res{font-size:6px;padding:2px 2px}
+  .res span{font-size:9px}
+  .res strong{font-size:6px}
   .title-text h1{font-size:9px}
   .subtitle{font-size:6px}
 }
