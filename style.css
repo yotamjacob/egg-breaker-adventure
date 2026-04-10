@@ -184,14 +184,16 @@ body{
 }
 .nav-row{display:grid;grid-template-columns:repeat(6,1fr);gap:2px}
 .nav-tab{
-  padding:12px 2px;border:none;
+  padding:12px 0;border:none;
   background:var(--panel);
-  border-radius:1px;cursor:pointer;font-size:11px;
+  border-radius:1px;cursor:pointer;font-size:9px;
   font-family:var(--px);font-weight:400;
   color:var(--gray);
   transition:all .08s;
   text-shadow:1px 1px 0 var(--dark);
   text-align:center;
+  overflow:hidden;min-width:0;
+  white-space:nowrap;text-overflow:ellipsis;
 }
 .nav-tab.active{
   background:var(--gold);color:var(--dark);
@@ -201,7 +203,7 @@ body{
 .nav-tab:hover:not(.active):not(.locked){color:var(--white);background:var(--panel2)}
 .nav-tab.locked{
   opacity:.35;cursor:not-allowed;color:var(--gray);
-  font-size:13px;letter-spacing:2px;
+  font-size:11px;letter-spacing:2px;
 }
 
 /* ---------- Tab panels ---------- */
@@ -770,8 +772,8 @@ body{
   .album-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
   .nav-tabs{gap:1px;padding:2px}
   .nav-row{gap:1px;grid-template-columns:repeat(6,1fr)}
-  .nav-tab{font-size:10px;padding:10px 1px}
-  .nav-tab.locked{font-size:11px}
+  .nav-tab{font-size:8px;padding:10px 0}
+  .nav-tab.locked{font-size:9px}
   .title-text h1{font-size:10px}
   .egg-slot{width:65px;min-height:90px}
   .egg-slot .egg-label{font-size:7px}
@@ -788,8 +790,8 @@ body{
 
 /* ---------- Very small screens ---------- */
 @media(max-width:340px){
-  .nav-tab{font-size:8px;padding:9px 1px}
-  .nav-tab.locked{font-size:9px}
+  .nav-tab{font-size:7px;padding:9px 0}
+  .nav-tab.locked{font-size:8px}
   .res{font-size:6px;padding:2px 2px}
   .res span{font-size:9px}
   .res strong{font-size:6px}
