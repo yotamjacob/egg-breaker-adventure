@@ -1406,21 +1406,9 @@ function renderAlbumStage(stageIdx) {
   const dM = CONFIG.itemDuplicateMultiplier;
 
   let pityExplain = '';
-  if (missingCount > 0 && foundCount > 0) {
-    const tips = [
-      'Keep smashing — missing items drop more often the fewer you have left.',
-      'The more you collect, the luckier you get with new finds.',
-      'Almost there! Rare items you haven\'t found yet are more likely to appear.',
-      'Breaking more eggs increases your chances of finding missing items.',
-      'Don\'t give up — the odds shift in your favor for items you\'re missing.',
-    ];
-    const tip = tips[foundCount % tips.length];
+  if (missingCount > 0) {
     pityExplain = '<div class="pity-bar">' +
-      '<span class="pity-info">' + missingCount + ' missing — ' + tip + '</span>' +
-      '</div>';
-  } else if (missingCount > 0) {
-    pityExplain = '<div class="pity-bar">' +
-      '<span class="pity-info">Start smashing to discover items!</span>' +
+      '<span class="pity-info">' + missingCount + ' missing — Items you haven\'t found yet have a higher drop rate.</span>' +
       '</div>';
   } else {
     pityExplain = '<div class="pity-bar complete">' +
