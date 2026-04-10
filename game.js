@@ -2044,20 +2044,26 @@ function godMode() {
 }
 
 // ==================== INIT ====================
+try {
+_dbg('INIT start');
 loadGame();
+_dbg('loadGame OK');
 
-// Ensure sound state matches saved preference
 if (G.soundOn === false && SFX.isOn()) SFX.toggle();
+_dbg('sound OK');
 
 Particles.init($id('particle-canvas'));
+_dbg('particles OK');
 
-// Generate initial round if none
 if (!G.roundEggs || G.roundEggs.length === 0) newRound();
+_dbg('round OK eggs=' + (G.roundEggs ? G.roundEggs.length : 'null'));
 
 renderAll();
+_dbg('renderAll OK');
 
-// Start regen if needed
 if (G.hammers < G.maxH && !regenInt) startRegen();
+_dbg('INIT done');
+} catch(e) { _dbg('INIT CRASH: ' + e.message); }
 
 // Stage bar click → Album tab
 $id('stage-bar').addEventListener('click', () => {
