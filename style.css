@@ -492,7 +492,6 @@ body{
 }
 .monkey-card:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--dark)}
 .monkey-card.active{border-color:var(--gold);box-shadow:0 0 8px rgba(245,197,66,.3),3px 3px 0 var(--dark)}
-.monkey-card.locked{opacity:.4;cursor:default}
 .monkey-card .m-emoji,.monkey-card .m-name,.monkey-card .m-perk,.monkey-card .m-progress,.monkey-card .m-cost{pointer-events:none}
 .monkey-card .m-emoji{font-size:36px}
 .monkey-card .m-name{font-size:10px;color:var(--white);text-shadow:1px 1px 0 var(--dark)}
@@ -504,7 +503,6 @@ body{
   border-radius:2px;padding:4px 12px;font-size:8px;font-family:var(--px);
   cursor:pointer;box-shadow:2px 2px 0 var(--dark);
 }
-.monkey-unlock-btn:disabled{opacity:.35;cursor:not-allowed}
 
 /* ---------- Shop tab ---------- */
 .section-title{

@@ -1512,7 +1512,7 @@ function renderMonkeys() {
     const mp = G.monkeys[i];
     const isActive = i === G.activeMonkey;
     const card = document.createElement('div');
-    card.className = 'monkey-card' + (isActive ? ' active' : '') + (!mp.unlocked ? ' locked' : '');
+    card.className = 'monkey-card' + (isActive ? ' active' : '');
     if (mp.unlocked && !isActive) card.setAttribute('data-monkey', String(i));
 
     let inner = '<span class="m-emoji">' + m.emoji + '</span>';
@@ -1524,9 +1524,7 @@ function renderMonkeys() {
       inner += '<span class="m-progress">Stage ' + stageNum + '/' + m.stages.length + '</span>';
     } else {
       inner += '<span class="m-cost">' + m.cost + ' 🍌 Crystal Bananas</span>';
-      inner += '<button class="monkey-unlock-btn" ' +
-        (G.crystalBananas < m.cost ? 'disabled' : '') +
-        '>Unlock</button>';
+      inner += '<button class="monkey-unlock-btn" data-unlock="' + i + '">Unlock</button>';
     }
 
     card.innerHTML = inner;

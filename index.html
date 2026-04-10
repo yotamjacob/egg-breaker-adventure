@@ -209,6 +209,13 @@
           if (typeof switchMonkey === 'function') switchMonkey(parseInt(monkey));
           return;
         }
+        // Monkey unlock button
+        var unlock = el.getAttribute('data-unlock');
+        if (unlock !== null) {
+          e.preventDefault();
+          if (typeof unlockMonkey === 'function') unlockMonkey(parseInt(unlock));
+          return;
+        }
         // Feather buy button
         if (el.classList && el.classList.contains('feather-buy-btn')) {
           e.preventDefault();
