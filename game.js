@@ -418,10 +418,8 @@ function renderEggTray() {
 
 
 function multEquation(base, multVals, result, unit) {
-  if (multVals.length === 1) {
-    return base + ' x' + multVals[0] + ' = ' + result + ' ' + unit;
-  }
-  return base + ' x(' + multVals.join('+') + ') = ' + result + ' ' + unit;
+  var total = multVals.reduce(function(a, b) { return a + b; }, 0);
+  return '+' + result + ' ' + unit + ' (x' + total + ')';
 }
 
 // ==================== PRIZE ROLLING ====================

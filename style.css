@@ -663,8 +663,8 @@ body{
   text-shadow:2px 2px 0 var(--dark), 0 0 6px rgba(0,0,0,.5);
   animation:float-up-retro 2s steps(20) forwards;
 }
-.prize-float.big{font-size:15px;animation:float-up-retro-big 2.5s steps(24) forwards}
-.prize-float.mega{font-size:18px;animation:float-up-retro-mega 3s steps(28) forwards}
+.prize-float.big{font-size:13px;animation:float-up-retro-big 2.5s steps(24) forwards}
+.prize-float.mega{font-size:14px;animation:float-up-retro-mega 3s steps(28) forwards}
 
 /* ---------- Screen shake ---------- */
 .shake-sm{animation:shake-sm .2s steps(4)}
