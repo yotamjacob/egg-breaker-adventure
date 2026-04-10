@@ -915,9 +915,12 @@ function checkCollectionComplete() {
       G.crystalBananas += CONFIG.crystalBananasPerStage;
       SFX.play('tier');
 
+      const nextStage = prog.stage < curMonkey().stages.length - 1
+        ? curMonkey().stages[prog.stage + 1].name : null;
       showStagePopup(
         'Stage Complete!',
-        stage.name + ' - Gold! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana'
+        stage.name + ' - Gold! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana' +
+        (nextStage ? '\nNext stage unlocked: ' + nextStage + '!' : '')
       );
 
       // Advance to next stage
@@ -1410,8 +1413,10 @@ function renderAlbum() {
   monkey.stages.forEach((stage, i) => {
     const btn = document.createElement('button');
     btn.className = 'album-stage-btn';
+    const isComplete = i < prog.stage || (i === prog.stage && prog.tier >= 3);
     if (i === prog.stage) btn.classList.add('active');
-    if (i < prog.stage || (i === prog.stage && prog.tier >= 3)) btn.classList.add('complete');
+    if (isComplete) btn.classList.add('complete');
+    if (i === prog.stage && !isComplete) btn.classList.add('current');
     btn.textContent = (i + 1) + '. ' + stage.name;
     btn.disabled = i > prog.stage;
     btn.addEventListener('click', () => renderAlbumStage(i));
