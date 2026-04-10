@@ -197,14 +197,28 @@
   </div>
 
   <script>
-    // Mobile touch: walk from SVG elements up to egg-slot parent
+    // Mobile touch: walk up from target to find interactive elements
     document.addEventListener('touchstart', function(e) {
       var el = e.target;
       while (el && el !== document.body) {
-        var attr = typeof el.getAttribute === 'function' ? el.getAttribute('data-idx') : null;
-        if (attr !== null && !(el.classList && el.classList.contains('broken'))) {
+        if (typeof el.getAttribute !== 'function') { el = el.parentNode; continue; }
+        // Egg smashing
+        var idx = el.getAttribute('data-idx');
+        if (idx !== null && !(el.classList && el.classList.contains('broken'))) {
           e.preventDefault();
-          if (typeof smashEgg === 'function') smashEgg(parseInt(attr));
+          if (typeof smashEgg === 'function') smashEgg(parseInt(idx));
+          return;
+        }
+        // Feather buy button
+        if (el.classList && el.classList.contains('feather-buy-btn')) {
+          e.preventDefault();
+          if (typeof buyAlbumItem === 'function') {
+            buyAlbumItem(
+              parseInt(el.getAttribute('data-stage')),
+              parseInt(el.getAttribute('data-idx2')),
+              parseInt(el.getAttribute('data-cost'))
+            );
+          }
           return;
         }
         el = el.parentNode;

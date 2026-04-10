@@ -1454,7 +1454,7 @@ function renderAlbumStage(stageIdx) {
     html += '<span class="item-name">' + (found ? item[1] : '???') + '</span>';
     html += '<span class="album-rarity ' + rarityClass + '">' + rarityLabel + '</span>';
     if (!found) {
-      html += '<button class="feather-buy-btn" data-idx="' + i + '" data-cost="' + cost + '">' +
+      html += '<button class="feather-buy-btn" data-stage="' + stageIdx + '" data-idx2="' + i + '" data-cost="' + cost + '">' +
         cost + ' 🪶</button>';
     }
     html += '</div>';
@@ -1462,10 +1462,10 @@ function renderAlbumStage(stageIdx) {
   html += '</div>';
   div.innerHTML = html;
 
-  // Event delegation for buy buttons
+  // Event delegation for buy buttons (desktop)
   div.onclick = (e) => {
     const btn = e.target.closest('.feather-buy-btn');
-    if (btn) buyAlbumItem(stageIdx, parseInt(btn.dataset.idx), parseInt(btn.dataset.cost));
+    if (btn) buyAlbumItem(parseInt(btn.dataset.stage), parseInt(btn.dataset.idx2), parseInt(btn.dataset.cost));
   };
 
   // Update active button
