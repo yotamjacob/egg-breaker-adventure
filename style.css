@@ -587,22 +587,22 @@ body{
 .overlay.hidden{display:none}
 .popup{
   background:linear-gradient(180deg,var(--panel2),var(--panel));
-  border:4px solid var(--gold);border-radius:2px;
-  padding:20px 28px;text-align:center;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
+  border:3px solid var(--gold);border-radius:2px;
+  padding:14px 18px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
   animation:pop-in-retro .3s steps(5);
-  box-shadow:6px 6px 0 var(--dark),inset 3px 3px 0 var(--raised);
-  max-width:320px;width:90%;
+  box-shadow:4px 4px 0 var(--dark),inset 2px 2px 0 var(--raised);
+  max-width:280px;width:calc(100% - 32px);margin:0 16px;
 }
-.pop-icon{font-size:44px;margin-bottom:4px}
+.pop-icon{font-size:32px;margin-bottom:2px}
 .pop-icon.spin{animation:spin 2s steps(8) infinite}
-.popup strong{font-size:12px;color:var(--gold);text-shadow:2px 2px 0 var(--dark)}
-.pop-sub{font-size:9px;color:var(--gray)}
+.popup strong{font-size:10px;color:var(--gold);text-shadow:2px 2px 0 var(--dark)}
+.pop-sub{font-size:8px;color:var(--gray)}
 .pop-btn{
-  margin-top:8px;
+  margin-top:6px;
   background:linear-gradient(180deg,var(--gold),var(--gold2));
   color:var(--dark);border:2px solid var(--gold);
-  border-radius:2px;padding:8px 22px;font-size:10px;font-family:var(--px);
+  border-radius:2px;padding:6px 18px;font-size:9px;font-family:var(--px);
   cursor:pointer;box-shadow:3px 3px 0 var(--dark);
   transition:transform .08s;
 }
@@ -610,7 +610,7 @@ body{
 .pop-btn:active{transform:translate(2px,2px);box-shadow:0 0 0 transparent}
 
 .pop-item .pop-icon{animation:pop-bounce-retro .4s steps(5)}
-.pop-quote{font-size:8px;color:var(--amber);font-style:italic;max-width:240px;text-align:center;line-height:1.5}
+.pop-quote{font-size:7px;color:var(--amber);font-style:italic;max-width:220px;text-align:center;line-height:1.5}
 
 /* Toast */
 .toast{
@@ -728,7 +728,7 @@ body{
   .egg-slot .egg-label{font-size:7px}
   .action-btn{font-size:9px;padding:8px 2px}
   .stage-name{font-size:9px}
-  .popup{padding:16px 20px;max-width:280px}
+  .popup{padding:12px 14px;max-width:260px}
   .popup strong{font-size:10px}
   .pop-icon{font-size:36px}
   .achieve-grid{grid-template-columns:1fr}
