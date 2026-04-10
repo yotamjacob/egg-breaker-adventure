@@ -178,9 +178,9 @@ body{
   border-radius:2px;padding:3px;
   box-shadow: 2px 2px 0 rgba(0,0,0,.5);
 }
-.nav-row{display:flex;gap:2px}
+.nav-row{display:grid;grid-template-columns:repeat(6,1fr);gap:2px}
 .nav-tab{
-  flex:1;padding:10px 3px;border:none;
+  padding:10px 3px;border:none;
   background:var(--panel);
   border-radius:1px;cursor:pointer;font-size:10px;
   font-family:var(--px);font-weight:400;
