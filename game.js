@@ -904,30 +904,48 @@ function checkCollectionComplete() {
   ];
 
   if (prog.tier < 3 && found >= thresholds[prog.tier]) {
-    // Tier up!
     const tierNames = ['Bronze', 'Silver', 'Gold'];
-    const oldTier = prog.tier;
     prog.tier++;
+    SFX.play('tier');
 
-    if (prog.tier >= 3) {
-      // Stage complete!
-      G.stagesCompleted++;
-      G.crystalBananas += CONFIG.crystalBananasPerStage;
-      SFX.play('tier');
+    if (prog.tier === 1) {
+      // Bronze → Silver: hammer reward
+      const reward = CONFIG.tierRewards.silver;
+      G.maxH += reward.maxHammers;
+      G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
+      showStagePopup(
+        'Silver Tier!',
+        stage.name + ' - +' + reward.maxHammers + ' max hammers'
+      );
 
+    } else if (prog.tier === 2) {
+      // Silver → Gold: hammer reward + unlock next stage
+      const reward = CONFIG.tierRewards.gold;
+      G.maxH += reward.maxHammers;
+      G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
       const nextStage = prog.stage < curMonkey().stages.length - 1
         ? curMonkey().stages[prog.stage + 1].name : null;
       showStagePopup(
+        'Gold Tier!',
+        stage.name + ' - +' + reward.maxHammers + ' max hammers' +
+        (nextStage ? '\nNext stage unlocked: ' + nextStage + '!' : '') +
+        '\nKeep going for 100% to earn a Crystal Banana!'
+      );
+
+    } else if (prog.tier >= 3) {
+      // Gold → Complete: banana reward
+      G.stagesCompleted++;
+      G.crystalBananas += CONFIG.crystalBananasPerStage;
+      G.hammers = G.maxH; // refill hammers
+      showStagePopup(
         'Stage Complete!',
-        stage.name + ' - Gold! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana' +
-        (nextStage ? '\nNext stage unlocked: ' + nextStage + '!' : '')
+        stage.name + ' - 100%! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana'
       );
 
       // Advance to next stage
       if (prog.stage < curMonkey().stages.length - 1) {
         prog.stage++;
         prog.tier = 0;
-        G.hammers = G.maxH; // refill hammers on new stage
         setTimeout(() => {
           newRound();
           renderAll();
@@ -935,16 +953,6 @@ function checkCollectionComplete() {
       } else {
         prog.completed = true;
       }
-    } else {
-      // Tier up reward
-      SFX.play('tier');
-      const reward = prog.tier === 1 ? CONFIG.tierRewards.silver : CONFIG.tierRewards.gold;
-      G.maxH += reward.maxHammers;
-      G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
-      showStagePopup(
-        tierNames[prog.tier] + ' Tier!',
-        stage.name + ' - +' + reward.maxHammers + ' max hammers'
-      );
     }
     G.collectionsCompleted = calcTotalCollections();
     checkAchievements();
@@ -1414,11 +1422,14 @@ function renderAlbum() {
     const btn = document.createElement('button');
     btn.className = 'album-stage-btn';
     const isComplete = i < prog.stage || (i === prog.stage && prog.tier >= 3);
+    const isGold = i === prog.stage && prog.tier >= 2 && prog.tier < 3;
+    const nextViewable = i === prog.stage + 1 && prog.tier >= 2;
     if (i === prog.stage) btn.classList.add('active');
     if (isComplete) btn.classList.add('complete');
     if (i === prog.stage && !isComplete) btn.classList.add('current');
+    if (nextViewable) btn.classList.add('next-unlocked');
     btn.textContent = (i + 1) + '. ' + stage.name;
-    btn.disabled = i > prog.stage;
+    btn.disabled = i > prog.stage && !nextViewable;
     btn.addEventListener('click', () => renderAlbumStage(i));
     stagesDiv.appendChild(btn);
   });
@@ -1757,8 +1768,8 @@ function buildLexicon() {
 <table class="lex-table">
 <tr><th>Tier</th><th>Collect</th><th>Reward</th></tr>
 <tr><td class="hl">Bronze → Silver</td><td class="num">${Math.round(C.tierThresholds.bronze * 100)}%</td><td>+${C.tierRewards.silver.maxHammers} max hammers</td></tr>
-<tr><td class="hl">Silver → Gold</td><td class="num">${Math.round(C.tierThresholds.silver * 100)}%</td><td>+${C.tierRewards.gold.maxHammers} max hammers</td></tr>
-<tr><td class="hl">Gold (done)</td><td class="num">${Math.round(C.tierThresholds.gold * 100)}%</td><td>+${C.crystalBananasPerStage} Crystal Banana, next stage</td></tr>
+<tr><td class="hl">Silver → Gold</td><td class="num">${Math.round(C.tierThresholds.silver * 100)}%</td><td>+${C.tierRewards.gold.maxHammers} max hammers, unlocks next stage</td></tr>
+<tr><td class="hl">Gold → Complete</td><td class="num">${Math.round(C.tierThresholds.gold * 100)}%</td><td>+${C.crystalBananasPerStage} Crystal Banana</td></tr>
 </table>
 <p>Later stages have more eggs per round (up to 7) but also more items to find.</p>
 `

@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.1.0';
+const VERSION = '2.2.0';
 
 const CONFIG = {
 
@@ -123,9 +123,9 @@ const CONFIG = {
   //     Fraction of collection items needed to advance tiers.
   // ----------------------------------------------------------
   tierThresholds: {
-    bronze: 0.50,   // 50% of items → silver tier
-    silver: 0.75,   // 75% of items → gold tier
-    gold:   1.00,   // 100% of items → stage complete
+    bronze: 0.40,   // 40% of items → silver tier
+    silver: 0.70,   // 70% of items → gold tier (unlocks next stage)
+    gold:   1.00,   // 100% of items → complete (banana reward)
   },
 
   // Rewards for tier-ups (max hammer increases)

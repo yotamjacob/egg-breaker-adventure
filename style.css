@@ -430,6 +430,7 @@ body{
 .album-stage-btn.active{background:var(--panel2);border-color:var(--gold);color:var(--gold)}
 .album-stage-btn.complete{background:#143d2b;border-color:var(--green);color:var(--green)}
 .album-stage-btn.current{border-color:var(--gold);color:var(--gold);animation:pulse-current 1.5s steps(2) infinite}
+.album-stage-btn.next-unlocked{border-color:var(--cyan);color:var(--cyan);background:var(--panel2)}
 @keyframes pulse-current{0%,100%{box-shadow:1px 1px 0 var(--dark)}50%{box-shadow:1px 1px 0 var(--dark),0 0 6px rgba(245,197,66,.4)}}
 .album-items{
   background:var(--panel);border:3px solid var(--gold3);border-radius:2px;
