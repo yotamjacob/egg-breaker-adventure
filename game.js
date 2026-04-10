@@ -378,7 +378,6 @@ function makeEggSVG(type, damage) {
 }
 
 function renderEggTray() {
-  if (window._dbg) _dbg('renderEggTray eggs=' + (G.roundEggs ? G.roundEggs.length : 'null'));
   const tray = $id('egg-tray');
   tray.innerHTML = '';
   if (!G.roundEggs || G.roundEggs.length === 0) {
@@ -396,7 +395,6 @@ function renderEggTray() {
     slot.setAttribute('data-idx', String(i));
     if (!egg.broken) slot.onclick = function() { smashEgg(i); };
     tray.appendChild(slot);
-    if (window._dbg && i === 0) _dbg('slot0 data-idx=' + slot.getAttribute('data-idx') + ' parent=' + (slot.parentNode ? slot.parentNode.id : 'none'));
   });
 }
 
@@ -2044,26 +2042,17 @@ function godMode() {
 }
 
 // ==================== INIT ====================
-try {
-_dbg('INIT start');
 loadGame();
-_dbg('loadGame OK');
 
 if (G.soundOn === false && SFX.isOn()) SFX.toggle();
-_dbg('sound OK');
 
 Particles.init($id('particle-canvas'));
-_dbg('particles OK');
 
 if (!G.roundEggs || G.roundEggs.length === 0) newRound();
-_dbg('round OK eggs=' + (G.roundEggs ? G.roundEggs.length : 'null'));
 
 renderAll();
-_dbg('renderAll OK');
 
 if (G.hammers < G.maxH && !regenInt) startRegen();
-_dbg('INIT done');
-} catch(e) { _dbg('INIT CRASH: ' + e.message); }
 
 // Stage bar click → Album tab
 $id('stage-bar').addEventListener('click', () => {
