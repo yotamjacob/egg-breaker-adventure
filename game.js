@@ -135,7 +135,7 @@ const DEFAULT_STATE = {
   feathers: 0,
   multQueue: [],     // multipliers in hand
   activeMult: 1,     // sum of all selected mults
-  _selectedMults: [], // indices of selected multipliers in multQueue
+  _selectedCounts: {}, // { 2: 1, 5: 2 } = how many of each mult value selected
   hammer: 'default', hat: 'none',
   ownedHammers: ['default'], ownedHats: ['none'],
   activeMonkey: 0,
@@ -411,10 +411,6 @@ function renderEggTray() {
   });
 }
 
-function getSelectedMultValues() {
-  if (!G._selectedMults || G._selectedMults.length === 0) return [];
-  return G._selectedMults.map(i => G.multQueue[i]);
-}
 
 function multEquation(base, multVals, result, unit) {
   if (multVals.length === 1) {
@@ -982,48 +978,72 @@ function closeOverlay(id) {
 }
 
 // ==================== MULTIPLIER QUEUE ====================
+// All possible multiplier values (fixed order for badges)
+const MULT_BADGE_VALUES = [2, 3, 5, 10, 50, 123];
+
+// _selectedCounts: { 2: 1, 5: 2 } = one x2 and two x5 selected
 function recalcActiveMult() {
-  if (!G._selectedMults || G._selectedMults.length === 0) {
-    G.activeMult = 1;
-  } else {
-    G.activeMult = G._selectedMults.reduce((sum, idx) => sum + G.multQueue[idx], 0);
+  if (!G._selectedCounts) G._selectedCounts = {};
+  let total = 0;
+  for (const [val, count] of Object.entries(G._selectedCounts)) {
+    total += parseInt(val) * count;
   }
+  G.activeMult = total || 1;
   $id('active-mult').textContent = 'x' + G.activeMult;
+}
+
+function getMultCount(val) {
+  return G.multQueue.filter(v => v === val).length;
 }
 
 function renderMultQueue() {
   const q = $id('mult-queue');
   q.innerHTML = '';
-  if (!G._selectedMults) G._selectedMults = [];
-  G.multQueue.forEach((val, i) => {
-    const chip = document.createElement('span');
-    const isSelected = G._selectedMults.includes(i);
-    chip.className = 'mult-chip' + (isSelected ? ' active' : '');
-    chip.textContent = 'x' + val;
-    chip.addEventListener('click', () => {
-      if (isSelected) {
-        G._selectedMults = G._selectedMults.filter(idx => idx !== i);
-      } else {
-        G._selectedMults.push(i);
-      }
-      recalcActiveMult();
-      renderMultQueue();
-    });
-    q.appendChild(chip);
+  if (!G._selectedCounts) G._selectedCounts = {};
+
+  MULT_BADGE_VALUES.forEach(val => {
+    const owned = getMultCount(val);
+    const selected = G._selectedCounts[val] || 0;
+    const badge = document.createElement('span');
+    badge.className = 'mult-chip' + (selected > 0 ? ' active' : '') + (owned === 0 ? ' muted' : '');
+    badge.innerHTML = 'x' + val + '<small class="mult-count">' + (selected > 0 ? selected + '/' : '') + owned + '</small>';
+    if (owned > 0) {
+      badge.addEventListener('click', () => {
+        if (!G._selectedCounts[val]) G._selectedCounts[val] = 0;
+        if (G._selectedCounts[val] < owned) {
+          G._selectedCounts[val]++;
+        } else {
+          G._selectedCounts[val] = 0;
+        }
+        recalcActiveMult();
+        renderMultQueue();
+      });
+    }
+    q.appendChild(badge);
   });
   recalcActiveMult();
 }
 
+function getSelectedMultValues() {
+  if (!G._selectedCounts) return [];
+  const vals = [];
+  for (const [val, count] of Object.entries(G._selectedCounts)) {
+    for (let i = 0; i < count; i++) vals.push(parseInt(val));
+  }
+  return vals;
+}
+
 function consumeMultiplier() {
-  if (G.activeMult > 1 && G._selectedMults && G._selectedMults.length > 0) {
+  if (G.activeMult > 1 && G._selectedCounts) {
     G.maxMultUsed = Math.max(G.maxMultUsed || 0, G.activeMult);
-    G._lastMultCount = G._selectedMults.length; // for achievement check
-    // Remove selected indices from queue (highest first to preserve indices)
-    const sorted = [...G._selectedMults].sort((a, b) => b - a);
-    for (const idx of sorted) {
-      G.multQueue.splice(idx, 1);
+    const selected = getSelectedMultValues();
+    G._lastMultCount = selected.length;
+    // Remove consumed multipliers from queue
+    for (const val of selected) {
+      const idx = G.multQueue.indexOf(val);
+      if (idx >= 0) G.multQueue.splice(idx, 1);
     }
-    G._selectedMults = [];
+    G._selectedCounts = {};
     G.activeMult = 1;
   }
 }

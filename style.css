@@ -245,18 +245,22 @@ body{
 }
 .mult-label{color:var(--gray);white-space:nowrap}
 .mult-label strong{color:var(--purple);font-size:12px}
-.mult-queue{display:flex;gap:3px;flex-wrap:wrap;margin-left:auto}
+.mult-queue{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
 .mult-chip{
   background:var(--panel);border:2px solid var(--purple);border-radius:1px;
-  padding:3px 6px;font-size:9px;font-family:var(--px);color:var(--purple);
+  padding:2px 4px;font-size:8px;font-family:var(--px);color:var(--purple);
   cursor:pointer;transition:all .08s;
   box-shadow:1px 1px 0 var(--dark);
+  display:flex;align-items:baseline;gap:1px;white-space:nowrap;
 }
-.mult-chip:hover{background:var(--panel2);transform:translate(-1px,-1px)}
+.mult-chip:hover:not(.muted){background:var(--panel2);transform:translate(-1px,-1px)}
 .mult-chip.active{
   background:var(--purple);color:var(--white);border-color:#c084fc;
   box-shadow:0 0 6px rgba(155,89,182,.5);
 }
+.mult-chip.muted{opacity:.3;cursor:default}
+.mult-count{font-size:6px;color:var(--gray)}
+.mult-chip.active .mult-count{color:rgba(255,255,255,.7)}
 
 /* ---------- Egg tray ---------- */
 .egg-tray-wrap{
