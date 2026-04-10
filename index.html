@@ -57,21 +57,27 @@
 
     <!-- ===== PLAY TAB ===== -->
     <section class="tab-panel active" id="panel-play">
-      <!-- Stage info -->
-      <div class="stage-bar" id="stage-bar" style="cursor:pointer">
-        <div class="stage-header">
-          <span class="stage-name" id="stage-name">Stage 1: Tropical Paradise</span>
-          <span class="stage-tier" id="stage-tier">Bronze</span>
+      <!-- Stage + Starfall row -->
+      <div class="stage-star-row">
+        <div class="stage-bar" id="stage-bar" style="cursor:pointer">
+          <div class="stage-header">
+            <span class="stage-name" id="stage-name">Stage 1: Tropical Paradise</span>
+            <span class="stage-tier" id="stage-tier">Bronze</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" id="stage-fill"></div></div>
+          <span class="stage-detail" id="stage-detail">0/5 items</span>
         </div>
-        <div class="prog-track"><div class="prog-fill" id="stage-fill"></div></div>
-        <span class="stage-detail" id="stage-detail">0/5 items</span>
+        <button class="starfall-box" id="star-btn" onclick="useStarfall()" disabled>
+          <span class="starfall-icon">⭐</span>
+          <strong class="starfall-count" id="star-count">0</strong>
+          <small class="starfall-hint" id="star-hint">need 5</small>
+        </button>
       </div>
 
-      <!-- Multiplier + Starfall row -->
+      <!-- Multiplier row -->
       <div class="mult-bar" id="mult-bar">
         <span class="mult-label">Active: <strong id="active-mult">x1</strong></span>
         <div class="mult-queue" id="mult-queue"></div>
-        <button class="star-btn-inline" id="star-btn" onclick="useStarfall()" disabled>⭐ <span id="star-lbl">0/?</span></button>
       </div>
 
       <!-- Egg tray -->

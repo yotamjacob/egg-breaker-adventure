@@ -209,10 +209,11 @@ body{
 .tab-panel.active{display:block}
 
 /* ---------- Stage bar ---------- */
+.stage-star-row{display:flex;gap:6px;margin-bottom:8px;flex-shrink:0}
 .stage-bar{
-  flex-shrink:0;
+  flex:3;min-width:0;
   background:var(--panel);border:3px solid var(--gold3);
-  border-radius:2px;padding:8px 10px;margin-bottom:8px;
+  border-radius:2px;padding:8px 10px;
   box-shadow: inset 2px 2px 0 var(--raised), inset -2px -2px 0 var(--inset), 3px 3px 0 var(--dark);
 }
 .stage-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
@@ -253,15 +254,24 @@ body{
 .mult-label{color:var(--gray);white-space:nowrap}
 .mult-label strong{color:var(--purple);font-size:12px}
 .mult-queue{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
-.star-btn-inline{
-  flex-shrink:0;border:2px solid var(--gold3);border-radius:2px;
+.starfall-box{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;border:3px solid var(--gold3);border-radius:2px;
   background:var(--panel);color:var(--gold);font-family:var(--px);
-  font-size:8px;padding:2px 6px;cursor:pointer;
-  box-shadow:1px 1px 0 var(--dark);transition:all .08s;margin-left:4px;
+  cursor:pointer;padding:4px;
+  box-shadow:inset 2px 2px 0 var(--raised),inset -2px -2px 0 var(--inset),3px 3px 0 var(--dark);
+  transition:all .08s;
 }
-.star-btn-inline:disabled{opacity:.3;cursor:default}
-.star-btn-inline:not(:disabled){background:var(--gold);color:var(--dark);border-color:var(--gold2);animation:pulse-star 1s steps(2) infinite}
-@keyframes pulse-star{0%,100%{box-shadow:1px 1px 0 var(--dark)}50%{box-shadow:1px 1px 0 var(--dark),0 0 6px rgba(245,197,66,.5)}}
+.starfall-box:disabled{opacity:.4;cursor:default}
+.starfall-box:not(:disabled){
+  background:linear-gradient(180deg,var(--gold),var(--gold2));color:var(--dark);
+  border-color:var(--gold);animation:pulse-star 1.2s steps(2) infinite;
+}
+.starfall-icon{font-size:16px}
+.starfall-count{font-size:12px}
+.starfall-hint{font-size:6px;color:var(--gray)}
+.starfall-box:not(:disabled) .starfall-hint{color:var(--dark);opacity:.7}
+@keyframes pulse-star{0%,100%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark)}50%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark),0 0 10px rgba(245,197,66,.5)}}
 .mult-chip{
   background:var(--panel);border:2px solid var(--purple);border-radius:1px;
   padding:2px 4px;font-size:8px;font-family:var(--px);color:var(--purple);

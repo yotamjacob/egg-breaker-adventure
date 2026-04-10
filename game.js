@@ -880,11 +880,11 @@ function useStarfall() {
 
 function updateStarBtn() {
   const btn = $id('star-btn');
-  const ready = G.starPieces >= CONFIG.starPiecesForStarfall && G.roundEggs && !G.roundEggs.every(e => e.broken);
+  const need = CONFIG.starPiecesForStarfall;
+  const ready = G.starPieces >= need && G.roundEggs && !G.roundEggs.every(e => e.broken);
   btn.disabled = !ready;
-  $id('star-lbl').textContent = ready
-    ? 'GO!'
-    : G.starPieces + '/' + CONFIG.starPiecesForStarfall;
+  $id('star-count').textContent = G.starPieces;
+  $id('star-hint').textContent = ready ? 'Tap to activate!' : need + ' to activate';
 }
 
 // ==================== COLLECTION / STAGE ====================
