@@ -381,8 +381,7 @@ function renderEggTray() {
   const tray = $id('egg-tray');
   tray.innerHTML = '';
   if (!G.roundEggs || G.roundEggs.length === 0) {
-    tray.innerHTML = '<p style="color:var(--gray);font-size:8px;padding:40px 0;font-family:var(--px)">Loading eggs...</p>';
-    setTimeout(() => newRound(), 300);
+    newRound();
     return;
   }
   G.roundEggs.forEach((egg, i) => {
