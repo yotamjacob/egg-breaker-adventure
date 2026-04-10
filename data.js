@@ -90,7 +90,7 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'steampunk', name: 'Steampunk Monkey', emoji: '🔧', cost: 9,
+    id: 'steampunk', name: 'Steampunk Monkey', emoji: '🔧', cost: 7,
     perk: 'moreStars', perkDesc: '+15% star piece chance',
     stages: [
       { name: 'Gear Workshop', eggs: 3, collection: { name: 'Basic Gears', items: [
@@ -175,7 +175,7 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'princess', name: 'Princess Monkey', emoji: '👸', cost: 9,
+    id: 'princess', name: 'Princess Monkey', emoji: '👸', cost: 7,
     perk: 'moreGold', perkDesc: '+20% gold from eggs',
     stages: [
       { name: 'Royal Garden', eggs: 3, collection: { name: 'Garden Flowers', items: [
@@ -260,7 +260,7 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'space', name: 'Space Cadette', emoji: '🚀', cost: 9,
+    id: 'space', name: 'Space Cadette', emoji: '🚀', cost: 7,
     perk: 'moreItems', perkDesc: '+10% collection item chance',
     stages: [
       { name: 'Launch Pad', eggs: 3, collection: { name: 'Launch Gear', items: [
