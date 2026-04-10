@@ -1602,7 +1602,7 @@ function renderShop() {
       '<span class="s-name">' + h.name + '</span>' +
       '<span class="s-desc">' + h.desc + '</span>' +
       (owned
-        ? '<span class="s-status">OWNED' + (isCursor ? ' (cursor)' : ' — click for cursor') + '</span>'
+        ? '<span class="s-status">OWNED</span>'
         : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
     card.addEventListener('click', () => buyShopItem('hammer', h.id));
     hGrid.appendChild(card);
@@ -1624,7 +1624,7 @@ function renderShop() {
       '<span class="s-name">' + h.name + '</span>' +
       '<span class="s-desc">' + h.desc + '</span>' +
       (owned
-        ? '<span class="s-status">OWNED (always active)</span>'
+        ? '<span class="s-status">OWNED</span>'
         : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
     if (!owned) card.addEventListener('click', () => buyShopItem('hat', h.id));
     hatGrid.appendChild(card);
@@ -1644,7 +1644,7 @@ function renderShop() {
       '<span class="s-emoji">' + s.emoji + '</span>' +
       '<span class="s-name">' + s.name + '</span>' +
       (isOwned
-        ? '<span class="s-status">PURCHASED</span>'
+        ? '<span class="s-status">OWNED</span>'
         : '<span class="s-cost">' + formatNum(s.cost) + ' 🪙</span>');
     if (!isOwned) card.addEventListener('click', () => buyShopItem('supply', s.id));
     sGrid.appendChild(card);
@@ -1783,9 +1783,9 @@ ${rows}
       let hatRows = '';
       SHOP_HATS.forEach(h => { if (h.cost > 0) hatRows += '<tr><td>' + h.emoji + ' ' + h.name + '</td><td class="num">' + formatNum(h.cost) + '</td><td>' + h.desc + '</td></tr>'; });
       return `
-<p><strong>Hammers</strong> — permanent. Once bought, the bonus is always active. Click to change your cursor appearance.</p>
+<p><strong>Hammers</strong> — permanent. Bonus is always active regardless of what's equipped.</p>
 <table class="lex-table"><tr><th>Hammer</th><th>Cost</th><th>Effect</th></tr>${hRows}</table>
-<p><strong>Hats</strong> — permanent. Once bought, the bonus is always active. All bonuses stack.</p>
+<p><strong>Hats</strong> — permanent. Bonus is always active regardless of what's equipped.</p>
 <table class="lex-table"><tr><th>Hat</th><th>Cost</th><th>Effect</th></tr>${hatRows}</table>
 <p><strong>Supplies</strong> — consumables: hammer packs, star pieces (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='star1').cost)}), multipliers (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='mult5').cost)}), +5 hammer cap (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='maxhammers').cost)}), fast regen (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='fastregen').cost)}, one-time).</p>
 <p>All bonuses are permanent once purchased and stack multiplicatively — hammers, hats, and monkey perks all accumulate.</p>
