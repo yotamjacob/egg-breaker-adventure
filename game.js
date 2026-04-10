@@ -395,6 +395,11 @@ function renderEggTray() {
   const tray = $id('egg-tray');
   tray.innerHTML = '';
   if (!G.roundEggs || G.roundEggs.length === 0) {
+    const prog = curProgress();
+    if (prog.completed && prog.stage >= curMonkey().stages.length - 1) {
+      tray.innerHTML = '<p style="color:var(--gray);font-size:9px;padding:40px 0;font-family:var(--px);text-align:center">All stages complete! Switch to another monkey.</p>';
+      return;
+    }
     newRound();
     return;
   }
