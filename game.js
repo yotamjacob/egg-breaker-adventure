@@ -161,7 +161,9 @@ let regenInt = null;
 function initMonkeys() {
   return MONKEY_DATA.map((m, i) => ({
     unlocked: i === 0,
-    stage: 0, tier: 0,  // 0=bronze,1=silver,2=gold
+    stage: 0,           // highest unlocked stage index
+    activeStage: 0,     // stage currently being played
+    tiers: m.stages.map(() => 0), // per-stage tier: 0=bronze,1=silver,2=gold,3=complete
     collections: m.stages.map(s => s.collection.items.map(() => false)),
     completed: false,
   }));
@@ -202,6 +204,19 @@ function loadGame() {
       G.monkeys = fresh;
     }
   } catch (_) {}
+  // Migrate: add per-stage tiers and activeStage
+  if (G.monkeys) {
+    G.monkeys.forEach((mp, mi) => {
+      if (!mp.tiers) {
+        mp.tiers = MONKEY_DATA[mi].stages.map((_, si) => {
+          if (si < mp.stage) return 3; // stages before current are complete
+          if (si === mp.stage) return mp.tier || 0;
+          return 0;
+        });
+      }
+      if (mp.activeStage === undefined) mp.activeStage = mp.stage;
+    });
+  }
   // Migrate/clean loaded egg data
   if (G.roundEggs) {
     G.roundEggs.forEach(egg => {
@@ -314,18 +329,12 @@ function shake(level) {
 
 function curMonkey() { return MONKEY_DATA[G.activeMonkey]; }
 function curProgress() { return G.monkeys[G.activeMonkey]; }
-function curStage() { return curMonkey().stages[curProgress().stage]; }
+function curActiveStage() { return curProgress().activeStage !== undefined ? curProgress().activeStage : curProgress().stage; }
+function curStage() { return curMonkey().stages[curActiveStage()]; }
 
 // ==================== ROUND MANAGEMENT ====================
 function newRound() {
   const prog = curProgress();
-  if (prog.completed && prog.stage >= curMonkey().stages.length - 1) {
-    // All stages done for this monkey
-    msg('All stages complete! Try another monkey.', '#7c3aed');
-    G.roundEggs = null;
-    renderEggTray();
-    return;
-  }
   const stage = curStage();
   const count = stage.eggs;
   const eggs = [];
@@ -394,11 +403,6 @@ function renderEggTray() {
   const tray = $id('egg-tray');
   tray.innerHTML = '';
   if (!G.roundEggs || G.roundEggs.length === 0) {
-    const prog = curProgress();
-    if (prog.completed && prog.stage >= curMonkey().stages.length - 1) {
-      tray.innerHTML = '<p style="color:var(--gray);font-size:9px;padding:40px 0;font-family:var(--px);text-align:center">All stages complete! Switch to another monkey.</p>';
-      return;
-    }
     newRound();
     return;
   }
@@ -890,12 +894,16 @@ function updateStarBtn() {
 // ==================== COLLECTION / STAGE ====================
 function checkCollectionComplete() {
   const prog = curProgress();
+  const si = curActiveStage();
   const stage = curStage();
-  const collected = prog.collections[prog.stage];
+  const collected = prog.collections[si];
   const total = stage.collection.items.length;
   const found = collected.filter(Boolean).length;
 
-  // Tier thresholds
+  // Ensure tiers array exists (save migration)
+  if (!prog.tiers) prog.tiers = curMonkey().stages.map(() => 0);
+
+  const tier = prog.tiers[si];
   const tt = CONFIG.tierThresholds;
   const thresholds = [
     Math.ceil(total * tt.bronze),
@@ -903,13 +911,13 @@ function checkCollectionComplete() {
     Math.ceil(total * tt.gold),
   ];
 
-  if (prog.tier < 3 && found >= thresholds[prog.tier]) {
-    const tierNames = ['Bronze', 'Silver', 'Gold'];
-    prog.tier++;
+  if (tier < 3 && found >= thresholds[tier]) {
+    prog.tiers[si]++;
+    const newTier = prog.tiers[si];
     SFX.play('tier');
 
-    if (prog.tier === 1) {
-      // Bronze → Silver: hammer reward
+    if (newTier === 1) {
+      // Bronze → Silver
       const reward = CONFIG.tierRewards.silver;
       G.maxH += reward.maxHammers;
       G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
@@ -918,39 +926,35 @@ function checkCollectionComplete() {
         stage.name + ' - +' + reward.maxHammers + ' max hammers'
       );
 
-    } else if (prog.tier === 2) {
-      // Silver → Gold: hammer reward + unlock next stage
+    } else if (newTier === 2) {
+      // Silver → Gold: unlock next stage
       const reward = CONFIG.tierRewards.gold;
       G.maxH += reward.maxHammers;
       G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
-      const nextStage = prog.stage < curMonkey().stages.length - 1
-        ? curMonkey().stages[prog.stage + 1].name : null;
+      // Unlock next stage if this is the highest
+      if (si >= prog.stage && si < curMonkey().stages.length - 1) {
+        prog.stage = si + 1;
+      }
+      const nextName = si < curMonkey().stages.length - 1
+        ? curMonkey().stages[si + 1].name : null;
       showStagePopup(
         'Gold Tier!',
         stage.name + ' - +' + reward.maxHammers + ' max hammers' +
-        (nextStage ? '\nNext stage unlocked: ' + nextStage + '!' : '') +
+        (nextName ? '\nNext stage unlocked: ' + nextName + '!' : '') +
         '\nKeep going for 100% to earn a Crystal Banana!'
       );
 
-    } else if (prog.tier >= 3) {
+    } else if (newTier >= 3) {
       // Gold → Complete: banana reward
       G.stagesCompleted++;
       G.crystalBananas += CONFIG.crystalBananasPerStage;
-      G.hammers = G.maxH; // refill hammers
+      G.hammers = G.maxH;
       showStagePopup(
         'Stage Complete!',
         stage.name + ' - 100%! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana'
       );
-
-      // Advance to next stage
-      if (prog.stage < curMonkey().stages.length - 1) {
-        prog.stage++;
-        prog.tier = 0;
-        setTimeout(() => {
-          newRound();
-          renderAll();
-        }, 300);
-      } else {
+      // Check if ALL stages are complete
+      if (prog.tiers.every(t => t >= 3)) {
         prog.completed = true;
       }
     }
@@ -1078,9 +1082,21 @@ function startRegen() {
 }
 
 // ==================== MONKEY MANAGEMENT ====================
+function switchStage(stageIdx) {
+  const prog = curProgress();
+  if (stageIdx > prog.stage) return;
+  prog.activeStage = stageIdx;
+  G.roundEggs = null;
+  newRound();
+  updateStageBar();
+  saveGame();
+}
+
 function switchMonkey(index) {
   if (!G.monkeys[index].unlocked) return;
   G.activeMonkey = index;
+  const prog = curProgress();
+  if (prog.activeStage === undefined) prog.activeStage = prog.stage;
   G.roundEggs = null;
   newRound();
   renderAll();
@@ -1373,18 +1389,20 @@ function updateOverallProgress() {
 
 function updateStageBar() {
   const prog = curProgress();
+  const si = curActiveStage();
   const stage = curStage();
   const items = stage.collection.items;
-  const collected = prog.collections[prog.stage];
+  const collected = prog.collections[si];
   const found = collected.filter(Boolean).length;
   const total = items.length;
+  const tier = (prog.tiers && prog.tiers[si]) || 0;
   const tierNames = ['Bronze', 'Silver', 'Gold'];
-  const tierIdx = Math.min(prog.tier, 2);
+  const tierIdx = Math.min(tier, 2);
 
-  $id('stage-name').textContent = 'Stage ' + (prog.stage + 1) + ': ' + stage.name;
+  $id('stage-name').textContent = 'Stage ' + (si + 1) + ': ' + stage.name;
   const tierEl = $id('stage-tier');
-  tierEl.textContent = prog.tier >= 3 ? 'Complete' : tierNames[tierIdx];
-  tierEl.className = 'stage-tier ' + (prog.tier >= 3 ? 'complete' : tierNames[tierIdx].toLowerCase());
+  tierEl.textContent = tier >= 3 ? 'Complete' : tierNames[tierIdx];
+  tierEl.className = 'stage-tier ' + (tier >= 3 ? 'complete' : tierNames[tierIdx].toLowerCase());
 
   const pct = Math.min(100, (found / total) * 100);
   const fill = $id('stage-fill');
@@ -1421,20 +1439,27 @@ function renderAlbum() {
   monkey.stages.forEach((stage, i) => {
     const btn = document.createElement('button');
     btn.className = 'album-stage-btn';
-    const isComplete = i < prog.stage || (i === prog.stage && prog.tier >= 3);
-    const isGold = i === prog.stage && prog.tier >= 2 && prog.tier < 3;
-    const nextViewable = i === prog.stage + 1 && prog.tier >= 2;
-    if (i === prog.stage) btn.classList.add('active');
-    if (isComplete) btn.classList.add('complete');
-    if (i === prog.stage && !isComplete) btn.classList.add('current');
-    if (nextViewable) btn.classList.add('next-unlocked');
+    const tier = (prog.tiers && prog.tiers[i]) || 0;
+    const unlocked = i <= prog.stage;
+    // Color by tier
+    if (!unlocked)     btn.classList.add('locked');
+    else if (tier >= 3) btn.classList.add('complete');   // green
+    else if (tier >= 2) btn.classList.add('tier-gold');   // gold
+    else if (tier >= 1) btn.classList.add('tier-silver'); // silver
+    else                btn.classList.add('tier-bronze'); // bronze/gray
+    if (i === curActiveStage()) btn.classList.add('active');
     btn.textContent = (i + 1) + '. ' + stage.name;
-    btn.disabled = i > prog.stage && !nextViewable;
-    btn.addEventListener('click', () => renderAlbumStage(i));
+    btn.disabled = !unlocked;
+    if (unlocked) {
+      btn.addEventListener('click', () => {
+        switchStage(i);
+        renderAlbumStage(i);
+      });
+    }
     stagesDiv.appendChild(btn);
   });
 
-  renderAlbumStage(prog.stage);
+  renderAlbumStage(curActiveStage());
 }
 
 function featherCost(rarity, stageIdx) {
