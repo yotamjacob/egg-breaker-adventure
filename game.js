@@ -1404,23 +1404,20 @@ function renderAlbumStage(stageIdx) {
 
   let pityExplain = '';
   if (missingCount > 0 && foundCount > 0) {
-    // Calculate actual chance of getting a new item vs duplicate
-    let wMissing = 0, wFound = 0;
-    stage.collection.items.forEach((item, i) => {
-      const baseW = item[2] === 1 ? rw.common : item[2] === 2 ? rw.uncommon : rw.rare;
-      if (collected[i]) wFound += baseW * dM;
-      else wMissing += baseW * pM;
-    });
-    const newChance = Math.round(wMissing / (wMissing + wFound) * 100);
+    const tips = [
+      'Keep smashing — missing items drop more often the fewer you have left.',
+      'The more you collect, the luckier you get with new finds.',
+      'Almost there! Rare items you haven\'t found yet are more likely to appear.',
+      'Breaking more eggs increases your chances of finding missing items.',
+      'Don\'t give up — the odds shift in your favor for items you\'re missing.',
+    ];
+    const tip = tips[foundCount % tips.length];
     pityExplain = '<div class="pity-bar">' +
-      '<span class="pity-label">Pity system</span>' +
-      '<span class="pity-info">' + missingCount + ' missing — ' +
-      '<strong>' + newChance + '%</strong> chance next item drop is new</span>' +
+      '<span class="pity-info">' + missingCount + ' missing — ' + tip + '</span>' +
       '</div>';
   } else if (missingCount > 0) {
     pityExplain = '<div class="pity-bar">' +
-      '<span class="pity-label">Pity system</span>' +
-      '<span class="pity-info">No items found yet — all drops will be new!</span>' +
+      '<span class="pity-info">Start smashing to discover items!</span>' +
       '</div>';
   } else {
     pityExplain = '<div class="pity-bar complete">' +
