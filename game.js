@@ -871,8 +871,11 @@ function useStarfall() {
 
 function updateStarBtn() {
   const btn = $id('star-btn');
-  btn.disabled = G.starPieces < CONFIG.starPiecesForStarfall || !G.roundEggs || G.roundEggs.every(e => e.broken);
-  $id('star-lbl').textContent = '(' + G.starPieces + '/5)';
+  const ready = G.starPieces >= CONFIG.starPiecesForStarfall && G.roundEggs && !G.roundEggs.every(e => e.broken);
+  btn.disabled = !ready;
+  $id('star-lbl').textContent = ready
+    ? '- Tap to activate!'
+    : '(' + G.starPieces + '/' + CONFIG.starPiecesForStarfall + ')';
 }
 
 // ==================== COLLECTION / STAGE ====================
