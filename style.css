@@ -347,7 +347,18 @@ body{
 #regen-txt{color:var(--gray)}
 #status-txt{color:var(--gold)}
 
-/* ---------- Daily box ---------- */
+/* ---------- Daily panel & box ---------- */
+.daily-panel{padding:4px 0}
+.daily-header{
+  font-size:12px;color:var(--gold);text-shadow:2px 2px 0 var(--dark);
+  margin-bottom:10px;text-align:center;letter-spacing:1px;
+}
+.daily-info{
+  background:var(--panel);border:2px solid var(--gold3);border-radius:2px;
+  padding:10px 12px;font-size:8px;color:var(--gray);line-height:1.8;
+  box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark);
+}
+.daily-info strong{color:var(--gold)}
 .daily-box{
   background:var(--panel);border:3px solid var(--green);
   border-radius:2px;padding:7px 12px;

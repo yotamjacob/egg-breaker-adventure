@@ -250,6 +250,19 @@ function checkDaily() {
   $id('daily-day').textContent = G.consecutiveDays;
   const bonus = Math.min(G.consecutiveDays * CONFIG.dailyBonusPerDay, CONFIG.dailyBonusCap);
   $id('daily-detail').textContent = '+' + (CONFIG.dailyBaseHammers + bonus) + ' hammers';
+  renderDailyInfo();
+}
+
+function renderDailyInfo() {
+  const C = CONFIG;
+  const bonus = Math.min(G.consecutiveDays * C.dailyBonusPerDay, C.dailyBonusCap);
+  $id('daily-info').innerHTML =
+    '<p>Log in every day to build your streak and earn more hammers!</p>' +
+    '<p>Base: <strong>' + C.dailyBaseHammers + '</strong> hammers + <strong>' +
+    C.dailyBonusPerDay + '</strong> per day streak (max +<strong>' + C.dailyBonusCap + '</strong>)</p>' +
+    '<p>Current streak: <strong>' + G.consecutiveDays + ' days</strong> → <strong>+' +
+    (C.dailyBaseHammers + bonus) + ' hammers</strong> today</p>' +
+    '<p>Total claims: <strong>' + (G.totalDailyClaims || 0) + '</strong></p>';
 }
 
 function claimDaily() {
@@ -262,6 +275,7 @@ function claimDaily() {
   $id('daily-box').classList.add('claimed');
   $id('daily-btn').disabled = true;
   $id('daily-btn').textContent = 'Claimed!';
+  renderDailyInfo();
   msg('+' + total + ' hammers!', '#16a34a');
   SFX.play('coin');
   checkAchievements();
@@ -1792,6 +1806,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (name === 'shop') renderShop();
   if (name === 'stats') renderStats();
   if (name === 'lexicon') renderLexicon();
+  if (name === 'daily') renderDailyInfo();
 });
 
 // ==================== KEYBOARD ====================
