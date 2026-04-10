@@ -2051,6 +2051,8 @@ if (!G.roundEggs || G.roundEggs.length === 0) newRound();
 
 renderAll();
 
+$id('version-tag').textContent = 'Egg Breaker Adventures v' + VERSION;
+
 if (G.hammers < G.maxH && !regenInt) startRegen();
 
 // Stage bar click → Album tab

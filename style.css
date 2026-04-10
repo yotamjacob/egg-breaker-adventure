@@ -515,6 +515,12 @@ body{
 }
 .reset-btn:hover{background:#2a0a0a}
 
+.version-tag{
+  text-align:center;padding:12px 0 4px;
+  font-size:7px;color:var(--gray);letter-spacing:1px;
+  opacity:.5;
+}
+
 /* ---------- Lexicon tab ---------- */
 .lex-section{margin-bottom:10px}
 .lex-section-head{
