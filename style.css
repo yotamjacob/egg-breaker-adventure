@@ -112,7 +112,6 @@ body{
 }
 .res span{font-size:11px;flex-shrink:0}
 .res strong{color:var(--gold);font-size:9px;overflow:hidden;text-overflow:ellipsis}
-.star-res strong{color:var(--amber)}
 
 /* Resource tooltips */
 .res[data-tip]{position:relative;cursor:help}
