@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.0.3';
+const VERSION = '2.0.4';
 
 const CONFIG = {
 
@@ -97,7 +97,7 @@ const CONFIG = {
     rare:     1,    // rarity 3
   },
 
-  // Feather cost to buy a collection item directly.
+  // Feather cost to buy an album item directly.
   // Cost = base cost for rarity x stage multiplier.
   // Stage multiplier = featherStageMult[0] for stage 1, increasing per stage.
   featherItemCost: {
