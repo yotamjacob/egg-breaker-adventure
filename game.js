@@ -392,7 +392,7 @@ function renderEggTray() {
     slot.innerHTML = makeEggSVG(egg.type, egg.broken ? egg.maxHp : damage) +
       '<span class="egg-label">' + egg.type +
       (egg.broken ? '' : ' ' + egg.hp + '/' + egg.maxHp) + '</span>';
-    slot.dataset.idx = i;
+    slot.setAttribute('data-idx', String(i));
     if (!egg.broken) slot.onclick = function() { smashEgg(i); };
     tray.appendChild(slot);
   });

@@ -185,8 +185,10 @@
       var path = [];
       while (el && el !== document.body) {
         var tag = el.tagName || '?';
-        var attr = el.getAttribute ? el.getAttribute('data-idx') : null;
-        path.push(tag + (attr !== null ? '['+attr+']' : ''));
+        var hasGetAttr = typeof el.getAttribute === 'function';
+        var attr = hasGetAttr ? el.getAttribute('data-idx') : null;
+        var cls = hasGetAttr ? (el.getAttribute('class') || '') : '';
+        path.push(tag + '.' + cls.split(' ')[0] + (attr !== null ? '['+attr+']' : ''));
         if (attr !== null) {
           var broken = el.classList && el.classList.contains('broken');
           if (!broken) {
