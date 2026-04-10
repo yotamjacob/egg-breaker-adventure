@@ -90,8 +90,7 @@ function simulateGame() {
   function rollItemIsNew(items, collected) {
     const rw = C.itemRarityWeights;
     const weights = items.map((item, i) => {
-      const baseW = item[2] === 1 ? rw.common : item[2] === 2 ? rw.uncommon : rw.rare;
-      return collected[i] ? baseW * C.itemDuplicateMultiplier : baseW * C.itemPityMultiplier;
+      return item[2] === 1 ? rw.common : item[2] === 2 ? rw.uncommon : rw.rare;
     });
     const total = weights.reduce((a, b) => a + b, 0);
     let r = Math.random() * total;
@@ -390,8 +389,7 @@ for (let run = 0; run < Math.min(RUNS, 1000); run++) {
           if (prizeType === 'item') {
             const rw = CONFIG.itemRarityWeights;
             const weights = items.map((item, i) => {
-              const bw = item[2] === 1 ? rw.common : item[2] === 2 ? rw.uncommon : rw.rare;
-              return collected[i] ? bw * CONFIG.itemDuplicateMultiplier : bw * CONFIG.itemPityMultiplier;
+              return item[2] === 1 ? rw.common : item[2] === 2 ? rw.uncommon : rw.rare;
             });
             const total = weights.reduce((a, b) => a + b, 0);
             let r = Math.random() * total;

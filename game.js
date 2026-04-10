@@ -502,12 +502,10 @@ function rollCollectionItem(eggType) {
   const items = stage.collection.items;
   const collected = prog.collections[prog.stage];
 
-  // Weight uncollected items higher (pity system)
   const weights = items.map((item, i) => {
     const rarity = item[2]; // 1=common, 2=uncommon, 3=rare
     const rw = CONFIG.itemRarityWeights;
-    const baseW = rarity === 1 ? rw.common : rarity === 2 ? rw.uncommon : rw.rare;
-    return collected[i] ? baseW * CONFIG.itemDuplicateMultiplier : baseW * CONFIG.itemPityMultiplier;
+    return rarity === 1 ? rw.common : rarity === 2 ? rw.uncommon : rw.rare;
   });
 
   const total = weights.reduce((a, b) => a + b, 0);
@@ -1397,26 +1395,14 @@ function renderAlbumStage(stageIdx) {
   const collected = prog.collections[stageIdx] || [];
   const div = $id('album-items');
 
-  // Calculate pity info for this stage
-  const totalItems = stage.collection.items.length;
   const foundCount = collected.filter(Boolean).length;
-  const missingCount = totalItems - foundCount;
-  const rw = CONFIG.itemRarityWeights;
-  const pM = CONFIG.itemPityMultiplier;
-  const dM = CONFIG.itemDuplicateMultiplier;
+  const totalItems = stage.collection.items.length;
 
-  let pityExplain = '';
-  if (missingCount > 0) {
-    pityExplain = '<div class="pity-bar">' +
-      '<span class="pity-info">' + missingCount + ' missing — Uncollected items are slightly more likely to drop than duplicates.</span>' +
-      '</div>';
-  } else {
-    pityExplain = '<div class="pity-bar complete">' +
-      '<span class="pity-label">Collection complete!</span>' +
-      '</div>';
+  let html = '';
+  if (foundCount >= totalItems) {
+    html += '<div class="pity-bar complete"><span class="pity-label">Collection complete!</span></div>';
   }
-
-  let html = pityExplain + '<div class="album-grid">';
+  html += '<div class="album-grid">';
   stage.collection.items.forEach((item, i) => {
     const found = collected[i];
     const rarityClass = 'rarity-' + item[2];
@@ -1670,7 +1656,6 @@ function buildLexicon() {
     return (w.empty / t * 100).toFixed(0);
   };
   const uniqueMults = [...new Set(C.multiplierValues)].sort((a,b) => a - b);
-  const pityRatio = (C.itemPityMultiplier / C.itemDuplicateMultiplier).toFixed(1);
   const minGold = C.goldValues.gold_s[0];
   const maxGold = C.goldValues.gold_l[1];
   const minHammer = Math.min(...C.hammerPrizeAmounts);
@@ -1716,7 +1701,7 @@ function buildLexicon() {
   {
     id: 'progress', icon: '📚', title: 'Stages & Collections',
     html: () => `
-<p>Each monkey has <strong>${MONKEY_DATA[0].stages.length} stages</strong>. Each stage has a themed collection of items in three rarities (Common, Uncommon, Rare). A <strong>pity system</strong> makes uncollected items ~${pityRatio}x more likely to drop.</p>
+<p>Each monkey has <strong>${MONKEY_DATA[0].stages.length} stages</strong>. Each stage has a themed collection of items in three rarities (Common, Uncommon, Rare).</p>
 <table class="lex-table">
 <tr><th>Tier</th><th>Collect</th><th>Reward</th></tr>
 <tr><td class="hl">Bronze → Silver</td><td class="num">${Math.round(C.tierThresholds.bronze * 100)}%</td><td>+${C.tierRewards.silver.maxHammers} max hammers</td></tr>

@@ -377,15 +377,11 @@ body{
 .pity-bar{
   display:flex;align-items:center;gap:6px;
   padding:5px 10px;margin-bottom:8px;
-  background:var(--bg);border:2px solid var(--purple);
+  background:var(--bg);border:2px solid var(--green);
   border-radius:2px;font-size:8px;
   box-shadow:inset 1px 1px 0 var(--raised);
 }
-.pity-bar.complete{border-color:var(--green)}
-.pity-label{color:var(--purple);white-space:nowrap}
-.pity-bar.complete .pity-label{color:var(--green)}
-.pity-info{color:var(--gray)}
-.pity-info strong{color:var(--gold)}
+.pity-label{color:var(--green);white-space:nowrap}
 .album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:5px}
 .album-item{
   position:relative;cursor:help;

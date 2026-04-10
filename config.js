@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.0.5';
+const VERSION = '1.1.0';
 
 const CONFIG = {
 
@@ -96,11 +96,6 @@ const CONFIG = {
     uncommon: 5,    // rarity 2
     rare:     1,    // rarity 3
   },
-
-  // Pity system: uncollected items get a slight nudge, collected are slightly reduced
-  itemPityMultiplier:      1.2,   // weight x this if NOT yet collected
-  itemDuplicateMultiplier: 0.8,   // weight x this if already collected
-  // (effective boost: pity / duplicate = 1.5x more likely for missing items)
 
   // Feather cost to buy an album item directly.
   // Cost = base cost for rarity x stage multiplier.
