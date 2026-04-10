@@ -1519,11 +1519,8 @@ function renderMonkeys() {
     inner += '<span class="m-perk">' + m.perkDesc + '</span>';
 
     if (mp.unlocked) {
-      const stageNum = mp.completed ? curMonkey().stages.length : mp.stage + 1;
+      const stageNum = mp.completed ? m.stages.length : mp.stage + 1;
       inner += '<span class="m-progress">Stage ' + stageNum + '/' + m.stages.length + '</span>';
-      if (!isActive) {
-        card.addEventListener('click', () => switchMonkey(i));
-      }
     } else {
       inner += '<span class="m-cost">' + m.cost + ' 🍌 Crystal Bananas</span>';
       inner += '<button class="monkey-unlock-btn" ' +
@@ -1533,9 +1530,13 @@ function renderMonkeys() {
 
     card.innerHTML = inner;
 
+    // Attach handlers AFTER innerHTML
+    if (mp.unlocked && !isActive) {
+      card.onclick = function() { switchMonkey(i); };
+    }
     if (!mp.unlocked) {
       const btn = card.querySelector('.monkey-unlock-btn');
-      if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); unlockMonkey(i); });
+      if (btn) btn.onclick = function(e) { e.stopPropagation(); unlockMonkey(i); };
     }
 
     grid.appendChild(card);
