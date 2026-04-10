@@ -378,6 +378,7 @@ function makeEggSVG(type, damage) {
 }
 
 function renderEggTray() {
+  if (window._dbg) _dbg('renderEggTray eggs=' + (G.roundEggs ? G.roundEggs.length : 'null'));
   const tray = $id('egg-tray');
   tray.innerHTML = '';
   if (!G.roundEggs || G.roundEggs.length === 0) {
@@ -395,6 +396,7 @@ function renderEggTray() {
     slot.setAttribute('data-idx', String(i));
     if (!egg.broken) slot.onclick = function() { smashEgg(i); };
     tray.appendChild(slot);
+    if (window._dbg && i === 0) _dbg('slot0 data-idx=' + slot.getAttribute('data-idx') + ' parent=' + (slot.parentNode ? slot.parentNode.id : 'none'));
   });
 }
 
