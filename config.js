@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.0.2';
+const VERSION = '2.0.3';
 
 const CONFIG = {
 
@@ -87,7 +87,7 @@ const CONFIG = {
   hammerPrizeAmounts: [2, 3, 5, 5, 8],
 
   // ----------------------------------------------------------
-  // 8. COLLECTION ITEMS (Album)
+  // 8. COLLECTION ITEMS
   //    Drop chance is controlled by prizeWeights "item" weight.
   //    These control rarity weights within the item roll.
   // ----------------------------------------------------------
@@ -97,7 +97,7 @@ const CONFIG = {
     rare:     1,    // rarity 3
   },
 
-  // Feather cost to buy an album item directly.
+  // Feather cost to buy a collection item directly.
   // Cost = base cost for rarity x stage multiplier.
   // Stage multiplier = featherStageMult[0] for stage 1, increasing per stage.
   featherItemCost: {

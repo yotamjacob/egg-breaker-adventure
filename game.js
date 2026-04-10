@@ -1732,7 +1732,7 @@ function buildLexicon() {
 <p><strong>Gold</strong> — main currency (${minGold}–${maxGold} base, boosted by egg type, multipliers, and equipment). Spend it in the shop.</p>
 <p><strong>Star Pieces</strong> — collect ${C.starPiecesForStarfall} to trigger <strong>Starfall</strong>, which smashes all remaining eggs for free. Normal/Gold eggs drop ${C.starPiecesPerDrop.normal}, Silver drops ${C.starPiecesPerDrop.silver}.</p>
 <p><strong>Multipliers</strong> — ${uniqueMults.map(v => 'x' + v).join(', ')}. Stored in a queue. Click one to activate it before your next smash — it boosts gold, feathers, stars, and hammers. Other prizes get bonus gold.</p>
-<p><strong>Feathers</strong> — spend in the Album tab to buy missing collection items directly (${fMin}–${fMax} per drop, doubled from silver eggs). Prices increase with stage and rarity.</p>
+<p><strong>Feathers</strong> — spend in the Collection tab to buy missing items directly (${fMin}–${fMax} per drop, doubled from silver eggs). Prices increase with stage and rarity.</p>
 <p><strong>Collection Items</strong> — themed items for the current stage. New ones count toward completion. Duplicates convert to ${dupMin}–${dupMax} gold.</p>
 <p><strong>Bonus Hammers</strong> — Silver eggs only. ${minHammer}–${maxHammer} free hammers.</p>
 `
@@ -2069,7 +2069,7 @@ $id('version-tag').textContent = 'Egg Breaker Adventures v' + VERSION;
 
 if (G.hammers < G.maxH && !regenInt) startRegen();
 
-// Stage bar click → Album tab
+// Stage bar click → Collection tab
 $id('stage-bar').addEventListener('click', () => {
   document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
