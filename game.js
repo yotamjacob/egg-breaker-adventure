@@ -1369,6 +1369,7 @@ function renderAll() {
   renderMonkeys();
   renderShop();
   renderStats();
+  renderAchievements();
   checkDaily();
 }
 
@@ -1620,8 +1621,7 @@ function renderShop() {
 }
 
 function renderStats() {
-  const stats = $id('life-stats');
-  stats.innerHTML = [
+  $id('life-stats').innerHTML = [
     ['Eggs broken', G.totalEggs],
     ['Gold earned', formatNum(G.totalGold)],
     ['Star pieces', G.totalStarPieces],
@@ -1635,7 +1635,9 @@ function renderStats() {
     ['Round clears', G.roundClears],
     ['Daily claims', G.totalDailyClaims || 0],
   ].map(([k, v]) => '<span>' + k + ': <strong>' + v + '</strong></span>').join('');
+}
 
+function renderAchievements() {
   const grid = $id('achieve-grid');
   grid.innerHTML = '';
   ACHIEVEMENT_DATA.forEach(a => {
@@ -1807,6 +1809,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (name === 'stats') renderStats();
   if (name === 'lexicon') renderLexicon();
   if (name === 'daily') renderDailyInfo();
+  if (name === 'achieve') renderAchievements();
 });
 
 // ==================== KEYBOARD ====================
