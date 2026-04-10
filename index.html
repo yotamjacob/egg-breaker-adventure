@@ -21,6 +21,7 @@
         <div class="title-text">
           <h1>Egg Breaker Adventures</h1>
           <p class="subtitle" id="monkey-subtitle">Mr. Monkey</p>
+          <p class="regen-info" id="regen-txt"></p>
         </div>
         <button class="god-btn hidden" id="god-btn" onclick="godMode()">GOD MODE</button>
         <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="Toggle sound">🔊</button>
@@ -66,19 +67,18 @@
         <span class="stage-detail" id="stage-detail">0/5 items</span>
       </div>
 
-      <!-- Multiplier queue -->
+      <!-- Multiplier + Starfall row -->
       <div class="mult-bar" id="mult-bar">
         <span class="mult-label">Active: <strong id="active-mult">x1</strong></span>
         <div class="mult-queue" id="mult-queue"></div>
+        <button class="star-btn-inline" id="star-btn" onclick="useStarfall()" disabled>⭐ <span id="star-lbl">0/?</span></button>
       </div>
 
       <!-- Egg tray -->
       <div style="position:relative">
         <div class="egg-tray-wrap" id="egg-tray-wrap">
           <div class="egg-tray" id="egg-tray"></div>
-          <p class="hint" id="hint-txt">Tap an egg to smash it!</p>
         </div>
-        <!-- Overlays in sibling container — completely separate from egg tray -->
         <div id="overlay-layer" style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:visible">
           <canvas id="particle-canvas"></canvas>
           <div id="prize-zone"></div>
@@ -86,14 +86,8 @@
         </div>
       </div>
 
-      <!-- Action row -->
-      <div class="action-row">
-        <button class="action-btn" id="star-btn" onclick="useStarfall()" disabled>⭐ Starfall <span id="star-lbl">(0/?)</span></button>
-      </div>
-
-      <!-- Status & daily -->
+      <!-- Status -->
       <div class="status-row">
-        <span id="regen-txt"></span>
         <span id="status-txt"></span>
       </div>
     </section>
@@ -132,6 +126,7 @@
       <h3 class="section-title">Lifetime Stats</h3>
       <div class="life-stats" id="life-stats"></div>
       <button class="reset-btn" onclick="resetGame()">Reset All Progress</button>
+      <div class="version-tag" id="version-tag"></div>
     </section>
 
     <!-- ===== LEXICON TAB ===== -->
@@ -191,8 +186,6 @@
       <span id="toast-icon"></span>
       <div><small id="toast-header">Achievement Complete!</small><br><strong id="toast-name"></strong><br><small id="toast-desc"></small></div>
     </div>
-
-    <div class="version-tag" id="version-tag"></div>
 
   </div>
 

@@ -80,6 +80,7 @@ body{
   font-family:var(--px);font-size:8px;color:var(--amber);
   letter-spacing:2px;margin-top:2px;
 }
+.regen-info{font-size:7px;color:var(--gray);margin-top:1px}
 .icon-btn{
   margin-left:auto;background:var(--bg);border:2px solid var(--gray);
   border-radius:2px;padding:4px 6px;cursor:pointer;font-size:16px;
@@ -252,6 +253,15 @@ body{
 .mult-label{color:var(--gray);white-space:nowrap}
 .mult-label strong{color:var(--purple);font-size:12px}
 .mult-queue{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
+.star-btn-inline{
+  flex-shrink:0;border:2px solid var(--gold3);border-radius:2px;
+  background:var(--panel);color:var(--gold);font-family:var(--px);
+  font-size:8px;padding:2px 6px;cursor:pointer;
+  box-shadow:1px 1px 0 var(--dark);transition:all .08s;margin-left:4px;
+}
+.star-btn-inline:disabled{opacity:.3;cursor:default}
+.star-btn-inline:not(:disabled){background:var(--gold);color:var(--dark);border-color:var(--gold2);animation:pulse-star 1s steps(2) infinite}
+@keyframes pulse-star{0%,100%{box-shadow:1px 1px 0 var(--dark)}50%{box-shadow:1px 1px 0 var(--dark),0 0 6px rgba(245,197,66,.5)}}
 .mult-chip{
   background:var(--panel);border:2px solid var(--purple);border-radius:1px;
   padding:2px 4px;font-size:8px;font-family:var(--px);color:var(--purple);
@@ -270,7 +280,7 @@ body{
 
 /* ---------- Egg tray ---------- */
 .egg-tray-wrap{
-  position:relative;z-index:2;height:200px;min-height:200px;flex-shrink:0;margin-bottom:8px;
+  position:relative;z-index:2;height:240px;min-height:240px;flex-shrink:0;margin-bottom:8px;
   border-radius:2px;
   background:var(--bg2);
   border:3px solid var(--gold3);
@@ -284,11 +294,6 @@ body{
   position:relative;z-index:1;
 }
 
-.hint{
-  text-align:center;font-size:9px;color:var(--gray);padding:4px 0;
-  animation:blink-retro 1s steps(2) infinite;
-}
-.hint.hidden{display:none}
 
 /* Overlay layer — above eggs for visual effects, pointer-events:none */
 #overlay-layer{z-index:10}
@@ -354,7 +359,6 @@ body{
 
 /* ---------- Status row ---------- */
 .status-row{display:flex;justify-content:space-between;font-size:9px;min-height:16px;margin-bottom:6px;flex-shrink:0}
-#regen-txt{color:var(--gray)}
 #status-txt{color:var(--gold)}
 
 /* ---------- Daily panel & box ---------- */

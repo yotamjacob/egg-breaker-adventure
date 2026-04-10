@@ -339,7 +339,6 @@ function newRound() {
     eggs.push({ type, hp, maxHp: hp, broken: false });
   }
   G.roundEggs = eggs;
-  $id('hint-txt').classList.remove('hidden');
   renderEggTray();
   updateResources();
   saveGame();
@@ -625,7 +624,6 @@ function smashEgg(index) {
   // Start regen if needed
   if (!regenInt && G.hammers < G.maxH) startRegen();
 
-  $id('hint-txt').classList.add('hidden');
 
   // Reduce HP
   egg.hp -= 1;
@@ -885,8 +883,8 @@ function updateStarBtn() {
   const ready = G.starPieces >= CONFIG.starPiecesForStarfall && G.roundEggs && !G.roundEggs.every(e => e.broken);
   btn.disabled = !ready;
   $id('star-lbl').textContent = ready
-    ? '- Tap to activate!'
-    : '(' + G.starPieces + '/' + CONFIG.starPiecesForStarfall + ')';
+    ? 'GO!'
+    : G.starPieces + '/' + CONFIG.starPiecesForStarfall;
 }
 
 // ==================== COLLECTION / STAGE ====================
