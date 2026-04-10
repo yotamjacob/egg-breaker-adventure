@@ -1140,7 +1140,8 @@ function buyShopItem(category, id) {
   if (category === 'supply') {
     const item = SHOP_SUPPLIES.find(s => s.id === id);
     if (!item) return;
-    if (item.unique && G['owned_' + id]) { msg('Already purchased!', '#9ca3af'); return; }
+    if (id === 'fastregen' && G.fastRegen) { msg('Already purchased!', '#9ca3af'); return; }
+    if (item.unique && id !== 'fastregen' && G['owned_' + id]) { msg('Already purchased!', '#9ca3af'); return; }
     if (G.gold < item.cost) { msg('Need ' + item.cost + ' gold!', '#ef4444'); SFX.play('err'); return; }
     G.gold -= item.cost;
     G.purchases = (G.purchases || 0) + 1;
@@ -1150,7 +1151,7 @@ function buyShopItem(category, id) {
     if (id === 'star1') { G.starPieces++; G.totalStarPieces++; updateStarBtn(); }
     if (id === 'mult5') { G.multQueue.push(5); renderMultQueue(); }
     if (id === 'maxhammers') G.maxH += 5;
-    if (id === 'fastregen') { G.fastRegen = true; G['owned_fastregen'] = true; }
+    if (id === 'fastregen') { G.fastRegen = true; }
 
     SFX.play('buy');
     msg('Purchased!', '#16a34a');
@@ -1629,7 +1630,7 @@ function renderShop() {
   const sGrid = $id('shop-supplies');
   sGrid.innerHTML = '';
   SHOP_SUPPLIES.forEach(s => {
-    const isOwned = s.unique && G['owned_' + s.id];
+    const isOwned = s.unique && (s.id === 'fastregen' ? G.fastRegen : G['owned_' + s.id]);
     const tip = buildSupplyTooltip(s.id);
     const card = document.createElement('div');
     card.className = 'shop-card' + (isOwned ? ' owned' : '');
