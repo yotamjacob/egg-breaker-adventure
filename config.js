@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.5.5';
+const VERSION = '1.5.6';
 
 const CONFIG = {
 
@@ -47,9 +47,9 @@ const CONFIG = {
   //    [min, max] for each gold tier.
   // ----------------------------------------------------------
   goldValues: {
-    gold_s: [5,   15],   // small
-    gold_m: [20,  60],   // medium
-    gold_l: [80, 250],   // large
+    gold_s: [2,   8],    // small
+    gold_m: [10,  30],   // medium
+    gold_l: [40, 120],   // large
   },
 
   // ----------------------------------------------------------
@@ -108,7 +108,7 @@ const CONFIG = {
   featherStageMultiplier: 1.5,  // cost multiplied by this^(stageIndex) — stage1=1x, stage2=1.5x, stage3=2.25x...
 
   // Gold given when you roll a duplicate item
-  duplicateGoldRange: [10, 750],   // [min, max]
+  duplicateGoldRange: [1, 5],   // [min, max]
 
   // ----------------------------------------------------------
   // 9. CRYSTAL BANANAS
@@ -139,7 +139,7 @@ const CONFIG = {
   //     When a multiplier is active and the prize type can't be
   //     multiplied directly (multipliers, items), give bonus gold.
   // ----------------------------------------------------------
-  multBonusGoldBase: 10,   // bonus gold = this x activeMult
+  multBonusGoldBase: 5,   // bonus gold = this x activeMult
 
   // ----------------------------------------------------------
   // 12. DAILY LOGIN
