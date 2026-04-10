@@ -518,6 +518,13 @@ body{
   box-shadow:2px 2px 0 var(--dark);
 }
 .shop-card:hover:not(.owned){transform:translate(-1px,-1px);border-color:var(--gold);box-shadow:3px 3px 0 var(--dark)}
+.shop-card.just-bought{animation:shop-flash .5s steps(4)}
+@keyframes shop-flash{
+  0%{transform:scale(1);border-color:var(--green);box-shadow:0 0 0 var(--green)}
+  30%{transform:scale(1.1);box-shadow:0 0 12px rgba(46,204,113,.6)}
+  60%{transform:scale(.95)}
+  100%{transform:scale(1);box-shadow:2px 2px 0 var(--dark)}
+}
 
 /* Shop card tooltips */
 .shop-card[data-tip]{position:relative;z-index:1}

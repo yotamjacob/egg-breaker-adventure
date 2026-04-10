@@ -1157,8 +1157,15 @@ function buyShopItem(category, id) {
 
   checkAchievements();
   updateResources();
-  renderShop();
-  saveGame();
+  // Flash animation on the card, then re-render
+  const cards = $id('shop-' + (category === 'hammer' ? 'hammers' : category === 'hat' ? 'hats' : 'supplies')).children;
+  for (const c of cards) {
+    if (c.dataset && c.dataset.id === id) {
+      c.classList.add('just-bought');
+      break;
+    }
+  }
+  setTimeout(() => { renderShop(); saveGame(); }, 500);
 }
 
 // ==================== ACHIEVEMENTS ====================
@@ -1588,6 +1595,7 @@ function renderShop() {
     const tip = buildShopTooltip(h.bonus, owned);
     const card = document.createElement('div');
     card.className = 'shop-card' + (owned ? ' owned' : '') + (isCursor ? ' equipped' : '');
+    card.dataset.id = h.id;
     if (tip) card.setAttribute('data-tip', tip);
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
@@ -1609,6 +1617,7 @@ function renderShop() {
     const tip = buildShopTooltip(h.bonus, owned);
     const card = document.createElement('div');
     card.className = 'shop-card' + (owned ? ' owned' : '');
+    card.dataset.id = h.id;
     if (tip) card.setAttribute('data-tip', tip);
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
@@ -1629,6 +1638,7 @@ function renderShop() {
     const tip = buildSupplyTooltip(s.id);
     const card = document.createElement('div');
     card.className = 'shop-card' + (isOwned ? ' owned' : '');
+    card.dataset.id = s.id;
     if (tip) card.setAttribute('data-tip', tip);
     card.innerHTML =
       '<span class="s-emoji">' + s.emoji + '</span>' +
