@@ -1408,7 +1408,7 @@ function renderAlbumStage(stageIdx) {
   let pityExplain = '';
   if (missingCount > 0) {
     pityExplain = '<div class="pity-bar">' +
-      '<span class="pity-info">' + missingCount + ' missing — Items you haven\'t found yet have a higher drop rate.</span>' +
+      '<span class="pity-info">' + missingCount + ' missing — Uncollected items are slightly more likely to drop than duplicates.</span>' +
       '</div>';
   } else {
     pityExplain = '<div class="pity-bar complete">' +
