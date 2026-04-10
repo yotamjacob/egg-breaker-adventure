@@ -34,16 +34,6 @@
       </div>
     </div>
 
-    <!-- ===== Overall progress ===== -->
-    <div class="overall-prog" id="overall-prog" data-tip="">
-      <div class="overall-header">
-        <span class="overall-label">Overall Progress</span>
-        <span class="overall-pct" id="overall-pct">0%</span>
-      </div>
-      <div class="overall-track"><div class="overall-fill" id="overall-fill"></div></div>
-      <div class="overall-detail" id="overall-detail"></div>
-    </div>
-
     <!-- ===== Nav tabs ===== -->
     <nav class="nav-tabs" id="nav-tabs">
       <div class="nav-row">
@@ -131,6 +121,14 @@
 
     <!-- ===== STATS TAB ===== -->
     <section class="tab-panel" id="panel-stats">
+      <div class="overall-prog" id="overall-prog">
+        <div class="overall-header">
+          <span class="overall-label">Overall Progress</span>
+          <span class="overall-pct" id="overall-pct">0%</span>
+        </div>
+        <div class="overall-track"><div class="overall-fill" id="overall-fill"></div></div>
+        <div class="overall-detail" id="overall-detail"></div>
+      </div>
       <h3 class="section-title">Lifetime Stats</h3>
       <div class="life-stats" id="life-stats"></div>
       <button class="reset-btn" onclick="resetGame()">Reset All Progress</button>
