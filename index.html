@@ -209,6 +209,13 @@
           if (typeof smashEgg === 'function') smashEgg(parseInt(idx));
           return;
         }
+        // Monkey switch
+        var monkey = el.getAttribute('data-monkey');
+        if (monkey !== null) {
+          e.preventDefault();
+          if (typeof switchMonkey === 'function') switchMonkey(parseInt(monkey));
+          return;
+        }
         // Feather buy button
         if (el.classList && el.classList.contains('feather-buy-btn')) {
           e.preventDefault();

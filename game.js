@@ -1512,6 +1512,7 @@ function renderMonkeys() {
     const isActive = i === G.activeMonkey;
     const card = document.createElement('div');
     card.className = 'monkey-card' + (isActive ? ' active' : '') + (!mp.unlocked ? ' locked' : '');
+    if (mp.unlocked && !isActive) card.setAttribute('data-monkey', String(i));
 
     let inner = '<span class="m-emoji">' + m.emoji + '</span>';
     inner += '<span class="m-name">' + m.name + '</span>';
