@@ -264,14 +264,17 @@ body{
 .mult-bar{
   flex-shrink:0;
   display:flex;align-items:center;gap:6px;
-  padding:5px 10px;background:var(--bg);border:2px solid var(--purple);
+  padding:5px 8px;background:var(--bg);border:2px solid var(--purple);
   border-radius:2px;margin-bottom:8px;font-size:10px;
-  min-height:30px;
   box-shadow: inset 1px 1px 0 var(--raised), 2px 2px 0 var(--dark);
+  overflow:hidden;
 }
-.mult-label{color:var(--gray);white-space:nowrap}
+.mult-label{color:var(--gray);white-space:nowrap;flex-shrink:0}
 .mult-label strong{color:var(--purple);font-size:12px}
-.mult-queue{display:flex;gap:3px;margin-left:auto;flex-shrink:0}
+.mult-queue{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+  margin-left:auto;flex:1;max-width:70%;
+}
 .starfall-box{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:2px;border:3px solid var(--gold3);border-radius:2px;
@@ -292,10 +295,11 @@ body{
 @keyframes pulse-star{0%,100%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark)}50%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark),0 0 10px rgba(245,197,66,.5)}}
 .mult-chip{
   background:var(--panel);border:2px solid var(--purple);border-radius:1px;
-  padding:2px 4px;font-size:8px;font-family:var(--px);color:var(--purple);
+  padding:3px 2px;font-size:8px;font-family:var(--px);color:var(--purple);
   cursor:pointer;transition:all .08s;
   box-shadow:1px 1px 0 var(--dark);
-  display:flex;align-items:baseline;gap:1px;white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;gap:2px;
+  white-space:nowrap;text-align:center;min-width:0;overflow:hidden;
 }
 .mult-chip:hover:not(.muted){background:var(--panel2);transform:translate(-1px,-1px)}
 .mult-chip.active{
