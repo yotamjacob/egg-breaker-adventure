@@ -1818,10 +1818,10 @@ function renderLexicon() {
 
 // ==================== NAVIGATION ====================
 $id('nav-tabs').addEventListener('click', (e) => {
-  const tab = e.target.closest('.nav-tab');
-  if (!tab) return;
+  const tab = e.target.closest('.nav-tab, .nav-play');
+  if (!tab || tab.disabled) return;
   const name = tab.dataset.tab;
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   tab.classList.add('active');
   $id('panel-' + name).classList.add('active');
@@ -2071,7 +2071,7 @@ if (G.hammers < G.maxH && !regenInt) startRegen();
 
 // Stage bar click → Album tab
 $id('stage-bar').addEventListener('click', () => {
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelector('.nav-tab[data-tab="album"]').classList.add('active');
   $id('panel-album').classList.add('active');
