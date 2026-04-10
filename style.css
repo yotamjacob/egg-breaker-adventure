@@ -587,8 +587,12 @@ body{
 /* ---------- Popups / overlays ---------- */
 .overlay{
   position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;
-  z-index:900;animation:fade-in .15s steps(3);
+  background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  z-index:900;
+  overflow:hidden;
+  touch-action:none;
+  -webkit-overflow-scrolling:auto;
 }
 .overlay.hidden{display:none}
 .popup{
@@ -596,9 +600,9 @@ body{
   border:3px solid var(--gold);border-radius:2px;
   padding:14px 18px;text-align:center;
   display:flex;flex-direction:column;align-items:center;gap:4px;
-  animation:pop-in-retro .3s steps(5);
   box-shadow:4px 4px 0 var(--dark),inset 2px 2px 0 var(--raised);
-  max-width:280px;width:calc(100% - 32px);margin:0 16px;
+  max-width:280px;width:calc(100% - 32px);
+  position:relative;
 }
 .pop-icon{font-size:32px;margin-bottom:2px}
 .pop-icon.spin{animation:spin 2s steps(8) infinite}
