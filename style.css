@@ -325,9 +325,11 @@ body{
 .egg-slot.broken{opacity:.35;cursor:default;filter:grayscale(.4)}
 .egg-slot.smashing{animation:egg-smash-retro .35s steps(6)}
 .egg-slot .egg-label{
-  font-size:8px;color:var(--gray);margin-top:3px;
-  font-family:var(--px);text-transform:uppercase;letter-spacing:1px;
-  text-align:center;width:100%;
+  font-size:6px;color:var(--gray);margin-top:1px;
+  font-family:var(--px);text-transform:uppercase;letter-spacing:0.5px;
+  text-align:center;width:100%;line-height:1.2;
+  position:relative;z-index:1;
+  background:var(--bg2);border-radius:2px;padding:0 2px;
 }
 
 /* ---------- Action row ---------- */

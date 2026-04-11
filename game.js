@@ -416,28 +416,27 @@ function renderEggTray() {
   }
   tray.innerHTML = '';
   // Generate random non-overlapping positions
-  const trayRect = tray.getBoundingClientRect();
   const tW = tray.offsetWidth || 300;
   const tH = tray.offsetHeight || 250;
-  const eW = 76, eH = 100;
+  const eW = 76, eH = 95;
+  const pad = 8; // padding from tray edges
   const positions = [];
 
   function findPos() {
-    for (let attempt = 0; attempt < 50; attempt++) {
-      const x = Math.random() * (tW - eW);
-      const y = Math.random() * (tH - eH);
+    for (let attempt = 0; attempt < 80; attempt++) {
+      const x = pad + Math.random() * (tW - eW - pad * 2);
+      const y = pad + Math.random() * (tH - eH - pad * 2);
       let overlap = false;
       for (const p of positions) {
-        if (Math.abs(x - p.x) < eW * 0.7 && Math.abs(y - p.y) < eH * 0.6) {
+        if (Math.abs(x - p.x) < eW && Math.abs(y - p.y) < eH * 0.8) {
           overlap = true; break;
         }
       }
       if (!overlap) return { x, y };
     }
-    // Fallback: grid position
-    const col = positions.length % 4;
-    const row = Math.floor(positions.length / 4);
-    return { x: col * (eW + 10) + 10, y: row * (eH + 5) + 10 };
+    const col = positions.length % 3;
+    const row = Math.floor(positions.length / 3);
+    return { x: pad + col * (eW + 8), y: pad + row * (eH + 4) };
   }
 
   G.roundEggs.forEach((egg, i) => {
