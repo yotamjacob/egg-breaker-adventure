@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.4.4';
+const VERSION = '4.5.0';
 
 const CONFIG = {
 
@@ -161,4 +161,22 @@ const CONFIG = {
   // ----------------------------------------------------------
   startingHammers:     40,
   startingMaxHammers:  40,
+
+  // ----------------------------------------------------------
+  // 15. REWARD LOG — which message types show in the log
+  //     Set to false to hide that category from the log.
+  // ----------------------------------------------------------
+  logShow: {
+    prizes:     true,   // gold, stars, feathers, hammers, mults, empties
+    items:      true,   // new collection items found
+    duplicates: false,  // duplicate item messages
+    trophies:   true,   // trophy unlocked
+    tiers:      true,   // silver/gold/complete tier-ups
+    starfall:   false,  // "STARFALL! All eggs smashed!"
+    discovery:  true,   // new egg type discovered
+    daily:      true,   // daily reward claimed
+    shop:       true,   // shop purchases
+    noHammers:  true,   // snarky no-hammer messages
+    freeHit:    false,  // "Free hit! (Chef's Hat)"
+  },
 };

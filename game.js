@@ -288,7 +288,7 @@ function claimDaily() {
 
   G.dailyClaimed = true;
   G.totalDailyClaims = (G.totalDailyClaims || 0) + 1;
-  msg('Day ' + G.consecutiveDays + ': ' + reward.label);
+  msg('Day ' + G.consecutiveDays + ': ' + reward.label, 'daily');
   SFX.play('coin');
   checkAchievements();
   updateResources();
@@ -336,7 +336,9 @@ function renderDailyCalendar() {
 function $id(id) { return document.getElementById(id); }
 
 const _logLines = [];
-function msg(text) {
+function msg(text, cat) {
+  const show = CONFIG.logShow || {};
+  if (cat && show[cat] === false) return;
   _logLines.unshift(text);
   if (_logLines.length > 4) _logLines.length = 4;
   renderLog();
@@ -408,7 +410,7 @@ function newRound() {
     if (!G.discoveredEggs.includes(type)) {
       G.discoveredEggs.push(type);
       const def = EGG_REGISTRY[type];
-      msg('New egg discovered: ' + def.emoji + ' ' + def.name + '!');
+      msg('New egg discovered: ' + def.emoji + ' ' + def.name + '!', 'discovery');
       SFX.play('achieve');
       saveGame();
     }
@@ -717,7 +719,7 @@ function smashEgg(index) {
   // Each hit costs 1 hammer
   if (G.hammers < 1) {
     egg._smashing = false;
-    msg(noHammerMsg(), '#ef4444');
+    msg(noHammerMsg(), 'noHammers');
     SFX.play('err');
     return;
   }
@@ -743,7 +745,7 @@ function smashEgg(index) {
 
   if (hasBonus('freeEgg') && Math.random() < 0.1) {
     G.hammers = Math.min(G.maxH, G.hammers + 1);
-    msg('Free hit! (Chef\'s Hat)', '#16a34a');
+    msg('Free hit! (Chef\'s Hat)', 'freeHit');
   }
 
   if (!regenInt && G.hammers < G.maxH) startRegen();
@@ -908,7 +910,7 @@ function applyPrize(prize, cx, cy) {
       SFX.play('item');
       Particles.sparkle(cx, cy, 15, '#F59E0B');
       // Show popup for new item
-      msg('📦 NEW: ' + prize.emoji + ' ' + prize.name);
+      msg('📦 NEW: ' + prize.emoji + ' ' + prize.name, 'items');
       setTimeout(() => showItemPopup(prize), 400);
       // Check collection completion
       checkCollectionComplete();
@@ -918,7 +920,7 @@ function applyPrize(prize, cx, cy) {
       const dupeGold = dRange[0] + Math.floor(Math.random() * (dRange[1] - dRange[0] + 1));
       G.gold += dupeGold;
       G.totalGold += dupeGold;
-      msg('Duplicate! +' + dupeGold + ' gold', '#78716c');
+      msg('Duplicate! +' + dupeGold + ' gold', 'duplicates');
       SFX.play('coin');
     }
     if (prize.bonusGold) {
@@ -937,7 +939,7 @@ function useStarfall() {
   G.starPieces -= CONFIG.starPiecesForStarfall;
   G.starfallsUsed++;
   SFX.play('starfall');
-  msg('STARFALL! All eggs smashed!', '#f59e0b');
+  msg('STARFALL! All eggs smashed!', 'starfall');
 
   const wrap = $id('egg-tray-wrap');
   wrap.style.animation = 'starfall-glow 1s ease';
@@ -1033,7 +1035,7 @@ function checkCollectionComplete() {
         'Silver Tier!',
         stage.name + ' - +' + reward.maxHammers + ' max hammers'
       );
-      msg('⬆️ Silver Tier! ' + stage.name + ' +' + reward.maxHammers + ' max hammers');
+      msg('⬆️ Silver Tier! ' + stage.name + ' +' + reward.maxHammers + ' max hammers', 'tiers');
 
     } else if (newTier === 2) {
       // Silver → Gold: unlock next stage
@@ -1052,7 +1054,7 @@ function checkCollectionComplete() {
         (nextName ? '\nNext stage unlocked: ' + nextName + '!' : '') +
         '\nKeep going for 100% to earn a Crystal Banana!'
       );
-      msg('🥇 Gold Tier! ' + stage.name + (nextName ? ' — ' + nextName + ' unlocked' : ''));
+      msg('🥇 Gold Tier! ' + stage.name + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
 
     } else if (newTier >= 3) {
       // Gold → Complete: banana reward
@@ -1070,7 +1072,7 @@ function checkCollectionComplete() {
         stage.name + ' - 100%! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana' +
         (nextName ? '\nNext up: ' + nextName + '!' : '')
       );
-      msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌');
+      msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌', 'tiers');
       // Check if ALL stages are complete
       if (prog.tiers.every(t => t >= 3)) {
         prog.completed = true;
@@ -1503,7 +1505,7 @@ function checkAchievements() {
       invalidateAchieveCache();
       grantAchievementReward(a);
       showAchieveToast(a);
-      msg('🏆 Trophy: ' + a.name + (a.reward ? ' — ' + a.reward.label : ''));
+      msg('🏆 Trophy: ' + a.name + (a.reward ? ' — ' + a.reward.label : ''), 'trophies');
       SFX.play('achieve');
     }
   }
