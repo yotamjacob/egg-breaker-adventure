@@ -459,4 +459,10 @@ const ACHIEVEMENT_DATA = [
   { id:'bigwin_50000', name:'Legendary Loot',      desc:'Win 50,000+ gold in one smash', icon:'🌟', reward:{type:'goldPct',val:10,    label:'+10% gold from eggs'} },
   // -- Hammer overflow --
   { id:'overflow',     name:'Overloaded',          desc:'Have more hammers than your max',icon:'📦', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  // -- Empties --
+  { id:'empty_10',     name:'Bad Luck',            desc:'Get 10 empties',                 icon:'💨', reward:{type:'gold',val:100,      label:'+100 gold'} },
+  { id:'empty_50',     name:'Consistently Unlucky',desc:'Get 50 empties',                 icon:'🕳️', reward:{type:'gold',val:500,      label:'+500 gold'} },
+  { id:'empty_200',    name:'Professional Loser',  desc:'Get 200 empties',                icon:'🤡', reward:{type:'gold',val:2000,     label:'+2,000 gold'} },
+  { id:'empty_500',    name:'Empty Inside',        desc:'Get 500 empties',                icon:'👻', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  { id:'empty_1000',   name:'Void Master',         desc:'Get 1,000 empties. Yay?',        icon:'🌀', reward:{type:'gold',val:10000,    label:'+10,000 gold'} },
 ];

@@ -147,7 +147,7 @@ const DEFAULT_STATE = {
   // Regen
   regenCD: CONFIG.regenInterval, fastRegen: false,
   // Stats
-  totalEggs: 0, totalGold: 0, totalStarPieces: 0, totalFeathers: 0,
+  totalEggs: 0, totalEmpties: 0, totalGold: 0, totalStarPieces: 0, totalFeathers: 0,
   totalItems: 0, biggestWin: 0, highestMult: 1,
   starfallsUsed: 0, collectionsCompleted: 0, stagesCompleted: 0,
   roundClears: 0, feathersBought: 0, maxMultUsed: 0,
@@ -767,9 +767,17 @@ function applyPrize(prize, cx, cy) {
   const zone = $id('prize-zone');
 
   if (prize.type === 'empty') {
-    spawnFloat(zone, 'Empty!', '#9ca3af', '', cx, cy);
-    msg('Nothing this time...');
+    const emptyCount = G.activeMult > 1 ? G.activeMult : 1;
+    G.totalEmpties = (G.totalEmpties || 0) + emptyCount;
+    if (emptyCount > 1) {
+      spawnFloat(zone, emptyCount + ' empties!', '#9ca3af', '', cx, cy);
+      msg(emptyCount + ' empties! Lucky you...');
+    } else {
+      spawnFloat(zone, 'Empty!', '#9ca3af', '', cx, cy);
+      msg('Nothing this time...');
+    }
     SFX.play('empty');
+    checkAchievements();
     return;
   }
 
@@ -1433,6 +1441,12 @@ function checkAchievements() {
     bigwin_50000: () => G.biggestWin >= 50000,
     // Hammer overflow
     overflow:     () => G.hammers > G.maxH,
+    // Empties
+    empty_10:     () => (G.totalEmpties || 0) >= 10,
+    empty_50:     () => (G.totalEmpties || 0) >= 50,
+    empty_200:    () => (G.totalEmpties || 0) >= 200,
+    empty_500:    () => (G.totalEmpties || 0) >= 500,
+    empty_1000:   () => (G.totalEmpties || 0) >= 1000,
   };
 
   for (const a of ACHIEVEMENT_DATA) {
@@ -1841,6 +1855,7 @@ function renderShop() {
 function renderStats() {
   $id('life-stats').innerHTML = [
     ['Eggs broken', G.totalEggs],
+    ['Empties', G.totalEmpties || 0],
     ['Gold earned', formatNum(G.totalGold)],
     ['Star pieces', G.totalStarPieces],
     ['Feathers', G.totalFeathers],
