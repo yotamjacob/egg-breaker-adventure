@@ -6,75 +6,64 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.1.0';
+const VERSION = '4.2.0';
 
 const CONFIG = {
 
   // ----------------------------------------------------------
-  // 1. EGG SPAWNING
-  //    Relative weights — higher = more common.
-  //    A "normal:75, silver:18, gold:7" means ~75% normal, ~18% silver, ~7% gold.
+  // 1. EGG TYPES — single source of truth for all egg properties.
+  //    To add a new egg: just append an entry here. Everything
+  //    else (SVG, particles, prizes, spawning) reads from this.
   // ----------------------------------------------------------
-  eggSpawnWeights: {
-    normal: 80,
-    silver: 15,
-    gold:   5,
-    crystal: 2,   // unlocks from stage 3
-  },
-
-  // HP per egg type (hits to break)
-  eggHP: {
-    normal: 1,
-    silver: 2,
-    gold:   3,
-    crystal: 4,
-  },
-
-  // Stage index at which each egg type starts spawning (0-based)
-  eggUnlockStage: {
-    normal: 0,
-    silver: 0,
-    gold:   0,
-    crystal: 2,   // stage 3+
-  },
+  eggTypes: [
+    {
+      id: 'normal', name: 'Normal', emoji: '🥚',
+      hp: 1, spawnWeight: 80, unlockStage: 0,
+      goldMult: 1, featherMult: 1, starPieces: 1,
+      colors: { f:'#FEF9F0', s:'#D4A853', h:'#fff8e0', sh:'#b8922e' },
+      particles: ['#ffe8b0','#e8c878','#d4a840','#c09028'],
+      prizes: { empty:12, gold_s:22, gold_m:13, gold_l:5, star:8, mult:7, feather:5, item:15, hammers:0 },
+      desc: 'Can be empty',
+    },
+    {
+      id: 'silver', name: 'Silver', emoji: '🪨',
+      hp: 2, spawnWeight: 15, unlockStage: 0,
+      goldMult: 2, featherMult: 2, starPieces: 2,
+      colors: { f:'#d8dde3', s:'#8899aa', h:'#eceff2', sh:'#667788' },
+      particles: ['#c8d8e8','#a0b8c8','#88a0b0','#6888a0'],
+      prizes: { empty:0, gold_s:10, gold_m:18, gold_l:12, star:10, mult:10, feather:5, item:20, hammers:8 },
+      desc: 'Never empty, 2x prizes, can drop bonus hammers',
+    },
+    {
+      id: 'gold', name: 'Gold', emoji: '🌟',
+      hp: 3, spawnWeight: 5, unlockStage: 0,
+      goldMult: 1.5, featherMult: 1, starPieces: 1,
+      colors: { f:'#FFD700', s:'#B8860B', h:'#ffe44d', sh:'#8B6508' },
+      particles: ['#FFD700','#FFA500','#FF8C00','#DAA520'],
+      prizes: { empty:0, gold_s:0, gold_m:15, gold_l:20, star:12, mult:10, feather:4, item:25, hammers:7 },
+      desc: 'Never empty, 1.5x gold, best item drop rate',
+    },
+    {
+      id: 'crystal', name: 'Crystal', emoji: '🔮',
+      hp: 4, spawnWeight: 2, unlockStage: 2,
+      goldMult: 2, featherMult: 1, starPieces: 3,
+      colors: { f:'#E0D0FF', s:'#8B5CF6', h:'#F0E8FF', sh:'#6D28D9' },
+      particles: ['#E0D0FF','#C4B5FD','#A78BFA','#8B5CF6'],
+      prizes: { empty:0, gold_s:0, gold_m:5, gold_l:30, star:15, mult:12, feather:6, item:30, hammers:10 },
+      desc: 'Stage 3+. Never empty, 2x gold, 3 star pieces, rarest drops',
+    },
+  ],
 
   // ----------------------------------------------------------
-  // 2. PRIZE TYPE WEIGHTS (per egg type)
-  //    What kind of reward drops when an egg breaks.
-  //    Relative weights — they don't need to sum to 100.
-  //
-  //    Types: empty, gold_s, gold_m, gold_l, star, mult,
-  //           feather, item, hammers
-  // ----------------------------------------------------------
-  prizeWeights: {
-    normal: { empty:12, gold_s:22, gold_m:13, gold_l:5,  star:8,  mult:7,  feather:5, item:15, hammers:0 },
-    silver: { empty:0,  gold_s:10, gold_m:18, gold_l:12, star:10, mult:10, feather:5, item:20, hammers:8 },
-    gold:   { empty:0,  gold_s:0,  gold_m:15, gold_l:20, star:12, mult:10, feather:4, item:25, hammers:7 },
-    crystal:{ empty:0,  gold_s:0,  gold_m:5,  gold_l:30, star:15, mult:12, feather:6, item:30, hammers:10 },
-  },
-
-  // ----------------------------------------------------------
-  // 3. GOLD DROP RANGES
-  //    [min, max] for each gold tier.
+  // 2. GOLD DROP RANGES
   // ----------------------------------------------------------
   goldValues: {
-    gold_s: [2,   8],    // small
-    gold_m: [10,  30],   // medium
-    gold_l: [40, 120],   // large
+    gold_s: [2,   8],
+    gold_m: [10,  30],
+    gold_l: [40, 120],
   },
 
-  // ----------------------------------------------------------
-  // 4. STAR PIECES (Starfall Shards)
-  //    Drop chance is controlled by prizeWeights above.
-  //    These control how many pieces drop per find.
-  // ----------------------------------------------------------
-  starPiecesPerDrop: {
-    normal: 1,
-    silver: 2,
-    gold:   1,
-    crystal: 3,   // crystal eggs give triple
-  },
-  starPiecesForStarfall: 5,   // how many needed to trigger starfall
+  starPiecesForStarfall: 5,
 
   // ----------------------------------------------------------
   // 5. FEATHERS

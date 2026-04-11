@@ -374,12 +374,20 @@ const SHOP_SUPPLIES = [
 ];
 
 // All tuning values are read from CONFIG (config.js)
-const PRIZE_WEIGHTS  = CONFIG.prizeWeights;
+// Egg type registry — keyed by id for O(1) lookup
+const EGG_REGISTRY = {};
+const EGG_HP = {};
+const EGG_SPAWN_WEIGHTS = {};
+const PRIZE_WEIGHTS = {};
+CONFIG.eggTypes.forEach(function(def) {
+  EGG_REGISTRY[def.id] = def;
+  EGG_HP[def.id] = def.hp;
+  EGG_SPAWN_WEIGHTS[def.id] = def.spawnWeight;
+  PRIZE_WEIGHTS[def.id] = def.prizes;
+});
 const GOLD_VALUES    = CONFIG.goldValues;
 const MULT_VALUES    = CONFIG.multiplierValues;
 const HAMMER_PRIZES  = CONFIG.hammerPrizeAmounts;
-const EGG_HP         = CONFIG.eggHP;
-const EGG_SPAWN_WEIGHTS = CONFIG.eggSpawnWeights;
 
 // reward: { type, value } — applied permanently when unlocked
 // types: maxH (max hammers), gold (flat gold), feathers, starPieces, goldPct (% gold bonus), itemPct (% item bonus), hammerRegen (seconds off regen)

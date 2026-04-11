@@ -52,12 +52,9 @@ const SFX = (() => {
 // ==================== PARTICLES ====================
 const Particles = (() => {
   let canvas, ctx, ps = [], running = false;
-  const COLORS = {
-    normal: ['#ffe8b0','#e8c878','#d4a840','#c09028'],
-    silver: ['#c8d8e8','#a0b8c8','#88a0b0','#6888a0'],
-    gold:   ['#FFD700','#FFA500','#FF8C00','#DAA520'],
-    crystal:['#E0D0FF','#C4B5FD','#A78BFA','#8B5CF6'],
-  };
+  // Particle colors derived from egg registry
+  const COLORS = {};
+  CONFIG.eggTypes.forEach(function(def) { COLORS[def.id] = def.particles; });
   function init(c) { canvas = c; ctx = c.getContext('2d'); resize(); window.addEventListener('resize', resize); }
   function resize() {
     if (!canvas.parentElement) return;
@@ -384,12 +381,11 @@ function newRound() {
   const count = stage.eggs;
   const eggs = [];
   const si = curActiveStage();
-  const unlockStages = CONFIG.eggUnlockStage || {};
-  // Build available egg types for this stage
+  // Build available egg types for this stage from registry
   const available = [];
-  for (const [type, weight] of Object.entries(EGG_SPAWN_WEIGHTS)) {
-    if ((unlockStages[type] || 0) <= si) {
-      available.push({ type, weight });
+  for (const def of CONFIG.eggTypes) {
+    if (def.unlockStage <= si) {
+      available.push({ type: def.id, weight: def.spawnWeight });
     }
   }
   const spawnTotal = available.reduce((s, e) => s + e.weight, 0);
@@ -412,13 +408,8 @@ function newRound() {
 // ==================== EGG RENDERING (16-bit pixel style) ====================
 // damage: 0 = pristine, 1 = light cracks, 2 = heavy cracks, 3+ = broken
 function makeEggSVG(type, damage) {
-  const colors = {
-    normal: { f: '#FEF9F0', s: '#D4A853', h: '#fff8e0', sh: '#b8922e' },
-    silver: { f: '#d8dde3', s: '#8899aa', h: '#eceff2', sh: '#667788' },
-    gold:   { f: '#FFD700', s: '#B8860B', h: '#ffe44d', sh: '#8B6508' },
-    crystal:{ f: '#E0D0FF', s: '#8B5CF6', h: '#F0E8FF', sh: '#6D28D9' },
-  };
-  const c = colors[type] || colors.normal;
+  const def = EGG_REGISTRY[type] || EGG_REGISTRY.normal;
+  const c = def.colors;
   const crk = '#5a3010';
   let cracks = '';
   if (damage >= 1) {
@@ -504,9 +495,8 @@ function renderEggTray() {
   G.roundEggs.forEach((egg, i) => {
     const pos = positions[i];
     const slot = document.createElement('div');
-    slot.className = 'egg-slot' + (egg.broken ? ' broken' : '') +
-      (egg.type === 'gold' ? ' gold-egg' : '') +
-      (egg.type === 'crystal' ? ' crystal-egg' : '');
+    const eggDef = EGG_REGISTRY[egg.type];
+    slot.className = 'egg-slot' + (egg.broken ? ' broken' : '');
     slot.style.left = pos.x + 'px';
     slot.style.top = pos.y + 'px';
     const damage = egg.maxHp - egg.hp;
@@ -554,15 +544,16 @@ function rollPrize(eggType) {
 }
 
 function resolvePrize(type, eggType) {
-  const silverMult = eggType === 'silver' ? 2 : 1;
-  const goldMult = eggType === 'gold' ? 1.5 : eggType === 'crystal' ? 2 : 1;
+  const eDef = EGG_REGISTRY[eggType] || EGG_REGISTRY.normal;
+  const featherMult = eDef.featherMult || 1;
+  const goldMult = eDef.goldMult || 1;
 
   if (type === 'empty') return { type: 'empty', value: 0, label: 'Empty!', color: '#9ca3af' };
 
   if (type.startsWith('gold_')) {
     const range = GOLD_VALUES[type];
     const baseVal = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
-    let val = Math.round(baseVal * G.activeMult * silverMult * goldMult);
+    let val = Math.round(baseVal * G.activeMult * goldMult);
     if (hasBonus('moreGold')) val = Math.round(val * 1.2);
     if (hasBonus('goldBoost')) val = Math.round(val * 1.1);
     const ab = getAchievementBonuses();
@@ -573,7 +564,7 @@ function resolvePrize(type, eggType) {
 
   if (type === 'feather') {
     const fRange = CONFIG.featherDropRange;
-    const baseVal = Math.ceil((fRange[0] + Math.random() * (fRange[1] - fRange[0])) * silverMult);
+    const baseVal = Math.ceil((fRange[0] + Math.random() * (fRange[1] - fRange[0])) * featherMult);
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'feather', value: val, baseVal, usedMult, label: '+' + val + ' feather' + (val > 1 ? 's' : ''), color: '#059669' };
@@ -587,7 +578,7 @@ function resolvePrize(type, eggType) {
   }
 
   if (type === 'star') {
-    const baseVal = CONFIG.starPiecesPerDrop[eggType] || CONFIG.starPiecesPerDrop.normal;
+    const baseVal = eDef.starPieces || 1;
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'star', value: val, baseVal, usedMult, label: '+' + val + ' star piece' + (val > 1 ? 's' : ''), color: '#f59e0b' };
@@ -763,9 +754,9 @@ function smashEgg(index) {
   G.totalEggs++;
 
   // Track egg type smashes
-  if (egg.type === 'silver') G.silverSmashed = (G.silverSmashed || 0) + 1;
-  if (egg.type === 'gold') G.goldSmashed = (G.goldSmashed || 0) + 1;
-  if (egg.type === 'crystal') G.crystalSmashed = (G.crystalSmashed || 0) + 1;
+  if (egg.type !== 'normal') {
+    G[egg.type + 'Smashed'] = (G[egg.type + 'Smashed'] || 0) + 1;
+  }
 
   // Roll prize
   const prize = rollPrize(egg.type);
@@ -1941,10 +1932,15 @@ function formatNum(n) {
 // ==================== LEXICON ====================
 function buildLexicon() {
   const C = CONFIG;
-  const spawnTotal = Object.values(C.eggSpawnWeights).reduce((a, b) => a + b, 0);
-  const pct = (type) => (C.eggSpawnWeights[type] / spawnTotal * 100).toFixed(0);
+  const spawnTotal = C.eggTypes.reduce((s, d) => s + d.spawnWeight, 0);
+  const pct = (type) => {
+    const d = C.eggTypes.find(e => e.id === type);
+    return d ? (d.spawnWeight / spawnTotal * 100).toFixed(0) : '0';
+  };
   const emptyPct = (type) => {
-    const w = C.prizeWeights[type];
+    const d = C.eggTypes.find(e => e.id === type);
+    if (!d) return '0';
+    const w = d.prizes;
     const t = Object.values(w).reduce((a,b) => a + b, 0);
     return (w.empty / t * 100).toFixed(0);
   };
@@ -1973,10 +1969,7 @@ function buildLexicon() {
 <p>Each hit costs <strong>1 hammer</strong>. Eggs spawn randomly each round — rarer eggs take more hits but give better prizes.</p>
 <table class="lex-table">
 <tr><th>Egg</th><th>HP</th><th>Spawn Rate</th><th>Special</th></tr>
-<tr><td>🥚 Normal</td><td class="num">${C.eggHP.normal}</td><td class="num">~${pct('normal')}%</td><td>Can be empty (~${emptyPct('normal')}%)</td></tr>
-<tr><td>🪨 Silver</td><td class="num">${C.eggHP.silver}</td><td class="num">~${pct('silver')}%</td><td>Never empty, 2x prizes, can drop bonus hammers</td></tr>
-<tr><td>🌟 Gold</td><td class="num">${C.eggHP.gold}</td><td class="num">~${pct('gold')}%</td><td>Never empty, 1.5x gold, best item drop rate</td></tr>
-<tr><td>🔮 Crystal</td><td class="num">${C.eggHP.crystal}</td><td class="num">~${pct('crystal')}%</td><td>Stage 3+. Never empty, 2x gold, 3 star pieces, rarest drops</td></tr>
+${C.eggTypes.map(d => '<tr><td>' + d.emoji + ' ' + d.name + '</td><td class="num">' + d.hp + '</td><td class="num">~' + pct(d.id) + '%</td><td>' + d.desc + '</td></tr>').join('')}
 </table>
 <p>You start with <strong>${C.startingHammers} hammers</strong>. They regenerate at +1 every ${C.regenInterval}s (${C.fastRegenInterval}s with Fast Regen from the shop). Daily login gives ${C.dailyBaseHammers} + up to ${C.dailyBonusCap} bonus hammers based on your streak. Tier-ups also increase your max.</p>
 `
@@ -1985,7 +1978,7 @@ function buildLexicon() {
     id: 'prizes', icon: '🎁', title: 'What\'s Inside',
     html: () => `
 <p><strong>Gold</strong> — main currency (${minGold}–${maxGold} base, boosted by egg type, multipliers, and equipment). Spend it in the shop.</p>
-<p><strong>Star Pieces</strong> — collect ${C.starPiecesForStarfall} to trigger <strong>Starfall</strong>, which smashes all remaining eggs for free. Normal/Gold eggs drop ${C.starPiecesPerDrop.normal}, Silver drops ${C.starPiecesPerDrop.silver}.</p>
+<p><strong>Star Pieces</strong> — collect ${C.starPiecesForStarfall} to trigger <strong>Starfall</strong>, which smashes all remaining eggs for free. ${C.eggTypes.map(d => d.name + ': ' + d.starPieces).join(', ')}.</p>
 <p><strong>Multipliers</strong> — ${uniqueMults.map(v => 'x' + v).join(', ')}. Stored in a queue. Click one to activate it before your next smash — it boosts gold, feathers, stars, and hammers. Other prizes get bonus gold.</p>
 <p><strong>Feathers</strong> — spend in the Album tab to buy missing items directly (${fMin}–${fMax} per drop, doubled from silver eggs). Prices increase with stage and rarity.</p>
 <p><strong>Collection Items</strong> — themed items for the current stage. New ones count toward completion. Duplicates convert to ${dupMin}–${dupMax} gold.</p>
