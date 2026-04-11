@@ -320,8 +320,7 @@ function spawnFloat(zone, text, color, cls) {
   setTimeout(() => el.remove(), cls === 'mega' ? 3200 : cls === 'big' ? 2700 : 2200);
 }
 
-function shake(level) {
-  const el = $id('egg-tray-wrap');
+function shake(el, level) {
   el.classList.remove('shake-sm', 'shake-md', 'shake-lg');
   void el.offsetWidth;
   el.classList.add('shake-' + level);
@@ -681,7 +680,7 @@ function smashEgg(index) {
   const cy = rect.top - wrapRect.top + rect.height / 2;
   const particleCount = 4 + (egg.maxHp - egg.hp) * 3;
   Particles.emit(cx, cy, egg.type, particleCount);
-  shake(egg.hp <= 0 ? 'md' : 'sm');
+  shake(slot, egg.hp <= 0 ? 'md' : 'sm');
 
   if (egg.hp > 0) {
     // Egg damaged but not broken — update visual with cracks
@@ -887,7 +886,7 @@ function useStarfall() {
       const cy = rect.top - wrapRect.top + rect.height / 2;
       Particles.emit(cx, cy, egg.type, 14);
       Particles.sparkle(cx, cy, 8, '#FFD700');
-      shake('sm');
+      shake(slot, 'sm');
       SFX.play('hit');
 
       const prize = rollPrize(egg.type);
