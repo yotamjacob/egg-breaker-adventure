@@ -1149,7 +1149,7 @@ function switchMonkey(index) {
 
 function unlockMonkey(index) {
   if (G.crystalBananas < MONKEY_DATA[index].cost) {
-    msg('Need ' + MONKEY_DATA[index].cost + ' Crystal Bananas!', '#ef4444');
+    showAlert('🍌', 'Need ' + MONKEY_DATA[index].cost + ' Crystal Bananas! (have ' + G.crystalBananas + ')');
     SFX.play('err');
     return;
   }
@@ -1181,7 +1181,17 @@ function updateAutoBuyBtn() {
   }
 }
 
+function showAlert(icon, text) {
+  showConfirm(icon, text, '', null);
+  $id('confirm-yes').style.display = 'none';
+  const noBtn = $id('overlay-confirm').querySelector('.confirm-no');
+  if (noBtn) noBtn.textContent = 'OK';
+}
+
 function showConfirm(icon, title, detail, onYes) {
+  $id('confirm-yes').style.display = '';
+  const noBtn = $id('overlay-confirm').querySelector('.confirm-no');
+  if (noBtn) noBtn.textContent = 'Cancel';
   $id('confirm-icon').textContent = icon;
   $id('confirm-title').textContent = title;
   $id('confirm-detail').textContent = detail;
@@ -1228,7 +1238,7 @@ function doBuyShopItem(category, id) {
       saveGame();
       return;
     }
-    if (G.gold < item.cost) { msg('Need ' + item.cost + ' gold!', '#ef4444'); SFX.play('err'); return; }
+    if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
     G.gold -= item.cost;
     G.ownedHammers.push(id);
     invalidateBonusCache();
@@ -1246,7 +1256,7 @@ function doBuyShopItem(category, id) {
       msg('Already owned — bonus is always active!', '#9ca3af');
       return;
     }
-    if (G.gold < item.cost) { msg('Need ' + item.cost + ' gold!', '#ef4444'); SFX.play('err'); return; }
+    if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
     G.gold -= item.cost;
     G.ownedHats.push(id);
     invalidateBonusCache();
@@ -1261,7 +1271,7 @@ function doBuyShopItem(category, id) {
     if (!item) return;
     if (id === 'fastregen' && G.fastRegen) { msg('Already purchased!', '#9ca3af'); return; }
     if (item.unique && id !== 'fastregen' && G['owned_' + id]) { msg('Already purchased!', '#9ca3af'); return; }
-    if (G.gold < item.cost) { msg('Need ' + item.cost + ' gold!', '#ef4444'); SFX.play('err'); return; }
+    if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
     G.gold -= item.cost;
     G.purchases = (G.purchases || 0) + 1;
 
@@ -1632,7 +1642,7 @@ function renderAlbumStage(stageIdx) {
 
 function buyAlbumItem(stageIdx, itemIdx, cost) {
   if (G.feathers < cost) {
-    msg('Need ' + cost + ' feathers!', '#ef4444');
+    showAlert('🪶', 'Need ' + cost + ' feathers! (have ' + G.feathers + ')');
     SFX.play('err');
     return;
   }
