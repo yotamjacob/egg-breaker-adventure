@@ -389,8 +389,13 @@ body{
 }
 
 /* ---------- Status row ---------- */
-.status-row{display:flex;justify-content:space-between;font-size:9px;min-height:14px;margin-bottom:2px;flex-shrink:0}
-#status-txt{color:var(--gold)}
+.reward-log{
+  flex-shrink:0;font-size:7px;font-family:var(--px);
+  line-height:1.6;padding:2px 4px;
+  max-height:36px;overflow:hidden;
+}
+.reward-log .log-line{color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reward-log .log-line:first-child{color:var(--gold)}
 
 /* ---------- Daily panel & box ---------- */
 .daily-panel{padding:4px 0}

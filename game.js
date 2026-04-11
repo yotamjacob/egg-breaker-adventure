@@ -304,12 +304,18 @@ function claimDaily() {
 // ==================== HELPERS ====================
 function $id(id) { return document.getElementById(id); }
 
-function msg(text, color) {
-  const el = $id('status-txt');
-  el.style.color = color || '#d97706';
-  el.textContent = text;
-  clearTimeout(el._t);
-  el._t = setTimeout(() => { el.textContent = ''; }, 2800);
+const _logLines = [];
+function msg(text) {
+  _logLines.unshift(text);
+  if (_logLines.length > 3) _logLines.length = 3;
+  renderLog();
+}
+function renderLog() {
+  const el = $id('reward-log');
+  if (!el) return;
+  el.innerHTML = _logLines.map((l, i) =>
+    '<div class="log-line">' + l + '</div>'
+  ).join('');
 }
 
 function spawnFloat(zone, text, color, cls) {
@@ -825,6 +831,7 @@ function applyPrize(prize, cx, cy) {
       SFX.play('item');
       Particles.sparkle(cx, cy, 15, '#F59E0B');
       // Show popup for new item
+      msg('📦 NEW: ' + prize.emoji + ' ' + prize.name);
       setTimeout(() => showItemPopup(prize), 400);
       // Check collection completion
       checkCollectionComplete();
@@ -949,6 +956,7 @@ function checkCollectionComplete() {
         'Silver Tier!',
         stage.name + ' - +' + reward.maxHammers + ' max hammers'
       );
+      msg('⬆️ Silver Tier! ' + stage.name + ' +' + reward.maxHammers + ' max hammers');
 
     } else if (newTier === 2) {
       // Silver → Gold: unlock next stage
@@ -967,6 +975,7 @@ function checkCollectionComplete() {
         (nextName ? '\nNext stage unlocked: ' + nextName + '!' : '') +
         '\nKeep going for 100% to earn a Crystal Banana!'
       );
+      msg('🥇 Gold Tier! ' + stage.name + (nextName ? ' — ' + nextName + ' unlocked' : ''));
 
     } else if (newTier >= 3) {
       // Gold → Complete: banana reward
@@ -984,6 +993,7 @@ function checkCollectionComplete() {
         stage.name + ' - 100%! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana' +
         (nextName ? '\nNext up: ' + nextName + '!' : '')
       );
+      msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌');
       // Check if ALL stages are complete
       if (prog.tiers.every(t => t >= 3)) {
         prog.completed = true;
@@ -1373,6 +1383,7 @@ function checkAchievements() {
       invalidateAchieveCache();
       grantAchievementReward(a);
       showAchieveToast(a);
+      msg('🏆 Trophy: ' + a.name + (a.reward ? ' — ' + a.reward.label : ''));
       SFX.play('achieve');
     }
   }
