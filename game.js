@@ -1748,7 +1748,14 @@ function renderMonkeys() {
 
     if (mp.unlocked) {
       const stageNum = mp.completed ? m.stages.length : mp.stage + 1;
-      inner += '<span class="m-progress">Stage ' + stageNum + '/' + m.stages.length + '</span>';
+      let totalItems = 0, foundItems = 0;
+      m.stages.forEach((s, si) => {
+        totalItems += s.collection.items.length;
+        if (mp.collections[si]) foundItems += mp.collections[si].filter(Boolean).length;
+      });
+      const pct = totalItems > 0 ? Math.round(foundItems / totalItems * 100) : 0;
+      inner += '<span class="m-progress">Stage ' + stageNum + '/' + m.stages.length + ' — ' + pct + '%</span>';
+      inner += '<div class="m-prog-track"><div class="m-prog-fill" style="width:' + pct + '%"></div></div>';
     } else {
       inner += '<span class="m-cost">' + m.cost + ' 🍌 Crystal Bananas</span>';
       inner += '<button class="monkey-unlock-btn" data-unlock="' + i + '">Unlock</button>';

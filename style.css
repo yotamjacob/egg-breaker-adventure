@@ -448,7 +448,16 @@ body{
 .monkey-card .m-name{font-size:10px;color:var(--white);text-shadow:1px 1px 0 var(--dark)}
 .monkey-card .m-perk{font-size:8px;color:var(--gray)}
 .monkey-card .m-cost{font-size:9px;color:var(--amber);margin-top:2px}
-.monkey-card .m-progress{font-size:9px;color:var(--green)}
+.monkey-card .m-progress{font-size:8px;color:var(--green)}
+.m-prog-track{
+  width:100%;height:6px;background:var(--dark);border:1px solid #444;
+  border-radius:1px;margin-top:3px;overflow:hidden;pointer-events:none;
+}
+.m-prog-fill{
+  height:100%;
+  background:repeating-linear-gradient(90deg,var(--green),var(--green) 3px,var(--green2) 3px,var(--green2) 6px);
+  border-radius:0;transition:width .3s steps(15);
+}
 .monkey-unlock-btn{
   margin-top:4px;background:var(--gold);color:var(--dark);border:2px solid var(--gold2);
   border-radius:2px;padding:4px 12px;font-size:8px;font-family:var(--px);
