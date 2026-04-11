@@ -150,6 +150,7 @@ const DEFAULT_STATE = {
   starfallsUsed: 0, collectionsCompleted: 0, stagesCompleted: 0,
   roundClears: 0, feathersBought: 0, maxMultUsed: 0,
   achieved: [],
+  discoveredEggs: ['normal','silver','gold'], // egg types the player has seen
   soundOn: true,
   autoBuy: false,
 };
@@ -369,6 +370,10 @@ function shake(el, level) {
   el.classList.add('shake-' + level);
 }
 
+function isEggDiscovered(id) {
+  return G.discoveredEggs && G.discoveredEggs.includes(id);
+}
+
 function curMonkey() { return MONKEY_DATA[G.activeMonkey]; }
 function curProgress() { return G.monkeys[G.activeMonkey]; }
 function curActiveStage() { return curProgress().activeStage !== undefined ? curProgress().activeStage : curProgress().stage; }
@@ -398,6 +403,15 @@ function newRound() {
     }
     const hp = EGG_HP[type];
     eggs.push({ type, hp, maxHp: hp, broken: false });
+    // Discover new egg type
+    if (!G.discoveredEggs) G.discoveredEggs = ['normal','silver','gold'];
+    if (!G.discoveredEggs.includes(type)) {
+      G.discoveredEggs.push(type);
+      const def = EGG_REGISTRY[type];
+      msg('New egg discovered: ' + def.emoji + ' ' + def.name + '!');
+      SFX.play('achieve');
+      saveGame();
+    }
   }
   G.roundEggs = eggs;
   renderEggTray();
@@ -1905,20 +1919,34 @@ function renderStats() {
   ].map(([k, v]) => '<span>' + k + ': <strong>' + v + '</strong></span>').join('');
 }
 
+// Check if a trophy should be hidden (belongs to an undiscovered egg type)
+function isTrophyHidden(a) {
+  const secretEggs = CONFIG.eggTypes.filter(d => !isEggDiscovered(d.id));
+  return secretEggs.some(d => a.id.startsWith(d.id + '_'));
+}
+
 function renderAchievements() {
   const grid = $id('achieve-grid');
   grid.innerHTML = '';
   ACHIEVEMENT_DATA.forEach(a => {
+    const hidden = isTrophyHidden(a);
     const unlocked = G.achieved.includes(a.id);
     const card = document.createElement('div');
     card.className = 'achieve-card ' + (unlocked ? 'unlocked' : 'locked');
-    const rewardLabel = a.reward ? a.reward.label : '';
-    card.innerHTML =
-      '<span class="a-icon">' + a.icon + '</span>' +
-      '<div><span class="a-name">' + a.name + '</span><br>' +
-      '<span class="a-desc">' + a.desc + '</span>' +
-      (rewardLabel ? '<br><span class="a-reward">' + rewardLabel + '</span>' : '') +
-      '</div>';
+    if (hidden) {
+      card.innerHTML =
+        '<span class="a-icon">❓</span>' +
+        '<div><span class="a-name">???</span><br>' +
+        '<span class="a-desc">Discover a new egg type to reveal</span></div>';
+    } else {
+      const rewardLabel = a.reward ? a.reward.label : '';
+      card.innerHTML =
+        '<span class="a-icon">' + a.icon + '</span>' +
+        '<div><span class="a-name">' + a.name + '</span><br>' +
+        '<span class="a-desc">' + a.desc + '</span>' +
+        (rewardLabel ? '<br><span class="a-reward">' + rewardLabel + '</span>' : '') +
+        '</div>';
+    }
     grid.appendChild(card);
   });
 }
@@ -1969,7 +1997,10 @@ function buildLexicon() {
 <p>Each hit costs <strong>1 hammer</strong>. Eggs spawn randomly each round — rarer eggs take more hits but give better prizes.</p>
 <table class="lex-table">
 <tr><th>Egg</th><th>HP</th><th>Spawn Rate</th><th>Special</th></tr>
-${C.eggTypes.map(d => '<tr><td>' + d.emoji + ' ' + d.name + '</td><td class="num">' + d.hp + '</td><td class="num">~' + pct(d.id) + '%</td><td>' + d.desc + '</td></tr>').join('')}
+${C.eggTypes.map(d => isEggDiscovered(d.id)
+  ? '<tr><td>' + d.emoji + ' ' + d.name + '</td><td class="num">' + d.hp + '</td><td class="num">~' + pct(d.id) + '%</td><td>' + d.desc + '</td></tr>'
+  : '<tr><td>❓ ???</td><td class="num">?</td><td class="num">?</td><td>Undiscovered — keep playing!</td></tr>'
+).join('')}
 </table>
 <p>You start with <strong>${C.startingHammers} hammers</strong>. They regenerate at +1 every ${C.regenInterval}s (${C.fastRegenInterval}s with Fast Regen from the shop). Daily login gives ${C.dailyBaseHammers} + up to ${C.dailyBonusCap} bonus hammers based on your streak. Tier-ups also increase your max.</p>
 `
@@ -1978,7 +2009,7 @@ ${C.eggTypes.map(d => '<tr><td>' + d.emoji + ' ' + d.name + '</td><td class="num
     id: 'prizes', icon: '🎁', title: 'What\'s Inside',
     html: () => `
 <p><strong>Gold</strong> — main currency (${minGold}–${maxGold} base, boosted by egg type, multipliers, and equipment). Spend it in the shop.</p>
-<p><strong>Star Pieces</strong> — collect ${C.starPiecesForStarfall} to trigger <strong>Starfall</strong>, which smashes all remaining eggs for free. ${C.eggTypes.map(d => d.name + ': ' + d.starPieces).join(', ')}.</p>
+<p><strong>Star Pieces</strong> — collect ${C.starPiecesForStarfall} to trigger <strong>Starfall</strong>, which smashes all remaining eggs for free. ${C.eggTypes.filter(d => isEggDiscovered(d.id)).map(d => d.name + ': ' + d.starPieces).join(', ')}.</p>
 <p><strong>Multipliers</strong> — ${uniqueMults.map(v => 'x' + v).join(', ')}. Stored in a queue. Click one to activate it before your next smash — it boosts gold, feathers, stars, and hammers. Other prizes get bonus gold.</p>
 <p><strong>Feathers</strong> — spend in the Album tab to buy missing items directly (${fMin}–${fMax} per drop, doubled from silver eggs). Prices increase with stage and rarity.</p>
 <p><strong>Collection Items</strong> — themed items for the current stage. New ones count toward completion. Duplicates convert to ${dupMin}–${dupMax} gold.</p>
