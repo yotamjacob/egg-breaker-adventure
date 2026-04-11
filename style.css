@@ -331,7 +331,7 @@ body{
 /* ---------- Action row ---------- */
 /* ---------- Status row ---------- */
 .reward-log{
-  position:absolute;top:4px;left:4px;z-index:5;
+  position:absolute;bottom:4px;left:4px;z-index:5;
   font-size:9px;font-family:var(--px);
   line-height:1.5;padding:2px 4px;
   pointer-events:none;
