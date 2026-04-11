@@ -114,38 +114,23 @@ body{
 
 /* Resource tooltips */
 .res[data-tip]{position:relative;cursor:help}
-.res[data-tip]::before,.res[data-tip]::after{
-  position:absolute;left:50%;z-index:100;
-  pointer-events:none;opacity:0;
-  transition:opacity .12s steps(3), transform .12s steps(3);
-}
 .res[data-tip]::before{
   content:attr(data-tip);
-  bottom:calc(100% + 10px);transform:translateX(-50%) translateY(4px);
+  position:absolute;top:calc(100% + 8px);left:50%;
+  transform:translateX(-50%) translateY(4px);
   background:var(--dark);border:2px solid var(--gold);
   border-radius:2px;padding:6px 10px;
   font-family:var(--px);font-size:8px;line-height:1.6;
   color:var(--white);white-space:normal;width:200px;
-  text-align:left;
+  text-align:left;z-index:500;pointer-events:none;
   box-shadow:3px 3px 0 rgba(0,0,0,.6);
+  opacity:0;transition:opacity .12s steps(3),transform .12s steps(3);
 }
-.res[data-tip]::after{
-  content:'';bottom:calc(100% + 4px);transform:translateX(-50%);
-  border:6px solid transparent;border-top-color:var(--gold);
-}
-.res[data-tip]:hover::before,.res[data-tip]:hover::after{
-  opacity:1;
-}
-.res[data-tip]:hover::before{
-  transform:translateX(-50%) translateY(0);
-}
-/* Keep tooltips on screen for edge items */
+.res[data-tip]:hover::before{opacity:1;transform:translateX(-50%) translateY(0)}
 .res[data-tip]:first-child::before{left:0;transform:translateX(0) translateY(4px)}
 .res[data-tip]:first-child:hover::before{transform:translateX(0) translateY(0)}
-.res[data-tip]:first-child::after{left:20px}
 .res[data-tip]:last-child::before{left:auto;right:0;transform:translateX(0) translateY(4px)}
 .res[data-tip]:last-child:hover::before{transform:translateX(0) translateY(0)}
-.res[data-tip]:last-child::after{left:auto;right:10px}
 
 /* ---------- Overall progress ---------- */
 .overall-prog{
@@ -806,7 +791,7 @@ body{
   .res[data-tip]::before,.res[data-tip]::after,
   .shop-card[data-tip]::before,
   .album-item[data-tip]::after{transition:none}
-  .res[data-tip]:active::before,.res[data-tip]:active::after{opacity:1;transform:translateX(-50%) translateY(0)}
+  .res[data-tip]:active::before{opacity:1;transform:translateX(-50%) translateY(0)}
   .shop-card[data-tip]:active::before{opacity:1;transform:translateX(-50%) translateY(0)}
   .album-item[data-tip]:active::after{opacity:1;transform:translateX(-50%) translateY(0)}
 }
