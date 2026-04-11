@@ -318,10 +318,11 @@ function renderDailyCalendar() {
     }
 
     const clickable = day === currentDay && !G.dailyClaimed;
+    const isClaimed = (day < currentDay) || (day === currentDay && G.dailyClaimed);
     html += '<div class="' + cls + '"' +
       (clickable ? ' onclick="claimDaily()" style="cursor:pointer"' : '') + '>' +
       '<span class="dc-day">Day ' + day + '</span>' +
-      '<span class="dc-icon">' + r.icon + '</span>' +
+      '<span class="dc-icon">' + (isClaimed ? '✅' : r.icon) + '</span>' +
       '<span class="dc-label">' + r.label + '</span>' +
       '</div>';
   }

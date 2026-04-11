@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.5.0';
+const VERSION = '4.5.1';
 
 const CONFIG = {
 
@@ -171,12 +171,12 @@ const CONFIG = {
     items:      true,   // new collection items found
     duplicates: false,  // duplicate item messages
     trophies:   true,   // trophy unlocked
-    tiers:      true,   // silver/gold/complete tier-ups
+    tiers:      false,   // silver/gold/complete tier-ups
     starfall:   false,  // "STARFALL! All eggs smashed!"
     discovery:  true,   // new egg type discovered
-    daily:      true,   // daily reward claimed
-    shop:       true,   // shop purchases
+    daily:      false,   // daily reward claimed
+    shop:       false,   // shop purchases
     noHammers:  true,   // snarky no-hammer messages
-    freeHit:    false,  // "Free hit! (Chef's Hat)"
+    freeHit:    true,  // "Free hit! (Chef's Hat)"
   },
 };
