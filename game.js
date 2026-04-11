@@ -475,7 +475,7 @@ function renderEggTray() {
   const tW = tray.offsetWidth || 300;
   const tH = tray.offsetHeight || 250;
   const eW = 76, eH = 110; // SVG 88px + label ~20px
-  const padX = 12, padTop = 10, padBot = 24; // extra bottom for label text
+  const padX = 12, padTop = 10, padBot = 80; // extra bottom clearance for reward log
   const usableW = tW - padX * 2;
   const usableH = tH - padTop - padBot;
   const count = G.roundEggs.length;
