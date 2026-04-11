@@ -335,13 +335,15 @@ body{
 .reward-log{
   position:absolute;top:4px;left:4px;z-index:5;
   font-size:9px;font-family:var(--px);
-  line-height:1.5;padding:3px 6px;
-  background:rgba(10,10,24,.75);border-radius:2px;
-  max-width:55%;pointer-events:none;
+  line-height:1.5;padding:2px 4px;
+  pointer-events:none;
 }
 .rlog-title{font-size:8px;color:var(--gold3);letter-spacing:1px;margin-bottom:1px}
-.reward-log .log-line{color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.reward-log .log-line:first-child{color:var(--gold)}
+.reward-log .log-line{color:var(--gold);text-shadow:1px 1px 0 var(--dark)}
+.reward-log .log-line:nth-child(3){opacity:.8}
+.reward-log .log-line:nth-child(4){opacity:.55}
+.reward-log .log-line:nth-child(5){opacity:.35}
+.reward-log .log-line:nth-child(6){opacity:.2}
 
 /* ---------- Daily panel & box ---------- */
 .daily-panel{padding:4px 0}
