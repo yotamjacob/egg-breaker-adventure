@@ -410,11 +410,11 @@ function makeEggSVG(type, damage) {
 
 function renderEggTray() {
   const tray = $id('egg-tray');
-  tray.innerHTML = '';
   if (!G.roundEggs || G.roundEggs.length === 0) {
     newRound();
     return;
   }
+  tray.innerHTML = '';
   // Generate random non-overlapping positions
   const trayRect = tray.getBoundingClientRect();
   const tW = tray.offsetWidth || 300;
