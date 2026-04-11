@@ -158,7 +158,7 @@
     </section>
 
     <!-- ===== POPUPS ===== -->
-    <div class="overlay hidden" id="overlay-item">
+    <div class="overlay hidden" id="overlay-item" onclick="if(event.target===this)closeOverlay('overlay-item')">
       <div class="popup pop-item">
         <div class="pop-icon" id="pop-item-icon"></div>
         <strong id="pop-item-name"></strong>
@@ -168,7 +168,7 @@
       </div>
     </div>
 
-    <div class="overlay hidden" id="overlay-stage">
+    <div class="overlay hidden" id="overlay-stage" onclick="if(event.target===this)closeOverlay('overlay-stage')">
       <div class="popup pop-stage">
         <div class="pop-icon">🎉</div>
         <strong id="pop-stage-title"></strong>
@@ -177,7 +177,7 @@
       </div>
     </div>
 
-    <div class="overlay hidden" id="overlay-levelup">
+    <div class="overlay hidden" id="overlay-levelup" onclick="if(event.target===this)closeOverlay('overlay-levelup')">
       <div class="popup pop-levelup">
         <div class="pop-icon spin">⭐</div>
         <strong id="pop-level-title"></strong>
