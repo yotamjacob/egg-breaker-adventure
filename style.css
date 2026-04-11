@@ -273,8 +273,6 @@ body{
   box-shadow:0 0 6px rgba(155,89,182,.5);
 }
 .mult-chip.muted{opacity:.3;cursor:default}
-.mult-count{font-size:10px;color:var(--gray)}
-.mult-chip.active .mult-count{color:rgba(255,255,255,.7)}
 
 /* ---------- Egg tray ---------- */
 .egg-area{position:relative;flex:1;min-height:100px;margin-bottom:0}

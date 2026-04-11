@@ -1142,7 +1142,11 @@ function renderMultQueue() {
     const selected = G._selectedCounts[val] || 0;
     const badge = document.createElement('span');
     badge.className = 'mult-chip' + (selected > 0 ? ' active' : '') + (owned === 0 ? ' muted' : '');
-    badge.innerHTML = 'x' + val + '<small class="mult-count">' + (selected > 0 ? selected + '/' : '') + owned + '</small>';
+    let label = 'x' + val;
+    if (owned === 0) label += '';
+    else if (selected > 0) label += ' [' + selected + '/' + owned + ']';
+    else label += ' (' + owned + ')';
+    badge.textContent = label;
     if (owned > 0) {
       badge.addEventListener('click', () => {
         if (!G._selectedCounts[val]) G._selectedCounts[val] = 0;
