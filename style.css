@@ -343,32 +343,28 @@ body{
 /* ---------- Daily panel & box ---------- */
 .daily-panel{padding:4px 0}
 .daily-header{
-  font-size:12px;color:var(--gold);text-shadow:2px 2px 0 var(--dark);
-  margin-bottom:10px;text-align:center;letter-spacing:1px;
+  font-size:10px;color:var(--gold);text-shadow:2px 2px 0 var(--dark);
+  margin-bottom:6px;text-align:center;letter-spacing:1px;
 }
-.daily-info{
-  background:var(--panel);border:2px solid var(--gold3);border-radius:2px;
-  padding:10px 12px;font-size:8px;color:var(--gray);line-height:1.8;
-  box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark);
+.daily-calendar{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:3px;
+  padding:2px;
 }
-.daily-info strong{color:var(--gold)}
-.daily-box{
-  background:var(--panel);border:3px solid var(--green);
-  border-radius:2px;padding:7px 12px;
-  display:flex;align-items:center;gap:6px;font-size:9px;margin-bottom:8px;
-  box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark);
+.daily-cell{
+  background:var(--panel);border:2px solid var(--gray);border-radius:2px;
+  padding:4px 2px;text-align:center;font-size:7px;font-family:var(--px);
+  color:var(--gray);display:flex;flex-direction:column;align-items:center;gap:1px;
+  min-height:38px;justify-content:center;
 }
-.daily-box.claimed{opacity:.4;border-color:var(--gray)}
-.daily-detail{color:var(--green);margin-left:auto}
-.daily-btn{
-  background:var(--green);color:var(--dark);border:2px solid var(--green2);
-  border-radius:2px;padding:5px 12px;font-size:9px;font-family:var(--px);
-  cursor:pointer;box-shadow:2px 2px 0 var(--dark);
-  transition:transform .08s;
-}
-.daily-btn:hover{transform:translate(-1px,-1px)}
-.daily-btn:active{transform:translate(1px,1px);box-shadow:0 0 0 transparent}
-.daily-btn:disabled{opacity:.35;cursor:not-allowed}
+.daily-cell .dc-day{font-size:6px;opacity:.6}
+.daily-cell .dc-icon{font-size:14px}
+.daily-cell .dc-label{font-size:5px;line-height:1.2}
+.daily-cell.claimed{background:#143d2b;border-color:var(--green);color:var(--green)}
+.daily-cell.current{border-color:var(--gold);color:var(--gold);background:var(--panel2);animation:pulse-daily 1.2s steps(2) infinite}
+.daily-cell.locked{opacity:.3}
+.daily-cell.banana{border-color:var(--amber)}
+.daily-cell.banana.claimed{border-color:var(--green)}
+@keyframes pulse-daily{0%,100%{box-shadow:0 0 0 transparent}50%{box-shadow:0 0 6px rgba(245,197,66,.5)}}
 
 /* ---------- Album tab ---------- */
 .album-stages{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px}
@@ -778,7 +774,6 @@ body{
   .pop-icon{font-size:36px}
   .achieve-grid{grid-template-columns:1fr}
   .life-stats{grid-template-columns:1fr}
-  .daily-box{flex-wrap:wrap;gap:4px}
   .daily-detail{margin-left:0}
 }
 

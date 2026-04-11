@@ -466,3 +466,35 @@ const ACHIEVEMENT_DATA = [
   { id:'empty_500',    name:'Empty Inside',        desc:'Get 500 empties',                icon:'👻', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'empty_1000',   name:'Void Master',         desc:'Get 1,000 empties. Yay?',        icon:'🌀', reward:{type:'gold',val:10000,    label:'+10,000 gold'} },
 ];
+
+// Daily rewards for 100 days. type: gold, hammers, maxH, feathers, banana
+function generateDailyRewards() {
+  const rewards = [];
+  for (let d = 1; d <= 100; d++) {
+    // Banana on milestone days
+    if (d === 30 || d === 60 || d === 100) {
+      rewards.push({ day: d, type: 'banana', val: 1, icon: '🍌', label: '+1 banana' });
+    }
+    // Max hammers on weekly milestones
+    else if (d % 14 === 0) {
+      rewards.push({ day: d, type: 'maxH', val: 3 + Math.floor(d / 20), icon: '📦', label: '+' + (3 + Math.floor(d / 20)) + ' max hammers' });
+    }
+    // Feathers every 5 days
+    else if (d % 5 === 0) {
+      const fv = 3 + Math.floor(d / 10) * 2;
+      rewards.push({ day: d, type: 'feathers', val: fv, icon: '🪶', label: '+' + fv + ' feathers' });
+    }
+    // Gold on even days (scales up)
+    else if (d % 2 === 0) {
+      const gv = 20 + d * 5;
+      rewards.push({ day: d, type: 'gold', val: gv, icon: '🪙', label: '+' + gv + ' gold' });
+    }
+    // Hammers on odd days
+    else {
+      const hv = 20 + Math.floor(d / 5) * 5;
+      rewards.push({ day: d, type: 'hammers', val: hv, icon: '🔨', label: '+' + hv + ' hammers' });
+    }
+  }
+  return rewards;
+}
+const DAILY_REWARDS = generateDailyRewards();

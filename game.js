@@ -258,11 +258,7 @@ function resetGame() {
 function checkDaily() {
   const today = new Date().toISOString().slice(0, 10);
   if (G.lastLoginDate === today) {
-    if (G.dailyClaimed) {
-      $id('daily-box').classList.add('claimed');
-      $id('daily-btn').disabled = true;
-      $id('daily-btn').textContent = 'Claimed!';
-    }
+    renderDailyCalendar();
     return;
   }
   // New day
@@ -270,47 +266,70 @@ function checkDaily() {
   if (G.lastLoginDate === yesterday) {
     G.consecutiveDays++;
   } else {
-    G.consecutiveDays = 1;
+    G.consecutiveDays = 1; // streak reset
   }
   G.lastLoginDate = today;
   G.dailyClaimed = false;
-  $id('daily-box').classList.remove('claimed');
-  $id('daily-btn').disabled = false;
-  $id('daily-btn').textContent = 'Claim!';
-  $id('daily-day').textContent = G.consecutiveDays;
-  const bonus = Math.min(G.consecutiveDays * CONFIG.dailyBonusPerDay, CONFIG.dailyBonusCap);
-  $id('daily-detail').textContent = '+' + (CONFIG.dailyBaseHammers + bonus) + ' hammers';
-  renderDailyInfo();
-}
-
-function renderDailyInfo() {
-  const C = CONFIG;
-  const bonus = Math.min(G.consecutiveDays * C.dailyBonusPerDay, C.dailyBonusCap);
-  $id('daily-info').innerHTML =
-    '<p>Log in every day to build your streak and earn more hammers!</p>' +
-    '<p>Base: <strong>' + C.dailyBaseHammers + '</strong> hammers + <strong>' +
-    C.dailyBonusPerDay + '</strong> per day streak (max +<strong>' + C.dailyBonusCap + '</strong>)</p>' +
-    '<p>Current streak: <strong>' + G.consecutiveDays + ' days</strong> → <strong>+' +
-    (C.dailyBaseHammers + bonus) + ' hammers</strong> today</p>' +
-    '<p>Total claims: <strong>' + (G.totalDailyClaims || 0) + '</strong></p>';
+  renderDailyCalendar();
 }
 
 function claimDaily() {
   if (G.dailyClaimed) return;
-  const bonus = Math.min(G.consecutiveDays * CONFIG.dailyBonusPerDay, CONFIG.dailyBonusCap);
-  const total = CONFIG.dailyBaseHammers + bonus;
-  G.hammers = Math.min(G.maxH, G.hammers + total);
+  const dayIdx = Math.min(G.consecutiveDays, 100) - 1;
+  const reward = DAILY_REWARDS[dayIdx];
+  if (!reward) return;
+
+  // Apply reward
+  if (reward.type === 'gold')     { G.gold += reward.val; G.totalGold += reward.val; }
+  if (reward.type === 'hammers')  { G.hammers = Math.min(G.maxH, G.hammers + reward.val); }
+  if (reward.type === 'maxH')     { G.maxH += reward.val; G.hammers = Math.min(G.maxH, G.hammers + reward.val); }
+  if (reward.type === 'feathers') { G.feathers += reward.val; G.totalFeathers += reward.val; }
+  if (reward.type === 'banana')   { G.crystalBananas += reward.val; }
+
   G.dailyClaimed = true;
   G.totalDailyClaims = (G.totalDailyClaims || 0) + 1;
-  $id('daily-box').classList.add('claimed');
-  $id('daily-btn').disabled = true;
-  $id('daily-btn').textContent = 'Claimed!';
-  renderDailyInfo();
-  msg('+' + total + ' hammers!', '#16a34a');
+  msg('Day ' + G.consecutiveDays + ': ' + reward.label);
   SFX.play('coin');
   checkAchievements();
   updateResources();
+  renderDailyCalendar();
   saveGame();
+}
+
+function renderDailyCalendar() {
+  $id('daily-day').textContent = G.consecutiveDays;
+  const cal = $id('daily-calendar');
+  if (!cal) return;
+  const currentDay = G.consecutiveDays;
+
+  let html = '';
+  for (let i = 0; i < DAILY_REWARDS.length; i++) {
+    const r = DAILY_REWARDS[i];
+    const day = r.day;
+    let cls = 'daily-cell';
+    if (r.type === 'banana') cls += ' banana';
+
+    if (day < currentDay) {
+      cls += ' claimed';
+    } else if (day === currentDay) {
+      cls += G.dailyClaimed ? ' claimed' : ' current';
+    } else {
+      cls += ' locked';
+    }
+
+    const clickable = day === currentDay && !G.dailyClaimed;
+    html += '<div class="' + cls + '"' +
+      (clickable ? ' onclick="claimDaily()" style="cursor:pointer"' : '') + '>' +
+      '<span class="dc-day">Day ' + day + '</span>' +
+      '<span class="dc-icon">' + r.icon + '</span>' +
+      '<span class="dc-label">' + r.label + '</span>' +
+      '</div>';
+  }
+  cal.innerHTML = html;
+
+  // Scroll to current day
+  const currentEl = cal.querySelector('.current, .claimed:last-of-type');
+  if (currentEl) currentEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
 }
 
 // ==================== HELPERS ====================
@@ -2041,7 +2060,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (name === 'shop') { renderShop(); updateAutoBuyBtn(); }
   if (name === 'stats') renderStats();
   if (name === 'lexicon') renderLexicon();
-  if (name === 'daily') renderDailyInfo();
+  if (name === 'daily') renderDailyCalendar();
   if (name === 'achieve') renderAchievements();
 });
 
