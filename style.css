@@ -331,30 +331,6 @@ body{
 }
 
 /* ---------- Action row ---------- */
-.action-row{display:flex;gap:5px;margin-bottom:8px;flex-shrink:0}
-.action-btn{
-  flex:1;padding:10px 4px;border:none;border-radius:2px;
-  font-size:10px;font-family:var(--px);cursor:pointer;
-  transition:transform .08s;
-  text-shadow:1px 1px 0 var(--dark);
-  -webkit-tap-highlight-color:transparent;
-}
-.action-btn:disabled{opacity:.35;cursor:not-allowed}
-.action-btn:not(:disabled):hover{transform:translate(-1px,-1px)}
-.action-btn:not(:disabled):active{transform:translate(2px,2px);box-shadow:0 0 0 transparent!important}
-
-.action-btn:not(.primary){
-  background:var(--panel);color:var(--gray);
-  border:2px solid var(--gray);
-  box-shadow:2px 2px 0 var(--dark);
-}
-.action-btn.primary{
-  background:linear-gradient(180deg,var(--gold),var(--gold2));
-  color:var(--dark);border:2px solid var(--gold);
-  box-shadow:3px 3px 0 var(--dark);
-  letter-spacing:1px;text-shadow:none;
-}
-
 /* ---------- Status row ---------- */
 .reward-log{
   flex-shrink:0;font-size:7px;font-family:var(--px);
