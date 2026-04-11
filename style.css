@@ -109,8 +109,8 @@ body{
   box-shadow: inset 1px 1px 0 var(--raised);
   overflow:hidden;min-width:0;white-space:nowrap;
 }
-.res span{font-size:11px;flex-shrink:0}
-.res strong{color:var(--gold);font-size:9px;overflow:hidden;text-overflow:ellipsis}
+.res span{font-size:11px;flex-shrink:0;pointer-events:none}
+.res strong{color:var(--gold);font-size:9px;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 
 /* Resource tooltips */
 .res[data-tip]{position:relative;cursor:help}
