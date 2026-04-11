@@ -949,15 +949,24 @@ function checkCollectionComplete() {
       G.stagesCompleted++;
       G.crystalBananas += CONFIG.crystalBananasPerStage;
       G.hammers = G.maxH;
+      // Also unlock next stage if not already
+      if (si >= prog.stage && si < curMonkey().stages.length - 1) {
+        prog.stage = si + 1;
+      }
+      const nextName = si < curMonkey().stages.length - 1
+        ? curMonkey().stages[si + 1].name : null;
       showStagePopup(
         'Stage Complete!',
-        stage.name + ' - 100%! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana'
+        stage.name + ' - 100%! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana' +
+        (nextName ? '\nNext up: ' + nextName + '!' : '')
       );
       // Check if ALL stages are complete
       if (prog.tiers.every(t => t >= 3)) {
         prog.completed = true;
       }
     }
+    // Refresh all UI after any tier change
+    setTimeout(() => renderAll(), 100);
     G.collectionsCompleted = calcTotalCollections();
     checkAchievements();
     saveGame();
@@ -1372,7 +1381,7 @@ function updateOverallProgress() {
       if (mp.unlocked && mp.collections[si]) {
         foundItems += mp.collections[si].filter(Boolean).length;
       }
-      if (mp.unlocked && (si < mp.stage || (si === mp.stage && mp.tier >= 3))) {
+      if (mp.unlocked && mp.tiers && mp.tiers[si] >= 3) {
         doneStages++;
       }
     });
@@ -1408,7 +1417,18 @@ function updateStageBar() {
   const fill = $id('stage-fill');
   fill.style.width = pct + '%';
   fill.className = 'prog-fill' + (found >= total ? ' complete' : '');
-  $id('stage-detail').textContent = found + '/' + total + ' items';
+
+  if (tier >= 3) {
+    // Stage complete — suggest next stage
+    const nextIdx = si + 1;
+    if (nextIdx <= prog.stage && nextIdx < curMonkey().stages.length) {
+      $id('stage-detail').textContent = 'Complete! Try Stage ' + (nextIdx + 1) + ': ' + curMonkey().stages[nextIdx].name;
+    } else {
+      $id('stage-detail').textContent = 'Complete! ' + found + '/' + total + ' items';
+    }
+  } else {
+    $id('stage-detail').textContent = found + '/' + total + ' items';
+  }
 }
 
 function renderAll() {
