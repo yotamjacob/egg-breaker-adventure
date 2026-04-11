@@ -251,7 +251,7 @@ function resetGame() {
     newRound();
     renderAll();
     msg('All progress reset!');
-  });
+  }, 'Reset');
 }
 
 // ==================== DAILY LOGIN ====================
@@ -1203,8 +1203,9 @@ function showAlert(icon, text) {
   if (noBtn) noBtn.textContent = 'OK';
 }
 
-function showConfirm(icon, title, detail, onYes) {
+function showConfirm(icon, title, detail, onYes, yesText) {
   $id('confirm-yes').style.display = '';
+  $id('confirm-yes').textContent = yesText || 'Buy';
   const noBtn = $id('overlay-confirm').querySelector('.confirm-no');
   if (noBtn) noBtn.textContent = 'Cancel';
   $id('confirm-icon').textContent = icon;
