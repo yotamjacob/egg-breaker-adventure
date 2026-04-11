@@ -231,13 +231,15 @@ function loadGame() {
 }
 
 function resetGame() {
-  if (!confirm('Reset ALL progress? This cannot be undone!')) return;
+  if (!confirm('Reset ALL progress including trophies? This cannot be undone!')) return;
   localStorage.removeItem(SAVE_KEY);
-  G = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null };
-  regenInt = null;
+  G = { ...DEFAULT_STATE, achieved: [], monkeys: initMonkeys(), roundEggs: null };
+  if (regenInt) { clearInterval(regenInt); regenInt = null; }
+  invalidateBonusCache();
+  invalidateAchieveCache();
   newRound();
   renderAll();
-  msg('Progress reset!', '#ef4444');
+  msg('All progress reset!', '#ef4444');
 }
 
 // ==================== DAILY LOGIN ====================
