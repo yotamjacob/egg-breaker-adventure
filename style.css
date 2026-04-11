@@ -275,7 +275,8 @@ body{
 .mult-chip.muted{opacity:.3;cursor:default}
 
 /* ---------- Egg tray ---------- */
-.egg-area{position:relative;flex:1;min-height:100px;margin-bottom:0}
+#panel-play{overflow:hidden}
+.egg-area{position:relative;flex:1;min-height:0;overflow:hidden;margin-bottom:0}
 .egg-tray-wrap{
   position:relative;z-index:2;width:100%;height:100%;
   border-radius:2px;
