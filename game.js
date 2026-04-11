@@ -353,6 +353,8 @@ function renderLog() {
       if (l.cat === 'noHammers') cls += ' log-err';
       else if (l.cat === 'trophies' || l.cat === 'tiers') cls += ' log-green';
       else if (l.cat === 'items') cls += ' log-blue';
+      else if (l.cat === 'empty') cls += ' log-gray';
+      else if (l.cat === 'discovery') cls += ' log-purple';
       return '<div class="' + cls + '">' + l.text + '</div>';
     }).join('');
 }
@@ -362,6 +364,10 @@ function spawnFloat(zone, text, color, cls, cx, cy) {
   el.className = 'prize-float' + (cls ? ' ' + cls : '');
   el.style.color = color;
   if (cx !== undefined && cy !== undefined) {
+    // Clamp horizontally so text doesn't clip screen edges
+    const zoneW = zone.offsetWidth || 300;
+    const margin = 40;
+    cx = Math.max(margin, Math.min(zoneW - margin, cx));
     el.style.left = cx + 'px';
     el.style.top = cy + 'px';
   } else {
@@ -417,7 +423,7 @@ function newRound() {
     if (!G.discoveredEggs.includes(type)) {
       G.discoveredEggs.push(type);
       const def = EGG_REGISTRY[type];
-      msg('New egg discovered: ' + def.emoji + ' ' + def.name + '!', 'discovery');
+      msg('New egg discovered: ' + def.emoji + ' ' + def.name + '!!', 'discovery');
       SFX.play('achieve');
       saveGame();
     }
@@ -627,10 +633,11 @@ function resolvePrize(type, eggType) {
 }
 
 function rollCollectionItem(eggType) {
+  const si = curActiveStage();
   const stage = curStage();
   const prog = curProgress();
   const items = stage.collection.items;
-  const collected = prog.collections[prog.stage];
+  const collected = prog.collections[si];
 
   const weights = items.map((item, i) => {
     const rarity = item[2]; // 1=common, 2=uncommon, 3=rare
@@ -820,10 +827,10 @@ function applyPrize(prize, cx, cy) {
     G.totalEmpties = (G.totalEmpties || 0) + emptyCount;
     if (emptyCount > 1) {
       spawnFloat(zone, emptyCount + ' empties!', '#9ca3af', '', cx, cy);
-      msg(emptyCount + ' empties! Lucky you...');
+      msg(emptyCount + ' empties!', 'empty');
     } else {
       spawnFloat(zone, 'Empty!', '#9ca3af', '', cx, cy);
-      msg('Nothing this time...');
+      msg('Empty', 'empty');
     }
     SFX.play('empty');
     checkAchievements();
