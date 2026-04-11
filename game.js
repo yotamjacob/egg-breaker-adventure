@@ -338,7 +338,7 @@ function $id(id) { return document.getElementById(id); }
 const _logLines = [];
 function msg(text) {
   _logLines.unshift(text);
-  if (_logLines.length > 5) _logLines.length = 5;
+  if (_logLines.length > 4) _logLines.length = 4;
   renderLog();
 }
 function renderLog() {

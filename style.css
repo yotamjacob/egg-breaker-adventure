@@ -340,8 +340,7 @@ body{
 .reward-log .log-line{color:var(--gold);text-shadow:1px 1px 0 var(--dark)}
 .reward-log .log-line:nth-child(3){opacity:.8}
 .reward-log .log-line:nth-child(4){opacity:.55}
-.reward-log .log-line:nth-child(5){opacity:.35}
-.reward-log .log-line:nth-child(6){opacity:.2}
+.reward-log .log-line:nth-child(5){opacity:.25}
 
 /* ---------- Daily panel & box ---------- */
 .daily-panel{padding:4px 0}
