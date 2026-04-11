@@ -321,9 +321,8 @@ body{
 
 /* Egg tray — taps handled by document-level touchstart, not z-index */
 .egg-tray{
-  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
-  gap:10px;padding:20px 12px;min-height:200px;
   position:relative;z-index:1;
+  width:100%;height:100%;
 }
 
 
@@ -347,10 +346,10 @@ body{
 
 /* Individual egg */
 .egg-slot{
-  position:relative;cursor:pointer;
+  position:absolute;cursor:pointer;
   transition:transform .08s steps(2);
   display:flex;flex-direction:column;align-items:center;
-  width:76px;min-height:100px;
+  width:76px;
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
   user-select:none;-webkit-user-select:none;

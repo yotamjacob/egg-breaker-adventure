@@ -406,9 +406,38 @@ function renderEggTray() {
     newRound();
     return;
   }
+  // Generate random non-overlapping positions
+  const trayRect = tray.getBoundingClientRect();
+  const tW = tray.offsetWidth || 300;
+  const tH = tray.offsetHeight || 250;
+  const eW = 76, eH = 100;
+  const positions = [];
+
+  function findPos() {
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const x = Math.random() * (tW - eW);
+      const y = Math.random() * (tH - eH);
+      let overlap = false;
+      for (const p of positions) {
+        if (Math.abs(x - p.x) < eW * 0.7 && Math.abs(y - p.y) < eH * 0.6) {
+          overlap = true; break;
+        }
+      }
+      if (!overlap) return { x, y };
+    }
+    // Fallback: grid position
+    const col = positions.length % 4;
+    const row = Math.floor(positions.length / 4);
+    return { x: col * (eW + 10) + 10, y: row * (eH + 5) + 10 };
+  }
+
   G.roundEggs.forEach((egg, i) => {
+    const pos = findPos();
+    positions.push(pos);
     const slot = document.createElement('div');
     slot.className = 'egg-slot' + (egg.broken ? ' broken' : '') + (egg.type === 'gold' ? ' gold-egg' : '');
+    slot.style.left = pos.x + 'px';
+    slot.style.top = pos.y + 'px';
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, egg.broken ? egg.maxHp : damage) +
       '<span class="egg-label">' + egg.type +
