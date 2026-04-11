@@ -338,15 +338,14 @@ function $id(id) { return document.getElementById(id); }
 const _logLines = [];
 function msg(text) {
   _logLines.unshift(text);
-  if (_logLines.length > 3) _logLines.length = 3;
+  if (_logLines.length > 5) _logLines.length = 5;
   renderLog();
 }
 function renderLog() {
   const el = $id('reward-log');
   if (!el) return;
-  el.innerHTML = _logLines.map((l, i) =>
-    '<div class="log-line">' + l + '</div>'
-  ).join('');
+  el.innerHTML = '<div class="rlog-title">Log</div>' +
+    _logLines.map(function(l) { return '<div class="log-line">' + l + '</div>'; }).join('');
 }
 
 function spawnFloat(zone, text, color, cls, cx, cy) {
