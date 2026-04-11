@@ -392,7 +392,7 @@ body{
 .reward-log{
   flex-shrink:0;font-size:7px;font-family:var(--px);
   line-height:1.6;padding:2px 4px;
-  max-height:36px;overflow:hidden;
+  height:36px;overflow:hidden;
 }
 .reward-log .log-line{color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .reward-log .log-line:first-child{color:var(--gold)}
