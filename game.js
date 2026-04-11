@@ -434,17 +434,18 @@ function renderEggTray() {
   // Generate random non-overlapping positions
   const tW = tray.offsetWidth || 300;
   const tH = tray.offsetHeight || 250;
-  const eW = 76, eH = 95;
-  const pad = 8; // padding from tray edges
+  const eW = 76, eH = 100; // includes label space
+  const gapX = 10, gapY = 12; // gap between eggs
+  const pad = 14; // padding from tray edges
   const positions = [];
 
   function findPos() {
-    for (let attempt = 0; attempt < 80; attempt++) {
-      const x = pad + Math.random() * (tW - eW - pad * 2);
-      const y = pad + Math.random() * (tH - eH - pad * 2);
+    for (let attempt = 0; attempt < 100; attempt++) {
+      const x = pad + Math.random() * Math.max(0, tW - eW - pad * 2);
+      const y = pad + Math.random() * Math.max(0, tH - eH - pad * 2);
       let overlap = false;
       for (const p of positions) {
-        if (Math.abs(x - p.x) < eW && Math.abs(y - p.y) < eH * 0.8) {
+        if (Math.abs(x - p.x) < eW + gapX && Math.abs(y - p.y) < eH + gapY) {
           overlap = true; break;
         }
       }
@@ -452,7 +453,7 @@ function renderEggTray() {
     }
     const col = positions.length % 3;
     const row = Math.floor(positions.length / 3);
-    return { x: pad + col * (eW + 8), y: pad + row * (eH + 4) };
+    return { x: pad + col * (eW + gapX), y: pad + row * (eH + gapY) };
   }
 
   G.roundEggs.forEach((egg, i) => {
