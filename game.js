@@ -1182,7 +1182,7 @@ function buyShopItem(category, id) {
       const alreadyOwned = (category === 'hammer' && G.ownedHammers.includes(id))
                         || (category === 'hat' && G.ownedHats.includes(id))
                         || (category === 'supply' && item.unique && (id === 'fastregen' ? G.fastRegen : G['owned_' + id]));
-      if (!alreadyOwned && !confirm('Buy ' + item.name + ' for ' + formatNum(item.cost) + ' gold?')) return;
+      if (!alreadyOwned && G.gold >= item.cost && !confirm('Buy ' + item.name + ' for ' + formatNum(item.cost) + ' gold?')) return;
     }
   }
   if (category === 'hammer') {
