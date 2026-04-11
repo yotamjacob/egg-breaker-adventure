@@ -231,15 +231,16 @@ function loadGame() {
 }
 
 function resetGame() {
-  if (!confirm('Reset ALL progress including trophies? This cannot be undone!')) return;
-  localStorage.removeItem(SAVE_KEY);
-  G = { ...DEFAULT_STATE, achieved: [], monkeys: initMonkeys(), roundEggs: null };
-  if (regenInt) { clearInterval(regenInt); regenInt = null; }
-  invalidateBonusCache();
-  invalidateAchieveCache();
-  newRound();
-  renderAll();
-  msg('All progress reset!', '#ef4444');
+  showConfirm('⚠️', 'Reset ALL progress?', 'Including trophies. This cannot be undone!', function() {
+    localStorage.removeItem(SAVE_KEY);
+    G = { ...DEFAULT_STATE, achieved: [], monkeys: initMonkeys(), roundEggs: null };
+    if (regenInt) { clearInterval(regenInt); regenInt = null; }
+    invalidateBonusCache();
+    invalidateAchieveCache();
+    newRound();
+    renderAll();
+    msg('All progress reset!');
+  });
 }
 
 // ==================== DAILY LOGIN ====================
@@ -1180,6 +1181,18 @@ function updateAutoBuyBtn() {
   }
 }
 
+function showConfirm(icon, title, detail, onYes) {
+  $id('confirm-icon').textContent = icon;
+  $id('confirm-title').textContent = title;
+  $id('confirm-detail').textContent = detail;
+  $id('overlay-confirm').classList.remove('hidden');
+  $id('confirm-yes').onclick = function() {
+    closeOverlay('overlay-confirm');
+    onYes();
+  };
+}
+function cancelConfirm() { closeOverlay('overlay-confirm'); }
+
 function buyShopItem(category, id) {
   // Confirmation for non-consumable items when auto-buy is off
   const isConsumable = category === 'supply' && !SHOP_SUPPLIES.find(s => s.id === id)?.unique;
@@ -1188,13 +1201,21 @@ function buyShopItem(category, id) {
               : category === 'hat' ? SHOP_HATS.find(h => h.id === id)
               : SHOP_SUPPLIES.find(s => s.id === id);
     if (item && item.cost > 0) {
-      // Skip confirm if already owned (just equipping)
       const alreadyOwned = (category === 'hammer' && G.ownedHammers.includes(id))
                         || (category === 'hat' && G.ownedHats.includes(id))
                         || (category === 'supply' && item.unique && (id === 'fastregen' ? G.fastRegen : G['owned_' + id]));
-      if (!alreadyOwned && G.gold >= item.cost && !confirm('Buy ' + item.name + ' for ' + formatNum(item.cost) + ' gold?')) return;
+      if (!alreadyOwned && G.gold >= item.cost) {
+        showConfirm(item.emoji || '🛒', 'Buy ' + item.name + '?', formatNum(item.cost) + ' gold', function() {
+          doBuyShopItem(category, id);
+        });
+        return;
+      }
     }
   }
+  doBuyShopItem(category, id);
+}
+
+function doBuyShopItem(category, id) {
   if (category === 'hammer') {
     const item = SHOP_HAMMERS.find(h => h.id === id);
     if (!item || item.cost === 0) return;

@@ -184,6 +184,18 @@
       </div>
     </div>
 
+    <div class="overlay hidden" id="overlay-confirm" onclick="if(event.target===this)cancelConfirm()">
+      <div class="popup pop-confirm">
+        <div class="pop-icon" id="confirm-icon">🛒</div>
+        <strong id="confirm-title"></strong>
+        <span class="pop-sub" id="confirm-detail"></span>
+        <div class="confirm-btns">
+          <button class="pop-btn confirm-yes" id="confirm-yes">Buy</button>
+          <button class="pop-btn confirm-no" onclick="cancelConfirm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast hidden" id="toast-achieve">
       <span id="toast-icon"></span>
       <div><small id="toast-header">Trophy Unlocked!</small><br><strong id="toast-name"></strong><br><small id="toast-desc"></small></div>
