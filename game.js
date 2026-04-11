@@ -56,6 +56,7 @@ const Particles = (() => {
     normal: ['#ffe8b0','#e8c878','#d4a840','#c09028'],
     silver: ['#c8d8e8','#a0b8c8','#88a0b0','#6888a0'],
     gold:   ['#FFD700','#FFA500','#FF8C00','#DAA520'],
+    crystal:['#E0D0FF','#C4B5FD','#A78BFA','#8B5CF6'],
   };
   function init(c) { canvas = c; ctx = c.getContext('2d'); resize(); window.addEventListener('resize', resize); }
   function resize() {
@@ -382,12 +383,23 @@ function newRound() {
   const stage = curStage();
   const count = stage.eggs;
   const eggs = [];
-  const spawnTotal = EGG_SPAWN_WEIGHTS.normal + EGG_SPAWN_WEIGHTS.silver + EGG_SPAWN_WEIGHTS.gold;
+  const si = curActiveStage();
+  const unlockStages = CONFIG.eggUnlockStage || {};
+  // Build available egg types for this stage
+  const available = [];
+  for (const [type, weight] of Object.entries(EGG_SPAWN_WEIGHTS)) {
+    if ((unlockStages[type] || 0) <= si) {
+      available.push({ type, weight });
+    }
+  }
+  const spawnTotal = available.reduce((s, e) => s + e.weight, 0);
   for (let i = 0; i < count; i++) {
-    const r = Math.random() * spawnTotal;
+    let r = Math.random() * spawnTotal;
     let type = 'normal';
-    if (r < EGG_SPAWN_WEIGHTS.gold) type = 'gold';
-    else if (r < EGG_SPAWN_WEIGHTS.gold + EGG_SPAWN_WEIGHTS.silver) type = 'silver';
+    for (const e of available) {
+      r -= e.weight;
+      if (r <= 0) { type = e.type; break; }
+    }
     const hp = EGG_HP[type];
     eggs.push({ type, hp, maxHp: hp, broken: false });
   }
@@ -404,6 +416,7 @@ function makeEggSVG(type, damage) {
     normal: { f: '#FEF9F0', s: '#D4A853', h: '#fff8e0', sh: '#b8922e' },
     silver: { f: '#d8dde3', s: '#8899aa', h: '#eceff2', sh: '#667788' },
     gold:   { f: '#FFD700', s: '#B8860B', h: '#ffe44d', sh: '#8B6508' },
+    crystal:{ f: '#E0D0FF', s: '#8B5CF6', h: '#F0E8FF', sh: '#6D28D9' },
   };
   const c = colors[type] || colors.normal;
   const crk = '#5a3010';
@@ -491,7 +504,9 @@ function renderEggTray() {
   G.roundEggs.forEach((egg, i) => {
     const pos = positions[i];
     const slot = document.createElement('div');
-    slot.className = 'egg-slot' + (egg.broken ? ' broken' : '') + (egg.type === 'gold' ? ' gold-egg' : '');
+    slot.className = 'egg-slot' + (egg.broken ? ' broken' : '') +
+      (egg.type === 'gold' ? ' gold-egg' : '') +
+      (egg.type === 'crystal' ? ' crystal-egg' : '');
     slot.style.left = pos.x + 'px';
     slot.style.top = pos.y + 'px';
     const damage = egg.maxHp - egg.hp;
@@ -540,7 +555,7 @@ function rollPrize(eggType) {
 
 function resolvePrize(type, eggType) {
   const silverMult = eggType === 'silver' ? 2 : 1;
-  const goldMult = eggType === 'gold' ? 1.5 : 1;
+  const goldMult = eggType === 'gold' ? 1.5 : eggType === 'crystal' ? 2 : 1;
 
   if (type === 'empty') return { type: 'empty', value: 0, label: 'Empty!', color: '#9ca3af' };
 
@@ -572,7 +587,7 @@ function resolvePrize(type, eggType) {
   }
 
   if (type === 'star') {
-    const baseVal = silverMult > 1 ? CONFIG.starPiecesPerDrop.silver : CONFIG.starPiecesPerDrop.normal;
+    const baseVal = CONFIG.starPiecesPerDrop[eggType] || CONFIG.starPiecesPerDrop.normal;
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'star', value: val, baseVal, usedMult, label: '+' + val + ' star piece' + (val > 1 ? 's' : ''), color: '#f59e0b' };
@@ -750,6 +765,7 @@ function smashEgg(index) {
   // Track egg type smashes
   if (egg.type === 'silver') G.silverSmashed = (G.silverSmashed || 0) + 1;
   if (egg.type === 'gold') G.goldSmashed = (G.goldSmashed || 0) + 1;
+  if (egg.type === 'crystal') G.crystalSmashed = (G.crystalSmashed || 0) + 1;
 
   // Roll prize
   const prize = rollPrize(egg.type);
@@ -1439,6 +1455,8 @@ function checkAchievements() {
     silver_100:   () => (G.silverSmashed || 0) >= 100,
     gold_egg_10:  () => (G.goldSmashed || 0) >= 10,
     gold_egg_50:  () => (G.goldSmashed || 0) >= 50,
+    crystal_1:    () => (G.crystalSmashed || 0) >= 1,
+    crystal_25:   () => (G.crystalSmashed || 0) >= 25,
     // Daily login
     streak_5:     () => G.consecutiveDays >= 5,
     streak_20:    () => G.consecutiveDays >= 20,
@@ -1923,7 +1941,7 @@ function formatNum(n) {
 // ==================== LEXICON ====================
 function buildLexicon() {
   const C = CONFIG;
-  const spawnTotal = C.eggSpawnWeights.normal + C.eggSpawnWeights.silver + C.eggSpawnWeights.gold;
+  const spawnTotal = Object.values(C.eggSpawnWeights).reduce((a, b) => a + b, 0);
   const pct = (type) => (C.eggSpawnWeights[type] / spawnTotal * 100).toFixed(0);
   const emptyPct = (type) => {
     const w = C.prizeWeights[type];
@@ -1958,6 +1976,7 @@ function buildLexicon() {
 <tr><td>🥚 Normal</td><td class="num">${C.eggHP.normal}</td><td class="num">~${pct('normal')}%</td><td>Can be empty (~${emptyPct('normal')}%)</td></tr>
 <tr><td>🪨 Silver</td><td class="num">${C.eggHP.silver}</td><td class="num">~${pct('silver')}%</td><td>Never empty, 2x prizes, can drop bonus hammers</td></tr>
 <tr><td>🌟 Gold</td><td class="num">${C.eggHP.gold}</td><td class="num">~${pct('gold')}%</td><td>Never empty, 1.5x gold, best item drop rate</td></tr>
+<tr><td>🔮 Crystal</td><td class="num">${C.eggHP.crystal}</td><td class="num">~${pct('crystal')}%</td><td>Stage 3+. Never empty, 2x gold, 3 star pieces, rarest drops</td></tr>
 </table>
 <p>You start with <strong>${C.startingHammers} hammers</strong>. They regenerate at +1 every ${C.regenInterval}s (${C.fastRegenInterval}s with Fast Regen from the shop). Daily login gives ${C.dailyBaseHammers} + up to ${C.dailyBonusCap} bonus hammers based on your streak. Tier-ups also increase your max.</p>
 `

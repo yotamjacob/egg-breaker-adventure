@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.0.1';
+const VERSION = '4.1.0';
 
 const CONFIG = {
 
@@ -19,6 +19,7 @@ const CONFIG = {
     normal: 80,
     silver: 15,
     gold:   5,
+    crystal: 2,   // unlocks from stage 3
   },
 
   // HP per egg type (hits to break)
@@ -26,6 +27,15 @@ const CONFIG = {
     normal: 1,
     silver: 2,
     gold:   3,
+    crystal: 4,
+  },
+
+  // Stage index at which each egg type starts spawning (0-based)
+  eggUnlockStage: {
+    normal: 0,
+    silver: 0,
+    gold:   0,
+    crystal: 2,   // stage 3+
   },
 
   // ----------------------------------------------------------
@@ -40,6 +50,7 @@ const CONFIG = {
     normal: { empty:12, gold_s:22, gold_m:13, gold_l:5,  star:8,  mult:7,  feather:5, item:15, hammers:0 },
     silver: { empty:0,  gold_s:10, gold_m:18, gold_l:12, star:10, mult:10, feather:5, item:20, hammers:8 },
     gold:   { empty:0,  gold_s:0,  gold_m:15, gold_l:20, star:12, mult:10, feather:4, item:25, hammers:7 },
+    crystal:{ empty:0,  gold_s:0,  gold_m:5,  gold_l:30, star:15, mult:12, feather:6, item:30, hammers:10 },
   },
 
   // ----------------------------------------------------------
@@ -58,8 +69,10 @@ const CONFIG = {
   //    These control how many pieces drop per find.
   // ----------------------------------------------------------
   starPiecesPerDrop: {
-    normal: 1,    // from normal or gold eggs
-    silver: 2,    // silver eggs give double
+    normal: 1,
+    silver: 2,
+    gold:   1,
+    crystal: 3,   // crystal eggs give triple
   },
   starPiecesForStarfall: 5,   // how many needed to trigger starfall
 

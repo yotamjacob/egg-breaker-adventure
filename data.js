@@ -438,6 +438,8 @@ const ACHIEVEMENT_DATA = [
   { id:'silver_100',   name:'Silver Mine',         desc:'Break 100 silver eggs',         icon:'⛏️', reward:{type:'maxH',val:8,        label:'+8 max hammers'} },
   { id:'gold_egg_10',  name:'Golden Touch',        desc:'Break 10 gold eggs',            icon:'🥇', reward:{type:'goldPct',val:3,     label:'+3% gold from eggs'} },
   { id:'gold_egg_50',  name:'Gold Rush',           desc:'Break 50 gold eggs',            icon:'🏅', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
+  { id:'crystal_1',    name:'Crystal Clear',      desc:'Break your first crystal egg',  icon:'🔮', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
+  { id:'crystal_25',   name:'Crystal Collector',  desc:'Break 25 crystal eggs',         icon:'💜', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
   // -- Daily login --
   { id:'streak_5',     name:'On a Roll',           desc:'5-day login streak',            icon:'📅', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'streak_20',    name:'Dedicated',            desc:'20-day login streak',           icon:'🔥', reward:{type:'maxH',val:10,       label:'+10 max hammers'} },
