@@ -762,7 +762,7 @@ body{
 
 /* ---------- Small screens ---------- */
 @media(max-width:420px){
-  body{padding:6px 4px 30px;font-size:11px}
+  body{padding:4px 4px 0;font-size:11px}
   .resource-bar{flex-wrap:wrap;gap:3px}
   .res{padding:2px 3px;font-size:11px}
   .res span{font-size:10px}
