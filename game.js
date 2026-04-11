@@ -646,45 +646,38 @@ function smashEgg(index) {
     return;
   }
 
-  G.hammers -= 1;
+  // Animate IMMEDIATELY before any logic
+  const slots = $id('egg-tray').children;
+  const slot = slots[index];
+  SFX.play('hit');
+  shake(slot, egg.hp <= 1 ? 'md' : 'sm');
 
-  // Chef hat: 10% chance hit was free
-  if (hasBonus('freeEgg') && Math.random() < 0.1) {
-    G.hammers = Math.min(G.maxH, G.hammers + 1);
-    msg('Free hit! (Chef\'s Hat)', '#16a34a');
-  }
-
-  // Start regen if needed
-  if (!regenInt && G.hammers < G.maxH) startRegen();
-
-
-  // Reduce HP
-  egg.hp -= 1;
-
-  // Animate hammer swing
   const hammerEl = $id('hammer');
   hammerEl.classList.remove('hammer-anim');
   void hammerEl.offsetWidth;
   hammerEl.classList.add('hammer-anim');
 
-  // Animate the egg slot
-  const slots = $id('egg-tray').children;
-  const slot = slots[index];
-  slot.classList.add('smashing');
-  setTimeout(() => slot.classList.remove('smashing'), 450);
-
-  // Sound & particles (more particles as egg gets weaker)
-  SFX.play('hit');
   const rect = slot.getBoundingClientRect();
   const wrapRect = $id('egg-tray-wrap').getBoundingClientRect();
   const cx = rect.left - wrapRect.left + rect.width / 2;
   const cy = rect.top - wrapRect.top + rect.height / 2;
+
+  // Now do logic
+  G.hammers -= 1;
+
+  if (hasBonus('freeEgg') && Math.random() < 0.1) {
+    G.hammers = Math.min(G.maxH, G.hammers + 1);
+    msg('Free hit! (Chef\'s Hat)', '#16a34a');
+  }
+
+  if (!regenInt && G.hammers < G.maxH) startRegen();
+
+  egg.hp -= 1;
+
   const particleCount = 4 + (egg.maxHp - egg.hp) * 3;
   Particles.emit(cx, cy, egg.type, particleCount);
-  shake(slot, egg.hp <= 0 ? 'md' : 'sm');
 
   if (egg.hp > 0) {
-    // Egg damaged but not broken — update visual with cracks
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, damage) +
       '<span class="egg-label">' + egg.type + ' ' + egg.hp + '/' + egg.maxHp + '</span>';
