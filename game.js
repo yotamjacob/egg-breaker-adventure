@@ -153,6 +153,7 @@ const DEFAULT_STATE = {
   roundClears: 0, feathersBought: 0, maxMultUsed: 0,
   achieved: [],
   soundOn: true,
+  autoBuy: false,
 };
 
 let G = {};
@@ -1158,7 +1159,37 @@ function unlockMonkey(index) {
 }
 
 // ==================== SHOP ====================
+function toggleAutoBuy() {
+  G.autoBuy = !G.autoBuy;
+  const btn = $id('auto-buy-btn');
+  btn.textContent = G.autoBuy ? 'ON' : 'OFF';
+  btn.classList.toggle('on', G.autoBuy);
+  saveGame();
+}
+
+function updateAutoBuyBtn() {
+  const btn = $id('auto-buy-btn');
+  if (btn) {
+    btn.textContent = G.autoBuy ? 'ON' : 'OFF';
+    btn.classList.toggle('on', G.autoBuy);
+  }
+}
+
 function buyShopItem(category, id) {
+  // Confirmation for non-consumable items when auto-buy is off
+  const isConsumable = category === 'supply' && !SHOP_SUPPLIES.find(s => s.id === id)?.unique;
+  if (!G.autoBuy && !isConsumable) {
+    const item = category === 'hammer' ? SHOP_HAMMERS.find(h => h.id === id)
+              : category === 'hat' ? SHOP_HATS.find(h => h.id === id)
+              : SHOP_SUPPLIES.find(s => s.id === id);
+    if (item && item.cost > 0) {
+      // Skip confirm if already owned (just equipping)
+      const alreadyOwned = (category === 'hammer' && G.ownedHammers.includes(id))
+                        || (category === 'hat' && G.ownedHats.includes(id))
+                        || (category === 'supply' && item.unique && (id === 'fastregen' ? G.fastRegen : G['owned_' + id]));
+      if (!alreadyOwned && !confirm('Buy ' + item.name + ' for ' + formatNum(item.cost) + ' gold?')) return;
+    }
+  }
   if (category === 'hammer') {
     const item = SHOP_HAMMERS.find(h => h.id === id);
     if (!item || item.cost === 0) return;
@@ -1473,6 +1504,7 @@ function renderAll() {
   renderAlbum();
   renderMonkeys();
   renderShop();
+  updateAutoBuyBtn();
   renderStats();
   renderAchievements();
   checkDaily();
@@ -1925,7 +1957,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   // Refresh content when switching tabs
   if (name === 'album') renderAlbum();
   if (name === 'monkeys') renderMonkeys();
-  if (name === 'shop') renderShop();
+  if (name === 'shop') { renderShop(); updateAutoBuyBtn(); }
   if (name === 'stats') renderStats();
   if (name === 'lexicon') renderLexicon();
   if (name === 'daily') renderDailyInfo();

@@ -512,6 +512,20 @@ body{
 }
 
 /* ---------- Shop tab ---------- */
+.auto-buy-row{
+  display:flex;align-items:center;justify-content:flex-end;gap:6px;
+  margin-bottom:6px;
+}
+.auto-buy-label{font-size:8px;color:var(--gray)}
+.auto-buy-toggle{
+  border:2px solid var(--gray);border-radius:2px;
+  background:var(--panel);color:var(--red);font-family:var(--px);
+  font-size:8px;padding:3px 10px;cursor:pointer;
+  box-shadow:1px 1px 0 var(--dark);transition:all .08s;
+}
+.auto-buy-toggle.on{
+  background:var(--green2);color:var(--white);border-color:var(--green);
+}
 .section-title{
   font-size:10px;color:var(--gold);
   letter-spacing:2px;text-transform:uppercase;
