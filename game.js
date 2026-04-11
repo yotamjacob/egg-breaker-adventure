@@ -235,6 +235,7 @@ function resetGame() {
     G = {
       ...DEFAULT_STATE,
       achieved: [],
+      discoveredEggs: ['normal','silver','gold'],
       multQueue: [],
       _selectedCounts: {},
       ownedHammers: ['default'],
