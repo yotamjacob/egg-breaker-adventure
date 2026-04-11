@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.4.7';
+const VERSION = '3.4.8';
 
 const CONFIG = {
 
@@ -37,9 +37,9 @@ const CONFIG = {
   //           feather, item, hammers
   // ----------------------------------------------------------
   prizeWeights: {
-    normal: { empty:12, gold_s:22, gold_m:13, gold_l:5,  star:8,  mult:7,  feather:10, item:15, hammers:0 },
-    silver: { empty:0,  gold_s:10, gold_m:18, gold_l:12, star:10, mult:10, feather:10, item:20, hammers:8 },
-    gold:   { empty:0,  gold_s:0,  gold_m:15, gold_l:20, star:12, mult:10, feather:8,  item:25, hammers:7 },
+    normal: { empty:12, gold_s:22, gold_m:13, gold_l:5,  star:8,  mult:7,  feather:5, item:15, hammers:0 },
+    silver: { empty:0,  gold_s:10, gold_m:18, gold_l:12, star:10, mult:10, feather:5, item:20, hammers:8 },
+    gold:   { empty:0,  gold_s:0,  gold_m:15, gold_l:20, star:12, mult:10, feather:4, item:25, hammers:7 },
   },
 
   // ----------------------------------------------------------
