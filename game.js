@@ -472,10 +472,10 @@ function renderEggTray() {
   // Grid-based placement with random jitter — guarantees no overlap
   const tW = tray.offsetWidth || 300;
   const tH = tray.offsetHeight || 250;
-  const eW = 76, eH = 100;
-  const pad = 16;
-  const usableW = tW - pad * 2;
-  const usableH = tH - pad * 2;
+  const eW = 76, eH = 110; // SVG 88px + label ~20px
+  const padX = 12, padTop = 10, padBot = 24; // extra bottom for label text
+  const usableW = tW - padX * 2;
+  const usableH = tH - padTop - padBot;
   const count = G.roundEggs.length;
 
   // Calculate grid: find best cols/rows to fit all eggs
@@ -494,8 +494,8 @@ function renderEggTray() {
   for (let i = 0; i < count; i++) {
     const col = i % cols;
     const row = Math.floor(i / cols);
-    const baseX = pad + col * cellW + (cellW - eW) / 2;
-    const baseY = pad + row * cellH + (cellH - eH) / 2;
+    const baseX = padX + col * cellW + (cellW - eW) / 2;
+    const baseY = padTop + row * cellH + (cellH - eH) / 2;
     positions.push({
       x: baseX + (Math.random() * 2 - 1) * jitterX,
       y: baseY + (Math.random() * 2 - 1) * jitterY,
