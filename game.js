@@ -431,34 +431,46 @@ function renderEggTray() {
     return;
   }
   tray.innerHTML = '';
-  // Generate random non-overlapping positions
+  // Grid-based placement with random jitter — guarantees no overlap
   const tW = tray.offsetWidth || 300;
   const tH = tray.offsetHeight || 250;
-  const eW = 76, eH = 100; // includes label space
-  const gapX = 10, gapY = 12; // gap between eggs
-  const pad = 14; // padding from tray edges
-  const positions = [];
+  const eW = 76, eH = 100;
+  const pad = 16;
+  const usableW = tW - pad * 2;
+  const usableH = tH - pad * 2;
+  const count = G.roundEggs.length;
 
-  function findPos() {
-    for (let attempt = 0; attempt < 100; attempt++) {
-      const x = pad + Math.random() * Math.max(0, tW - eW - pad * 2);
-      const y = pad + Math.random() * Math.max(0, tH - eH - pad * 2);
-      let overlap = false;
-      for (const p of positions) {
-        if (Math.abs(x - p.x) < eW + gapX && Math.abs(y - p.y) < eH + gapY) {
-          overlap = true; break;
-        }
-      }
-      if (!overlap) return { x, y };
-    }
-    const col = positions.length % 3;
-    const row = Math.floor(positions.length / 3);
-    return { x: pad + col * (eW + gapX), y: pad + row * (eH + gapY) };
+  // Calculate grid: find best cols/rows to fit all eggs
+  let cols = Math.ceil(Math.sqrt(count * (usableW / usableH)));
+  let rows = Math.ceil(count / cols);
+  if (cols < 1) cols = 1;
+  if (rows < 1) rows = 1;
+
+  const cellW = usableW / cols;
+  const cellH = usableH / rows;
+  // Max jitter so egg stays within its cell and away from border
+  const jitterX = Math.max(0, (cellW - eW) / 2);
+  const jitterY = Math.max(0, (cellH - eH) / 2);
+
+  const positions = [];
+  for (let i = 0; i < count; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const baseX = pad + col * cellW + (cellW - eW) / 2;
+    const baseY = pad + row * cellH + (cellH - eH) / 2;
+    positions.push({
+      x: baseX + (Math.random() * 2 - 1) * jitterX,
+      y: baseY + (Math.random() * 2 - 1) * jitterY,
+    });
+  }
+  // Shuffle positions so egg types aren't always in grid order
+  for (let i = positions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = positions[i]; positions[i] = positions[j]; positions[j] = t;
   }
 
   G.roundEggs.forEach((egg, i) => {
-    const pos = findPos();
-    positions.push(pos);
+    const pos = positions[i];
     const slot = document.createElement('div');
     slot.className = 'egg-slot' + (egg.broken ? ' broken' : '') + (egg.type === 'gold' ? ' gold-egg' : '');
     slot.style.left = pos.x + 'px';
