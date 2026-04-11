@@ -349,7 +349,10 @@ function renderLog() {
   if (!el) return;
   el.innerHTML = '<div class="rlog-title">Log</div>' +
     _logLines.map(function(l) {
-      var cls = 'log-line' + (l.cat === 'noHammers' ? ' log-err' : '');
+      var cls = 'log-line';
+      if (l.cat === 'noHammers') cls += ' log-err';
+      else if (l.cat === 'trophies' || l.cat === 'tiers') cls += ' log-green';
+      else if (l.cat === 'items') cls += ' log-blue';
       return '<div class="' + cls + '">' + l.text + '</div>';
     }).join('');
 }
