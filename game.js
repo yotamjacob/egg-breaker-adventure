@@ -330,12 +330,17 @@ function renderLog() {
   ).join('');
 }
 
-function spawnFloat(zone, text, color, cls) {
+function spawnFloat(zone, text, color, cls, cx, cy) {
   const el = document.createElement('div');
   el.className = 'prize-float' + (cls ? ' ' + cls : '');
   el.style.color = color;
-  el.style.left = (20 + Math.random() * 60) + '%';
-  el.style.top = (10 + Math.random() * 30) + '%';
+  if (cx !== undefined && cy !== undefined) {
+    el.style.left = cx + 'px';
+    el.style.top = cy + 'px';
+  } else {
+    el.style.left = (20 + Math.random() * 60) + '%';
+    el.style.top = (10 + Math.random() * 30) + '%';
+  }
   el.textContent = text;
   zone.appendChild(el);
   setTimeout(() => el.remove(), cls === 'mega' ? 3200 : cls === 'big' ? 2700 : 2200);
@@ -749,8 +754,8 @@ function applyPrize(prize, cx, cy) {
   const zone = $id('prize-zone');
 
   if (prize.type === 'empty') {
-    spawnFloat(zone, 'Empty!', '#9ca3af');
-    msg('Nothing this time...', '#9ca3af');
+    spawnFloat(zone, 'Empty!', '#9ca3af', '', cx, cy);
+    msg('Nothing this time...');
     SFX.play('empty');
     return;
   }
@@ -762,11 +767,11 @@ function applyPrize(prize, cx, cy) {
     const cls = prize.value >= 500 ? 'mega' : prize.value >= 200 ? 'big' : '';
     if (prize.usedMult) {
       const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'gold');
-      spawnFloat(zone, eq, '#d97706', cls || 'big');
-      msg(eq + '!', '#d97706');
+      spawnFloat(zone, eq, '#d97706', cls || 'big', cx, cy);
+      msg(eq);
     } else {
-      spawnFloat(zone, prize.label, '#d97706', cls);
-      msg(prize.label, '#d97706');
+      spawnFloat(zone, prize.label, '#d97706', cls, cx, cy);
+      msg(prize.label);
     }
     SFX.play('coin');
     if (prize.value >= 200) Particles.sparkle(cx, cy, 12, '#FFD700');
@@ -777,11 +782,11 @@ function applyPrize(prize, cx, cy) {
     G.totalStarPieces += prize.value;
     if (prize.usedMult) {
       const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'stars');
-      spawnFloat(zone, eq, '#f59e0b', 'big');
-      msg(eq + '!', '#f59e0b');
+      spawnFloat(zone, eq, '#f59e0b', 'big', cx, cy);
+      msg(eq);
     } else {
-      spawnFloat(zone, prize.label, '#f59e0b', 'big');
-      msg(prize.label, '#f59e0b');
+      spawnFloat(zone, prize.label, '#f59e0b', 'big', cx, cy);
+      msg(prize.label);
     }
     SFX.play('star');
     Particles.sparkle(cx, cy, 10, '#FCD34D');
@@ -791,14 +796,14 @@ function applyPrize(prize, cx, cy) {
   if (prize.type === 'mult') {
     G.multQueue.push(prize.value);
     G.highestMult = Math.max(G.highestMult, prize.value);
-    spawnFloat(zone, prize.label, '#7c3aed', 'big');
-    msg(prize.label, '#7c3aed');
+    spawnFloat(zone, prize.label, '#7c3aed', 'big', cx, cy);
+    msg(prize.label);
     SFX.play('gem');
     renderMultQueue();
     if (prize.bonusGold) {
       G.gold += prize.bonusGold;
       G.totalGold += prize.bonusGold;
-      spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706');
+      spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706', '', cx, cy - 20);
     }
   }
 
@@ -807,37 +812,37 @@ function applyPrize(prize, cx, cy) {
     G.totalFeathers += prize.value;
     if (prize.usedMult) {
       const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'feathers');
-      spawnFloat(zone, eq, '#059669', 'big');
-      msg(eq + '!', '#059669');
+      spawnFloat(zone, eq, '#059669', 'big', cx, cy);
+      msg(eq);
     } else {
-      spawnFloat(zone, prize.label, '#059669');
-      msg(prize.label, '#059669');
+      spawnFloat(zone, prize.label, '#059669', '', cx, cy);
+      msg(prize.label);
     }
     SFX.play('coin');
   }
 
   if (prize.type === 'hammers') {
-    // Silver egg hammer prizes allow overflow above max
     G.hammers += prize.value;
     if (prize.usedMult) {
       const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'hammers');
-      spawnFloat(zone, eq, '#b45309', 'big');
-      msg(eq + '!', '#b45309');
+      spawnFloat(zone, eq, '#b45309', 'big', cx, cy);
+      msg(eq);
     } else {
-      spawnFloat(zone, prize.label, '#b45309', 'big');
-      msg(prize.label, '#b45309');
+      spawnFloat(zone, prize.label, '#b45309', 'big', cx, cy);
+      msg(prize.label);
     }
     SFX.play('coin');
   }
 
   if (prize.type === 'item') {
     const prog = curProgress();
+    const si = curActiveStage();
     const wasNew = prize.isNew;
     if (wasNew) {
-      prog.collections[prog.stage][prize.index] = true;
+      prog.collections[si][prize.index] = true;
       G.totalItems++;
     }
-    spawnFloat(zone, prize.label, prize.color, wasNew ? 'big' : '');
+    spawnFloat(zone, prize.label, prize.color, wasNew ? 'big' : '', cx, cy);
     if (wasNew) {
       SFX.play('item');
       Particles.sparkle(cx, cy, 15, '#F59E0B');
