@@ -478,7 +478,7 @@ function renderEggTray() {
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, egg.broken ? egg.maxHp : damage) +
       '<span class="egg-label">' + egg.type +
-      (egg.broken ? '' : ' ' + egg.hp + '/' + egg.maxHp) + '</span>';
+      (egg.broken ? '' : '<br>' + egg.hp + '/' + egg.maxHp) + '</span>';
     slot.setAttribute('data-idx', String(i));
     if (!egg.broken) slot.onclick = function() { smashEgg(i); };
     tray.appendChild(slot);
@@ -717,7 +717,7 @@ function smashEgg(index) {
   if (egg.hp > 0) {
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, damage) +
-      '<span class="egg-label">' + egg.type + ' ' + egg.hp + '/' + egg.maxHp + '</span>';
+      '<span class="egg-label">' + egg.type + '<br>' + egg.hp + '/' + egg.maxHp + '</span>';
     setTimeout(() => { egg._smashing = false; }, 300);
     updateResources();
     saveGame();
