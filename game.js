@@ -231,9 +231,20 @@ function loadGame() {
 }
 
 function resetGame() {
-  showConfirm('⚠️', 'Reset ALL progress?', 'Including trophies. This cannot be undone!', function() {
+  showConfirm('⚠️', 'Reset ALL progress?', 'Including trophies and album. This cannot be undone!', function() {
     localStorage.removeItem(SAVE_KEY);
-    G = { ...DEFAULT_STATE, achieved: [], monkeys: initMonkeys(), roundEggs: null };
+    G = {
+      ...DEFAULT_STATE,
+      achieved: [],
+      multQueue: [],
+      _selectedCounts: {},
+      ownedHammers: ['default'],
+      ownedHats: ['none'],
+      hammer: 'default',
+      hat: 'none',
+      monkeys: initMonkeys(),
+      roundEggs: null,
+    };
     if (regenInt) { clearInterval(regenInt); regenInt = null; }
     invalidateBonusCache();
     invalidateAchieveCache();
