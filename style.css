@@ -431,12 +431,12 @@ body{
   font-family:var(--px);color:var(--gray);
   transition:all .08s;box-shadow:1px 1px 0 var(--dark);
 }
-.album-stage-btn.active{background:var(--panel2);border-color:var(--gold);color:var(--gold);border-width:3px;box-shadow:0 0 8px rgba(245,197,66,.5),1px 1px 0 var(--dark)}
 .album-stage-btn.locked{opacity:.35;cursor:not-allowed}
 .album-stage-btn.tier-bronze{border-color:var(--gray);color:var(--gray)}
 .album-stage-btn.tier-silver{border-color:#A9A9A9;color:#ccc;background:var(--panel2)}
 .album-stage-btn.tier-gold{border-color:var(--gold);color:var(--gold);background:var(--panel2)}
 .album-stage-btn.complete{background:#143d2b;border-color:var(--green);color:var(--green)}
+.album-stage-btn.active{border-color:var(--gold)!important;border-width:3px!important;box-shadow:0 0 8px rgba(245,197,66,.5),1px 1px 0 var(--dark)!important}
 .album-items{
   background:var(--panel);border:3px solid var(--gold3);border-radius:2px;
   padding:10px;box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark);
