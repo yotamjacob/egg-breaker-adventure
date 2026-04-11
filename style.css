@@ -431,7 +431,7 @@ body{
   font-family:var(--px);color:var(--gray);
   transition:all .08s;box-shadow:1px 1px 0 var(--dark);
 }
-.album-stage-btn.active{background:var(--panel2);border-color:var(--gold);color:var(--gold)}
+.album-stage-btn.active{background:var(--panel2);border-color:var(--gold);color:var(--gold);border-width:3px;box-shadow:0 0 8px rgba(245,197,66,.5),1px 1px 0 var(--dark)}
 .album-stage-btn.locked{opacity:.35;cursor:not-allowed}
 .album-stage-btn.tier-bronze{border-color:var(--gray);color:var(--gray)}
 .album-stage-btn.tier-silver{border-color:#A9A9A9;color:#ccc;background:var(--panel2)}
