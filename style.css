@@ -401,13 +401,19 @@ body{
   box-shadow:inset 1px 1px 0 var(--raised);
 }
 .pity-label{color:var(--green);white-space:nowrap}
-.album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:5px}
+.album-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}
 .album-item{
   position:relative;cursor:help;
-  display:flex;align-items:center;gap:4px;padding:5px 6px;
+  display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;
+  align-items:center;gap:2px 4px;padding:5px 6px;
   border-radius:2px;border:2px solid var(--gray);background:var(--bg);
-  font-size:9px;transition:all .1s;flex-wrap:wrap;
+  font-size:9px;transition:all .1s;
+  min-height:42px;
 }
+.album-item .item-emoji{grid-row:1/3;font-size:18px}
+.album-item .item-name{grid-column:2;font-size:8px}
+.album-item .album-rarity{grid-column:3;grid-row:1}
+.album-item .feather-buy-btn{grid-column:2/4;grid-row:2}
 .album-item.found{background:var(--panel2);border-color:var(--gold)}
 .album-item:hover{z-index:200}
 .album-item[data-tip]::after{
@@ -426,8 +432,6 @@ body{
 .album-item.locked .item-emoji{opacity:.4;filter:grayscale(.5)}
 .album-item.locked .item-name{opacity:.4}
 .album-item.locked .album-rarity{opacity:.4}
-.album-item .item-emoji{font-size:18px;flex-shrink:0}
-.album-item .item-name{color:var(--white);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .album-item.locked .item-name{color:var(--gray)}
 .album-rarity{font-size:8px;border-radius:1px;padding:1px 3px;flex-shrink:0;border:1px solid;white-space:nowrap}
 .feather-buy-btn{
@@ -777,7 +781,7 @@ body{
   .res strong{font-size:11px}
   .shop-grid{grid-template-columns:1fr 1fr}
   .monkey-grid{grid-template-columns:1fr}
-  .album-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .album-grid{grid-template-columns:1fr}
   .nav-sections{gap:1px;padding:2px}
   .nav-grid{gap:1px}
   .nav-play{font-size:12px}
