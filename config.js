@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.7.8';
+const VERSION = '4.7.9';
 
 const CONFIG = {
 
@@ -22,7 +22,7 @@ const CONFIG = {
       goldMult: 1, featherMult: 1, starPieces: 1,
       colors: { f:'#FEF9F0', s:'#D4A853', h:'#fff8e0', sh:'#b8922e' },
       particles: ['#ffe8b0','#e8c878','#d4a840','#c09028'],
-      prizes: { empty:12, gold_s:22, gold_m:13, gold_l:5, star:8, mult:7, feather:5, item:15, hammers:0 },
+      prizes: { empty:12, gold_s:22, gold_m:13, gold_l:5, star:6, mult:5, feather:5, item:15, hammers:0 },
       desc: 'Can be empty',
     },
     {
@@ -31,8 +31,8 @@ const CONFIG = {
       goldMult: 2, featherMult: 2, starPieces: 2,
       colors: { f:'#d8dde3', s:'#8899aa', h:'#eceff2', sh:'#667788' },
       particles: ['#c8d8e8','#a0b8c8','#88a0b0','#6888a0'],
-      prizes: { empty:0, gold_s:10, gold_m:18, gold_l:12, star:10, mult:10, feather:5, item:20, hammers:8 },
-      desc: 'Never empty, 2x prizes, can drop bonus hammers',
+      prizes: { empty:5, gold_s:10, gold_m:18, gold_l:12, star:10, mult:8, feather:5, item:20, hammers:8 },
+      desc: 'Rarely empty, 2x prizes, can drop bonus hammers',
     },
     {
       id: 'gold', name: 'Gold', emoji: '🌟',
@@ -40,7 +40,7 @@ const CONFIG = {
       goldMult: 1.5, featherMult: 1, starPieces: 1,
       colors: { f:'#FFD700', s:'#B8860B', h:'#ffe44d', sh:'#8B6508' },
       particles: ['#FFD700','#FFA500','#FF8C00','#DAA520'],
-      prizes: { empty:0, gold_s:0, gold_m:15, gold_l:20, star:12, mult:10, feather:4, item:25, hammers:7 },
+      prizes: { empty:0, gold_s:0, gold_m:15, gold_l:20, star:10, mult:7, feather:4, item:25, hammers:7 },
       desc: 'Never empty, 1.5x gold, best item drop rate',
     },
     {
@@ -49,7 +49,7 @@ const CONFIG = {
       goldMult: 2, featherMult: 1, starPieces: 3,
       colors: { f:'#E0D0FF', s:'#8B5CF6', h:'#F0E8FF', sh:'#6D28D9' },
       particles: ['#E0D0FF','#C4B5FD','#A78BFA','#8B5CF6'],
-      prizes: { empty:0, gold_s:0, gold_m:5, gold_l:30, star:15, mult:12, feather:6, item:30, hammers:10 },
+      prizes: { empty:0, gold_s:0, gold_m:5, gold_l:30, star:12, mult:9, feather:6, item:30, hammers:10 },
       desc: 'Stage 3+. Never empty, 2x gold, 3 star pieces, rarest drops',
     },
   ],
@@ -79,8 +79,8 @@ const CONFIG = {
   //    array make that value more common.
   //    e.g. two 2's and two 3's = 25% each, one 50 = 12.5%
   // ----------------------------------------------------------
-  // x2: ~20%, x3: ~15%, x5: ~10%, x10: ~5%, x50: ~5%, x123: ~2.5%
-  multiplierValues: [2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 10, 10, 50, 50, 123],
+  // x2: ~35%, x3: ~25%, x5: ~17%, x10: ~10%, x50: ~8%, x123: ~4%
+  multiplierValues: [2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 5, 5, 5, 10, 10, 50, 50, 123],
 
   // ----------------------------------------------------------
   // 7. HAMMER PRIZES (from silver eggs only)
@@ -96,7 +96,7 @@ const CONFIG = {
   itemRarityWeights: {
     common:   15,   // rarity 1
     uncommon: 5,    // rarity 2
-    rare:     1,    // rarity 3
+    rare:     2,    // rarity 3
   },
 
   // Feather cost to buy an album item directly.
