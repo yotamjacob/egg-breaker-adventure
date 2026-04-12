@@ -230,7 +230,12 @@
         var idx = el.getAttribute('data-idx');
         if (idx !== null && !(el.classList && el.classList.contains('broken'))) {
           e.preventDefault();
-          if (typeof smashEgg === 'function') smashEgg(parseInt(idx));
+          // Balloon eggs need long press
+          if (el.getAttribute('data-balloon') === '1') {
+            if (typeof startBalloonInflate === 'function') startBalloonInflate(parseInt(idx), el);
+          } else {
+            if (typeof smashEgg === 'function') smashEgg(parseInt(idx));
+          }
           return;
         }
         // Monkey switch
@@ -262,6 +267,14 @@
         el = el.parentNode;
       }
     }, { capture: true, passive: false });
+
+    // Cancel balloon inflate on touch release
+    document.addEventListener('touchend', function() {
+      if (typeof cancelBalloonInflate === 'function') cancelBalloonInflate(document.querySelector('.inflating'));
+    }, { capture: true });
+    document.addEventListener('touchcancel', function() {
+      if (typeof cancelBalloonInflate === 'function') cancelBalloonInflate(document.querySelector('.inflating'));
+    }, { capture: true });
   </script>
   <script src="config.js"></script>
   <script src="data.js"></script>

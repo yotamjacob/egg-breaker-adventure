@@ -271,10 +271,14 @@ function newRound() {
       if (r <= 0) { type = e.type; break; }
     }
     const hp = EGG_HP[type];
-    const effects = [];
-    if (Math.random() < 0.05) effects.push('runny');
-    if (Math.random() < 0.05) effects.push('timer');
-    if (Math.random() < 0.03) effects.push('hex');
+    let effects = [];
+    if (Math.random() < 0.03) {
+      effects = ['balloon'];  // exclusive — no other effects
+    } else {
+      if (Math.random() < 0.05) effects.push('runny');
+      if (Math.random() < 0.05) effects.push('timer');
+      if (Math.random() < 0.03) effects.push('hex');
+    }
     eggs.push({ type, hp, maxHp: hp, broken: false, effects, timer: effects.includes('timer') ? 3.0 : 0 });
     // Discover new egg type
     if (!G.discoveredEggs) G.discoveredEggs = ['normal','silver','gold'];
@@ -494,10 +498,101 @@ function noHammerMsg() {
   return NO_HAMMER_MSGS[Math.floor(Math.random() * NO_HAMMER_MSGS.length)];
 }
 
+// ==================== BALLOON EGG ====================
+let _balloonHold = null;
+function startBalloonInflate(index, slot) {
+  if (_balloonHold) return;
+  const egg = G.roundEggs[index];
+  if (!egg || egg.broken || egg.expired) return;
+  if (G.hammers < 1) { msg(noHammerMsg(), 'noHammers'); SFX.play('err'); return; }
+
+  let scale = 1;
+  const maxScale = 1.8;
+  const duration = 1500; // ms to full inflate
+  const step = 16;
+  const increment = (maxScale - 1) / (duration / step);
+  slot.classList.add('inflating');
+
+  _balloonHold = setInterval(() => {
+    scale += increment;
+    slot.style.transform = 'scale(' + Math.min(scale, maxScale) + ')';
+    if (scale >= maxScale) {
+      clearInterval(_balloonHold);
+      _balloonHold = null;
+      popBalloonEgg(index, slot);
+    }
+  }, step);
+}
+
+function cancelBalloonInflate(slot) {
+  if (_balloonHold) {
+    clearInterval(_balloonHold);
+    _balloonHold = null;
+  }
+  if (slot) {
+    slot.style.transform = '';
+    slot.classList.remove('inflating');
+  }
+}
+
+function popBalloonEgg(index, slot) {
+  const egg = G.roundEggs[index];
+  if (!egg || egg.broken) return;
+
+  G.hammers -= 1;
+  if (!regenInt && G.hammers < G.maxH) startRegen();
+
+  egg.broken = true;
+  egg.hp = 0;
+  G.totalEggs++;
+  G.balloonPopped = (G.balloonPopped || 0) + 1;
+
+  if (egg.type !== 'normal') G[egg.type + 'Smashed'] = (G[egg.type + 'Smashed'] || 0) + 1;
+
+  slot.classList.remove('inflating', 'balloon');
+  slot.classList.add('broken');
+  slot.style.transform = '';
+
+  const rect = slot.getBoundingClientRect();
+  const wrapRect = $id('egg-tray-wrap').getBoundingClientRect();
+  const cx = rect.left - wrapRect.left + rect.width / 2;
+  const cy = rect.top - wrapRect.top + rect.height / 2;
+
+  SFX.play('starfall');
+  Particles.emit(cx, cy, egg.type, 30);
+  Particles.sparkle(cx, cy, 20, '#FFD700');
+  shake($id('egg-tray-wrap'), 'md');
+
+  // Roll prize and multiply by 10
+  const prize = rollPrize(egg.type);
+  if (prize.value) prize.value *= 10;
+  if (prize.baseVal) prize.baseVal *= 10;
+  prize.label = '🎈 x10 ' + prize.label;
+
+  slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + eggLabel(egg.type, 0, egg.maxHp, true);
+
+  setTimeout(() => {
+    applyPrize(prize, cx, cy);
+    if (egg.effects && egg.effects.includes('hex')) applyHex(cx, cy);
+    msg('🎈 POP! x10 rewards!', 'prizes');
+
+    if (G.roundEggs.every(e => e.broken || e.expired) && !_roundPending) {
+      _roundPending = true;
+      G.roundClears++;
+      checkAchievements();
+      setTimeout(() => newRound(), 600);
+    }
+    updateResources();
+    updateStageBar();
+    saveGame();
+  }, 200);
+}
+
 // ==================== SMASH EGG ====================
 function smashEgg(index) {
   if (!G.roundEggs || G.roundEggs[index].broken || G.roundEggs[index].expired) return;
   const egg = G.roundEggs[index];
+  if (egg.effects && egg.effects.includes('balloon')) return; // balloon eggs use long-press
   if (egg._smashing) return;
   egg._smashing = true;
 
@@ -1361,6 +1456,9 @@ function checkAchievements() {
     hex_1:        () => (G.hexesHit || 0) >= 1,
     hex_10:       () => (G.hexesHit || 0) >= 10,
     hex_50:       () => (G.hexesHit || 0) >= 50,
+    balloon_1:    () => (G.balloonPopped || 0) >= 1,
+    balloon_10:   () => (G.balloonPopped || 0) >= 10,
+    balloon_50:   () => (G.balloonPopped || 0) >= 50,
   };
 
   for (const a of ACHIEVEMENT_DATA) {
@@ -1453,6 +1551,17 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (name === 'lexicon') renderLexicon();
   if (name === 'daily') renderDailyCalendar();
   if (name === 'achieve') renderAchievements();
+});
+
+// ==================== BALLOON DESKTOP HANDLERS ====================
+$id('egg-tray').addEventListener('mousedown', (e) => {
+  const slot = e.target.closest('.egg-slot[data-balloon="1"]');
+  if (!slot || slot.classList.contains('broken')) return;
+  const idx = parseInt(slot.getAttribute('data-idx'));
+  startBalloonInflate(idx, slot);
+});
+document.addEventListener('mouseup', () => {
+  cancelBalloonInflate(document.querySelector('.inflating'));
 });
 
 // ==================== KEYBOARD ====================

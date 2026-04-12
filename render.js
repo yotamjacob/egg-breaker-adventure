@@ -143,15 +143,23 @@ function renderEggTray() {
     if (egg.broken || egg.expired) cls += ' broken';
     if (alive && fx.includes('runny')) cls += ' runny';
     if (alive && fx.includes('timer')) cls += ' timed';
+    if (alive && fx.includes('balloon')) cls += ' balloon';
     slot.className = cls;
     slot.style.left = pos.x + 'px';
     slot.style.top = pos.y + 'px';
     const damage = egg.maxHp - egg.hp;
+    const balloonExtra = alive && fx.includes('balloon')
+      ? '<div class="balloon-rope"><div class="balloon-knot"></div><div class="balloon-string"></div></div>' : '';
     slot.innerHTML = makeEggSVG(egg.type, (egg.broken || egg.expired) ? egg.maxHp : damage) +
+      balloonExtra +
       eggLabel(egg.type, egg.hp, egg.maxHp, egg.broken || egg.expired) +
       (alive && fx.includes('timer') ? '<span class="egg-timer">' + formatTimer(egg.timer) + '</span>' : '');
     slot.setAttribute('data-idx', String(i));
-    if (alive) slot.onclick = function() { smashEgg(i); };
+    if (alive && fx.includes('balloon')) {
+      slot.setAttribute('data-balloon', '1');
+    } else if (alive) {
+      slot.onclick = function() { smashEgg(i); };
+    }
     tray.appendChild(slot);
     if (alive && fx.includes('runny')) {
       const angle = Math.random() * Math.PI * 2;
@@ -698,6 +706,7 @@ function renderStats() {
     ['Timed missed', G.timerMissed || 0],
     ['Millenium eggs', G.milleniumSmashed || 0],
     ['Hexes hit', G.hexesHit || 0],
+    ['Balloons popped', G.balloonPopped || 0],
     ['Daily claims', G.totalDailyClaims || 0],
   ].map(([k, v]) => '<span>' + k + ': <strong>' + v + '</strong></span>').join('');
 }

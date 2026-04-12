@@ -503,6 +503,10 @@ const ACHIEVEMENT_DATA = [
   { id:'hex_1',        name:'Cursed!',             desc:'Get hexed for the first time',   icon:'😈', reward:{type:'gold',val:100,      label:'+100 gold'} },
   { id:'hex_10',       name:'Bad Karma',           desc:'Get hexed 10 times',             icon:'👹', reward:{type:'gold',val:500,      label:'+500 gold'} },
   { id:'hex_50',       name:'Hex Magnet',          desc:'Get hexed 50 times',             icon:'🧿', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  // -- Balloon --
+  { id:'balloon_1',    name:'Pop!',                desc:'Pop your first balloon egg',     icon:'🎈', reward:{type:'gold',val:200,      label:'+200 gold'} },
+  { id:'balloon_10',   name:'Party Animal',        desc:'Pop 10 balloon eggs',            icon:'🎉', reward:{type:'gold',val:2000,     label:'+2,000 gold'} },
+  { id:'balloon_50',   name:'Balloon Master',      desc:'Pop 50 balloon eggs',            icon:'🎊', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
 ];
 
 // Daily rewards for 100 days. type: gold, hammers, maxH, feathers, banana
