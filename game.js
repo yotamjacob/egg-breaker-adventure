@@ -681,6 +681,14 @@ function smashEgg(index) {
   // Roll prize
   const prize = rollPrize(egg.type);
 
+  // Effect eggs get bonus rewards
+  const fx = egg.effects || [];
+  if (fx.includes('runny') || fx.includes('timer')) {
+    if (prize.value) prize.value *= 3;
+    if (prize.baseVal) prize.baseVal *= 3;
+    prize.label = 'x3 ' + prize.label;
+  }
+
   // Apply prize after short delay
   setTimeout(() => {
     applyPrize(prize, cx, cy);
