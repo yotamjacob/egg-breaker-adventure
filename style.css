@@ -166,9 +166,9 @@ body{
   flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;
 }
 .nav-tab{
-  padding:8px 2px;border:none;
+  padding:8px 1px;border:none;
   background:var(--panel);
-  border-radius:1px;cursor:pointer;font-size:11px;
+  border-radius:1px;cursor:pointer;font-size:9px;
   font-family:var(--px);font-weight:400;
   color:var(--gray);
   transition:all .08s;
@@ -782,7 +782,7 @@ body{
   .nav-grid{gap:1px}
   .nav-play{font-size:12px}
   .nav-play.active{font-size:14px}
-  .nav-tab{font-size:10px;padding:7px 1px}
+  .nav-tab{font-size:8px;padding:7px 1px}
   .title-text h1{font-size:10px}
   .egg-slot{width:65px;min-height:90px}
   .egg-slot .egg-label{font-size:11px}
@@ -800,7 +800,7 @@ body{
 @media(max-width:340px){
   .nav-play{font-size:10px}
   .nav-play.active{font-size:12px}
-  .nav-tab{font-size:11px;padding:6px 1px}
+  .nav-tab{font-size:7px;padding:6px 1px}
   .res{font-size:10px;padding:2px 2px}
   .res span{font-size:11px}
   .res strong{font-size:10px}
