@@ -430,7 +430,7 @@ function renderAll() {
   const monkey = curMonkey();
   const avatarEl = $id('monkey-avatar');
   if (monkey.img) {
-    avatarEl.innerHTML = '<img src="' + monkey.img + '" style="width:130%;height:130%;object-fit:cover;border-radius:50%;margin:-15%">';
+    avatarEl.innerHTML = '<img src="' + monkey.img + '" style="width:100%;height:100%;object-fit:cover">';
   } else {
     avatarEl.textContent = monkey.emoji;
   }
@@ -555,7 +555,7 @@ function renderMonkeys() {
     if (mp.unlocked && !isActive) card.setAttribute('data-monkey', String(i));
 
     let inner = m.img
-      ? '<div class="m-emoji m-avatar-wrap"><img src="' + m.img + '"></div>'
+      ? '<div class="m-emoji m-avatar-wrap"><img src="' + m.img + '" style="width:100%;height:100%;object-fit:cover"></div>'
       : '<span class="m-emoji">' + m.emoji + '</span>';
     inner += '<span class="m-name">' + m.name + '</span>';
     inner += '<span class="m-perk">' + m.perkDesc + '</span>';
