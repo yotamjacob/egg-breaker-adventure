@@ -151,6 +151,11 @@
 .balloon-knot{width:8px;height:6px;background:var(--amber);border-radius:0 0 50% 50%;margin-top:-2px}
 .balloon-string{width:1px;height:18px;background:var(--gray);border-left:1px dashed var(--gray)}
 @keyframes balloon-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.chicken-run{
+  position:absolute;bottom:20px;left:-40px;font-size:28px;
+  animation:chicken-dash 2.5s linear forwards;pointer-events:none;z-index:40;
+}
+@keyframes chicken-dash{0%{left:-40px;transform:scaleX(1)}100%{left:110%;transform:scaleX(1)}}
 .egg-slot.smashing{animation:egg-smash-retro .35s steps(6)}
 @keyframes runny-wobble{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 .egg-slot .egg-label{

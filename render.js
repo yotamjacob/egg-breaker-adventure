@@ -748,6 +748,30 @@ function renderAchievements() {
     }
     grid.appendChild(card);
   });
+
+  // Secrets section
+  const sGrid = $id('secrets-grid');
+  sGrid.innerHTML = '';
+  SECRET_ACHIEVEMENTS.forEach(a => {
+    const unlocked = G.achieved.includes(a.id);
+    const card = document.createElement('div');
+    card.className = 'achieve-card ' + (unlocked ? 'unlocked' : 'locked');
+    if (unlocked) {
+      const rewardLabel = a.reward ? a.reward.label : '';
+      card.innerHTML =
+        '<span class="a-icon">' + a.icon + '</span>' +
+        '<div class="a-info"><span class="a-name">' + a.name + '</span> ' +
+        '<span class="a-desc">' + a.desc + '</span>' +
+        (rewardLabel ? ' <span class="a-reward">' + rewardLabel + '</span>' : '') +
+        '</div>';
+    } else {
+      card.innerHTML =
+        '<span class="a-icon">🔮</span>' +
+        '<div class="a-info"><span class="a-name">???</span>' +
+        '<span class="a-desc">Hidden secret</span></div>';
+    }
+    sGrid.appendChild(card);
+  });
 }
 
 // ==================== DAILY CALENDAR ====================

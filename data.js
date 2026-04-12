@@ -509,6 +509,19 @@ const ACHIEVEMENT_DATA = [
   { id:'balloon_50',   name:'Balloon Master',      desc:'Pop 50 balloon eggs',            icon:'🎊', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
 ];
 
+// Secret achievements — hidden until discovered
+const SECRET_ACHIEVEMENTS = [
+  { id:'secret_flip',     name:'Topsy Turvy',           desc:'Flip the eggs upside down',        icon:'🙃', reward:{type:'gold',val:500,  label:'+500 gold'} },
+  { id:'secret_omelette', name:'Omelette du Fromage',   desc:'Type the secret word',             icon:'🍳', reward:{type:'gold',val:500,  label:'+500 gold'} },
+  { id:'secret_42',       name:'Meaning of Life',       desc:'42 eggs broken without gold',      icon:'🌌', reward:{type:'gold',val:420,  label:'+420 gold'} },
+  { id:'secret_ouch',     name:'Sorry Little Egg',      desc:'An egg said ouch',                 icon:'🥺', reward:{type:'gold',val:100,  label:'+100 gold'} },
+  { id:'secret_chicken',  name:'Why Did It Cross?',     desc:'Spot the runaway chicken',         icon:'🐔', reward:{type:'gold',val:200,  label:'+200 gold'} },
+  { id:'secret_midnight', name:'Night Owl',             desc:'Break eggs at midnight',           icon:'🌙', reward:{type:'starPieces',val:3, label:'+3 star pieces'} },
+  { id:'secret_leet',     name:'l33t',                  desc:'Have exactly 1337 gold',           icon:'💻', reward:{type:'gold',val:1337, label:'+1,337 gold'} },
+  { id:'secret_strikes',  name:'Three Strikes',         desc:'Get 3 empties in a row',           icon:'⚾', reward:{type:'gold',val:100,  label:'+100 gold'} },
+  { id:'secret_chef',     name:'Could\'ve Been a Chef', desc:'Break 10,000 normal eggs',         icon:'👨‍🍳', reward:{type:'maxH',val:5,    label:'+5 max hammers'} },
+];
+
 // Daily rewards for 100 days. type: gold, hammers, maxH, feathers, banana
 function generateDailyRewards() {
   const rewards = [];

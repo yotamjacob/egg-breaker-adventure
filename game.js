@@ -1459,9 +1459,20 @@ function checkAchievements() {
     balloon_1:    () => (G.balloonPopped || 0) >= 1,
     balloon_10:   () => (G.balloonPopped || 0) >= 10,
     balloon_50:   () => (G.balloonPopped || 0) >= 50,
+    // Secrets
+    secret_flip:     () => G._secretFlip,
+    secret_omelette: () => G._secretOmelette,
+    secret_42:       () => G._secret42,
+    secret_ouch:     () => G._secretOuch,
+    secret_chicken:  () => G._secretChicken,
+    secret_midnight: () => G._secretMidnight,
+    secret_leet:     () => G._secretLeet,
+    secret_strikes:  () => G._secretStrikes,
+    secret_chef:     () => G._secretChef,
   };
 
-  for (const a of ACHIEVEMENT_DATA) {
+  const allAchievements = ACHIEVEMENT_DATA.concat(SECRET_ACHIEVEMENTS);
+  for (const a of allAchievements) {
     if (G.achieved.includes(a.id)) continue;
     const fn = checks[a.id];
     if (fn && fn()) {
@@ -1469,7 +1480,8 @@ function checkAchievements() {
       invalidateAchieveCache();
       grantAchievementReward(a);
       showAchieveToast(a);
-      msg('🏆 Trophy: ' + a.name + (a.reward ? ' — ' + a.reward.label : ''), 'trophies');
+      const isSecret = SECRET_ACHIEVEMENTS.some(s => s.id === a.id);
+      msg((isSecret ? '🔮 Secret: ' : '🏆 Trophy: ') + a.name + (a.reward ? ' — ' + a.reward.label : ''), 'trophies');
       SFX.play('achieve');
     }
   }
@@ -1564,17 +1576,130 @@ document.addEventListener('mouseup', () => {
   cancelBalloonInflate(document.querySelector('.inflating'));
 });
 
+// ==================== EASTER EGGS ====================
+// 1. Tap title 5 times → eggs flip upside down for one round
+(() => {
+  let titleTaps = 0, titleLast = 0;
+  const titleEl = document.querySelector('.title-text h1');
+  if (titleEl) titleEl.addEventListener('click', () => {
+    const now = Date.now();
+    if (now - titleLast > 1200) titleTaps = 0;
+    titleLast = now;
+    titleTaps++;
+    if (titleTaps >= 5) {
+      titleTaps = 0;
+      document.querySelectorAll('.egg-slot:not(.broken)').forEach(s => s.style.transform = 'scaleY(-1)');
+      msg('The eggs are feeling... upside down', 'discovery');
+      G._secretFlip = true; checkAchievements(); saveGame();
+      setTimeout(() => document.querySelectorAll('.egg-slot').forEach(s => s.style.transform = ''), 5000);
+    }
+  });
+})();
+
+// 3. Track consecutive no-gold streaks
+let _noGoldStreak = 0;
+
+// 5. "ouch!" — 1 in 1000 chance on egg break
+// 6. Chicken run — 1 in 500 chance
+// 7. Midnight bonus
+// 8. l33t gold
+// 9. Empty streak (3 in a row)
+let _emptyStreak = 0;
+
+// Hook into applyPrize for easter eggs
+const _origApplyPrize = applyPrize;
+applyPrize = function(prize, cx, cy) {
+  const zone = $id('prize-zone');
+
+  // #5: 1/1000 "ouch!" before prize
+  if (Math.random() < 0.001) {
+    spawnFloat(zone, 'ouch!', '#fca5a5', '', cx, cy - 25);
+    G._secretOuch = true; checkAchievements(); saveGame();
+  }
+
+  // #6: 1/500 chicken run
+  if (Math.random() < 0.002) {
+    const chicken = document.createElement('div');
+    chicken.className = 'chicken-run';
+    chicken.textContent = '🐔';
+    $id('egg-tray-wrap').appendChild(chicken);
+    G._secretChicken = true; checkAchievements(); saveGame();
+    setTimeout(() => chicken.remove(), 2500);
+  }
+
+  // #9: Empty streak tracking
+  if (prize.type === 'empty') {
+    _emptyStreak++;
+    if (_emptyStreak >= 3) {
+      G._secretStrikes = true; checkAchievements(); saveGame();
+    }
+  } else {
+    _emptyStreak = 0;
+  }
+
+  // #3: No-gold streak
+  if (prize.type === 'gold') {
+    _noGoldStreak = 0;
+  } else {
+    _noGoldStreak++;
+    if (_noGoldStreak >= 42) {
+      spawnFloat(zone, 'The meaning of life is... not gold apparently', '#c084fc', 'big', cx, cy);
+      G._secret42 = true; checkAchievements(); saveGame();
+      _noGoldStreak = 0;
+    }
+  }
+
+  // Call original
+  _origApplyPrize(prize, cx, cy);
+
+  // #7: Midnight bonus
+  const hour = new Date().getHours();
+  if (hour === 0 && !G._midnightToday) {
+    G._midnightToday = new Date().toISOString().slice(0, 10);
+    G.starPieces = (G.starPieces || 0) + 1;
+    G.totalStarPieces = (G.totalStarPieces || 0) + 1;
+    spawnFloat(zone, '🌙 Night owl! +1 star piece', '#c084fc', 'big', cx, cy - 40);
+    msg('🌙 Night owl! The eggs were sleeping...', 'discovery');
+    G._secretMidnight = true; checkAchievements(); saveGame();
+    updateStarBtn();
+  }
+
+  // #8: l33t gold check
+  if (G.gold === 1337) {
+    msg('l33t h4ck3r detected', 'discovery');
+    G._secretLeet = true; checkAchievements(); saveGame();
+  }
+
+  // #10: 10000 normal eggs
+  if ((G.totalEggs || 0) >= 10000 && !G._secretChef) {
+    G._secretChef = true; checkAchievements(); saveGame();
+  }
+};
+
 // ==================== KEYBOARD ====================
 document.addEventListener('keydown', (e) => {
   if (e.code === 'Space' || e.code === 'Enter') {
     e.preventDefault();
-    // Smash first unbroken egg
     if (G.roundEggs) {
       const idx = G.roundEggs.findIndex(egg => !egg.broken);
       if (idx >= 0) smashEgg(idx);
     }
   }
   if (e.code === 'KeyS' && e.ctrlKey) { e.preventDefault(); useStarfall(); }
+
+  // #3 "omelette" typed
+  if (!window._eggBuf) window._eggBuf = '';
+  window._eggBuf += e.key.toLowerCase();
+  if (window._eggBuf.length > 10) window._eggBuf = window._eggBuf.slice(-10);
+  if (window._eggBuf.includes('omelette')) {
+    window._eggBuf = '';
+    document.querySelectorAll('.egg-slot:not(.broken)').forEach(s => {
+      s.style.animation = 'egg-smash-retro .35s steps(6)';
+      setTimeout(() => s.style.animation = '', 400);
+    });
+    msg('🍳 The eggs are nervous...', 'discovery');
+    G._secretOmelette = true; checkAchievements(); saveGame();
+  }
 });
 
 
