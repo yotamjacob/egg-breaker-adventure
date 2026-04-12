@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.12.2';
+const VERSION = '4.13.0';
 
 const CONFIG = {
 
@@ -69,6 +69,16 @@ const CONFIG = {
       particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
       prizes: { empty:0, gold_s:0, gold_m:0, gold_l:30, star:10, mult:10, feather:5, item:20, hammers:10, maxHammers:3 },
       desc: 'Stage 9. 20 hits, 4x gold, can boost max hammers',
+    },
+    {
+      id: 'millenium', name: 'Millenium', emoji: '🌀',
+      hp: 1000, spawnWeight: 0.3, unlockStage: 99, unlockMonkey0: true,
+      goldMult: 1000, featherMult: 1000, starPieces: 1000,
+      colors: { f:'#FFD700', s:'#B8860B', h:'#FFF8DC', sh:'#8B6508' },
+      particles: ['#FFD700','#FFA500','#FF6347','#FF00FF','#00FFFF','#7CFC00'],
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:100, star:20, mult:0, feather:10, item:0, hammers:20, banana:0 },
+      desc: 'Complete Mr. Monkey. 1000 hits. 1000x rewards. Legendary.',
+      big: true,
     },
   ],
 

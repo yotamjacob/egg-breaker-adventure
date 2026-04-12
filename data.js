@@ -496,6 +496,8 @@ const ACHIEVEMENT_DATA = [
   { id:'missed_1',     name:'Too Slow',            desc:'Let a timed egg expire',         icon:'🐌', reward:{type:'gold',val:50,       label:'+50 gold'} },
   { id:'missed_10',    name:'Butterfingers',       desc:'Let 10 timed eggs expire',       icon:'🧈', reward:{type:'gold',val:200,      label:'+200 gold'} },
   { id:'combo_effect', name:'Double Trouble',      desc:'Smash a runny timed egg',        icon:'🤯', reward:{type:'gold',val:500,      label:'+500 gold'} },
+  // -- Millenium egg --
+  { id:'millenium_1', name:'The Chosen One',      desc:'Break a Millenium Egg',          icon:'🌀', reward:{type:'goldPct',val:15,    label:'+15% gold from eggs'} },
 ];
 
 // Daily rewards for 100 days. type: gold, hammers, maxH, feathers, banana

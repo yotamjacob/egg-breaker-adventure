@@ -251,12 +251,16 @@ function newRound() {
   // Build available egg types for this stage from registry
   const available = [];
   for (const def of CONFIG.eggTypes) {
-    if (def.unlockStage <= si) {
-      let w = def.spawnWeight;
-      // Egg Radar: +50% spawn weight for rare eggs (crystal, ruby, black)
-      if (G['owned_eggradar'] && def.id !== 'normal' && def.id !== 'silver') w *= 1.5;
-      available.push({ type: def.id, weight: w });
+    // Special unlock: millenium requires Mr. Monkey completed
+    if (def.unlockMonkey0) {
+      if (!G.monkeys || !G.monkeys[0] || !G.monkeys[0].completed) continue;
+    } else if (def.unlockStage > si) {
+      continue;
     }
+    let w = def.spawnWeight;
+    // Egg Radar: +50% spawn weight for rare eggs
+    if (G['owned_eggradar'] && def.id !== 'normal' && def.id !== 'silver') w *= 1.5;
+    available.push({ type: def.id, weight: w });
   }
   const spawnTotal = available.reduce((s, e) => s + e.weight, 0);
   for (let i = 0; i < count; i++) {
@@ -1308,6 +1312,7 @@ function checkAchievements() {
     missed_1:     () => (G.timerMissed || 0) >= 1,
     missed_10:    () => (G.timerMissed || 0) >= 10,
     combo_effect: () => (G.comboSmashed || 0) >= 1,
+    millenium_1:  () => (G.milleniumSmashed || 0) >= 1,
   };
 
   for (const a of ACHIEVEMENT_DATA) {

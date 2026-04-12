@@ -20,7 +20,6 @@ function makeEggSVG(type, damage) {
   const crk = '#5a3010';
   let cracks = '';
   if (damage >= 1) {
-    // Light cracks — top-center zigzag
     cracks += `
     <rect x="36" y="20" width="3" height="3" fill="${crk}"/>
     <rect x="33" y="23" width="3" height="3" fill="${crk}"/>
@@ -29,7 +28,6 @@ function makeEggSVG(type, damage) {
     <rect x="36" y="32" width="3" height="3" fill="${crk}"/>`;
   }
   if (damage >= 2) {
-    // Heavy cracks — right side + left side
     cracks += `
     <rect x="48" y="28" width="3" height="3" fill="${crk}"/>
     <rect x="45" y="31" width="3" height="3" fill="${crk}"/>
@@ -43,6 +41,32 @@ function makeEggSVG(type, damage) {
   const highlight = `
     <rect x="26" y="22" width="3" height="18" fill="${c.h}" opacity=".5"/>
     <rect x="29" y="19" width="3" height="12" fill="${c.h}" opacity=".35"/>`;
+
+  // Millenium egg: bigger, glowing, ornate
+  if (type === 'millenium') {
+    const glow = damage < 500 ? `
+    <ellipse cx="40" cy="50" rx="30" ry="38" fill="${c.f}" opacity=".15"/>
+    <ellipse cx="40" cy="50" rx="35" ry="42" fill="${c.f}" opacity=".08"/>` : '';
+    const runes = `
+    <rect x="30" y="30" width="2" height="8" fill="${c.h}" opacity=".6"/>
+    <rect x="48" y="30" width="2" height="8" fill="${c.h}" opacity=".6"/>
+    <rect x="35" y="65" width="10" height="2" fill="${c.h}" opacity=".5"/>
+    <rect x="38" y="60" width="4" height="2" fill="${c.h}" opacity=".5"/>
+    <rect x="26" y="45" width="2" height="6" fill="${c.h}" opacity=".4"/>
+    <rect x="52" y="45" width="2" height="6" fill="${c.h}" opacity=".4"/>`;
+    return `<svg width="100" height="120" viewBox="0 0 80 96" shape-rendering="crispEdges">
+      ${glow}
+      <ellipse cx="40" cy="90" rx="22" ry="5" fill="rgba(0,0,0,.3)"/>
+      <ellipse cx="40" cy="50" rx="28" ry="37" fill="${c.s}" />
+      <ellipse cx="40" cy="50" rx="25" ry="34" fill="${c.f}" />
+      <ellipse cx="40" cy="34" rx="18" ry="12" fill="${c.h}" opacity=".3"/>
+      ${highlight}
+      ${runes}
+      <ellipse cx="40" cy="68" rx="20" ry="9" fill="${c.sh}" opacity=".2"/>
+      ${cracks}
+    </svg>`;
+  }
+
   return `<svg width="72" height="88" viewBox="0 0 80 96" shape-rendering="crispEdges">
     <ellipse cx="40" cy="90" rx="18" ry="4" fill="rgba(0,0,0,.25)"/>
     <ellipse cx="40" cy="50" rx="26" ry="35" fill="${c.s}" />
@@ -112,7 +136,10 @@ function renderEggTray() {
     const slot = document.createElement('div');
     const fx = egg.effects || [];
     const alive = !egg.broken && !egg.expired;
+    const eDef = EGG_REGISTRY[egg.type] || {};
     let cls = 'egg-slot';
+    if (eDef.big) cls += ' egg-big';
+    if (egg.type === 'millenium' && alive) cls += ' egg-millenium';
     if (egg.broken || egg.expired) cls += ' broken';
     if (alive && fx.includes('runny')) cls += ' runny';
     if (alive && fx.includes('timer')) cls += ' timed';
@@ -668,6 +695,7 @@ function renderStats() {
     ['Runny smashed', G.runnySmashed || 0],
     ['Timed smashed', G.timerSmashed || 0],
     ['Timed missed', G.timerMissed || 0],
+    ['Millenium eggs', G.milleniumSmashed || 0],
     ['Daily claims', G.totalDailyClaims || 0],
   ].map(([k, v]) => '<span>' + k + ': <strong>' + v + '</strong></span>').join('');
 }
