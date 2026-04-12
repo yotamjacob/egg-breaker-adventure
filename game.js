@@ -1956,15 +1956,15 @@ function renderAchievements() {
     if (hidden) {
       card.innerHTML =
         '<span class="a-icon">❓</span>' +
-        '<div><span class="a-name">???</span><br>' +
+        '<div class="a-info"><span class="a-name">???</span>' +
         '<span class="a-desc">Discover a new egg type to reveal</span></div>';
     } else {
       const rewardLabel = a.reward ? a.reward.label : '';
       card.innerHTML =
         '<span class="a-icon">' + a.icon + '</span>' +
-        '<div><span class="a-name">' + a.name + '</span><br>' +
+        '<div class="a-info"><span class="a-name">' + a.name + '</span> ' +
         '<span class="a-desc">' + a.desc + '</span>' +
-        (rewardLabel ? '<br><span class="a-reward">' + rewardLabel + '</span>' : '') +
+        (rewardLabel ? ' <span class="a-reward">' + rewardLabel + '</span>' : '') +
         '</div>';
     }
     grid.appendChild(card);
