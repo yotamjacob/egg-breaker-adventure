@@ -106,7 +106,7 @@
 #prize-zone{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:visible}
 #hammer{
   position:absolute;top:0;left:0;
-  transform:rotate(40deg);transform-origin:20px 0;
+  transform:rotate(40deg);transform-origin:20px 90px;
   width:40px;pointer-events:none;
   opacity:0;transition:opacity .1s;
 }
