@@ -368,6 +368,14 @@ function resolvePrize(type, eggType) {
     return { type: 'mult', value: val, bonusGold, usedMult: usedMultBonus, label: 'x' + val + ' multiplier!', color: '#7c3aed' };
   }
 
+  if (type === 'banana') {
+    return { type: 'banana', value: 1, bonusGold, usedMult: usedMultBonus, label: '+1 Crystal Banana!', color: '#f59e0b' };
+  }
+
+  if (type === 'maxHammers') {
+    return { type: 'maxHammers', value: 3, bonusGold, usedMult: usedMultBonus, label: '+3 max hammers!', color: '#b45309' };
+  }
+
   if (type === 'item') {
     const result = rollCollectionItem(eggType);
     result.bonusGold = bonusGold;
@@ -532,7 +540,7 @@ function smashEgg(index) {
   if (egg.hp > 0) {
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, damage) +
-      '<span class="egg-label">' + egg.type + '<br>' + egg.hp + '/' + egg.maxHp + '</span>';
+      eggLabel(egg.type, egg.hp, egg.maxHp, false);
     setTimeout(() => { egg._smashing = false; }, 300);
     updateResources();
     saveGame();
@@ -558,7 +566,7 @@ function smashEgg(index) {
     // Update egg visual to fully broken
     slot.classList.add('broken');
     slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) +
-      '<span class="egg-label">' + egg.type + '</span>';
+      eggLabel(egg.type, 0, egg.maxHp, true);
 
     // Check if all eggs broken — auto-spawn next round
     if (G.roundEggs.every(e => e.broken) && !_roundPending) {
@@ -670,6 +678,30 @@ function applyPrize(prize, cx, cy) {
       msg(prize.label);
     }
     SFX.play('coin');
+  }
+
+  if (prize.type === 'banana') {
+    G.crystalBananas += prize.value;
+    spawnFloat(zone, prize.label, prize.color, 'mega', cx, cy);
+    msg('+1 Crystal Banana!', 'prizes');
+    SFX.play('levelup');
+    Particles.sparkle(cx, cy, 20, '#F59E0B');
+    if (prize.bonusGold) {
+      G.gold += prize.bonusGold; G.totalGold += prize.bonusGold;
+      spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706', '', cx, cy - 20);
+    }
+  }
+
+  if (prize.type === 'maxHammers') {
+    G.maxH += prize.value;
+    spawnFloat(zone, prize.label, prize.color, 'mega', cx, cy);
+    msg('+3 max hammers!', 'prizes');
+    SFX.play('levelup');
+    Particles.sparkle(cx, cy, 20, '#b45309');
+    if (prize.bonusGold) {
+      G.gold += prize.bonusGold; G.totalGold += prize.bonusGold;
+      spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706', '', cx, cy - 20);
+    }
   }
 
   if (prize.type === 'item') {
@@ -1104,6 +1136,7 @@ function doBuyShopItem(category, id) {
     if (id === 'mult5') { G.multQueue.push(5); renderMultQueue(); showShopSnack('x5 multiplier purchased!'); }
     if (id === 'maxhammers') { G.maxH += 5; showShopSnack('+5 max hammers!'); }
     if (id === 'fastregen') { G.fastRegen = true; showShopSnack('Fast Regen unlocked!'); }
+    if (id === 'spyglass') { G['owned_spyglass'] = true; renderEggTray(); showShopSnack('Spyglass unlocked!'); }
 
     SFX.play('buy');
   }
@@ -1207,6 +1240,10 @@ function checkAchievements() {
     gold_egg_50:  () => (G.goldSmashed || 0) >= 50,
     crystal_1:    () => (G.crystalSmashed || 0) >= 1,
     crystal_25:   () => (G.crystalSmashed || 0) >= 25,
+    ruby_1:       () => (G.rubySmashed || 0) >= 1,
+    ruby_25:      () => (G.rubySmashed || 0) >= 25,
+    black_1:      () => (G.blackSmashed || 0) >= 1,
+    black_10:     () => (G.blackSmashed || 0) >= 10,
     // Daily login
     streak_5:     () => G.consecutiveDays >= 5,
     streak_20:    () => G.consecutiveDays >= 20,

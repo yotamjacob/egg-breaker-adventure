@@ -371,6 +371,7 @@ const SHOP_SUPPLIES = [
   { id: 'mult5',      name: 'x5 Multiplier',    emoji: '✖️', cost: 5000,  currency: 'gold', type: 'consumable' },
   { id: 'maxhammers', name: '+5 Hammer Cap',    emoji: '📦', cost: 8000,  currency: 'gold', type: 'upgrade' },
   { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', cost: 15000, currency: 'gold', type: 'upgrade', unique: true },
+  { id: 'spyglass',   name: 'Spyglass',        emoji: '🔍', desc: 'Reveal egg names & HP', cost: 5000, currency: 'gold', type: 'upgrade', unique: true },
 ];
 
 // All tuning values are read from CONFIG (config.js)
@@ -448,6 +449,11 @@ const ACHIEVEMENT_DATA = [
   { id:'gold_egg_50',  name:'Gold Rush',           desc:'Break 50 gold eggs',            icon:'🏅', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
   { id:'crystal_1',    name:'Crystal Clear',      desc:'Break your first crystal egg',  icon:'🔮', reward:{type:'gold',val:500,      label:'+500 gold'} },
   { id:'crystal_25',   name:'Crystal Collector',  desc:'Break 25 crystal eggs',         icon:'💜', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
+  // -- Ruby & Black eggs --
+  { id:'ruby_1',       name:'Ruby Glow',          desc:'Break your first ruby egg',     icon:'💎', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
+  { id:'ruby_25',      name:'Gem Crusher',        desc:'Break 25 ruby eggs',            icon:'❤️', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
+  { id:'black_1',      name:'Into the Void',      desc:'Break your first black egg',    icon:'🖤', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  { id:'black_10',     name:'Dark Matter',         desc:'Break 10 black eggs',           icon:'⚫', reward:{type:'goldPct',val:10,    label:'+10% gold from eggs'} },
   // -- Daily login --
   { id:'streak_5',     name:'On a Roll',           desc:'5-day login streak',            icon:'📅', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
   { id:'streak_20',    name:'Dedicated',            desc:'20-day login streak',           icon:'🔥', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },

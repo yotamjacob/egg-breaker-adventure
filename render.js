@@ -54,6 +54,12 @@ function makeEggSVG(type, damage) {
   </svg>`;
 }
 
+function eggLabel(type, hp, maxHp, broken) {
+  if (!G['owned_spyglass']) return '';
+  if (broken) return '<span class="egg-label">' + type + '</span>';
+  return '<span class="egg-label">' + type + '<br>' + hp + '/' + maxHp + '</span>';
+}
+
 function renderEggTray() {
   const tray = $id('egg-tray');
   if (!G.roundEggs || G.roundEggs.length === 0) {
@@ -108,8 +114,7 @@ function renderEggTray() {
     slot.style.top = pos.y + 'px';
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, egg.broken ? egg.maxHp : damage) +
-      '<span class="egg-label">' + egg.type +
-      (egg.broken ? '' : '<br>' + egg.hp + '/' + egg.maxHp) + '</span>';
+      eggLabel(egg.type, egg.hp, egg.maxHp, egg.broken);
     slot.setAttribute('data-idx', String(i));
     if (!egg.broken) slot.onclick = function() { smashEgg(i); };
     tray.appendChild(slot);

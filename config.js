@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.8.19';
+const VERSION = '4.9.0';
 
 const CONFIG = {
 
@@ -51,6 +51,24 @@ const CONFIG = {
       particles: ['#E0D0FF','#C4B5FD','#A78BFA','#8B5CF6'],
       prizes: { empty:0, gold_s:0, gold_m:5, gold_l:30, star:12, mult:9, feather:6, item:30, hammers:10 },
       desc: 'Stage 3+. Never empty, 2x gold, 3 star pieces, rarest drops',
+    },
+    {
+      id: 'ruby', name: 'Ruby', emoji: '💎',
+      hp: 9, spawnWeight: 1, unlockStage: 4,
+      goldMult: 3, featherMult: 2, starPieces: 4,
+      colors: { f:'#E8143C', s:'#8B0020', h:'#FF6B7A', sh:'#5C0015' },
+      particles: ['#FF2D55','#E8143C','#C70039','#8B0020'],
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:25, star:10, mult:8, feather:5, item:25, hammers:8, banana:3 },
+      desc: 'Stage 5+. 9 hits, 3x gold, tiny crystal banana chance',
+    },
+    {
+      id: 'black', name: 'Black', emoji: '🖤',
+      hp: 20, spawnWeight: 0.5, unlockStage: 8,
+      goldMult: 4, featherMult: 3, starPieces: 5,
+      colors: { f:'#1a1a1a', s:'#000000', h:'#3a3a3a', sh:'#0a0a0a' },
+      particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:30, star:10, mult:10, feather:5, item:20, hammers:10, maxHammers:3 },
+      desc: 'Stage 9. 20 hits, 4x gold, can boost max hammers',
     },
   ],
 
