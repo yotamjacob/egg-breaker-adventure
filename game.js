@@ -924,7 +924,7 @@ function applyPrize(prize, cx, cy) {
       SFX.play('item');
       Particles.sparkle(cx, cy, 15, '#F59E0B');
       // Show popup for new item
-      msg('📦 NEW: ' + prize.emoji + ' ' + prize.name, 'items');
+      msg('New item collected: ' + prize.emoji + ' ' + prize.name, 'items');
       setTimeout(() => showItemPopup(prize), 400);
       // Check collection completion
       checkCollectionComplete();
