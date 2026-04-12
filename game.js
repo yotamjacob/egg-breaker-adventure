@@ -266,7 +266,8 @@ function newRound() {
       if (r <= 0) { type = e.type; break; }
     }
     const hp = EGG_HP[type];
-    eggs.push({ type, hp, maxHp: hp, broken: false });
+    const effect = Math.random() < 0.05 ? 'runny' : null;
+    eggs.push({ type, hp, maxHp: hp, broken: false, effect });
     // Discover new egg type
     if (!G.discoveredEggs) G.discoveredEggs = ['normal','silver','gold'];
     if (!G.discoveredEggs.includes(type)) {

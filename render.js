@@ -105,11 +105,12 @@ function renderEggTray() {
     const t = positions[i]; positions[i] = positions[j]; positions[j] = t;
   }
 
+  const runnySlots = [];
   G.roundEggs.forEach((egg, i) => {
     const pos = positions[i];
     const slot = document.createElement('div');
     const eggDef = EGG_REGISTRY[egg.type];
-    slot.className = 'egg-slot' + (egg.broken ? ' broken' : '');
+    slot.className = 'egg-slot' + (egg.broken ? ' broken' : '') + (egg.effect === 'runny' && !egg.broken ? ' runny' : '');
     slot.style.left = pos.x + 'px';
     slot.style.top = pos.y + 'px';
     const damage = egg.maxHp - egg.hp;
@@ -118,7 +119,59 @@ function renderEggTray() {
     slot.setAttribute('data-idx', String(i));
     if (!egg.broken) slot.onclick = function() { smashEgg(i); };
     tray.appendChild(slot);
+    if (egg.effect === 'runny' && !egg.broken) {
+      // Random initial direction
+      const angle = Math.random() * Math.PI * 2;
+      runnySlots.push({ slot, x: pos.x, y: pos.y, vx: Math.cos(angle), vy: Math.sin(angle), idx: i });
+    }
   });
+
+  // Start runny egg drift
+  startRunnyDrift(runnySlots, tW, tH);
+}
+
+// ==================== RUNNY EGG DRIFT ====================
+let _runnyRAF = null;
+function startRunnyDrift(runnySlots, trayW, trayH) {
+  if (_runnyRAF) cancelAnimationFrame(_runnyRAF);
+  _runnyRAF = null;
+  if (runnySlots.length === 0) return;
+
+  const eW = 76, eH = 110;
+  const pad = 6;
+  // Speed scales with progress: base 0.4, +0.03 per completed stage
+  const speed = 0.4 + (G.stagesCompleted || 0) * 0.03;
+
+  function tick() {
+    let anyAlive = false;
+    for (const r of runnySlots) {
+      const egg = G.roundEggs && G.roundEggs[r.idx];
+      if (!egg || egg.broken) { r.slot.classList.remove('runny'); continue; }
+      anyAlive = true;
+
+      r.x += r.vx * speed;
+      r.y += r.vy * speed;
+
+      // Bounce off tray walls
+      if (r.x < pad) { r.x = pad; r.vx = Math.abs(r.vx); }
+      if (r.x > trayW - eW - pad) { r.x = trayW - eW - pad; r.vx = -Math.abs(r.vx); }
+      if (r.y < pad) { r.y = pad; r.vy = Math.abs(r.vy); }
+      if (r.y > trayH - eH - pad) { r.y = trayH - eH - pad; r.vy = -Math.abs(r.vy); }
+
+      // Small random wobble to direction
+      r.vx += (Math.random() - 0.5) * 0.02;
+      r.vy += (Math.random() - 0.5) * 0.02;
+      // Normalize to keep constant speed
+      const len = Math.sqrt(r.vx * r.vx + r.vy * r.vy);
+      if (len > 0) { r.vx /= len; r.vy /= len; }
+
+      r.slot.style.left = r.x + 'px';
+      r.slot.style.top = r.y + 'px';
+    }
+    if (anyAlive) _runnyRAF = requestAnimationFrame(tick);
+    else _runnyRAF = null;
+  }
+  _runnyRAF = requestAnimationFrame(tick);
 }
 
 // ==================== MULTIPLIER QUEUE ====================
