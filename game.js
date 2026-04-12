@@ -496,8 +496,9 @@ function smashEgg(index) {
   const cx = rect.left - wrapRect.left + rect.width / 2;
   const cy = rect.top - wrapRect.top + rect.height / 2;
 
-  // Position hammer at egg (needed for mobile; desktop already tracks mouse)
-  if (!matchMedia('(hover:hover)').matches) {
+  // Position hammer at egg and animate
+  if (!_isDesktop) {
+    hammerEl.style.transition = 'none';
     hammerEl.style.left = (cx - 20) + 'px';
     hammerEl.style.top = (cy - 10) + 'px';
     hammerEl.style.opacity = '1';
@@ -505,9 +506,11 @@ function smashEgg(index) {
   hammerEl.classList.remove('hammer-anim');
   void hammerEl.offsetWidth;
   hammerEl.classList.add('hammer-anim');
-  // Hide hammer after animation on mobile
-  if (!matchMedia('(hover:hover)').matches) {
-    setTimeout(() => { hammerEl.style.opacity = '0'; }, 250);
+  if (!_isDesktop) {
+    setTimeout(() => {
+      hammerEl.style.opacity = '0';
+      hammerEl.style.transition = '';
+    }, 300);
   }
 
   // Now do logic
@@ -1390,12 +1393,14 @@ setInterval(saveGame, 15000);
 
 
 
-// Hammer follows mouse (desktop only, hidden on touch via CSS)
+// Hammer follows mouse (desktop) or flashes on tap (mobile)
+let _isDesktop = false;
 (() => {
   const wrap = $id('egg-tray-wrap');
   const hammer = $id('hammer');
 
   if (matchMedia('(hover:hover)').matches) {
+    _isDesktop = true;
     wrap.style.cursor = 'none';
     let _rafPending = false;
     wrap.addEventListener('mousemove', (e) => {
