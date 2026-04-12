@@ -181,17 +181,16 @@ function updateStarBtn() {
 
 // ==================== UI RENDERING ====================
 function updateResources() {
-  $id('res-h').textContent = G.hammers + '/' + G.maxH;
   $id('res-g').textContent = formatNum(G.gold);
   $id('res-b').textContent = G.crystalBananas;
   $id('res-f').textContent = G.feathers;
 
-  // Regen text
-  if (G.hammers < G.maxH) {
-    $id('regen-txt').textContent = 'Next hammer: ' + G.regenCD + 's';
-  } else {
-    $id('regen-txt').textContent = 'Hammers: ' + G.hammers + '/' + G.maxH;
-  }
+  // Hammer row with color + timer
+  const hRow = $id('hammer-row');
+  let hText = '🔨 Hammers: ' + G.hammers + '/' + G.maxH;
+  if (G.hammers < G.maxH) hText += ', next in ' + G.regenCD + 's';
+  hRow.textContent = hText;
+  hRow.className = 'hammer-row' + (G.hammers === 0 ? ' zero' : G.hammers < G.maxH ? ' regen' : ' full');
 
   updateStarBtn();
   updateOverallProgress();

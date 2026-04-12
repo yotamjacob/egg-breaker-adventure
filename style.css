@@ -79,7 +79,10 @@ body{
   font-family:var(--px);font-size:10px;color:var(--amber);
   letter-spacing:2px;margin-top:2px;
 }
-.regen-info{font-size:11px;color:var(--gray);margin-top:1px}
+.hammer-row{font-size:10px;color:var(--gold);margin-top:1px;font-family:var(--px)}
+.hammer-row.zero{color:var(--gray)}
+.hammer-row.regen{color:var(--gold)}
+.hammer-row.full{color:var(--green)}
 .icon-btn{
   margin-left:auto;background:var(--bg);border:2px solid var(--gray);
   border-radius:2px;padding:4px 6px;cursor:pointer;font-size:16px;
@@ -101,17 +104,15 @@ body{
 .god-btn.hidden{display:none}
 @keyframes god-pulse{0%,100%{box-shadow:2px 2px 0 var(--dark)}50%{box-shadow:2px 2px 0 var(--dark),0 0 8px rgba(231,76,60,.5)}}
 
-.resource-bar{display:flex;gap:4px;justify-content:space-between}
+.resource-bar{display:flex;gap:4px}
 .res{
-  display:flex;align-items:center;gap:2px;
+  flex:1;display:flex;align-items:center;gap:3px;
   background:var(--bg);border:2px solid var(--gold3);
-  border-radius:2px;padding:3px 4px;font-size:11px;justify-content:center;
+  border-radius:2px;padding:3px 6px;font-size:11px;justify-content:center;
   box-shadow: inset 1px 1px 0 var(--raised);
   overflow:hidden;min-width:0;white-space:nowrap;
 }
-.res-wide{flex:3}
-.res-narrow{flex:2}
-.res span{font-size:11px;flex-shrink:0}
+.res span{font-size:14px;flex-shrink:0}
 .res strong{color:var(--gold);font-size:11px;overflow:hidden;text-overflow:ellipsis}
 
 /* Resource tooltips */
@@ -181,10 +182,10 @@ body{
 /* ---------- Small screens ---------- */
 @media(max-width:420px){
   body{padding:4px 4px 0;font-size:11px}
-  .resource-bar{flex-wrap:wrap;gap:3px}
-  .res{padding:2px 3px;font-size:11px}
-  .res span{font-size:10px}
-  .res strong{font-size:11px}
+  .resource-bar{gap:3px}
+  .res{padding:2px 4px;font-size:10px}
+  .res span{font-size:12px}
+  .res strong{font-size:10px}
   .shop-grid{grid-template-columns:1fr 1fr}
   .monkey-grid{grid-template-columns:1fr}
   .album-grid{grid-template-columns:1fr}
@@ -211,9 +212,9 @@ body{
   .nav-play{font-size:10px}
   .nav-play.active{font-size:12px}
   .nav-tab{font-size:7px;padding:6px 1px}
-  .res{font-size:10px;padding:2px 2px}
+  .res{font-size:9px;padding:2px 3px}
   .res span{font-size:11px}
-  .res strong{font-size:10px}
+  .res strong{font-size:9px}
   .title-text h1{font-size:11px}
   .subtitle{font-size:10px}
 }
