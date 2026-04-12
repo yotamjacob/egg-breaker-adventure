@@ -658,7 +658,8 @@ function smashEgg(index) {
   if (egg.hp > 0) {
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, damage) +
-      eggLabel(egg.type, egg.hp, egg.maxHp, false);
+      eggLabel(egg.type, egg.hp, egg.maxHp, false) +
+      (egg.effects && egg.effects.includes('timer') ? '<span class="egg-timer">' + formatTimer(egg.timer) + '</span>' : '');
     setTimeout(() => { egg._smashing = false; }, 300);
     updateResources();
     saveGame();
