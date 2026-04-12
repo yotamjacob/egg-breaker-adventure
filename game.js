@@ -491,14 +491,24 @@ function smashEgg(index) {
   shake(slot, egg.hp <= 1 ? 'md' : 'sm');
 
   const hammerEl = $id('hammer');
-  hammerEl.classList.remove('hammer-anim');
-  void hammerEl.offsetWidth;
-  hammerEl.classList.add('hammer-anim');
-
   const rect = slot.getBoundingClientRect();
   const wrapRect = $id('egg-tray-wrap').getBoundingClientRect();
   const cx = rect.left - wrapRect.left + rect.width / 2;
   const cy = rect.top - wrapRect.top + rect.height / 2;
+
+  // Position hammer at egg (needed for mobile; desktop already tracks mouse)
+  if (!matchMedia('(hover:hover)').matches) {
+    hammerEl.style.left = (cx - 20) + 'px';
+    hammerEl.style.top = (cy - 10) + 'px';
+    hammerEl.style.opacity = '1';
+  }
+  hammerEl.classList.remove('hammer-anim');
+  void hammerEl.offsetWidth;
+  hammerEl.classList.add('hammer-anim');
+  // Hide hammer after animation on mobile
+  if (!matchMedia('(hover:hover)').matches) {
+    setTimeout(() => { hammerEl.style.opacity = '0'; }, 250);
+  }
 
   // Now do logic
   G.hammers -= 1;

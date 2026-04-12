@@ -172,7 +172,6 @@ body{
 /* ---------- Responsive ---------- */
 /* ---------- Touch devices ---------- */
 @media(hover:none),(pointer:coarse){
-  #hammer{display:none!important}
   .egg-tray-wrap{cursor:auto}
   /* Tooltips: show on tap via :active */
   .album-item[data-tip]::after{transition:none}
