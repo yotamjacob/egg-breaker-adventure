@@ -1,0 +1,64 @@
+/* ============================================================
+   Egg Breaker Adventures – Components
+   components.css  (popups, overlays, toast)
+   ============================================================ */
+
+/* ---------- Popups / overlays ---------- */
+.overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  z-index:900;
+  overflow:hidden;
+  touch-action:none;
+  -webkit-overflow-scrolling:auto;
+}
+.overlay.hidden{display:none}
+.popup{
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:3px solid var(--gold);border-radius:2px;
+  padding:14px 18px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  box-shadow:4px 4px 0 var(--dark),inset 2px 2px 0 var(--raised);
+  max-width:280px;width:calc(100% - 32px);
+  position:relative;
+}
+.pop-icon{font-size:32px;margin-bottom:2px}
+.pop-icon.spin{animation:spin 2s steps(8) infinite}
+.popup strong{font-size:10px;color:var(--gold);text-shadow:2px 2px 0 var(--dark)}
+.pop-sub{font-size:10px;color:var(--gray)}
+.pop-btn{
+  margin-top:6px;
+  background:linear-gradient(180deg,var(--gold),var(--gold2));
+  color:var(--dark);border:2px solid var(--gold);
+  border-radius:2px;padding:6px 18px;font-size:11px;font-family:var(--px);
+  cursor:pointer;box-shadow:3px 3px 0 var(--dark);
+  transition:transform .08s;
+}
+.pop-btn:hover{transform:translate(-1px,-1px)}
+.pop-btn:active{transform:translate(2px,2px);box-shadow:0 0 0 transparent}
+
+.pop-item .pop-icon{animation:pop-bounce-retro .4s steps(5)}
+
+.confirm-btns{display:flex;gap:6px;margin-top:6px}
+.confirm-yes{background:linear-gradient(180deg,var(--green),var(--green2))!important;border-color:var(--green)!important}
+.confirm-no{background:var(--panel)!important;color:var(--gray)!important;border-color:var(--gray)!important}
+.pop-quote{font-size:11px;color:var(--amber);font-style:italic;max-width:220px;text-align:center;line-height:1.5}
+
+/* Toast */
+.toast{
+  position:fixed;top:8px;left:8px;right:8px;
+  transform:translateY(-120px);
+  background:var(--panel);border:3px solid var(--gold);border-radius:2px;
+  padding:8px 12px;display:flex;align-items:center;gap:8px;
+  z-index:1000;box-shadow:4px 4px 0 var(--dark);
+  transition:transform .2s steps(5);font-size:11px;
+  max-width:500px;margin:0 auto;
+}
+.toast.show{transform:translateY(0)}
+.toast.hidden{display:none}
+.toast span:first-child{font-size:18px;flex-shrink:0}
+.toast strong{color:var(--gold)}
+#toast-header{color:var(--amber);font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.toast small{color:var(--gray);font-size:11px}
+
