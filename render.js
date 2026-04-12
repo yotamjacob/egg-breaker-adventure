@@ -525,6 +525,7 @@ function renderShop() {
     card.innerHTML =
       '<span class="s-emoji">' + s.emoji + '</span>' +
       '<span class="s-name">' + s.name + '</span>' +
+      (s.desc ? '<span class="s-desc">' + s.desc + '</span>' : '') +
       (isOwned
         ? '<span class="s-status">OWNED</span>'
         : '<span class="s-cost">' + formatNum(s.cost) + ' 🪙</span>');
