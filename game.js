@@ -1555,7 +1555,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   tab.classList.add('active');
   $id('panel-' + name).classList.add('active');
   // Refresh content when switching tabs
-  if (name === 'play') renderEggTray();
+  if (name === 'play' && $id('egg-tray').children.length === 0) renderEggTray();
   if (name === 'album') renderAlbum();
   if (name === 'monkeys') renderMonkeys();
   if (name === 'shop') { renderShop(); updateAutoBuyBtn(); }
