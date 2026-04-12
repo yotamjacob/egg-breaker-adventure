@@ -553,7 +553,7 @@ function smashEgg(index) {
   // Cucumber double hit: 5% chance for a bonus hit
   if (hasBonus('doubleHit') && Math.random() < 0.05 && egg.hp > 0) {
     egg.hp -= 1;
-    msg('Cucumbah! Double hit!', 'freeHit');
+    msg('Cucumbah!', 'freeHit');
   }
 
   const particleCount = 4 + (egg.maxHp - egg.hp) * 3;
