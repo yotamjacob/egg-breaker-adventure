@@ -877,9 +877,9 @@ function isStarfallUnlocked() {
 
 // ==================== HEX EFFECT ====================
 const HEX_TYPES = [
-  { id: 'loseGold',     apply: () => { const lost = Math.floor(G.gold * 0.01); G.gold -= lost; return '😈 -' + lost + ' gold'; } },
-  { id: 'loseFeathers', apply: () => { const lost = Math.floor(G.feathers * 0.01); G.feathers -= lost; return '😈 -' + lost + ' feathers'; } },
-  { id: 'loseHammers',  apply: () => { const lost = Math.max(1, Math.floor(G.hammers * 0.01)); G.hammers = Math.max(0, G.hammers - lost); return '😈 -' + lost + ' hammers'; } },
+  { id: 'loseGold',     apply: () => { const lost = Math.max(1, Math.ceil(G.gold * 0.01)); G.gold = Math.max(0, G.gold - lost); return '😈 -' + lost + ' gold'; } },
+  { id: 'loseFeathers', apply: () => { const lost = Math.max(1, Math.ceil(G.feathers * 0.01)); G.feathers = Math.max(0, G.feathers - lost); return '😈 -' + lost + ' feathers'; } },
+  { id: 'loseHammers',  apply: () => { const lost = Math.max(1, Math.ceil(G.hammers * 0.01)); G.hammers = Math.max(0, G.hammers - lost); return '😈 -' + lost + ' hammers'; } },
   { id: 'regenPause',   apply: () => { pauseRegen(30); return '😈 Regen paused 30s'; } },
 ];
 
