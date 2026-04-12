@@ -79,7 +79,7 @@ body{
   font-family:var(--px);font-size:10px;color:var(--amber);
   letter-spacing:2px;margin-top:2px;
 }
-.hammer-row{font-size:10px;color:var(--gold);margin-top:1px;font-family:var(--px)}
+.hammer-row{font-size:10px;color:var(--gold);margin-top:1px;font-family:var(--px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hammer-row.zero{color:var(--gray)}
 .hammer-row.regen{color:var(--gold)}
 .hammer-row.full{color:var(--green)}

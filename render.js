@@ -188,7 +188,7 @@ function updateResources() {
   // Hammer row with color + timer
   const hRow = $id('hammer-row');
   let hText = '🔨 Hammers: ' + G.hammers + '/' + G.maxH;
-  if (G.hammers < G.maxH) hText += ', next in ' + G.regenCD + 's';
+  if (G.hammers < G.maxH) hText += ' (' + G.regenCD + 's)';
   hRow.textContent = hText;
   hRow.className = 'hammer-row' + (G.hammers === 0 ? ' zero' : G.hammers < G.maxH ? ' regen' : ' full');
 
