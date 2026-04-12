@@ -146,7 +146,7 @@
   display:block;margin-top:1px;font-variant-numeric:tabular-nums;
 }
 .egg-slot.balloon{animation:balloon-float 2s ease-in-out infinite;cursor:grab}
-.egg-slot.balloon.inflating{animation:none;cursor:grabbing}
+.egg-slot.balloon.inflating{animation:none !important;cursor:grabbing;transition:none !important}
 .balloon-rope{display:flex;flex-direction:column;align-items:center;pointer-events:none}
 .balloon-knot{width:8px;height:6px;background:var(--amber);border-radius:0 0 50% 50%;margin-top:-2px}
 .balloon-string{width:1px;height:18px;background:var(--gray);border-left:1px dashed var(--gray)}
