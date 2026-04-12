@@ -139,6 +139,8 @@
 .monkey-card.active{border-color:var(--gold);box-shadow:0 0 8px rgba(245,197,66,.3),3px 3px 0 var(--dark)}
 .monkey-card .m-emoji,.monkey-card .m-name,.monkey-card .m-perk,.monkey-card .m-progress,.monkey-card .m-cost{pointer-events:none}
 .monkey-card .m-emoji{font-size:36px}
+.m-avatar-wrap{width:52px;height:52px;border-radius:50%;overflow:hidden;background:var(--bg);border:2px solid var(--gold3)}
+.m-avatar-wrap img{width:130%;height:130%;object-fit:cover;margin:-15%;pointer-events:none}
 .monkey-card .m-name{font-size:10px;color:var(--white);text-shadow:1px 1px 0 var(--dark)}
 .monkey-card .m-perk{font-size:10px;color:var(--gray)}
 .monkey-card .m-cost{font-size:11px;color:var(--amber);margin-top:2px}

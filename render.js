@@ -555,7 +555,7 @@ function renderMonkeys() {
     if (mp.unlocked && !isActive) card.setAttribute('data-monkey', String(i));
 
     let inner = m.img
-      ? '<img class="m-emoji" src="' + m.img + '" style="width:52px;height:52px;object-fit:cover;border-radius:50%">'
+      ? '<div class="m-emoji m-avatar-wrap"><img src="' + m.img + '"></div>'
       : '<span class="m-emoji">' + m.emoji + '</span>';
     inner += '<span class="m-name">' + m.name + '</span>';
     inner += '<span class="m-perk">' + m.perkDesc + '</span>';
