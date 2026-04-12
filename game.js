@@ -157,12 +157,13 @@ function claimDaily() {
   const reward = DAILY_REWARDS[dayIdx];
   if (!reward) return;
 
-  // Apply reward
-  if (reward.type === 'gold')     { G.gold += reward.val; G.totalGold += reward.val; }
-  if (reward.type === 'hammers')  { G.hammers = Math.min(G.maxH, G.hammers + reward.val); }
-  if (reward.type === 'maxH')     { G.maxH += reward.val; G.hammers = Math.min(G.maxH, G.hammers + reward.val); }
-  if (reward.type === 'feathers') { G.feathers += reward.val; G.totalFeathers += reward.val; }
-  if (reward.type === 'banana')   { G.crystalBananas += reward.val; }
+  // Apply reward (Double Daily doubles the value)
+  const dv = G['owned_doubledaily'] ? reward.val * 2 : reward.val;
+  if (reward.type === 'gold')     { G.gold += dv; G.totalGold += dv; }
+  if (reward.type === 'hammers')  { G.hammers = Math.min(G.maxH, G.hammers + dv); }
+  if (reward.type === 'maxH')     { G.maxH += dv; G.hammers = Math.min(G.maxH, G.hammers + dv); }
+  if (reward.type === 'feathers') { G.feathers += dv; G.totalFeathers += dv; }
+  if (reward.type === 'banana')   { G.crystalBananas += dv; }
 
   G.dailyClaimed = true;
   G.totalDailyClaims = (G.totalDailyClaims || 0) + 1;
@@ -250,7 +251,10 @@ function newRound() {
   const available = [];
   for (const def of CONFIG.eggTypes) {
     if (def.unlockStage <= si) {
-      available.push({ type: def.id, weight: def.spawnWeight });
+      let w = def.spawnWeight;
+      // Egg Radar: +50% spawn weight for rare eggs (crystal, ruby, black)
+      if (G['owned_eggradar'] && def.id !== 'normal' && def.id !== 'silver') w *= 1.5;
+      available.push({ type: def.id, weight: w });
     }
   }
   const spawnTotal = available.reduce((s, e) => s + e.weight, 0);
@@ -331,6 +335,8 @@ function resolvePrize(type, eggType) {
     if (ab.goldPct > 0) val = Math.round(val * (1 + ab.goldPct / 100));
     // Progressive gold: +5% per completed stage
     if (G.stagesCompleted > 0) val = Math.round(val * (1 + G.stagesCompleted * 0.05));
+    // Golden Magnet: round up to nearest 10
+    if (G['owned_goldmagnet']) val = Math.ceil(val / 10) * 10;
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' gold', color: '#d97706' };
   }
@@ -396,7 +402,9 @@ function rollCollectionItem(eggType) {
   const weights = items.map((item, i) => {
     const rarity = item[2]; // 1=common, 2=uncommon, 3=rare
     const rw = CONFIG.itemRarityWeights;
-    return rarity === 1 ? rw.common : rarity === 2 ? rw.uncommon : rw.rare;
+    let w = rarity === 1 ? rw.common : rarity === 2 ? rw.uncommon : rw.rare;
+    if (G['owned_luckycharm'] && rarity >= 2) w *= 2;
+    return w;
   });
 
   const total = weights.reduce((a, b) => a + b, 0);
@@ -741,6 +749,10 @@ function applyPrize(prize, cx, cy) {
 }
 
 // ==================== STARFALL ====================
+function starfallCost() {
+  return G['owned_starsaver'] ? CONFIG.starPiecesForStarfall - 1 : CONFIG.starPiecesForStarfall;
+}
+
 function isStarfallUnlocked() {
   return G.monkeys && G.monkeys[0] && G.monkeys[0].tiers && G.monkeys[0].tiers[0] >= 3;
 }
@@ -749,9 +761,10 @@ let _starfallActive = false;
 function useStarfall() {
   if (_starfallActive) return;
   if (!isStarfallUnlocked()) return;
-  if (G.starPieces < CONFIG.starPiecesForStarfall || !G.roundEggs) return;
+  const cost = starfallCost();
+  if (G.starPieces < cost || !G.roundEggs) return;
   _starfallActive = true;
-  G.starPieces -= CONFIG.starPiecesForStarfall;
+  G.starPieces -= cost;
   G.starfallsUsed++;
   SFX.play('starfall');
   msg('STARFALL! All eggs smashed!', 'starfall');
@@ -1137,6 +1150,11 @@ function doBuyShopItem(category, id) {
     if (id === 'maxhammers') { G.maxH += 5; showShopSnack('+5 max hammers!'); }
     if (id === 'fastregen') { G.fastRegen = true; showShopSnack('Fast Regen unlocked!'); }
     if (id === 'spyglass') { G['owned_spyglass'] = true; renderEggTray(); showShopSnack('Spyglass unlocked!'); }
+    if (id === 'luckycharm') { G['owned_luckycharm'] = true; showShopSnack('Lucky Charm unlocked!'); }
+    if (id === 'goldmagnet') { G['owned_goldmagnet'] = true; showShopSnack('Golden Magnet unlocked!'); }
+    if (id === 'eggradar') { G['owned_eggradar'] = true; showShopSnack('Egg Radar unlocked!'); }
+    if (id === 'doubledaily') { G['owned_doubledaily'] = true; showShopSnack('Double Daily unlocked!'); }
+    if (id === 'starsaver') { G['owned_starsaver'] = true; showShopSnack('Star Saver unlocked!'); }
 
     SFX.play('buy');
   }

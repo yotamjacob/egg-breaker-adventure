@@ -177,7 +177,7 @@ function renderMultQueue() {
 
 function updateStarBtn() {
   const btn = $id('star-btn');
-  const need = CONFIG.starPiecesForStarfall;
+  const need = starfallCost();
   if (!isStarfallUnlocked()) {
     btn.disabled = true;
     $id('star-count').textContent = '🔒';

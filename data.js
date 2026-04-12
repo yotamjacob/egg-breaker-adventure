@@ -372,6 +372,11 @@ const SHOP_SUPPLIES = [
   { id: 'maxhammers', name: '+5 Hammer Cap',    emoji: '📦', cost: 8000,  currency: 'gold', type: 'upgrade' },
   { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', cost: 15000, currency: 'gold', type: 'upgrade', unique: true },
   { id: 'spyglass',   name: 'Spyglass',        emoji: '🔍', desc: 'Reveal egg names & HP', cost: 5000, currency: 'gold', type: 'upgrade', unique: true },
+  { id: 'luckycharm', name: 'Lucky Charm',    emoji: '🍀', desc: '2x rare item chance',    cost: 200000, currency: 'gold', type: 'upgrade', unique: true },
+  { id: 'goldmagnet', name: 'Golden Magnet',  emoji: '🧲', desc: 'Gold rounded up to 10',  cost: 300000, currency: 'gold', type: 'upgrade', unique: true },
+  { id: 'eggradar',   name: 'Egg Radar',      emoji: '📡', desc: '+50% rare egg spawns',   cost: 400000, currency: 'gold', type: 'upgrade', unique: true },
+  { id: 'doubledaily', name: 'Double Daily',  emoji: '📅', desc: '2x daily rewards',       cost: 500000, currency: 'gold', type: 'upgrade', unique: true },
+  { id: 'starsaver',  name: 'Star Saver',     emoji: '✨', desc: 'Starfall costs 4 stars', cost: 600000, currency: 'gold', type: 'upgrade', unique: true },
 ];
 
 // All tuning values are read from CONFIG (config.js)
