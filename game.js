@@ -274,6 +274,7 @@ function newRound() {
     const effects = [];
     if (Math.random() < 0.05) effects.push('runny');
     if (Math.random() < 0.05) effects.push('timer');
+    if (Math.random() < 0.03) effects.push('hex');
     eggs.push({ type, hp, maxHp: hp, broken: false, effects, timer: effects.includes('timer') ? 3.0 : 0 });
     // Discover new egg type
     if (!G.discoveredEggs) G.discoveredEggs = ['normal','silver','gold'];
@@ -588,6 +589,11 @@ function smashEgg(index) {
   setTimeout(() => {
     applyPrize(prize, cx, cy);
 
+    // Apply hex effect if present
+    if (egg.effects && egg.effects.includes('hex')) {
+      applyHex(cx, cy);
+    }
+
     // Update egg visual to fully broken
     slot.classList.add('broken');
     slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) +
@@ -772,6 +778,39 @@ function starfallCost() {
 
 function isStarfallUnlocked() {
   return G.monkeys && G.monkeys[0] && G.monkeys[0].tiers && G.monkeys[0].tiers[0] >= 3;
+}
+
+// ==================== HEX EFFECT ====================
+const HEX_TYPES = [
+  { id: 'loseGold',     apply: () => { const lost = Math.floor(G.gold * 0.01); G.gold -= lost; return '😈 -' + lost + ' gold'; } },
+  { id: 'loseFeathers', apply: () => { const lost = Math.floor(G.feathers * 0.01); G.feathers -= lost; return '😈 -' + lost + ' feathers'; } },
+  { id: 'loseHammers',  apply: () => { const lost = Math.max(1, Math.floor(G.hammers * 0.01)); G.hammers = Math.max(0, G.hammers - lost); return '😈 -' + lost + ' hammers'; } },
+  { id: 'regenPause',   apply: () => { pauseRegen(30); return '😈 Regen paused 30s'; } },
+];
+
+let _regenPauseTimer = null;
+function pauseRegen(seconds) {
+  if (regenInt) { clearInterval(regenInt); regenInt = null; }
+  const hRow = $id('hammer-row');
+  hRow.classList.add('hexed');
+  clearTimeout(_regenPauseTimer);
+  _regenPauseTimer = setTimeout(() => {
+    hRow.classList.remove('hexed');
+    if (G.hammers < G.maxH && !regenInt) startRegen();
+    _regenPauseTimer = null;
+  }, seconds * 1000);
+}
+
+function applyHex(cx, cy) {
+  const zone = $id('prize-zone');
+  const hex = HEX_TYPES[Math.floor(Math.random() * HEX_TYPES.length)];
+  const text = hex.apply();
+  G.hexesHit = (G.hexesHit || 0) + 1;
+  spawnFloat(zone, text, '#ff4444', 'big', cx, cy - 30);
+  msg(text, 'noHammers');
+  SFX.play('err');
+  checkAchievements();
+  updateResources();
 }
 
 let _starfallActive = false;
@@ -1319,6 +1358,9 @@ function checkAchievements() {
     missed_10:    () => (G.timerMissed || 0) >= 10,
     combo_effect: () => (G.comboSmashed || 0) >= 1,
     millenium_1:  () => (G.milleniumSmashed || 0) >= 1,
+    hex_1:        () => (G.hexesHit || 0) >= 1,
+    hex_10:       () => (G.hexesHit || 0) >= 10,
+    hex_50:       () => (G.hexesHit || 0) >= 50,
   };
 
   for (const a of ACHIEVEMENT_DATA) {

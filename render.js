@@ -697,6 +697,7 @@ function renderStats() {
     ['Timed smashed', G.timerSmashed || 0],
     ['Timed missed', G.timerMissed || 0],
     ['Millenium eggs', G.milleniumSmashed || 0],
+    ['Hexes hit', G.hexesHit || 0],
     ['Daily claims', G.totalDailyClaims || 0],
   ].map(([k, v]) => '<span>' + k + ': <strong>' + v + '</strong></span>').join('');
 }

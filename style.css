@@ -83,6 +83,8 @@ body{
 .hammer-row.zero{color:var(--gray)}
 .hammer-row.regen{color:var(--gold)}
 .hammer-row.full{color:var(--green)}
+.hammer-row.hexed{color:var(--red);animation:hex-pulse 1s steps(2) infinite}
+@keyframes hex-pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .icon-btn{
   margin-left:auto;background:var(--bg);border:2px solid var(--gray);
   border-radius:2px;padding:4px 6px;cursor:pointer;font-size:16px;

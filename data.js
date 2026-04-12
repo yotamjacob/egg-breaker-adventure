@@ -499,6 +499,10 @@ const ACHIEVEMENT_DATA = [
   { id:'combo_effect', name:'Double Trouble',      desc:'Smash a runny timed egg',        icon:'🤯', reward:{type:'gold',val:500,      label:'+500 gold'} },
   // -- Millenium egg --
   { id:'millenium_1', name:'The Chosen One',      desc:'Break a Millenium Egg',          icon:'🌀', reward:{type:'goldPct',val:15,    label:'+15% gold from eggs'} },
+  // -- Hex --
+  { id:'hex_1',        name:'Cursed!',             desc:'Get hexed for the first time',   icon:'😈', reward:{type:'gold',val:100,      label:'+100 gold'} },
+  { id:'hex_10',       name:'Bad Karma',           desc:'Get hexed 10 times',             icon:'👹', reward:{type:'gold',val:500,      label:'+500 gold'} },
+  { id:'hex_50',       name:'Hex Magnet',          desc:'Get hexed 50 times',             icon:'🧿', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
 ];
 
 // Daily rewards for 100 days. type: gold, hammers, maxH, feathers, banana
