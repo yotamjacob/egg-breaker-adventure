@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.8.1';
+const VERSION = '4.8.2';
 
 const CONFIG = {
 
@@ -58,9 +58,9 @@ const CONFIG = {
   // 2. GOLD DROP RANGES
   // ----------------------------------------------------------
   goldValues: {
-    gold_s: [2,   8],
-    gold_m: [10,  30],
-    gold_l: [40, 120],
+    gold_s: [1,   5],
+    gold_m: [8,  22],
+    gold_l: [30, 90],
   },
 
   starPiecesForStarfall: 5,
@@ -94,9 +94,9 @@ const CONFIG = {
   //    These control rarity weights within the item roll.
   // ----------------------------------------------------------
   itemRarityWeights: {
-    common:   15,   // rarity 1
+    common:   12,   // rarity 1
     uncommon: 5,    // rarity 2
-    rare:     2,    // rarity 3
+    rare:     3,    // rarity 3
   },
 
   // Feather cost to buy an album item directly.

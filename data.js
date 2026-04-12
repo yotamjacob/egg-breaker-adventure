@@ -348,29 +348,29 @@ const MONKEY_DATA = [
 
 const SHOP_HAMMERS = [
   { id: 'default',    name: 'Basic Hammer',     emoji: '🔨', desc: 'Standard issue',              cost: 0, bonus: null },
-  { id: 'drumstick',  name: 'Drumstick Hammer', emoji: '🍗', desc: '+15% star pieces',            cost: 5000, currency: 'gold', bonus: 'moreStars' },
-  { id: 'bat',        name: 'Bat Hammer',       emoji: '🦇', desc: 'Fewer empty eggs',            cost: 8000, currency: 'gold', bonus: 'lessEmpty' },
-  { id: 'crystal',    name: 'Crystal Hammer',    emoji: '🔮', desc: '+20% feathers',               cost: 15000, currency: 'gold', bonus: 'moreFeathers' },
-  { id: 'golden',     name: 'Golden Hammer',     emoji: '⭐', desc: '2x gold from eggs',           cost: 50000, currency: 'gold', bonus: 'moreGold' },
-  { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% collection items',       cost: 100000, currency: 'gold', bonus: 'moreItems' },
+  { id: 'drumstick',  name: 'Drumstick Hammer', emoji: '🍗', desc: '+15% star pieces',            cost: 8000, currency: 'gold', bonus: 'moreStars' },
+  { id: 'bat',        name: 'Bat Hammer',       emoji: '🦇', desc: 'Fewer empty eggs',            cost: 12000, currency: 'gold', bonus: 'lessEmpty' },
+  { id: 'crystal',    name: 'Crystal Hammer',    emoji: '🔮', desc: '+20% feathers',               cost: 25000, currency: 'gold', bonus: 'moreFeathers' },
+  { id: 'golden',     name: 'Golden Hammer',     emoji: '⭐', desc: '2x gold from eggs',           cost: 75000, currency: 'gold', bonus: 'moreGold' },
+  { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% collection items',       cost: 150000, currency: 'gold', bonus: 'moreItems' },
 ];
 
 const SHOP_HATS = [
   { id: 'none',    name: 'No Hat',        emoji: '🐒', desc: '',                         cost: 0, bonus: null },
-  { id: 'chef',    name: 'Chef\'s Hat',   emoji: '👨‍🍳', desc: '10% chance egg was free',  cost: 10000, currency: 'gold', bonus: 'freeEgg' },
-  { id: 'crown',   name: 'Crown',         emoji: '👑', desc: '+10% gold',                 cost: 20000, currency: 'gold', bonus: 'goldBoost' },
-  { id: 'wizard',  name: 'Wizard Hat',    emoji: '🧙', desc: '+10% stars',                cost: 30000, currency: 'gold', bonus: 'starBoost' },
-  { id: 'tophat',  name: 'Top Hat',       emoji: '🎩', desc: 'Unlocks x123 multiplier',   cost: 50000, currency: 'gold', bonus: 'unlock123' },
-  { id: 'pirate',  name: 'Pirate Hat',    emoji: '🏴‍☠️', desc: '+15% collection items',    cost: 80000, currency: 'gold', bonus: 'itemBoost' },
+  { id: 'chef',    name: 'Chef\'s Hat',   emoji: '👨‍🍳', desc: '3% chance egg was free',   cost: 15000, currency: 'gold', bonus: 'freeEgg' },
+  { id: 'crown',   name: 'Crown',         emoji: '👑', desc: '+10% gold',                 cost: 30000, currency: 'gold', bonus: 'goldBoost' },
+  { id: 'wizard',  name: 'Wizard Hat',    emoji: '🧙', desc: '+10% stars',                cost: 45000, currency: 'gold', bonus: 'starBoost' },
+  { id: 'tophat',  name: 'Top Hat',       emoji: '🎩', desc: 'Unlocks x123 multiplier',   cost: 75000, currency: 'gold', bonus: 'unlock123' },
+  { id: 'pirate',  name: 'Pirate Hat',    emoji: '🏴‍☠️', desc: '+15% collection items',    cost: 120000, currency: 'gold', bonus: 'itemBoost' },
 ];
 
 const SHOP_SUPPLIES = [
-  { id: 'hammers5',   name: '+5 Hammers',      emoji: '🔨', cost: 200,   currency: 'gold', type: 'consumable' },
-  { id: 'hammers20',  name: '+20 Hammers',      emoji: '🔨', cost: 700,   currency: 'gold', type: 'consumable' },
-  { id: 'star1',      name: 'Star Piece',       emoji: '⭐', cost: 2000,  currency: 'gold', type: 'consumable' },
-  { id: 'mult5',      name: 'x5 Multiplier',    emoji: '✖️', cost: 3000,  currency: 'gold', type: 'consumable' },
-  { id: 'maxhammers', name: '+5 Hammer Cap',    emoji: '📦', cost: 5000,  currency: 'gold', type: 'upgrade' },
-  { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', cost: 10000, currency: 'gold', type: 'upgrade', unique: true },
+  { id: 'hammers5',   name: '+5 Hammers',      emoji: '🔨', cost: 300,   currency: 'gold', type: 'consumable' },
+  { id: 'hammers20',  name: '+20 Hammers',      emoji: '🔨', cost: 1000,  currency: 'gold', type: 'consumable' },
+  { id: 'star1',      name: 'Star Piece',       emoji: '⭐', cost: 3000,  currency: 'gold', type: 'consumable' },
+  { id: 'mult5',      name: 'x5 Multiplier',    emoji: '✖️', cost: 5000,  currency: 'gold', type: 'consumable' },
+  { id: 'maxhammers', name: '+5 Hammer Cap',    emoji: '📦', cost: 8000,  currency: 'gold', type: 'upgrade' },
+  { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', cost: 15000, currency: 'gold', type: 'upgrade', unique: true },
 ];
 
 // All tuning values are read from CONFIG (config.js)

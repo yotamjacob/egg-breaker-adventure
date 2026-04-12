@@ -790,13 +790,10 @@ function checkCollectionComplete() {
     SFX.play('tier');
 
     if (newTier === 1) {
-      // Bronze → Silver
-      const reward = CONFIG.tierRewards.silver;
-      G.maxH += reward.maxHammers;
-      G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
+      // Bronze → Silver (no reward, just milestone)
       showStagePopup(
         'Silver Tier!',
-        stage.name + ' - +' + reward.maxHammers + ' max hammers'
+        stage.name + ' — keep collecting for Gold!'
       );
       msg('⬆️ Silver Tier! ' + stage.name + ' +' + reward.maxHammers + ' max hammers', 'tiers');
 
@@ -1298,6 +1295,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   tab.classList.add('active');
   $id('panel-' + name).classList.add('active');
   // Refresh content when switching tabs
+  if (name === 'play') renderEggTray();
   if (name === 'album') renderAlbum();
   if (name === 'monkeys') renderMonkeys();
   if (name === 'shop') { renderShop(); updateAutoBuyBtn(); }
