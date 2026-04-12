@@ -880,8 +880,8 @@ function checkCollectionComplete() {
       const nextName = si < curMonkey().stages.length - 1
         ? curMonkey().stages[si + 1].name : null;
       showStagePopup(
-        'Gold Tier!',
-        stage.name + (nextName ? '\nStage ' + (si + 2) + ': ' + nextName + ' unlocked!' : '')
+        stage.name + ' - Gold Tier',
+        nextName ? 'Stage ' + (si + 2) + ': ' + nextName + ' unlocked' : ''
       );
       msg('🥇 Gold Tier! ' + stage.name + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
 
