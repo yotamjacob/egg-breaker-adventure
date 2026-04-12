@@ -5,7 +5,7 @@
 
 const MONKEY_DATA = [
   {
-    id: 'mr_monkey', name: 'Mr. Monkey', emoji: '🐵', img: 'img/mrmonkey.png', cost: 0,
+    id: 'mr_monkey', name: 'Mr. Monkey', emoji: '🐵', img: 'img/mrmonkey.png', hatImgs: { chef: 'img/mrmonkey_chef.png' }, cost: 0,
     perk: 'none', perkDesc: 'The original egg breaker!',
     stages: [
       { name: 'Tropical Paradise', eggs: 3, collection: { name: 'Tropical Fruits', items: [
@@ -90,7 +90,7 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'steampunk', name: 'Steampunk Monkey', emoji: '🔧', img: 'img/steampunk.png', cost: 7,
+    id: 'steampunk', name: 'Steampunk Monkey', emoji: '🔧', img: 'img/steampunk.png', hatImgs: { chef: 'img/steampunk_chef.png' }, cost: 7,
     perk: 'moreStars', perkDesc: '+15% star piece chance',
     stages: [
       { name: 'Gear Workshop', eggs: 3, collection: { name: 'Basic Gears', items: [
@@ -175,7 +175,7 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'princess', name: 'Princess Monkey', emoji: '👸', img: 'img/princess.png', cost: 7,
+    id: 'princess', name: 'Princess Monkey', emoji: '👸', img: 'img/princess.png', hatImgs: { chef: 'img/princess_chef.png' }, cost: 7,
     perk: 'moreGold', perkDesc: '+20% gold from eggs',
     stages: [
       { name: 'Royal Garden', eggs: 3, collection: { name: 'Garden Flowers', items: [
@@ -260,7 +260,7 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'space', name: 'Space Cadette', emoji: '🚀', img: 'img/space.png', cost: 7,
+    id: 'space', name: 'Space Cadette', emoji: '🚀', img: 'img/space.png', hatImgs: { chef: 'img/space_chef.png' }, cost: 7,
     perk: 'moreItems', perkDesc: '+10% collection item chance',
     stages: [
       { name: 'Launch Pad', eggs: 3, collection: { name: 'Launch Gear', items: [

@@ -429,8 +429,10 @@ function updateStageBar() {
 function renderAll() {
   const monkey = curMonkey();
   const avatarEl = $id('monkey-avatar');
-  if (monkey.img) {
-    avatarEl.innerHTML = '<img src="' + monkey.img + '" style="width:100%;height:100%;object-fit:cover">';
+  const hatId = G.hat && G.hat !== 'none' ? G.hat : null;
+  const avatarSrc = (hatId && monkey.hatImgs && monkey.hatImgs[hatId]) || monkey.img;
+  if (avatarSrc) {
+    avatarEl.innerHTML = '<img src="' + avatarSrc + '" style="width:100%;height:100%;object-fit:cover">';
   } else {
     avatarEl.textContent = monkey.emoji;
   }
@@ -554,8 +556,10 @@ function renderMonkeys() {
     card.className = 'monkey-card' + (isActive ? ' active' : '');
     if (mp.unlocked && !isActive) card.setAttribute('data-monkey', String(i));
 
-    let inner = m.img
-      ? '<div class="m-emoji m-avatar-wrap"><img src="' + m.img + '"></div>'
+    const cardHatId = G.hat && G.hat !== 'none' ? G.hat : null;
+    const cardSrc = (cardHatId && m.hatImgs && m.hatImgs[cardHatId]) || m.img;
+    let inner = cardSrc
+      ? '<div class="m-emoji m-avatar-wrap"><img src="' + cardSrc + '"></div>'
       : '<span class="m-emoji">' + m.emoji + '</span>';
     inner += '<span class="m-name">' + m.name + '</span>';
     inner += '<span class="m-perk">' + m.perkDesc + '</span>';
