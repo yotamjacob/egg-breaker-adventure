@@ -460,11 +460,9 @@ function renderShop() {
     if (h.cost === 0) return;
     const owned = G.ownedHammers.includes(h.id);
     const isCursor = G.hammer === h.id;
-    const tip = buildShopTooltip(h.bonus, owned);
     const card = document.createElement('div');
     card.className = 'shop-card' + (owned ? ' owned' : '') + (isCursor ? ' equipped' : '');
     card.dataset.id = h.id;
-    if (tip) card.setAttribute('data-tip', tip);
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
       '<span class="s-name">' + h.name + '</span>' +
@@ -482,11 +480,9 @@ function renderShop() {
   SHOP_HATS.forEach(h => {
     if (h.cost === 0) return;
     const owned = G.ownedHats.includes(h.id);
-    const tip = buildShopTooltip(h.bonus, owned);
     const card = document.createElement('div');
     card.className = 'shop-card' + (owned ? ' owned' : '');
     card.dataset.id = h.id;
-    if (tip) card.setAttribute('data-tip', tip);
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
       '<span class="s-name">' + h.name + '</span>' +
@@ -503,11 +499,9 @@ function renderShop() {
   sGrid.innerHTML = '';
   SHOP_SUPPLIES.forEach(s => {
     const isOwned = s.unique && (s.id === 'fastregen' ? G.fastRegen : G['owned_' + s.id]);
-    const tip = buildSupplyTooltip(s.id);
     const card = document.createElement('div');
     card.className = 'shop-card' + (isOwned ? ' owned' : '');
     card.dataset.id = s.id;
-    if (tip) card.setAttribute('data-tip', tip);
     card.innerHTML =
       '<span class="s-emoji">' + s.emoji + '</span>' +
       '<span class="s-name">' + s.name + '</span>' +

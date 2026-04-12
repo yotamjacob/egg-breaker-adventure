@@ -968,6 +968,15 @@ function toggleAutoBuy() {
 }
 
 
+let _snackTimeout = null;
+function showShopSnack(text) {
+  const el = $id('shop-snack');
+  el.textContent = text;
+  el.classList.add('show');
+  clearTimeout(_snackTimeout);
+  _snackTimeout = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
 function showAlert(icon, text) {
   showConfirm(icon, text, '', null);
   $id('confirm-yes').style.display = 'none';
@@ -1034,14 +1043,14 @@ function doBuyShopItem(category, id) {
     G.purchases = (G.purchases || 0) + 1;
     SFX.play('buy');
     updateHammerSVG();
-    msg('Bought ' + item.name + '!', 'shop');
+    showShopSnack(item.name + ' purchased!');
   }
 
   if (category === 'hat') {
     const item = SHOP_HATS.find(h => h.id === id);
     if (!item || item.cost === 0) return;
     if (G.ownedHats.includes(id)) {
-      msg('Already owned — bonus is always active!', 'shop');
+      showShopSnack('Already owned!');
       return;
     }
     if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
@@ -1051,27 +1060,26 @@ function doBuyShopItem(category, id) {
     G.hat = id;
     G.purchases = (G.purchases || 0) + 1;
     SFX.play('buy');
-    msg('Bought ' + item.name + '!', 'shop');
+    showShopSnack(item.name + ' purchased!');
   }
 
   if (category === 'supply') {
     const item = SHOP_SUPPLIES.find(s => s.id === id);
     if (!item) return;
-    if (id === 'fastregen' && G.fastRegen) { msg('Already purchased!', 'shop'); return; }
-    if (item.unique && id !== 'fastregen' && G['owned_' + id]) { msg('Already purchased!', 'shop'); return; }
+    if (id === 'fastregen' && G.fastRegen) { showShopSnack('Already purchased!'); return; }
+    if (item.unique && id !== 'fastregen' && G['owned_' + id]) { showShopSnack('Already purchased!'); return; }
     if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
     G.gold -= item.cost;
     G.purchases = (G.purchases || 0) + 1;
 
-    if (id === 'hammers5') G.hammers = Math.min(G.maxH, G.hammers + 5);
-    if (id === 'hammers20') G.hammers = Math.min(G.maxH, G.hammers + 20);
-    if (id === 'star1') { G.starPieces++; G.totalStarPieces++; updateStarBtn(); }
-    if (id === 'mult5') { G.multQueue.push(5); renderMultQueue(); }
-    if (id === 'maxhammers') G.maxH += 5;
-    if (id === 'fastregen') { G.fastRegen = true; }
+    if (id === 'hammers5') { G.hammers = Math.min(G.maxH, G.hammers + 5); showShopSnack('+5 hammers purchased!'); }
+    if (id === 'hammers20') { G.hammers = Math.min(G.maxH, G.hammers + 20); showShopSnack('+20 hammers purchased!'); }
+    if (id === 'star1') { G.starPieces++; G.totalStarPieces++; updateStarBtn(); showShopSnack('+1 star piece purchased!'); }
+    if (id === 'mult5') { G.multQueue.push(5); renderMultQueue(); showShopSnack('x5 multiplier purchased!'); }
+    if (id === 'maxhammers') { G.maxH += 5; showShopSnack('+5 max hammers!'); }
+    if (id === 'fastregen') { G.fastRegen = true; showShopSnack('Fast Regen unlocked!'); }
 
     SFX.play('buy');
-    msg('Purchased!', 'shop');
   }
 
   checkAchievements();
@@ -1084,7 +1092,7 @@ function doBuyShopItem(category, id) {
       break;
     }
   }
-  setTimeout(() => { renderShop(); saveGame(); }, 500);
+  setTimeout(() => { renderShop(); saveGame(); }, 250);
 }
 
 // ==================== ACHIEVEMENTS ====================

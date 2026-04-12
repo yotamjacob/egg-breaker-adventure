@@ -186,29 +186,21 @@
   box-shadow:2px 2px 0 var(--dark);
 }
 .shop-card:hover:not(.owned){transform:translate(-1px,-1px);border-color:var(--gold);box-shadow:3px 3px 0 var(--dark)}
-.shop-card.just-bought{animation:shop-flash .5s steps(4)}
+.shop-snack{
+  position:fixed;bottom:12px;left:50%;transform:translateX(-50%) translateY(60px);
+  background:#143d2b;border:2px solid var(--green);border-radius:2px;
+  padding:6px 14px;font-family:var(--px);font-size:10px;color:#86efac;
+  z-index:1000;box-shadow:3px 3px 0 var(--dark);
+  transition:transform .15s ease;white-space:nowrap;
+  max-width:320px;text-align:center;pointer-events:none;
+}
+.shop-snack.show{transform:translateX(-50%) translateY(0)}
+.shop-card.just-bought{animation:shop-flash .2s ease}
 @keyframes shop-flash{
-  0%{transform:scale(1);border-color:var(--green);box-shadow:0 0 0 var(--green)}
-  30%{transform:scale(1.1);box-shadow:0 0 12px rgba(46,204,113,.6)}
-  60%{transform:scale(.95)}
-  100%{transform:scale(1);box-shadow:2px 2px 0 var(--dark)}
+  0%{transform:scale(1)}
+  50%{transform:scale(.95);border-color:var(--green)}
+  100%{transform:scale(1)}
 }
-
-/* Shop card tooltips */
-.shop-card[data-tip]{position:relative;z-index:1}
-.shop-card[data-tip]:hover{z-index:200}
-.shop-card[data-tip]::before{
-  content:attr(data-tip);
-  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(4px);
-  background:var(--dark);border:2px solid var(--gold);
-  border-radius:2px;padding:5px 8px;
-  font-family:var(--px);font-size:10px;line-height:1.5;
-  color:var(--white);white-space:normal;width:190px;
-  text-align:center;z-index:200;pointer-events:none;
-  box-shadow:3px 3px 0 rgba(0,0,0,.6);
-  opacity:0;transition:opacity .12s steps(3),transform .12s steps(3);
-}
-.shop-card[data-tip]:hover::before{opacity:1;transform:translateX(-50%) translateY(0)}
 .shop-card.owned{background:#143d2b;border-color:var(--green)}
 .shop-card.equipped{border-color:var(--gold);border-width:3px;box-shadow:0 0 8px rgba(245,197,66,.3),2px 2px 0 var(--dark)}
 .shop-card .s-emoji{font-size:24px}

@@ -174,9 +174,7 @@ body{
   #hammer{display:none!important}
   .egg-tray-wrap{cursor:auto}
   /* Tooltips: show on tap via :active */
-  .shop-card[data-tip]::before,
   .album-item[data-tip]::after{transition:none}
-  .shop-card[data-tip]:active::before{opacity:1;transform:translateX(-50%) translateY(0)}
   .album-item[data-tip]:active::after{opacity:1;transform:translateX(-50%) translateY(0)}
 }
 

@@ -55,22 +55,16 @@
 }
 .starfall-box{
   flex:0 0 20%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;border:3px solid var(--gold3);border-radius:2px;
-  background:var(--panel);color:var(--gold);font-family:var(--px);
-  cursor:pointer;padding:4px;
+  gap:2px;border:3px solid var(--gold);border-radius:2px;
+  background:linear-gradient(180deg,var(--gold),var(--gold2));color:var(--dark);
+  font-family:var(--px);cursor:pointer;padding:4px;
   box-shadow:inset 2px 2px 0 var(--raised),inset -2px -2px 0 var(--inset),3px 3px 0 var(--dark);
-  transition:background .08s, color .08s, border-color .08s;
   overflow:hidden;
 }
-.starfall-box:disabled{opacity:.4;cursor:default}
-.starfall-box:not(:disabled){
-  background:linear-gradient(180deg,var(--gold),var(--gold2));color:var(--dark);
-  border-color:var(--gold);
-}
-.starfall-icon{font-size:12px}
+.starfall-box:disabled{cursor:default}
+.starfall-icon{font-size:18px}
 .starfall-count{font-size:10px}
-.starfall-hint{font-size:6px;color:var(--gray);white-space:nowrap}
-.starfall-box:not(:disabled) .starfall-hint{color:var(--dark);opacity:.7}
+.starfall-hint{font-size:6px;color:var(--dark);opacity:.7;white-space:nowrap}
 @keyframes pulse-star{0%,100%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark)}50%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark),0 0 10px rgba(245,197,66,.5)}}
 .mult-chip{
   background:var(--panel);border:2px solid var(--purple);border-radius:1px;
