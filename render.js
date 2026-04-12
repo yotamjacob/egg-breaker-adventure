@@ -141,14 +141,17 @@ function renderMultQueue() {
   if (!G._selectedCounts) G._selectedCounts = {};
 
   MULT_BADGE_VALUES.forEach(val => {
+    // x123 is locked behind Top Hat purchase
+    const locked123 = val === 123 && !hasBonus('unlock123');
     const owned = getMultCount(val);
     const selected = G._selectedCounts[val] || 0;
     const badge = document.createElement('span');
-    badge.className = 'mult-chip' + (selected > 0 ? ' active' : '') + (owned === 0 ? ' muted' : '');
-    let label = 'x' + val;
-    if (owned === 0) label += '';
-    else if (selected > 0) label += ' [' + selected + '/' + owned + ']';
-    else label += ' (' + owned + ')';
+    badge.className = 'mult-chip' + (selected > 0 ? ' active' : '') + ((owned === 0 || locked123) ? ' muted' : '');
+    let label;
+    if (locked123) { label = '?'; }
+    else if (owned === 0) { label = 'x' + val; }
+    else if (selected > 0) { label = 'x' + val + ' [' + selected + '/' + owned + ']'; }
+    else { label = 'x' + val + ' (' + owned + ')'; }
     badge.textContent = label;
     if (owned > 0) {
       badge.addEventListener('click', () => {
@@ -427,7 +430,7 @@ const BONUS_INFO = {
   freeEgg:      { stat: 'Free hit chance',    effect: '10%',                  unit: '' },
   goldBoost:    { stat: 'Gold value',         effect: 'x1.1 (+10%)',          unit: '' },
   starBoost:    { stat: 'Star piece weight',  effect: 'x1.1 (+10%)',          unit: '' },
-  multBoost:    { stat: 'Multiplier duration', effect: 'Extended',            unit: '' },
+  unlock123:    { stat: 'x123 multiplier',      effect: 'Unlocked',            unit: '' },
   itemBoost:    { stat: 'Item drop weight',   effect: 'x1.15 (+15%)',         unit: '' },
 };
 

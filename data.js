@@ -360,7 +360,7 @@ const SHOP_HATS = [
   { id: 'chef',    name: 'Chef\'s Hat',   emoji: '👨‍🍳', desc: '10% chance egg was free',  cost: 10000, currency: 'gold', bonus: 'freeEgg' },
   { id: 'crown',   name: 'Crown',         emoji: '👑', desc: '+10% gold',                 cost: 20000, currency: 'gold', bonus: 'goldBoost' },
   { id: 'wizard',  name: 'Wizard Hat',    emoji: '🧙', desc: '+10% stars',                cost: 30000, currency: 'gold', bonus: 'starBoost' },
-  { id: 'tophat',  name: 'Top Hat',       emoji: '🎩', desc: 'Multipliers last longer',   cost: 50000, currency: 'gold', bonus: 'multBoost' },
+  { id: 'tophat',  name: 'Top Hat',       emoji: '🎩', desc: 'Unlocks x123 multiplier',   cost: 50000, currency: 'gold', bonus: 'unlock123' },
   { id: 'pirate',  name: 'Pirate Hat',    emoji: '🏴‍☠️', desc: '+15% collection items',    cost: 80000, currency: 'gold', bonus: 'itemBoost' },
 ];
 

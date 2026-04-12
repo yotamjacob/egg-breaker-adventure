@@ -357,7 +357,9 @@ function resolvePrize(type, eggType) {
   const usedMultBonus = G.activeMult > 1 ? getSelectedMultValues() : null;
 
   if (type === 'mult') {
-    const val = MULT_VALUES[Math.floor(Math.random() * MULT_VALUES.length)];
+    let pool = MULT_VALUES;
+    if (!hasBonus('unlock123')) pool = pool.filter(v => v !== 123);
+    const val = pool[Math.floor(Math.random() * pool.length)];
     return { type: 'mult', value: val, bonusGold, usedMult: usedMultBonus, label: 'x' + val + ' multiplier!', color: '#7c3aed' };
   }
 
