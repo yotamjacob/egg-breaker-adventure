@@ -147,6 +147,7 @@ function checkDaily() {
   }
   G.lastLoginDate = today;
   G.dailyClaimed = false;
+  saveGame();
   renderDailyCalendar();
 }
 
@@ -794,9 +795,7 @@ function checkCollectionComplete() {
         ? curMonkey().stages[si + 1].name : null;
       showStagePopup(
         'Gold Tier!',
-        stage.name + ' - +' + reward.maxHammers + ' max hammers' +
-        (nextName ? '\nNext stage unlocked: ' + nextName + '!' : '') +
-        '\nKeep going for 100% to earn a Crystal Banana!'
+        stage.name + (nextName ? '\nStage ' + (si + 2) + ': ' + nextName + ' unlocked!' : '')
       );
       msg('🥇 Gold Tier! ' + stage.name + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
 

@@ -36,8 +36,8 @@
   margin-bottom:6px;text-align:center;letter-spacing:1px;
 }
 .daily-calendar{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:3px;
-  padding:2px;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:2px;
+  padding:3px;
 }
 .daily-cell{
   background:var(--panel);border:2px solid var(--gray);border-radius:2px;
