@@ -1438,6 +1438,59 @@ function godMode() {
   saveGame();
 }
 
+// ==================== ONBOARDING TOUR ====================
+const TOUR_STEPS = [
+  { icon: '🥚', title: 'Welcome!', body: 'Welcome to Egg Breaker Adventures Revival!\n\nA love letter to the classic 2008 Facebook game.\nReady for a quick tour?' },
+  { icon: '🔨', title: 'Smash Eggs', body: 'Tap or click eggs to smash them!\nEach hit costs 1 hammer.\nDifferent eggs have different HP — harder eggs give better rewards.' },
+  { icon: '🪙', title: 'Prizes', body: 'Break eggs to win gold, star pieces, feathers, multipliers, and collection items.\nSome eggs can be empty — that\'s life.' },
+  { icon: '⭐', title: 'Starfall', body: 'Collect 5 star pieces to trigger Starfall — it smashes ALL remaining eggs for free!\nUnlocks after completing Stage 1.' },
+  { icon: '📚', title: 'Collections', body: 'Each stage has themed items to collect.\nReach 40% for Silver, 70% for Gold (unlocks next stage), and 100% for a Crystal Banana!' },
+  { icon: '🐵', title: 'Monkeys', body: 'You start with Mr. Monkey.\nEarn Crystal Bananas by completing stages, then unlock new monkeys with unique perks.' },
+  { icon: '🛒', title: 'Shop', body: 'Spend gold on hammers, hats, and upgrades.\nEvery purchase gives permanent bonuses that stack.' },
+  { icon: '💡', title: 'Tips', body: 'Save multipliers for rare eggs — they multiply gold, stars, feathers, and hammers.\n\nWatch for glowing eggs — runny ones move and timed ones expire!\n\nGood luck and happy smashing!' },
+];
+
+let _tourStep = 0;
+function startTour() {
+  _tourStep = 0;
+  showTourStep();
+}
+function showTourStep() {
+  const step = TOUR_STEPS[_tourStep];
+  $id('tour-icon').textContent = step.icon;
+  $id('tour-title').textContent = step.title;
+  $id('tour-body').textContent = step.body;
+  // Dots
+  $id('tour-dots').innerHTML = TOUR_STEPS.map((_, i) =>
+    '<span class="tour-dot' + (i === _tourStep ? ' active' : '') + '"></span>'
+  ).join('');
+  // Button labels
+  const isLast = _tourStep >= TOUR_STEPS.length - 1;
+  $id('tour-next').textContent = isLast ? 'Let\'s go!' : 'Next';
+  $id('tour-skip').textContent = _tourStep === 0 ? 'Skip' : 'Back';
+  $id('overlay-tour').classList.remove('hidden');
+}
+$id('tour-next').addEventListener('click', () => {
+  if (_tourStep >= TOUR_STEPS.length - 1) {
+    closeOverlay('overlay-tour');
+    G._tourDone = true;
+    saveGame();
+  } else {
+    _tourStep++;
+    showTourStep();
+  }
+});
+$id('tour-skip').addEventListener('click', () => {
+  if (_tourStep === 0) {
+    closeOverlay('overlay-tour');
+    G._tourDone = true;
+    saveGame();
+  } else {
+    _tourStep--;
+    showTourStep();
+  }
+});
+
 // ==================== INIT ====================
 loadGame();
 
@@ -1452,6 +1505,11 @@ renderAll();
 $id('version-tag').textContent = 'Egg Breaker Adventures v' + VERSION;
 
 if (G.hammers < G.maxH && !regenInt) startRegen();
+
+// Show tour for first-time users
+if (!G._tourDone && !localStorage.getItem(SAVE_KEY)) {
+  setTimeout(startTour, 500);
+}
 
 // Stage bar click → Album tab
 $id('stage-bar').addEventListener('click', () => {
