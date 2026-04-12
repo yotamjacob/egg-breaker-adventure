@@ -30,6 +30,7 @@ const DEFAULT_STATE = {
   discoveredEggs: ['normal','silver','gold'], // egg types the player has seen
   soundOn: true,
   autoBuy: false,
+  _tourDone: false,
 };
 
 let G = {};
