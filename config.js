@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.8.12';
+const VERSION = '4.8.13';
 
 const CONFIG = {
 

@@ -110,6 +110,7 @@
   width:40px;pointer-events:none;
   opacity:0;transition:opacity .1s;
 }
+#hammer svg{transform:scaleY(-1)}
 .hammer-anim{animation:hammer-swing .25s steps(5) forwards}
 @keyframes hammer-swing{
   0%  {transform:rotate(40deg)}
