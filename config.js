@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.10.1';
+const VERSION = '4.10.2';
 
 const CONFIG = {
 
@@ -177,8 +177,8 @@ const CONFIG = {
   // ----------------------------------------------------------
   // 14. STARTING RESOURCES
   // ----------------------------------------------------------
-  startingHammers:     40,
-  startingMaxHammers:  40,
+  startingHammers:     60,
+  startingMaxHammers:  60,
 
   // ----------------------------------------------------------
   // 15. REWARD LOG — which message types show in the log
