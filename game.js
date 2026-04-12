@@ -1506,8 +1506,8 @@ $id('version-tag').textContent = 'Egg Breaker Adventures v' + VERSION;
 
 if (G.hammers < G.maxH && !regenInt) startRegen();
 
-// Show tour for first-time users
-if (!G._tourDone && !localStorage.getItem(SAVE_KEY)) {
+// Show tour for first-time users (no eggs broken yet = new player)
+if (!G._tourDone && G.totalEggs === 0) {
   setTimeout(startTour, 500);
 }
 
