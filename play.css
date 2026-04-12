@@ -47,7 +47,7 @@
   box-shadow: inset 1px 1px 0 var(--raised), 2px 2px 0 var(--dark);
   overflow:hidden;
 }
-.mult-label{color:var(--gray);flex-shrink:0;font-size:8px;text-align:center;line-height:1.4;width:40px}
+.mult-label{color:var(--gray);flex-shrink:0;font-size:8px;text-align:center;line-height:1.4;width:50px}
 .mult-label strong{color:var(--purple);font-size:10px;display:block}
 .mult-queue{
   display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
