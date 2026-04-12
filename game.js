@@ -496,7 +496,7 @@ function smashEgg(index) {
   // Now do logic
   G.hammers -= 1;
 
-  if (hasBonus('freeEgg') && Math.random() < 0.1) {
+  if (hasBonus('freeEgg') && Math.random() < 0.03) {
     G.hammers = Math.min(G.maxH, G.hammers + 1);
     msg('Free hit! (Chef\'s Hat)', 'freeHit');
   }
@@ -694,6 +694,12 @@ function useStarfall() {
   SFX.play('starfall');
   msg('STARFALL! All eggs smashed!', 'starfall');
 
+  // Suspend multiplier during starfall — mults only apply to manual taps
+  const savedMult = G.activeMult;
+  const savedCounts = G._selectedCounts;
+  G.activeMult = 1;
+  G._selectedCounts = {};
+
   const wrap = $id('egg-tray-wrap');
   wrap.style.animation = 'starfall-glow 1s ease';
   setTimeout(() => wrap.style.animation = '', 1000);
@@ -737,6 +743,12 @@ function useStarfall() {
   });
 
   setTimeout(() => {
+    // Restore multiplier state after starfall
+    G.activeMult = savedMult;
+    G._selectedCounts = savedCounts;
+    recalcActiveMult();
+    renderMultQueue();
+
     G.roundClears++;
     checkAchievements();
     updateStarBtn();
@@ -885,11 +897,18 @@ function consumeMultiplier() {
 
 // ==================== HAMMER REGEN ====================
 function startRegen() {
+  // Only regen when below max — overflow hammers are preserved
+  if (G.hammers >= G.maxH) { clearInterval(regenInt); regenInt = null; return; }
   G.regenCD = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
   regenInt = setInterval(() => {
+    if (G.hammers >= G.maxH) {
+      clearInterval(regenInt); regenInt = null;
+      updateResources();
+      return;
+    }
     G.regenCD--;
     if (G.regenCD <= 0) {
-      G.hammers = Math.min(G.maxH, G.hammers + 1);
+      G.hammers++;
       if (G.hammers >= G.maxH) {
         clearInterval(regenInt); regenInt = null;
       } else {
