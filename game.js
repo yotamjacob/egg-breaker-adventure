@@ -237,7 +237,10 @@ function curActiveStage() { return curProgress().activeStage !== undefined ? cur
 function curStage() { return curMonkey().stages[curActiveStage()]; }
 
 // ==================== ROUND MANAGEMENT ====================
+let _roundPending = false;
+
 function newRound() {
+  _roundPending = false;
   const prog = curProgress();
   const stage = curStage();
   const count = stage.eggs;
@@ -542,7 +545,8 @@ function smashEgg(index) {
       '<span class="egg-label">' + egg.type + '</span>';
 
     // Check if all eggs broken — auto-spawn next round
-    if (G.roundEggs.every(e => e.broken)) {
+    if (G.roundEggs.every(e => e.broken) && !_roundPending) {
+      _roundPending = true;
       G.roundClears++;
       checkAchievements();
       setTimeout(() => newRound(), 600);
