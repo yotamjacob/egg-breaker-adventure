@@ -156,6 +156,32 @@ function makeHammerSVG(hammerId) {
       <ellipse cx="22" cy="76" rx="18" ry="14" fill="#ffd700" opacity=".06"/>
     </svg>`;
 
+    // ---- CUCUMBER: A mighty cucumber ----
+    case 'cucumber': return `<svg width="40" height="90" viewBox="0 0 44 100" ${S}>
+      <!-- Stem handle -->
+      <rect x="19" y="0" width="6" height="50" rx="2" fill="#2E7D32" stroke="#1B5E20" stroke-width="1"/>
+      <rect x="20" y="5" width="1" height="40" fill="#43A047" opacity=".4"/>
+      <rect x="23" y="8" width="1" height="35" fill="#388E3C" opacity=".3"/>
+      <!-- Leaf at grip -->
+      <ellipse cx="16" cy="12" rx="6" ry="3" fill="#4CAF50" stroke="#2E7D32" stroke-width=".5" transform="rotate(-20 16 12)"/>
+      <ellipse cx="28" cy="18" rx="5" ry="3" fill="#4CAF50" stroke="#2E7D32" stroke-width=".5" transform="rotate(15 28 18)"/>
+      <!-- Cucumber body (head) -->
+      <rect x="4" y="48" width="36" height="44" rx="16" fill="#4CAF50" stroke="#2E7D32" stroke-width="1.5"/>
+      <!-- Lighter belly -->
+      <rect x="10" y="52" width="24" height="36" rx="12" fill="#66BB6A" opacity=".6"/>
+      <!-- Bumps/texture -->
+      <circle cx="12" cy="58" r="2" fill="#388E3C" opacity=".5"/>
+      <circle cx="30" cy="62" r="2" fill="#388E3C" opacity=".5"/>
+      <circle cx="16" cy="72" r="2" fill="#388E3C" opacity=".5"/>
+      <circle cx="28" cy="78" r="2" fill="#388E3C" opacity=".5"/>
+      <circle cx="20" cy="84" r="1.5" fill="#388E3C" opacity=".4"/>
+      <!-- Highlight -->
+      <rect x="14" y="54" width="3" height="14" rx="1" fill="#81C784" opacity=".5"/>
+      <!-- Sparkle (it's special!) -->
+      <rect x="32" cy="55" width="2" height="2" fill="#fff" opacity=".6"/>
+      <rect x="10" cy="80" width="2" height="2" fill="#fff" opacity=".5"/>
+    </svg>`;
+
     // ---- DEFAULT: Basic wooden hammer ----
     default: return `<svg width="40" height="90" viewBox="0 0 44 100" ${S}>
       <!-- Wooden handle -->

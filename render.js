@@ -589,6 +589,7 @@ const BONUS_INFO = {
   goldBoost:    { stat: 'Gold value',         effect: 'x1.1 (+10%)',          unit: '' },
   starBoost:    { stat: 'Star piece weight',  effect: 'x1.1 (+10%)',          unit: '' },
   unlock123:    { stat: 'x123 multiplier',      effect: 'Unlocked',            unit: '' },
+  doubleHit:    { stat: 'Double hit chance',    effect: '5%',                  unit: '' },
   itemBoost:    { stat: 'Item drop weight',   effect: 'x1.15 (+15%)',         unit: '' },
 };
 

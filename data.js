@@ -353,6 +353,7 @@ const SHOP_HAMMERS = [
   { id: 'crystal',    name: 'Crystal Hammer',    emoji: '🔮', desc: '+20% feathers',               cost: 25000, currency: 'gold', bonus: 'moreFeathers' },
   { id: 'golden',     name: 'Golden Hammer',     emoji: '⭐', desc: '2x gold from eggs',           cost: 75000, currency: 'gold', bonus: 'moreGold' },
   { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% collection items',       cost: 150000, currency: 'gold', bonus: 'moreItems' },
+  { id: 'cucumber',   name: 'Cucumber Hammer',   emoji: '🥒', desc: '5% double hit chance',        cost: 250000, currency: 'gold', bonus: 'doubleHit' },
 ];
 
 const SHOP_HATS = [
