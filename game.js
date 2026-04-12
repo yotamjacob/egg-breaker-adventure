@@ -563,18 +563,25 @@ function popBalloonEgg(index, slot) {
   Particles.sparkle(cx, cy, 20, '#FFD700');
   shake($id('egg-tray-wrap'), 'md');
 
-  // Roll prize and multiply by 10
+  // Roll prize and multiply by 10 (only numeric rewards)
   const prize = rollPrize(egg.type);
-  if (prize.value) prize.value *= 10;
-  if (prize.baseVal) prize.baseVal *= 10;
-  prize.label = '🎈 x10 ' + prize.label;
+  const canMultiply = ['gold','star','feather','hammers','banana','maxHammers'].includes(prize.type);
+  if (canMultiply) {
+    if (prize.value) prize.value *= 10;
+    if (prize.baseVal) prize.baseVal *= 10;
+    prize.label = '🎈 x10 ' + prize.label;
+  } else {
+    prize.label = '🎈 ' + prize.label;
+  }
 
   slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + eggLabel(egg.type, 0, egg.maxHp, true);
 
   setTimeout(() => {
     applyPrize(prize, cx, cy);
     if (egg.effects && egg.effects.includes('hex')) applyHex(cx, cy);
-    msg('🎈 POP! x10 rewards!', 'prizes');
+    renderMultQueue();
+    updateStarBtn();
+    msg('🎈 POP! ' + (canMultiply ? 'x10 rewards!' : prize.label), 'prizes');
 
     if (G.roundEggs.every(e => e.broken || e.expired) && !_roundPending) {
       _roundPending = true;
