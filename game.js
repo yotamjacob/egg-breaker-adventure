@@ -693,8 +693,11 @@ function applyPrize(prize, cx, cy) {
 }
 
 // ==================== STARFALL ====================
+let _starfallActive = false;
 function useStarfall() {
+  if (_starfallActive) return;
   if (G.starPieces < CONFIG.starPiecesForStarfall || !G.roundEggs) return;
+  _starfallActive = true;
   G.starPieces -= CONFIG.starPiecesForStarfall;
   G.starfallsUsed++;
   SFX.play('starfall');
@@ -754,6 +757,7 @@ function useStarfall() {
     G._selectedCounts = savedCounts;
     recalcActiveMult();
     renderMultQueue();
+    _starfallActive = false;
 
     G.roundClears++;
     checkAchievements();
@@ -818,17 +822,13 @@ function checkCollectionComplete() {
       // Gold → Complete: banana reward
       G.stagesCompleted++;
       G.crystalBananas += CONFIG.crystalBananasPerStage;
-      G.hammers = G.maxH;
       // Also unlock next stage if not already
       if (si >= prog.stage && si < curMonkey().stages.length - 1) {
         prog.stage = si + 1;
       }
-      const nextName = si < curMonkey().stages.length - 1
-        ? curMonkey().stages[si + 1].name : null;
       showStagePopup(
-        'Stage Complete!',
-        stage.name + ' - 100%! +' + CONFIG.crystalBananasPerStage + ' Crystal Banana' +
-        (nextName ? '\nNext up: ' + nextName + '!' : '')
+        stage.name + ' - 100%',
+        '+' + CONFIG.crystalBananasPerStage + ' Crystal Banana'
       );
       msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌', 'tiers');
       // Check if ALL stages are complete

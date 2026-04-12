@@ -424,7 +424,7 @@ const ACHIEVEMENT_DATA = [
   { id:'items_200',    name:'Museum Curator',      desc:'Find 200 collection items',     icon:'🖼️', reward:{type:'gold',val:50000,    label:'+50,000 gold'} },
   // -- Stages --
   { id:'stage_1',      name:'Stage Clear',         desc:'Complete a stage (gold tier)',   icon:'🎯', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
-  { id:'stage_9',      name:'World Champion',      desc:'Complete all 9 stages',         icon:'🏆', reward:{type:'maxH',val:10,       label:'+10 max hammers'} },
+  { id:'stage_9',      name:'World Champion',      desc:'Complete 9 stages',             icon:'🏆', reward:{type:'maxH',val:10,       label:'+10 max hammers'} },
   { id:'stage_18',     name:'Double Trouble',      desc:'Complete 18 stages',            icon:'⚡', reward:{type:'gold',val:25000,    label:'+25,000 gold'} },
   { id:'stage_36',     name:'Grand Master',        desc:'Complete all 36 stages',        icon:'👑', reward:{type:'goldPct',val:15,    label:'+15% gold from eggs'} },
   // -- Monkeys --
