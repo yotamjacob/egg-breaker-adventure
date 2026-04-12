@@ -249,7 +249,7 @@ function updateStageBar() {
 
   $id('stage-name').textContent = 'Stage ' + (si + 1) + ': ' + stage.name;
   const tierEl = $id('stage-tier');
-  tierEl.textContent = tier >= 3 ? 'Complete' : tierNames[tierIdx];
+  tierEl.textContent = tier >= 3 ? '✅ Done' : tierNames[tierIdx];
   tierEl.className = 'stage-tier ' + (tier >= 3 ? 'complete' : tierNames[tierIdx].toLowerCase());
 
   const pct = Math.min(100, (found / total) * 100);
@@ -261,9 +261,9 @@ function updateStageBar() {
     // Stage complete — suggest next stage
     const nextIdx = si + 1;
     if (nextIdx <= prog.stage && nextIdx < curMonkey().stages.length) {
-      $id('stage-detail').textContent = 'Complete! Try Stage ' + (nextIdx + 1) + ': ' + curMonkey().stages[nextIdx].name;
+      $id('stage-detail').textContent = 'Tap here for next stage ▶';
     } else {
-      $id('stage-detail').textContent = 'Complete! ' + found + '/' + total + ' items';
+      $id('stage-detail').textContent = found + '/' + total + ' items';
     }
   } else {
     $id('stage-detail').textContent = found + '/' + total + ' items';
