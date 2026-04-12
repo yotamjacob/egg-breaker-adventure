@@ -25,7 +25,7 @@ const DEFAULT_STATE = {
   totalEggs: 0, totalEmpties: 0, totalGold: 0, totalStarPieces: 0, totalFeathers: 0,
   totalItems: 0, biggestWin: 0, highestMult: 1,
   starfallsUsed: 0, collectionsCompleted: 0, stagesCompleted: 0,
-  roundClears: 0, feathersBought: 0, maxMultUsed: 0,
+  roundClears: 0, feathersBought: 0, maxMultUsed: 0, runnySmashed: 0, timerSmashed: 0, timerMissed: 0,
   achieved: [],
   discoveredEggs: ['normal','silver','gold'], // egg types the player has seen
   soundOn: true,
@@ -266,8 +266,10 @@ function newRound() {
       if (r <= 0) { type = e.type; break; }
     }
     const hp = EGG_HP[type];
-    const effect = Math.random() < 0.05 ? 'runny' : null;
-    eggs.push({ type, hp, maxHp: hp, broken: false, effect });
+    const effects = [];
+    if (Math.random() < 0.05) effects.push('runny');
+    if (Math.random() < 0.05) effects.push('timer');
+    eggs.push({ type, hp, maxHp: hp, broken: false, effects, timer: effects.includes('timer') ? 3.0 : 0 });
     // Discover new egg type
     if (!G.discoveredEggs) G.discoveredEggs = ['normal','silver','gold'];
     if (!G.discoveredEggs.includes(type)) {
@@ -488,7 +490,7 @@ function noHammerMsg() {
 
 // ==================== SMASH EGG ====================
 function smashEgg(index) {
-  if (!G.roundEggs || G.roundEggs[index].broken) return;
+  if (!G.roundEggs || G.roundEggs[index].broken || G.roundEggs[index].expired) return;
   const egg = G.roundEggs[index];
   if (egg._smashing) return;
   egg._smashing = true;
@@ -559,6 +561,9 @@ function smashEgg(index) {
   // === Egg broken! ===
   egg.broken = true;
   G.totalEggs++;
+  if (egg.effects && egg.effects.includes('runny')) G.runnySmashed = (G.runnySmashed || 0) + 1;
+  if (egg.effects && egg.effects.includes('timer')) G.timerSmashed = (G.timerSmashed || 0) + 1;
+  if (egg.effects && egg.effects.includes('runny') && egg.effects.includes('timer')) G.comboSmashed = (G.comboSmashed || 0) + 1;
 
   // Track egg type smashes
   if (egg.type !== 'normal') {
@@ -578,7 +583,7 @@ function smashEgg(index) {
       eggLabel(egg.type, 0, egg.maxHp, true);
 
     // Check if all eggs broken — auto-spawn next round
-    if (G.roundEggs.every(e => e.broken) && !_roundPending) {
+    if (G.roundEggs.every(e => e.broken || e.expired) && !_roundPending) {
       _roundPending = true;
       G.roundClears++;
       checkAchievements();
@@ -782,7 +787,7 @@ function useStarfall() {
 
   // Break all unbroken eggs in sequence
   const unbroken = [];
-  G.roundEggs.forEach((e, i) => { if (!e.broken) unbroken.push(i); });
+  G.roundEggs.forEach((e, i) => { if (!e.broken && !e.expired) unbroken.push(i); });
 
   unbroken.forEach((idx, i) => {
     setTimeout(() => {
@@ -1292,6 +1297,16 @@ function checkAchievements() {
     empty_200:    () => (G.totalEmpties || 0) >= 200,
     empty_500:    () => (G.totalEmpties || 0) >= 500,
     empty_1000:   () => (G.totalEmpties || 0) >= 1000,
+    // Egg effects
+    runny_1:      () => (G.runnySmashed || 0) >= 1,
+    runny_25:     () => (G.runnySmashed || 0) >= 25,
+    runny_100:    () => (G.runnySmashed || 0) >= 100,
+    timer_1:      () => (G.timerSmashed || 0) >= 1,
+    timer_25:     () => (G.timerSmashed || 0) >= 25,
+    timer_100:    () => (G.timerSmashed || 0) >= 100,
+    missed_1:     () => (G.timerMissed || 0) >= 1,
+    missed_10:    () => (G.timerMissed || 0) >= 10,
+    combo_effect: () => (G.comboSmashed || 0) >= 1,
   };
 
   for (const a of ACHIEVEMENT_DATA) {

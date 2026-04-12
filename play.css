@@ -133,6 +133,13 @@
 .egg-slot.broken{opacity:.35;cursor:default;filter:grayscale(.4);pointer-events:none}
 .egg-slot.runny{filter:drop-shadow(0 0 6px rgba(255,200,50,.5));animation:runny-wobble 1.5s ease-in-out infinite}
 .egg-slot.runny.broken{filter:grayscale(.4);animation:none}
+.egg-slot.timed{filter:drop-shadow(0 0 6px rgba(255,60,60,.6))}
+.egg-slot.timed.broken{filter:grayscale(.4)}
+.egg-timer{
+  font-size:10px;font-family:var(--px);color:#ff4444;
+  text-shadow:1px 1px 0 var(--dark);text-align:center;
+  display:block;margin-top:1px;font-variant-numeric:tabular-nums;
+}
 .egg-slot.smashing{animation:egg-smash-retro .35s steps(6)}
 @keyframes runny-wobble{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 .egg-slot .egg-label{

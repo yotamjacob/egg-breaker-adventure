@@ -486,6 +486,16 @@ const ACHIEVEMENT_DATA = [
   { id:'empty_200',    name:'Professional Loser',  desc:'Get 200 empties',                icon:'🤡', reward:{type:'gold',val:500,      label:'+500 gold'} },
   { id:'empty_500',    name:'Empty Inside',        desc:'Get 500 empties',                icon:'👻', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
   { id:'empty_1000',   name:'Void Master',         desc:'Get 1,000 empties. Yay?',        icon:'🌀', reward:{type:'gold',val:2000,     label:'+2,000 gold'} },
+  // -- Egg effects --
+  { id:'runny_1',      name:'Catch Me!',           desc:'Smash a runny egg',              icon:'🏃', reward:{type:'gold',val:100,      label:'+100 gold'} },
+  { id:'runny_25',     name:'Egg Chaser',          desc:'Smash 25 runny eggs',            icon:'💨', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
+  { id:'runny_100',    name:'Can\'t Run From Me',  desc:'Smash 100 runny eggs',           icon:'🏆', reward:{type:'goldPct',val:3,     label:'+3% gold from eggs'} },
+  { id:'timer_1',      name:'Just In Time',        desc:'Smash a timed egg',              icon:'⏱️', reward:{type:'gold',val:100,      label:'+100 gold'} },
+  { id:'timer_25',     name:'Beat The Clock',      desc:'Smash 25 timed eggs',            icon:'⏰', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
+  { id:'timer_100',    name:'Time Lord',           desc:'Smash 100 timed eggs',           icon:'🕐', reward:{type:'goldPct',val:3,     label:'+3% gold from eggs'} },
+  { id:'missed_1',     name:'Too Slow',            desc:'Let a timed egg expire',         icon:'🐌', reward:{type:'gold',val:50,       label:'+50 gold'} },
+  { id:'missed_10',    name:'Butterfingers',       desc:'Let 10 timed eggs expire',       icon:'🧈', reward:{type:'gold',val:200,      label:'+200 gold'} },
+  { id:'combo_effect', name:'Double Trouble',      desc:'Smash a runny timed egg',        icon:'🤯', reward:{type:'gold',val:500,      label:'+500 gold'} },
 ];
 
 // Daily rewards for 100 days. type: gold, hammers, maxH, feathers, banana

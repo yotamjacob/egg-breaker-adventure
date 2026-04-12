@@ -106,28 +106,39 @@ function renderEggTray() {
   }
 
   const runnySlots = [];
+  const timerSlots = [];
   G.roundEggs.forEach((egg, i) => {
     const pos = positions[i];
     const slot = document.createElement('div');
-    const eggDef = EGG_REGISTRY[egg.type];
-    slot.className = 'egg-slot' + (egg.broken ? ' broken' : '') + (egg.effect === 'runny' && !egg.broken ? ' runny' : '');
+    const fx = egg.effects || [];
+    const alive = !egg.broken && !egg.expired;
+    let cls = 'egg-slot';
+    if (egg.broken || egg.expired) cls += ' broken';
+    if (alive && fx.includes('runny')) cls += ' runny';
+    if (alive && fx.includes('timer')) cls += ' timed';
+    slot.className = cls;
     slot.style.left = pos.x + 'px';
     slot.style.top = pos.y + 'px';
     const damage = egg.maxHp - egg.hp;
-    slot.innerHTML = makeEggSVG(egg.type, egg.broken ? egg.maxHp : damage) +
-      eggLabel(egg.type, egg.hp, egg.maxHp, egg.broken);
+    slot.innerHTML = makeEggSVG(egg.type, (egg.broken || egg.expired) ? egg.maxHp : damage) +
+      eggLabel(egg.type, egg.hp, egg.maxHp, egg.broken || egg.expired) +
+      (alive && fx.includes('timer') ? '<span class="egg-timer">' + formatTimer(egg.timer) + '</span>' : '');
     slot.setAttribute('data-idx', String(i));
-    if (!egg.broken) slot.onclick = function() { smashEgg(i); };
+    if (alive) slot.onclick = function() { smashEgg(i); };
     tray.appendChild(slot);
-    if (egg.effect === 'runny' && !egg.broken) {
-      // Random initial direction
+    if (alive && fx.includes('runny')) {
       const angle = Math.random() * Math.PI * 2;
       runnySlots.push({ slot, x: pos.x, y: pos.y, vx: Math.cos(angle), vy: Math.sin(angle), idx: i });
+    }
+    if (alive && fx.includes('timer')) {
+      timerSlots.push({ slot, idx: i });
     }
   });
 
   // Start runny egg drift
   startRunnyDrift(runnySlots, tW, tH);
+  // Start timer countdowns
+  startTimerCountdown(timerSlots);
 }
 
 // ==================== RUNNY EGG DRIFT ====================
@@ -172,6 +183,58 @@ function startRunnyDrift(runnySlots, trayW, trayH) {
     else _runnyRAF = null;
   }
   _runnyRAF = requestAnimationFrame(tick);
+}
+
+// ==================== TIMER EGG COUNTDOWN ====================
+function formatTimer(t) {
+  if (t <= 0) return '0:00';
+  const sec = Math.floor(t);
+  const ms = Math.floor((t - sec) * 100);
+  return sec + ':' + (ms < 10 ? '0' : '') + ms;
+}
+
+let _timerInterval = null;
+function startTimerCountdown(timerSlots) {
+  if (_timerInterval) clearInterval(_timerInterval);
+  _timerInterval = null;
+  if (timerSlots.length === 0) return;
+
+  const dt = 0.05; // 50ms tick
+  _timerInterval = setInterval(() => {
+    let anyAlive = false;
+    for (const t of timerSlots) {
+      const egg = G.roundEggs && G.roundEggs[t.idx];
+      if (!egg || egg.broken || egg.expired) continue;
+
+      egg.timer -= dt;
+      const timerEl = t.slot.querySelector('.egg-timer');
+      if (timerEl) timerEl.textContent = formatTimer(egg.timer);
+
+      if (egg.timer <= 0) {
+        // Egg expired!
+        egg.expired = true;
+        G.timerMissed = (G.timerMissed || 0) + 1;
+        t.slot.classList.add('broken');
+        t.slot.classList.remove('timed', 'runny');
+        t.slot.style.pointerEvents = 'none';
+        const def = EGG_REGISTRY[egg.type] || EGG_REGISTRY.normal;
+        msg('💨 ' + def.name + ' egg expired!', 'prizes');
+        SFX.play('empty');
+        checkAchievements();
+
+        // Check if all eggs done
+        if (G.roundEggs.every(e => e.broken || e.expired) && !_roundPending) {
+          _roundPending = true;
+          G.roundClears++;
+          checkAchievements();
+          setTimeout(() => newRound(), 600);
+        }
+        continue;
+      }
+      anyAlive = true;
+    }
+    if (!anyAlive) { clearInterval(_timerInterval); _timerInterval = null; }
+  }, dt * 1000);
 }
 
 // ==================== MULTIPLIER QUEUE ====================
@@ -240,7 +303,7 @@ function updateStarBtn() {
   }
   $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '⭐';
   $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '⭐';
-  const ready = G.starPieces >= need && G.roundEggs && !G.roundEggs.every(e => e.broken);
+  const ready = G.starPieces >= need && G.roundEggs && !G.roundEggs.every(e => e.broken || e.expired);
   btn.disabled = !ready;
   $id('star-count').textContent = G.starPieces + ' / ' + need;
   $id('star-hint').textContent = ready ? 'Tap!' : '';
