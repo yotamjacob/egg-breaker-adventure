@@ -498,6 +498,7 @@ function smashEgg(index) {
 
   // Position hammer at egg and animate
   if (!_isDesktop) {
+    clearTimeout(hammerEl._hideTimer);
     hammerEl.style.transition = 'none';
     hammerEl.style.left = (cx - 20) + 'px';
     hammerEl.style.top = (cy - 10) + 'px';
@@ -507,7 +508,7 @@ function smashEgg(index) {
   void hammerEl.offsetWidth;
   hammerEl.classList.add('hammer-anim');
   if (!_isDesktop) {
-    setTimeout(() => {
+    hammerEl._hideTimer = setTimeout(() => {
       hammerEl.style.opacity = '0';
       hammerEl.style.transition = '';
     }, 300);
