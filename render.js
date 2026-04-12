@@ -428,7 +428,12 @@ function updateStageBar() {
 
 function renderAll() {
   const monkey = curMonkey();
-  $id('monkey-avatar').textContent = monkey.emoji;
+  const avatarEl = $id('monkey-avatar');
+  if (monkey.img) {
+    avatarEl.innerHTML = '<img src="' + monkey.img + '" style="width:100%;height:100%;object-fit:cover;border-radius:2px">';
+  } else {
+    avatarEl.textContent = monkey.emoji;
+  }
   $id('monkey-subtitle').textContent = monkey.name;
   $id('sound-btn').textContent = G.soundOn ? '🔊' : '🔇';
 
@@ -549,7 +554,9 @@ function renderMonkeys() {
     card.className = 'monkey-card' + (isActive ? ' active' : '');
     if (mp.unlocked && !isActive) card.setAttribute('data-monkey', String(i));
 
-    let inner = '<span class="m-emoji">' + m.emoji + '</span>';
+    let inner = m.img
+      ? '<img class="m-emoji" src="' + m.img + '" style="width:48px;height:48px;object-fit:cover;border-radius:2px">'
+      : '<span class="m-emoji">' + m.emoji + '</span>';
     inner += '<span class="m-name">' + m.name + '</span>';
     inner += '<span class="m-perk">' + m.perkDesc + '</span>';
 
@@ -858,7 +865,8 @@ ${C.eggTypes.map(d => isEggDiscovered(d.id)
     html: () => {
       let rows = '';
       MONKEY_DATA.forEach(m => {
-        rows += '<tr><td>' + m.emoji + ' ' + m.name + '</td><td class="num">' +
+        const mIcon = m.img ? '<img src="' + m.img + '" style="width:16px;height:16px;vertical-align:middle"> ' : m.emoji + ' ';
+        rows += '<tr><td>' + mIcon + m.name + '</td><td class="num">' +
           (m.cost === 0 ? 'Free' : m.cost + ' 🍌') + '</td><td>' + m.perkDesc + '</td></tr>';
       });
       return `
