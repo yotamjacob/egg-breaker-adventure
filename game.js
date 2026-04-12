@@ -806,7 +806,7 @@ function checkCollectionComplete() {
         'Silver Tier!',
         stage.name + ' — keep collecting for Gold!'
       );
-      msg('⬆️ Silver Tier! ' + stage.name + ' +' + reward.maxHammers + ' max hammers', 'tiers');
+      msg('⬆️ Silver Tier! ' + stage.name, 'tiers');
 
     } else if (newTier === 2) {
       // Silver → Gold: unlock next stage
