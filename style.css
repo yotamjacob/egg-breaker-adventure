@@ -67,7 +67,7 @@ body{
   width:44px;height:44px;font-size:28px;
   display:flex;align-items:center;justify-content:center;
   background:var(--bg);border:2px solid var(--gold);
-  border-radius:2px;flex-shrink:0;
+  border-radius:2px;flex-shrink:0;overflow:hidden;
   box-shadow: inset 1px 1px 0 var(--raised), 2px 2px 0 var(--dark);
 }
 .title-text h1{

@@ -428,7 +428,12 @@ function updateStageBar() {
 
 function renderAll() {
   const monkey = curMonkey();
-  $id('monkey-avatar').textContent = monkey.emoji;
+  const avatarEl = $id('monkey-avatar');
+  if (monkey.img) {
+    avatarEl.innerHTML = '<img src="' + monkey.img + '" style="width:100%;height:100%;object-fit:cover">';
+  } else {
+    avatarEl.textContent = monkey.emoji;
+  }
   $id('monkey-subtitle').textContent = monkey.name;
   $id('sound-btn').textContent = G.soundOn ? '🔊' : '🔇';
 
@@ -549,7 +554,9 @@ function renderMonkeys() {
     card.className = 'monkey-card' + (isActive ? ' active' : '');
     if (mp.unlocked && !isActive) card.setAttribute('data-monkey', String(i));
 
-    let inner = '<span class="m-emoji">' + m.emoji + '</span>';
+    let inner = m.img
+      ? '<div class="m-emoji m-avatar-wrap"><img src="' + m.img + '"></div>'
+      : '<span class="m-emoji">' + m.emoji + '</span>';
     inner += '<span class="m-name">' + m.name + '</span>';
     inner += '<span class="m-perk">' + m.perkDesc + '</span>';
 
