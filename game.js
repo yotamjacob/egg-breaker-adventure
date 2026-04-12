@@ -329,6 +329,8 @@ function resolvePrize(type, eggType) {
     if (hasBonus('goldBoost')) val = Math.round(val * 1.1);
     const ab = getAchievementBonuses();
     if (ab.goldPct > 0) val = Math.round(val * (1 + ab.goldPct / 100));
+    // Progressive gold: +5% per completed stage
+    if (G.stagesCompleted > 0) val = Math.round(val * (1 + G.stagesCompleted * 0.05));
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' gold', color: '#d97706' };
   }
@@ -693,9 +695,14 @@ function applyPrize(prize, cx, cy) {
 }
 
 // ==================== STARFALL ====================
+function isStarfallUnlocked() {
+  return G.monkeys && G.monkeys[0] && G.monkeys[0].tiers && G.monkeys[0].tiers[0] >= 3;
+}
+
 let _starfallActive = false;
 function useStarfall() {
   if (_starfallActive) return;
+  if (!isStarfallUnlocked()) return;
   if (G.starPieces < CONFIG.starPiecesForStarfall || !G.roundEggs) return;
   _starfallActive = true;
   G.starPieces -= CONFIG.starPiecesForStarfall;
@@ -1071,6 +1078,8 @@ function doBuyShopItem(category, id) {
     if (!item) return;
     if (id === 'fastregen' && G.fastRegen) { showShopSnack('Already purchased!'); return; }
     if (item.unique && id !== 'fastregen' && G['owned_' + id]) { showShopSnack('Already purchased!'); return; }
+    // Block purchases that have no room
+    if ((id === 'hammers5' || id === 'hammers20') && G.hammers >= G.maxH) { showShopSnack('Hammers already full!'); SFX.play('err'); return; }
     if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
     G.gold -= item.cost;
     G.purchases = (G.purchases || 0) + 1;

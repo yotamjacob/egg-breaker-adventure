@@ -173,6 +173,14 @@ function renderMultQueue() {
 function updateStarBtn() {
   const btn = $id('star-btn');
   const need = CONFIG.starPiecesForStarfall;
+  if (!isStarfallUnlocked()) {
+    btn.disabled = true;
+    $id('star-count').textContent = '?';
+    $id('star-hint').textContent = '';
+    $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '🔒';
+    return;
+  }
+  $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '⭐';
   const ready = G.starPieces >= need && G.roundEggs && !G.roundEggs.every(e => e.broken);
   btn.disabled = !ready;
   $id('star-count').textContent = G.starPieces + ' / ' + need;
