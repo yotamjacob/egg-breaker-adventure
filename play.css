@@ -130,7 +130,7 @@
   user-select:none;-webkit-user-select:none;
 }
 .egg-slot:hover:not(.broken){transform:translateY(-4px)}
-.egg-slot.broken{opacity:.35;cursor:default;filter:grayscale(.4)}
+.egg-slot.broken{opacity:.35;cursor:default;filter:grayscale(.4);pointer-events:none}
 .egg-slot.runny{filter:drop-shadow(0 0 6px rgba(255,200,50,.5));animation:runny-wobble 1.5s ease-in-out infinite}
 .egg-slot.runny.broken{filter:grayscale(.4);animation:none}
 .egg-slot.smashing{animation:egg-smash-retro .35s steps(6)}
