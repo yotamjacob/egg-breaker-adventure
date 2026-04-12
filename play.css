@@ -106,16 +106,16 @@
 #prize-zone{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:visible}
 #hammer{
   position:absolute;top:0;left:0;
-  transform:rotate(-35deg);transform-origin:20px 90px;
+  transform:scaleY(-1) rotate(35deg);transform-origin:20px 0;
   width:40px;pointer-events:none;
   opacity:0;transition:opacity .1s;
 }
 .hammer-anim{animation:hammer-swing .25s steps(5) forwards}
 @keyframes hammer-swing{
-  0%  {transform:rotate(-35deg)}
-  40% {transform:rotate(15deg)}
-  70% {transform:rotate(-20deg)}
-  100%{transform:rotate(-35deg)}
+  0%  {transform:scaleY(-1) rotate(35deg)}
+  40% {transform:scaleY(-1) rotate(-15deg)}
+  70% {transform:scaleY(-1) rotate(20deg)}
+  100%{transform:scaleY(-1) rotate(35deg)}
 }
 
 /* Individual egg */

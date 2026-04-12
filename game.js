@@ -1394,7 +1394,7 @@ setInterval(saveGame, 15000);
       requestAnimationFrame(() => {
         const r = wrap.getBoundingClientRect();
         hammer.style.left = (e.clientX - r.left - 20) + 'px';
-        hammer.style.top = (e.clientY - r.top - 90) + 'px';
+        hammer.style.top = (e.clientY - r.top) + 'px';
         _rafPending = false;
       });
     });
