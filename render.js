@@ -175,11 +175,13 @@ function updateStarBtn() {
   const need = CONFIG.starPiecesForStarfall;
   if (!isStarfallUnlocked()) {
     btn.disabled = true;
+    btn.title = 'Unlocked after Stage 1 completed';
     $id('star-count').textContent = '?';
     $id('star-hint').textContent = '';
     $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '🔒';
     return;
   }
+  btn.title = '';
   $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '⭐';
   const ready = G.starPieces >= need && G.roundEggs && !G.roundEggs.every(e => e.broken);
   btn.disabled = !ready;
