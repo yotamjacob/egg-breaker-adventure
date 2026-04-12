@@ -512,9 +512,11 @@ function renderShop() {
     hatGrid.appendChild(card);
   });
 
-  // Supplies
-  const sGrid = $id('shop-supplies');
-  sGrid.innerHTML = '';
+  // Consumables vs Upgrades
+  const cGrid = $id('shop-consumables');
+  const uGrid = $id('shop-upgrades');
+  cGrid.innerHTML = '';
+  uGrid.innerHTML = '';
   SHOP_SUPPLIES.forEach(s => {
     const isOwned = s.unique && (s.id === 'fastregen' ? G.fastRegen : G['owned_' + s.id]);
     const card = document.createElement('div');
@@ -527,7 +529,7 @@ function renderShop() {
         ? '<span class="s-status">OWNED</span>'
         : '<span class="s-cost">' + formatNum(s.cost) + ' 🪙</span>');
     if (!isOwned) card.addEventListener('click', () => buyShopItem('supply', s.id));
-    sGrid.appendChild(card);
+    (s.unique ? uGrid : cGrid).appendChild(card);
   });
 }
 

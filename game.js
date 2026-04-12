@@ -1162,8 +1162,10 @@ function doBuyShopItem(category, id) {
   checkAchievements();
   updateResources();
   // Flash animation on the card, then re-render
-  const cards = $id('shop-' + (category === 'hammer' ? 'hammers' : category === 'hat' ? 'hats' : 'supplies')).children;
-  for (const c of cards) {
+  const grids = category === 'supply'
+    ? [...$id('shop-consumables').children, ...$id('shop-upgrades').children]
+    : [...$id('shop-' + (category === 'hammer' ? 'hammers' : 'hats')).children];
+  for (const c of grids) {
     if (c.dataset && c.dataset.id === id) {
       c.classList.add('just-bought');
       break;
