@@ -1395,13 +1395,12 @@ setInterval(saveGame, 15000);
 
 
 // Hammer follows mouse (desktop) or flashes on tap (mobile)
-let _isDesktop = false;
+let _isDesktop = !('ontouchstart' in window) && navigator.maxTouchPoints === 0;
 (() => {
   const wrap = $id('egg-tray-wrap');
   const hammer = $id('hammer');
 
-  if (matchMedia('(hover:hover)').matches) {
-    _isDesktop = true;
+  if (_isDesktop) {
     wrap.style.cursor = 'none';
     let _rafPending = false;
     wrap.addEventListener('mousemove', (e) => {
