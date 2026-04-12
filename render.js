@@ -665,6 +665,9 @@ function renderStats() {
     ['Collections', G.collectionsCompleted],
     ['Stages done', G.stagesCompleted],
     ['Round clears', G.roundClears],
+    ['Runny smashed', G.runnySmashed || 0],
+    ['Timed smashed', G.timerSmashed || 0],
+    ['Timed missed', G.timerMissed || 0],
     ['Daily claims', G.totalDailyClaims || 0],
   ].map(([k, v]) => '<span>' + k + ': <strong>' + v + '</strong></span>').join('');
 }
