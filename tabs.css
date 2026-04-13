@@ -136,6 +136,9 @@
   box-shadow:3px 3px 0 var(--dark);
 }
 .monkey-card:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--dark)}
+.monkey-card.mystery{cursor:default;border-color:#333;opacity:.7;filter:grayscale(.4)}
+.monkey-card.mystery:hover{transform:none;box-shadow:3px 3px 0 var(--dark)}
+.mystery-hint{font-size:9px;color:var(--amber);font-style:italic}
 .monkey-card.active{border-color:var(--gold);box-shadow:0 0 8px rgba(245,197,66,.3),3px 3px 0 var(--dark)}
 .monkey-card .m-emoji,.monkey-card .m-name,.monkey-card .m-perk,.monkey-card .m-progress,.monkey-card .m-cost{pointer-events:none}
 .monkey-card .m-emoji{font-size:36px}

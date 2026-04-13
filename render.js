@@ -553,6 +553,22 @@ function renderMonkeys() {
     const mp = G.monkeys[i];
     const isActive = i === G.activeMonkey;
     const card = document.createElement('div');
+
+    // Check if unlock requirements are met (e.g. must own Mjǫllnir)
+    const req = m.unlockRequires;
+    const reqMet = !req || !req.hammer || G.ownedHammers.includes(req.hammer);
+
+    // Mystery card — requirements not met and not yet unlocked
+    if (!mp.unlocked && !reqMet) {
+      card.className = 'monkey-card mystery';
+      card.innerHTML =
+        '<span class="m-emoji">❓</span>' +
+        '<span class="m-name">???</span>' +
+        '<span class="m-perk mystery-hint">' + (req.hint || 'Hidden warrior') + '</span>';
+      grid.appendChild(card);
+      return;
+    }
+
     card.className = 'monkey-card' + (isActive ? ' active' : '');
     if (mp.unlocked && !isActive) card.setAttribute('data-monkey', String(i));
 
@@ -605,6 +621,7 @@ const BONUS_INFO = {
   moreItems:    { stat: 'Item drop weight',   effect: 'x1.1 (+10%)',          unit: '' },
   moreGold:     { stat: 'Gold value',         effect: 'x1.2 (+20%)',          unit: '' },
   freeEgg:      { stat: 'Free hit chance',    effect: '10%',                  unit: '' },
+  allfather:    { stat: 'All prizes',         effect: '+10% gold, stars & feathers', unit: '' },
   goldBoost:    { stat: 'Gold value',         effect: 'x1.1 (+10%)',          unit: '' },
   starBoost:    { stat: 'Star piece weight',  effect: 'x1.1 (+10%)',          unit: '' },
   unlock123:    { stat: 'x123 multiplier',      effect: 'Unlocked',            unit: '' },
@@ -897,7 +914,8 @@ ${C.eggTypes.map(d => isEggDiscovered(d.id)
           (m.cost === 0 ? 'Free' : m.cost + ' 🍌') + '</td><td>' + m.perkDesc + '</td></tr>';
       });
       return `
-<p>Each monkey is a separate adventure with ${MONKEY_DATA[0].stages.length} stages. Unlock new ones with Crystal Bananas (${C.crystalBananasPerStage} per completed stage). Perks stack with equipment.</p>
+<p>Each monkey is a separate adventure. Unlock new ones with Crystal Bananas (${C.crystalBananasPerStage} per completed stage). Perks stack with equipment.</p>
+<p><strong>Note:</strong> Some warriors are hidden until you meet special conditions — keep exploring!</p>
 <table class="lex-table">
 <tr><th>Monkey</th><th>Cost</th><th>Perk</th></tr>
 ${rows}

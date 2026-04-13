@@ -344,6 +344,78 @@ const MONKEY_DATA = [
       ]}},
     ]
   },
+  },
+  {
+    id: 'odin', name: 'Odin Grímnir, the All-Father', emoji: '🧙', img: null, cost: 7,
+    unlockRequires: { hammer: 'mjolnir', hint: 'Wield Mjǫllnir to reveal the All-Father' },
+    perk: 'allfather', perkDesc: "All-Father's Grace: +10% gold, stars & feathers",
+    stages: [
+      { name: 'Asgard, the Golden Realm', eggs: 3, collection: { name: 'Aesir Treasures', items: [
+        ['⚡', "Thor's Blessing",     1, '"God of Thunder. Still not the sharpest tool in Asgard."'],
+        ['👁️', "All-Seeing Eye",      1, '"Traded for wisdom. The wisdom was: maybe keep both eyes."'],
+        ['🌈', "Bifröst Fragment",    1, '"The original rainbow bridge. No toll booth."'],
+        ['🐴', "Sleipnir\'s Shoe",    2, '"Eight-legged horse. Eight times the farriery bills."'],
+        ['🪄', "Gungnir Shard",       2, '"The spear that never misses. Odin lost it. Concerning."'],
+        ['✨', "Seiðr Rune",          3, '"Forbidden magic. The manual was also forbidden."'],
+      ]}},
+      { name: 'Valhalla, Hall of Heroes', eggs: 3, collection: { name: 'Einherjar\'s Relics', items: [
+        ['🍺', "Horn of Mead",          1, '"Drink deeply. Tomorrow you die again anyway."'],
+        ['🛡️', "Einherjar Shield",      1, '"Survive until dinner. This is the whole strategy."'],
+        ['🥩', "Sæhrímnir\'s Rib",      1, '"The boar reborn nightly. He\'s fine. Probably."'],
+        ['💀', "Fallen Warrior\'s Helm", 2, '"He died heroically. Seven times. Mondays are rough."'],
+        ['🎺', "Valkyrie\'s Horn",       2, '"If you hear this, it\'s already too late. Or perfect timing."'],
+        ['🏆', "Eternal Glory",          3, '"The whole point of Viking life. Worth every axe wound."'],
+      ]}},
+      { name: 'Midgard, the Mortal Realm', eggs: 4, collection: { name: 'Viking Essentials', items: [
+        ['⛵', "Longship Prow",       1, '"Dragon-head-on-bow certified. Surprisingly seaworthy."'],
+        ['🪓', "Dane Axe",           1, '"Not just for firewood. But also for firewood."'],
+        ['🗺️', "Runic Sea Chart",    1, '"Here be monsters. Here be treasure. Here be very lost."'],
+        ['🪬', "Runic Amulet",       2, '"Wards off evil, attracts confused tourists."'],
+        ['🦌', "Antler Crown",       2, '"Ceremonial. Don\'t ask how they got the antlers."'],
+        ['🧜', "Jormungandr Charm",  3, '"Snake big enough to hug the world. Pocket edition. Still bites."'],
+      ]}},
+      { name: 'Jotunheim, Frost Giant Lands', eggs: 4, collection: { name: 'Giant Relics', items: [
+        ['❄️', "Frost Rune",         1, '"Cold enough to freeze your plans and your Wi-Fi."'],
+        ['🏔️', "Mountain Shard",    1, '"A piece of the biggest rock you\'ll never climb."'],
+        ['🐺', "Fenrir\'s Milk Tooth", 1, '"He outgrew this. That\'s the scary part."'],
+        ['🌨️', "Blizzard Vial",     2, '"Actual Jotunheim weather, bottled. Don\'t open indoors."'],
+        ['⛓️', "Gleipnir Link",      2, '"Made from a cat\'s footsteps and a fish\'s breath. Real materials."'],
+        ['🧊', "Thrym\'s Ice Crown", 3, '"The frost king\'s crown. He lost it to Thor in a dress. Long story."'],
+      ]}},
+      { name: 'Niflheim, Realm of Mist', eggs: 5, collection: { name: 'Hel\'s Dominion', items: [
+        ['💀', "Skull Rune",     1, '"From Niflheim with love. And existential dread."'],
+        ['🌫️', "Mist Essence",  1, '"Bottled fog. Smells like cold inevitability."'],
+        ['🕯️', "Eternal Candle", 1, '"Burns in Hel\'s hall forever. Great ambiance. Terrible heating."'],
+        ['🐕', "Garm\'s Collar", 2, '"Hound of Hel. Very good boy. Do not approach."'],
+        ['👑', "Hel\'s Crown",   2, '"Half gold, half bone. She was born this way. Literally."'],
+        ['⚫', "Void Shard",     3, '"From before creation. Smells like nothing. Still somehow ominous."'],
+      ]}},
+      { name: 'Muspelheim, Realm of Fire', eggs: 5, collection: { name: 'Surtr\'s Forge', items: [
+        ['🔥', "Ember Rune",       1, '"Still hot. Always will be. Do not lick."'],
+        ['🌋', "Magma Stone",      1, '"Cooled lava. Handle with welding gloves and optimism."'],
+        ['🌞', "Fire Opal",        2, '"Glows like the sun. Definitely not a piece of it. Probably."'],
+        ['🗡️', "Surtr\'s Sliver",  2, '"A piece of the world-ending sword. Very long warranty."'],
+        ['🐉', "Nidhogg\'s Scale", 3, '"The world-root dragon. This fell off naturally. The roots aren\'t fine."'],
+      ]}},
+      { name: 'Yggdrasil, the World Tree', eggs: 6, collection: { name: 'World Tree Wonders', items: [
+        ['🌳', "Heartwood Chip",      1, '"From the centre of all nine realms. Still has sap."'],
+        ['🐿️', "Ratatoskr\'s Acorn", 1, '"The gossip squirrel. Knows everything. Tells everyone. Causes drama."'],
+        ['🦅', "Eagle\'s Feather",   1, '"The great eagle atop Yggdrasil. Undefeated in staring contests."'],
+        ['🍃', "Nine Realms Leaf",   2, '"One leaf, nine reflections. Heavier than it looks."'],
+        ['🕷️', "Norns\' Thread",     2, '"Urd, Verdandi, Skuld weave fate. This is a loose end. Literally."'],
+        ['🍎', "Iðunn\'s Apple",     3, '"Keeps gods young. Iðunn guards them carefully. This one fell."'],
+      ]}},
+      { name: 'Ragnarök, the Final Battle', eggs: 7, collection: { name: 'End of Days', items: [
+        ['🌊', "Flood Tide Stone",  1, '"The sea swallows the land. Collected just before."'],
+        ['🐍', "Fáfnir\'s Fang",   1, '"The dragon of greed. Lost it arguing with Sigurd."'],
+        ['🌑', "Darkened Sun",      2, '"Fenrir ate it. Brief period of solar inconvenience."'],
+        ['💥', "Thunder Crack",     2, '"Thor\'s last lightning bolt. Bottled mid-chaos."'],
+        ['⚔️', "Odin\'s Last Rune", 2, '"Carved seconds before the end. Half-finished. Very relatable."'],
+        ['🌿', "First New Leaf",    3, '"After flood, after fire — the world rises green. Hope, pressed and dried."'],
+        ['🌟', "Rebirth Spark",     3, '"The world ends. Also begins. Norse accounting."'],
+      ]}},
+    ]
+  },
 ];
 
 const SHOP_HAMMERS = [

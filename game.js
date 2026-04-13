@@ -386,6 +386,7 @@ function rollPrize(eggType) {
   if (hasBonus('moreItems'))    w.item *= 1.1;
   if (hasBonus('starBoost'))    w.star *= 1.1;
   if (hasBonus('itemBoost'))    w.item *= 1.15;
+  if (hasBonus('allfather'))  { w.star *= 1.1; w.feather *= 1.1; }
 
   // Achievement percentage bonuses
   const ab = getAchievementBonuses();
@@ -412,8 +413,9 @@ function resolvePrize(type, eggType) {
     const range = GOLD_VALUES[type];
     const baseVal = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
     let val = Math.round(baseVal * G.activeMult * goldMult);
-    if (hasBonus('moreGold')) val = Math.round(val * 1.2);
+    if (hasBonus('moreGold'))  val = Math.round(val * 1.2);
     if (hasBonus('goldBoost')) val = Math.round(val * 1.1);
+    if (hasBonus('allfather')) val = Math.round(val * 1.1);
     const ab = getAchievementBonuses();
     if (ab.goldPct > 0) val = Math.round(val * (1 + ab.goldPct / 100));
     // Progressive gold: +5% per completed stage
@@ -1258,6 +1260,12 @@ function switchMonkey(index) {
 }
 
 function unlockMonkey(index) {
+  const req = MONKEY_DATA[index].unlockRequires;
+  if (req && req.hammer && !G.ownedHammers.includes(req.hammer)) {
+    showAlert('⚡', req.hint || 'A special item is required to unlock this warrior.');
+    SFX.play('err');
+    return;
+  }
   if (G.crystalBananas < MONKEY_DATA[index].cost) {
     showAlert('🍌', 'Need ' + MONKEY_DATA[index].cost + ' Crystal Bananas! (have ' + G.crystalBananas + ')');
     SFX.play('err');
