@@ -4,6 +4,7 @@
 // ============================================================
 
 const Particles = (() => {
+  const MAX_PARTICLES = 300;
   let canvas, ctx, ps = [], running = false;
   // Particle colors derived from egg registry
   const COLORS = {};
@@ -18,7 +19,8 @@ const Particles = (() => {
   }
   function emit(cx, cy, type, count) {
     const cols = COLORS[type] || COLORS.normal;
-    for (let i = 0; i < count; i++) {
+    const toAdd = Math.min(count, MAX_PARTICLES - ps.length);
+    for (let i = 0; i < toAdd; i++) {
       const a = (Math.PI * 2 / count) * i + (Math.random() - .5) * .8;
       const sp = 3 + Math.random() * 5;
       ps.push({
@@ -35,7 +37,8 @@ const Particles = (() => {
     if (!running) loop();
   }
   function sparkle(cx, cy, count, col) {
-    for (let i = 0; i < count; i++) {
+    const toAdd = Math.min(count, MAX_PARTICLES - ps.length);
+    for (let i = 0; i < toAdd; i++) {
       const a = Math.random() * Math.PI * 2, sp = 1 + Math.random() * 3;
       ps.push({
         x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1,

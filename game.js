@@ -860,7 +860,7 @@ function applyPrize(prize, cx, cy) {
   }
 
   if (prize.type === 'mult') {
-    G.multQueue.push(prize.value);
+    if (G.multQueue.length < 50) G.multQueue.push(prize.value);
     G.highestMult = Math.max(G.highestMult, prize.value);
     spawnFloat(zone, prize.label, '#7c3aed', 'big', cx, cy);
     msg(prize.label);
@@ -1401,7 +1401,7 @@ function doBuyShopItem(category, id) {
     if (id === 'hammers5') { G.hammers = Math.min(G.maxH, G.hammers + 5); showShopSnack('+5 hammers purchased!'); }
     if (id === 'hammers20') { G.hammers = Math.min(G.maxH, G.hammers + 20); showShopSnack('+20 hammers purchased!'); }
     if (id === 'star1') { G.starPieces++; G.totalStarPieces++; updateStarBtn(); showShopSnack('+1 star piece purchased!'); }
-    if (id === 'mult5') { G.multQueue.push(5); renderMultQueue(); showShopSnack('x5 multiplier purchased!'); }
+    if (id === 'mult5') { if (G.multQueue.length < 50) G.multQueue.push(5); renderMultQueue(); showShopSnack('x5 multiplier purchased!'); }
     if (id === 'maxhammers') { G.maxH += 5; showShopSnack('+5 max hammers!'); }
     if (id === 'fastregen') { G.fastRegen = true; showShopSnack('Fast Regen unlocked!'); }
     if (id === 'spyglass') { G['owned_spyglass'] = true; renderEggTray(); showShopSnack('Spyglass unlocked!'); }
