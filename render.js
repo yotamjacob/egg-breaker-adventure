@@ -895,7 +895,7 @@ ${C.eggTypes.map(d => isEggDiscovered(d.id)
   {
     id: 'progress', icon: '📚', title: 'Stages & Collections',
     html: () => `
-<p>Each monkey has <strong>${MONKEY_DATA[0].stages.length} stages</strong>. Each stage has a themed collection of items in three rarities (Common, Uncommon, Rare).</p>
+<p>Each monkey has its own set of stages (between 8 and 9). Each stage has a themed collection of items in three rarities (Common, Uncommon, Rare).</p>
 <table class="lex-table">
 <tr><th>Tier</th><th>Collect</th><th>Reward</th></tr>
 <tr><td class="hl">Bronze → Silver</td><td class="num">${Math.round(C.tierThresholds.bronze * 100)}%</td><td>+${C.tierRewards.silver.maxHammers} max hammers</td></tr>
@@ -909,12 +909,18 @@ ${C.eggTypes.map(d => isEggDiscovered(d.id)
     id: 'monkeys', icon: '🐵', title: 'Monkeys',
     html: () => {
       let rows = '';
-      MONKEY_DATA.forEach(m => {
-        rows += '<tr><td>' + m.emoji + ' ' + m.name + '</td><td class="num">' +
-          (m.cost === 0 ? 'Free' : m.cost + ' 🍌') + '</td><td>' + m.perkDesc + '</td></tr>';
+      MONKEY_DATA.forEach((m, i) => {
+        const req = m.unlockRequires;
+        const revealed = !req || !req.hammer || G.ownedHammers.includes(req.hammer);
+        if (!revealed) {
+          rows += '<tr><td>❓ ???</td><td class="num">' + m.cost + ' 🍌</td><td><em>Hidden — ' + (req.hint || 'meet special conditions') + '</em></td></tr>';
+        } else {
+          rows += '<tr><td>' + m.emoji + ' ' + m.name + '</td><td class="num">' +
+            (m.cost === 0 ? 'Free' : m.cost + ' 🍌') + '</td><td>' + m.perkDesc + '</td></tr>';
+        }
       });
       return `
-<p>Each monkey is a separate adventure. Unlock new ones with Crystal Bananas (${C.crystalBananasPerStage} per completed stage). Perks stack with equipment.</p>
+<p>Each monkey is a separate adventure with its own stages and collection. Unlock new ones with Crystal Bananas (${C.crystalBananasPerStage} per completed stage). Perks stack with equipment and each other.</p>
 <p><strong>Note:</strong> Some warriors are hidden until you meet special conditions — keep exploring!</p>
 <table class="lex-table">
 <tr><th>Monkey</th><th>Cost</th><th>Perk</th></tr>
@@ -959,6 +965,8 @@ ${rows}
 <p><strong>Late game:</strong> Gold eggs + saved multipliers = massive rewards. Starfall on a late-stage round is the ultimate move.</p>
 <p><strong>Save x${bigMult} multipliers</strong> for Gold egg large-gold rolls (${C.goldValues.gold_l[0]}–${C.goldValues.gold_l[1]} base). One lucky hit can net huge gold.</p>
 <p><strong>Best builds:</strong> Princess + Golden Hammer + Crown for gold farming. Space Cadette + Rainbow + Pirate for fast collection completion.</p>
+<p><strong>Mjǫllnir</strong> (500k gold) has a 3% chance per hit to call a free Starfall — save it for rounds with many unbroken eggs.</p>
+<p><strong>Hidden warriors:</strong> some monkeys only reveal themselves once you've acquired special items. Keep collecting.</p>
 `;
     }
   },
