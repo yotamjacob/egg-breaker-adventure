@@ -5,7 +5,7 @@
 
 const MONKEY_DATA = [
   {
-    id: 'mr_monkey', name: 'Mr. Monkey', emoji: '🐵', img: 'img/mrmonkey.png', cost: 0,
+    id: 'mr_monkey', name: 'Mr. Monkey', emoji: '🐵', img: 'img/mrmonkey.png', hatImgs: { chef: 'img/mrmonkey_chef.png' }, cost: 0,
     perk: 'none', perkDesc: 'The original egg breaker!',
     stages: [
       { name: 'Tropical Paradise', eggs: 3, collection: { name: 'Tropical Fruits', items: [
