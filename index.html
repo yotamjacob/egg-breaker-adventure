@@ -8,10 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=4181" />
-  <link rel="stylesheet" href="play.css?v=4181" />
-  <link rel="stylesheet" href="tabs.css?v=4181" />
-  <link rel="stylesheet" href="components.css?v=4181" />
+  <link rel="stylesheet" href="style.css?v=4190" />
+  <link rel="stylesheet" href="play.css?v=4190" />
+  <link rel="stylesheet" href="tabs.css?v=4190" />
+  <link rel="stylesheet" href="components.css?v=4190" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🥚</text></svg>">
 </head>
 <body>
@@ -133,6 +133,13 @@
       </div>
       <h3 class="section-title">Lifetime Stats</h3>
       <div class="life-stats" id="life-stats"></div>
+      <h3 class="section-title">Save / Load</h3>
+      <div class="save-load-box">
+        <button class="save-load-btn" onclick="exportSave()">📤 Export Save</button>
+        <textarea id="save-export-str" class="save-str" readonly placeholder="Your save code will appear here..."></textarea>
+        <textarea id="save-import-str" class="save-str" placeholder="Paste save code here to import..."></textarea>
+        <button class="save-load-btn save-load-import" onclick="importSave()">📥 Load Save</button>
+      </div>
       <button class="reset-btn" onclick="resetGame()">Reset All Progress</button>
       <div class="version-tag" id="version-tag"></div>
     </section>
@@ -278,12 +285,12 @@
       if (typeof cancelBalloonInflate === 'function') cancelBalloonInflate(document.querySelector('.inflating'));
     }, { capture: true });
   </script>
-  <script src="config.js?v=4181"></script>
-  <script src="data.js?v=4181"></script>
-  <script src="audio.js?v=4181"></script>
-  <script src="particles.js?v=4181"></script>
-  <script src="hammers.js?v=4181"></script>
-  <script src="render.js?v=4181"></script>
-  <script src="game.js?v=4181"></script>
+  <script src="config.js?v=4190"></script>
+  <script src="data.js?v=4190"></script>
+  <script src="audio.js?v=4190"></script>
+  <script src="particles.js?v=4190"></script>
+  <script src="hammers.js?v=4190"></script>
+  <script src="render.js?v=4190"></script>
+  <script src="game.js?v=4190"></script>
 </body>
 </html>
