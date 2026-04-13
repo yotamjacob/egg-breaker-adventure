@@ -847,7 +847,7 @@ function buildLexicon() {
     html: () => `
 <p>Smash eggs, win prizes, complete collections. Each round gives you 3–7 eggs — click one to break it with a hammer. Collect themed items to clear stages, earn Crystal Bananas, and unlock new monkeys.</p>
 <p><strong>Keys:</strong> Space/Enter = smash, Ctrl+S = starfall.</p>
-<p>Progress auto-saves to your browser.</p>
+<p>Progress auto-saves to your browser. Use Stats → Export Save to back up or transfer your save.</p>
 `
   },
   {
@@ -921,6 +921,15 @@ ${rows}
 <p>All bonuses are permanent once purchased and stack multiplicatively — hammers, hats, and monkey perks all accumulate.</p>
 `;
     }
+  },
+  {
+    id: 'saveload', icon: '💾', title: 'Save & Load',
+    html: () => `
+<p>Progress <strong>auto-saves</strong> to your browser every 15 seconds and after major events. Clearing browser data will erase it, so back up regularly.</p>
+<p><strong>Export Save</strong> — go to Stats tab → Export Save. Your full game state is encoded as a compact string (starting with <code>EBA1:</code>) and copied to your clipboard.</p>
+<p><strong>Import Save</strong> — paste the code into the Import box in the Stats tab and hit Load Save. Works on any device or browser.</p>
+<p>Use it to transfer progress between devices, share a save with a friend, or keep a backup before a big shop purchase.</p>
+`
   },
   {
     id: 'tips', icon: '🧠', title: 'Quick Tips',
