@@ -344,7 +344,6 @@ const MONKEY_DATA = [
       ]}},
     ]
   },
-  },
   {
     id: 'odin', name: 'Odin Grímnir, the All-Father', emoji: '🧙', img: null, cost: 7,
     unlockRequires: { hammer: 'mjolnir', hint: 'Wield Mjǫllnir to reveal the All-Father' },
