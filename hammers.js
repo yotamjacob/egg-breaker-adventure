@@ -182,6 +182,73 @@ function makeHammerSVG(hammerId) {
       <rect x="10" cy="80" width="2" height="2" fill="#fff" opacity=".5"/>
     </svg>`;
 
+    // ---- MJǪLLNIR: The Asgardian warhammer ----
+    case 'mjolnir': return `<svg width="40" height="90" viewBox="0 0 44 100" ${S}>
+      <defs>
+        <linearGradient id="mj-iron" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#68687c"/><stop offset="45%" stop-color="#38384c"/><stop offset="100%" stop-color="#18181e"/>
+        </linearGradient>
+        <linearGradient id="mj-bolt" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#e8f4ff"/><stop offset="50%" stop-color="#88b8ff"/><stop offset="100%" stop-color="#4070e0"/>
+        </linearGradient>
+      </defs>
+      <!-- Short leather-wrapped handle -->
+      <rect x="18" y="0" width="8" height="36" rx="1" fill="#5a3a1e" stroke="#2a1808" stroke-width="1"/>
+      <rect x="17" y="4"  width="10" height="2" fill="#7a4a28"/><rect x="17" y="8"  width="10" height="2" fill="#3a2010"/>
+      <rect x="17" y="12" width="10" height="2" fill="#7a4a28"/><rect x="17" y="16" width="10" height="2" fill="#3a2010"/>
+      <rect x="17" y="20" width="10" height="2" fill="#7a4a28"/><rect x="17" y="24" width="10" height="2" fill="#3a2010"/>
+      <rect x="17" y="28" width="10" height="2" fill="#7a4a28"/><rect x="17" y="32" width="10" height="2" fill="#3a2010"/>
+      <!-- Wrist loop -->
+      <ellipse cx="22" cy="1" rx="4" ry="2" fill="none" stroke="#a07840" stroke-width="1.5"/>
+      <!-- Guard / collar -->
+      <rect x="10" y="34" width="24" height="8" rx="1" fill="#44406a" stroke="#24204a" stroke-width="1"/>
+      <rect x="12" y="36" width="20" height="2" fill="#6860a0" opacity=".5"/>
+      <rect x="10" y="40" width="24" height="2" fill="#1e1c38"/>
+      <!-- MASSIVE head -->
+      <rect x="1" y="42" width="42" height="50" rx="2" fill="url(#mj-iron)" stroke="#0c0c18" stroke-width="1.5"/>
+      <!-- Top bevel -->
+      <rect x="1" y="42" width="42" height="6" rx="2" fill="#727286"/>
+      <rect x="3" y="43" width="38" height="2" fill="#9090a8" opacity=".4"/>
+      <!-- Side shading -->
+      <rect x="1" y="42" width="5" height="50" fill="#545468"/>
+      <rect x="38" y="42" width="5" height="50" fill="#161620"/>
+      <!-- Bottom striking face -->
+      <rect x="1" y="85" width="42" height="7" rx="1" fill="#1e1e28"/>
+      <!-- Norse border runes -->
+      <rect x="4" y="46" width="36" height="1" fill="#6070c8" opacity=".6"/>
+      <rect x="4" y="83" width="36" height="1" fill="#6070c8" opacity=".5"/>
+      <rect x="4" y="46" width="1" height="38" fill="#6070c8" opacity=".6"/>
+      <rect x="39" y="46" width="1" height="38" fill="#6070c8" opacity=".5"/>
+      <!-- Rune tick marks -->
+      <rect x="11" y="46" width="1" height="3" fill="#8898e0" opacity=".7"/>
+      <rect x="19" y="46" width="1" height="3" fill="#8898e0" opacity=".7"/>
+      <rect x="27" y="46" width="1" height="3" fill="#8898e0" opacity=".7"/>
+      <rect x="35" y="46" width="1" height="3" fill="#8898e0" opacity=".7"/>
+      <!-- Lightning bolt glow -->
+      <ellipse cx="22" cy="66" rx="8" ry="14" fill="#4080ff" opacity=".2"/>
+      <!-- Lightning bolt -->
+      <polygon points="22,52 15,67 21,67 17,82 29,65 23,65 27,52" fill="url(#mj-bolt)" stroke="#3060c8" stroke-width=".5"/>
+      <!-- Bolt bright core -->
+      <polygon points="22,54 17,67 21,67 18.5,80 27,66 22.5,66 25.5,54" fill="#dff0ff" opacity=".55"/>
+      <!-- Electric sparks -->
+      <rect x="7"  y="50" width="2" height="2" fill="#a0c8ff" opacity=".9"/>
+      <rect x="33" y="55" width="2" height="2" fill="#a0c8ff" opacity=".8"/>
+      <rect x="6"  y="70" width="2" height="2" fill="#a0c8ff" opacity=".8"/>
+      <rect x="35" y="74" width="2" height="2" fill="#a0c8ff" opacity=".7"/>
+      <rect x="10" y="82" width="2" height="2" fill="#a0c8ff" opacity=".7"/>
+      <rect x="30" y="48" width="2" height="2" fill="#c8e0ff" opacity=".6"/>
+      <!-- Arc lines -->
+      <line x1="5" y1="60" x2="10" y2="57" stroke="#7090d8" stroke-width="1" opacity=".6"/>
+      <line x1="39" y1="65" x2="34" y2="62" stroke="#7090d8" stroke-width="1" opacity=".6"/>
+      <!-- Corner rivets -->
+      <circle cx="7"  cy="48" r="2.5" fill="#707088" stroke="#30304a" stroke-width=".5"/>
+      <circle cx="37" cy="48" r="2.5" fill="#707088" stroke="#30304a" stroke-width=".5"/>
+      <circle cx="7"  cy="84" r="2.5" fill="#707088" stroke="#30304a" stroke-width=".5"/>
+      <circle cx="37" cy="84" r="2.5" fill="#707088" stroke="#30304a" stroke-width=".5"/>
+      <!-- Overall electric blue glow -->
+      <ellipse cx="22" cy="66" rx="18" ry="22" fill="#3060e0" opacity=".08"/>
+    </svg>`;
+
     // ---- DEFAULT: Basic wooden hammer ----
     default: return `<svg width="40" height="90" viewBox="0 0 44 100" ${S}>
       <!-- Wooden handle -->

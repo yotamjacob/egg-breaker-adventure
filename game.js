@@ -729,6 +729,12 @@ function smashEgg(index) {
     msg('Cucumbah!', 'freeHit');
   }
 
+  // Mjǫllnir: 3% chance to call a free Starfall
+  if (hasBonus('mjolnirStarfall') && Math.random() < 0.03 && !_starfallActive &&
+      G.roundEggs && G.roundEggs.some(e => !e.broken && !e.expired)) {
+    setTimeout(() => _doStarfall('⚡ Mjǫllnir calls the storm!'), 350);
+  }
+
   const particleCount = 4 + (egg.maxHp - egg.hp) * 3;
   Particles.emit(cx, cy, egg.type, particleCount);
 
@@ -1000,11 +1006,15 @@ function useStarfall() {
   if (!isStarfallUnlocked()) return;
   const cost = starfallCost();
   if (G.starPieces < cost || !G.roundEggs) return;
-  _starfallActive = true;
   G.starPieces -= cost;
+  _doStarfall('STARFALL! All eggs smashed!');
+}
+function _doStarfall(message) {
+  if (_starfallActive) return;
+  _starfallActive = true;
   G.starfallsUsed++;
   SFX.play('starfall');
-  msg('STARFALL! All eggs smashed!', 'starfall');
+  msg(message, 'starfall');
 
   // Suspend multiplier during starfall — mults only apply to manual taps
   const savedMult = G.activeMult;
