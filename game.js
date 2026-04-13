@@ -134,27 +134,33 @@ function resetGame() {
 
 // ==================== EXPORT / IMPORT SAVE ====================
 function exportSave() {
-  const d = {};
-  for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
-  if (G.roundEggs) {
-    d.roundEggs = G.roundEggs.map(egg => {
-      const { _smashing, ...clean } = egg;
-      return clean;
+  showConfirm('💾', 'Export Save?', 'This will generate a save code for your current progress.', function() {
+    const d = {};
+    for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
+    if (G.roundEggs) {
+      d.roundEggs = G.roundEggs.map(egg => {
+        const { _smashing, ...clean } = egg;
+        return clean;
+      });
+    }
+    const str = 'EBA1:' + btoa(unescape(encodeURIComponent(JSON.stringify(d))));
+    const ta = $id('save-export-str');
+    ta.value = str;
+    navigator.clipboard.writeText(str).then(() => {
+      msg('Save code copied to clipboard!');
+    }).catch(() => {
+      msg('Save code ready — copy it from the box below.');
     });
-  }
-  const str = 'EBA1:' + btoa(unescape(encodeURIComponent(JSON.stringify(d))));
-  const ta = $id('save-export-str');
-  ta.value = str;
-  navigator.clipboard.writeText(str).then(() => {
-    msg('Save code copied to clipboard!');
-  }).catch(() => {
-    msg('Save code ready — copy it from the box below.');
-  });
+  }, 'Export');
 }
 
 function importSave() {
   const str = ($id('save-import-str').value || '').trim();
   if (!str) { msg('Paste a save code first!'); return; }
+  showConfirm('📥', 'Load Save?', 'This will replace your current progress with the pasted save code.', function() { _doImportSave(str); }, 'Load');
+}
+
+function _doImportSave(str) {
   try {
     if (!str.startsWith('EBA1:')) throw new Error('bad prefix');
     const d = JSON.parse(decodeURIComponent(escape(atob(str.slice(5)))));
