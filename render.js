@@ -177,16 +177,28 @@ function renderEggTray() {
 }
 
 // ==================== RUNNY EGG DRIFT ====================
+// Module-level refs so the Page Visibility handler can restart loops after backgrounding.
 let _runnyRAF = null;
+let _activeRunnySlots = null, _activeTrayDims = null;
+
 function startRunnyDrift(runnySlots, trayW, trayH) {
   if (_runnyRAF) cancelAnimationFrame(_runnyRAF);
   _runnyRAF = null;
+  _activeRunnySlots = runnySlots;
+  _activeTrayDims = { w: trayW, h: trayH };
   if (runnySlots.length === 0) return;
 
   const eW = 76, eH = 110;
   const pad = 6;
   // Speed scales with progress: base 0.6, +0.05 per completed stage
   const speed = 0.6 + (G.stagesCompleted || 0) * 0.05;
+
+  // Switch from left/top (layout) to transform:translate (GPU compositing — no layout recalc)
+  for (const r of runnySlots) {
+    r.slot.style.left = '0';
+    r.slot.style.top = '0';
+    r.slot.style.transform = 'translate(' + r.x + 'px,' + r.y + 'px)';
+  }
 
   function tick() {
     let anyAlive = false;
@@ -211,8 +223,8 @@ function startRunnyDrift(runnySlots, trayW, trayH) {
       const len = Math.sqrt(r.vx * r.vx + r.vy * r.vy);
       if (len > 0) { r.vx /= len; r.vy /= len; }
 
-      r.slot.style.left = r.x + 'px';
-      r.slot.style.top = r.y + 'px';
+      // GPU-composited transform — avoids layout recalculation each frame
+      r.slot.style.transform = 'translate(' + r.x + 'px,' + r.y + 'px)';
     }
     if (anyAlive) _runnyRAF = requestAnimationFrame(tick);
     else _runnyRAF = null;
@@ -229,12 +241,15 @@ function formatTimer(t) {
 }
 
 let _timerInterval = null;
+let _activeTimerSlots = null;
+
 function startTimerCountdown(timerSlots) {
   if (_timerInterval) clearInterval(_timerInterval);
   _timerInterval = null;
+  _activeTimerSlots = timerSlots;
   if (timerSlots.length === 0) return;
 
-  const dt = 0.05; // 50ms tick
+  const dt = 0.1; // 100ms tick — halves CPU vs 50ms, display still smooth
   _timerInterval = setInterval(() => {
     let anyAlive = false;
     for (const t of timerSlots) {
@@ -1017,3 +1032,26 @@ function updateAutoBuyBtn() {
     btn.classList.toggle('on', G.autoBuy);
   }
 }
+
+// ==================== PAGE VISIBILITY — BATTERY SAVER ====================
+// Pause RAF and timer loops when the tab/app is backgrounded; resume on return.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (_runnyRAF) { cancelAnimationFrame(_runnyRAF); _runnyRAF = null; }
+    if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+  } else {
+    // Resume only if there are still active eggs to animate
+    if (_activeRunnySlots && _activeRunnySlots.some(r => {
+      const e = G.roundEggs && G.roundEggs[r.idx];
+      return e && !e.broken;
+    })) {
+      startRunnyDrift(_activeRunnySlots, _activeTrayDims.w, _activeTrayDims.h);
+    }
+    if (_activeTimerSlots && _activeTimerSlots.some(t => {
+      const e = G.roundEggs && G.roundEggs[t.idx];
+      return e && !e.broken && !e.expired;
+    })) {
+      startTimerCountdown(_activeTimerSlots);
+    }
+  }
+});

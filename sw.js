@@ -3,7 +3,7 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '1.1.7';
+const CACHE_VERSION = '1.2.1';
 const CACHE_NAME    = 'eba-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
@@ -33,6 +33,7 @@ const STATIC_ASSETS = [
   '/icon-192-maskable.png',
   '/icon-512.png',
   '/icon-512-maskable.png',
+  '/icon-1024.png',
   '/privacy.html',
   '/screenshots/screen-mobile.png',
   '/screenshots/screen-album.png',
@@ -59,33 +60,39 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ── Fetch: cache-first, fall back to network ──────────────────
+// ── Fetch: network-first for scripts/html, cache-first for images ────
 self.addEventListener('fetch', event => {
   // Only handle GET requests for same origin
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) {
-        // Serve from cache immediately; revalidate in background
-        const networkFetch = fetch(event.request).then(response => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          }
+  const isImage = /\.(png|jpg|jpeg|gif|svg|ico|webp)$/.test(url.pathname);
+
+  if (isImage) {
+    // Cache-first for images — they rarely change
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        return fetch(event.request).then(response => {
+          if (!response || response.status !== 200) return response;
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
           return response;
-        }).catch(() => {});
-        return cached;
-      }
-      // Not in cache — fetch from network and cache it
-      return fetch(event.request).then(response => {
-        if (!response || response.status !== 200) return response;
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        });
+      })
+    );
+  } else {
+    // Network-first for JS/CSS/HTML/JSON — always get fresh code,
+    // fall back to cache only when offline
+    event.respondWith(
+      fetch(event.request).then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
         return response;
-      });
-    })
-  );
+      }).catch(() => caches.match(event.request))
+    );
+  }
 });

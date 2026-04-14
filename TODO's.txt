@@ -11,10 +11,26 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 ---bugs and tech debt---
 verify daily works
 
+---mobile app store (android + ios)---
 
-clicking on lexicon:
-render.js:874 Uncaught TypeError: Cannot read properties of undefined (reading '0')
-    at buildLexicon (render.js:874:38)
-    at renderLexicon (render.js:975:3)
-    at openSubModal (game.js:1659:17)
-    at HTMLButtonElement.onclick ((index):234:101)
+## code fixes (do first)
+[x] add overscroll-behavior:none to body/html — prevent pull-to-refresh in all tabs
+[x] add user-select:none to body — prevent text highlight on fast taps in menus
+[x] apply env(safe-area-inset-bottom) to bottom nav — already handled by body padding
+[x] export/create 1024x1024 PNG app icon — icon-1024.png generated from icon-512.png
+
+## android (play store)
+[ ] go to pwabuilder.com → enter Vercel URL → Package for Android → download .aab + get SHA256 fingerprint
+[ ] paste SHA256 fingerprint into .well-known/assetlinks.json (currently has REPLACE_WITH placeholder)
+[ ] get IARC content rating at globalratings.com (free, required for Play Store)
+[ ] create Google Play Developer account at play.google.com/console ($25 one-time fee)
+[ ] prepare store listing: description, screenshots (at least 2 phone screenshots, 1 tablet), feature graphic 1024x500
+[ ] submit .aab to Play Store
+
+## ios (app store)
+[ ] create Apple Developer account at developer.apple.com ($99/year)
+[ ] go to pwabuilder.com → Package for iOS → download Xcode project
+[ ] open Xcode project, set Bundle ID (e.g. com.eggbreakeradventures.app), sign with Apple account
+[ ] prepare App Store listing: description, screenshots for iPhone 6.7" and 6.5" (required sizes)
+[ ] submit via Xcode → Product → Archive → Distribute App → App Store Connect
+[ ] set age rating in App Store Connect (likely 4+ for this game)

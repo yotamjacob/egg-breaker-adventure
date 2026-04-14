@@ -1963,6 +1963,15 @@ renderAll();
 
 $id('version-tag').textContent = 'Egg Breaker Adventures v' + VERSION;
 
+// PWA shortcut deep-linking: ?tab=play|album|shop|monkeys etc.
+(function() {
+  const tab = new URLSearchParams(location.search).get('tab');
+  if (tab) {
+    const btn = document.querySelector('[data-tab="' + tab + '"]');
+    if (btn) btn.click();
+  }
+})();
+
 if (G.hammers < G.maxH && !regenInt) startRegen();
 
 // Show tour for first-time users (no eggs broken yet = new player)
