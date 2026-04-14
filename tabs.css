@@ -141,12 +141,12 @@
 .rarity-3{background:#4a2800;color:var(--gold);border-color:var(--gold3)}
 
 /* ---------- Monkey tab ---------- */
-.monkey-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.monkey-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;overflow:hidden;width:100%}
 .monkey-card{
   background:var(--panel);border:3px solid var(--gray);border-radius:2px;
   padding:12px 8px;text-align:center;cursor:pointer;
   transition:all .08s;display:flex;flex-direction:column;align-items:center;gap:4px;
-  box-shadow:3px 3px 0 var(--dark);
+  box-shadow:3px 3px 0 var(--dark);min-width:0;overflow:hidden;
 }
 .monkey-card:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--dark)}
 .monkey-card.mystery{cursor:default;border-color:#333;opacity:.7;filter:grayscale(.4)}
