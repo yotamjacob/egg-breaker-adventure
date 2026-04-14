@@ -370,13 +370,15 @@
   background:linear-gradient(135deg,#1a1a2e 50%,#2a2010);
 }
 .premium-card.bought{opacity:.5;pointer-events:none}
-.premium-emoji{font-size:28px}
-.premium-name{font-size:9px;color:var(--white)}
-.premium-desc{font-size:8px;color:var(--gray);line-height:1.5}
-.premium-price{font-size:12px;color:var(--gold);margin-top:2px}
-.premium-owned{font-size:10px;color:var(--green);padding:6px 0}
+.premium-emoji{font-size:36px;line-height:1}
+.premium-name{font-size:11px;color:var(--white);margin-top:4px}
+.premium-card.featured .premium-name{font-size:13px}
+.premium-desc{font-size:9px;color:var(--gray);line-height:1.6;margin-top:2px}
+.premium-price{font-size:14px;color:var(--gold);margin-top:6px;letter-spacing:1px}
+.premium-divider{width:80%;height:1px;background:var(--gold3);margin:6px 0;opacity:.5}
+.premium-owned{font-size:10px;color:var(--green);padding:8px 0}
 .one-time-badge{
   display:inline-block;background:var(--gold);color:var(--dark);
-  font-size:7px;padding:1px 4px;border-radius:2px;margin-left:4px;vertical-align:middle;
+  font-size:7px;padding:2px 5px;border-radius:2px;margin-left:4px;vertical-align:middle;
 }
-.paypal-btn-wrap{width:100%;min-height:35px;margin-top:4px}
+.paypal-btn-wrap{width:100%;min-height:40px;margin-top:6px}

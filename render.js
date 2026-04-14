@@ -811,6 +811,7 @@ function renderPremiumShop() {
           '<div class="premium-name">' + p.name + (p.oneTime ? ' <span class="one-time-badge">ONCE</span>' : '') + '</div>' +
           '<div class="premium-desc">' + p.desc + '</div>' +
           '<div class="premium-price">' + p.price + '</div>' +
+          '<div class="premium-divider"></div>' +
           (bought
             ? '<div class="premium-owned">✓ Purchased</div>'
             : '<div id="paypal-btn-' + p.id + '" class="paypal-btn-wrap"></div>'
