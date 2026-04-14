@@ -32,6 +32,9 @@ const DEFAULT_STATE = {
   soundOn: true,
   autoBuy: false,
   _tourDone: false,
+  deviceId: null,
+  // Premium purchases (one-time flags)
+  premium_starter_pack: false,
   // Shop upgrades (unique one-time purchases)
   owned_spyglass: false, owned_luckycharm: false, owned_goldmagnet: false,
   owned_eggradar: false, owned_doubledaily: false, owned_starsaver: false,
@@ -1703,6 +1706,103 @@ function buyAlbumItem(stageIdx, itemIdx, cost) {
 
 
 
+// ==================== PREMIUM / PAYPAL ====================
+const _SUPABASE_URL  = 'https://hhpikvqeopscjdzuhbfk.supabase.co';
+const _SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhocGlrdnFlb3BzY2pkenVoYmZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMzA2NDUsImV4cCI6MjA5MTcwNjY0NX0.-iYI6Wf8eREEBKFxfty7ot1Ke8AqjC73xlT7KCTZaqc';
+const _PAYPAL_CLIENT = 'AQDnl8TuJ2EkqZa5bUHTGXoK8R5ji5ORD1lZSjV4vWX4S5kXrWeZmMLRRyjQo-Tul43AyH5QrcAcH9eC';
+
+const PREMIUM_PRODUCTS = [
+  { id: 'starter_pack', name: 'Starter Pack',   emoji: '🎁', price: '$2.99', desc: '25,000 gold + 50 hammers + 3 Crystal Bananas', featured: true, oneTime: true },
+  { id: 'gold_s',       name: 'Gold Pack S',    emoji: '🪙', price: '$0.99', desc: '10,000 gold' },
+  { id: 'gold_m',       name: 'Gold Pack M',    emoji: '💰', price: '$2.99', desc: '50,000 gold' },
+  { id: 'gold_l',       name: 'Gold Pack L',    emoji: '🏆', price: '$7.99', desc: '200,000 gold' },
+  { id: 'hammers',      name: 'Hammer Pack',    emoji: '🔨', price: '$0.99', desc: '100 hammers' },
+  { id: 'bananas',      name: 'Banana Bundle',  emoji: '🍌', price: '$1.99', desc: '5 Crystal Bananas' },
+];
+
+function getDeviceId() {
+  if (!G.deviceId) {
+    G.deviceId = 'eba-' + crypto.randomUUID();
+    saveGame();
+  }
+  return G.deviceId;
+}
+
+let _paypalReady = false;
+let _paypalLoading = false;
+
+function loadPayPalSDK() {
+  return new Promise((resolve, reject) => {
+    if (_paypalReady) { resolve(); return; }
+    if (_paypalLoading) {
+      const wait = setInterval(() => { if (_paypalReady) { clearInterval(wait); resolve(); } }, 100);
+      return;
+    }
+    _paypalLoading = true;
+    const s = document.createElement('script');
+    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD';
+    s.onload  = () => { _paypalReady = true; _paypalLoading = false; resolve(); };
+    s.onerror = () => { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); };
+    document.head.appendChild(s);
+  });
+}
+
+async function initPremiumShop() {
+  try {
+    await loadPayPalSDK();
+  } catch (e) {
+    msg('Could not load payment system. Check your connection.');
+    return;
+  }
+  const deviceId = getDeviceId();
+  for (const product of PREMIUM_PRODUCTS) {
+    const el = document.getElementById('paypal-btn-' + product.id);
+    if (!el || el.dataset.rendered) continue;
+    el.dataset.rendered = '1';
+    const pid = product.id;
+    paypal.Buttons({
+      style: { layout: 'horizontal', color: 'gold', shape: 'rect', label: 'pay', height: 35, tagline: false },
+      createOrder: async () => {
+        const res = await fetch(_SUPABASE_URL + '/functions/v1/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
+          body: JSON.stringify({ device_id: deviceId, product_id: pid }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        return data.paypal_order_id;
+      },
+      onApprove: async (data) => {
+        const res = await fetch(_SUPABASE_URL + '/functions/v1/capture-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
+          body: JSON.stringify({ device_id: deviceId, paypal_order_id: data.orderID, product_id: pid }),
+        });
+        const result = await res.json();
+        if (result.error) { msg('Payment error: ' + result.error); return; }
+        applyPurchaseReward(pid, result.reward);
+      },
+      onError: () => msg('Payment failed. Please try again.'),
+    }).render('#paypal-btn-' + pid);
+  }
+}
+
+function applyPurchaseReward(productId, reward) {
+  if (reward.gold)    { G.gold += reward.gold; G.totalGold += reward.gold; }
+  if (reward.hammers) { G.hammers += reward.hammers; }
+  if (reward.bananas) { G.crystalBananas += reward.bananas; }
+  if (productId === 'starter_pack') G.premium_starter_pack = true;
+  saveGame();
+  updateResources();
+  renderPremiumShop();
+  const parts = [];
+  if (reward.gold)    parts.push(reward.gold.toLocaleString() + ' gold');
+  if (reward.hammers) parts.push(reward.hammers + ' hammers');
+  if (reward.bananas) parts.push(reward.bananas + ' Crystal Bananas');
+  msg('🎉 ' + parts.join(' + ') + ' added to your account!');
+  SFX.play('buy');
+}
+
 // ==================== NAVIGATION ====================
 $id('nav-tabs').addEventListener('click', (e) => {
   const tab = e.target.closest('.nav-tab, .nav-play');
@@ -1721,6 +1821,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (name === 'lexicon') renderLexicon();
   if (name === 'daily') renderDailyCalendar();
   if (name === 'achieve') renderAchievements();
+  if (name === 'premium') renderPremiumShop();
 });
 
 // ==================== BALLOON DESKTOP HANDLERS ====================

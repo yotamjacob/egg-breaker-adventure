@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://www.paypal.com https://www.paypalobjects.com; connect-src 'self' https://hhpikvqeopscjdzuhbfk.supabase.co https://api-m.sandbox.paypal.com https://api.paypal.com; frame-src https://www.paypal.com https://www.sandbox.paypal.com; img-src 'self' data: https://www.paypal.com https://www.paypalobjects.com;">
   <title>Egg Breaker Adventures</title>
 
   <!-- PWA -->
@@ -58,7 +58,7 @@
         <button class="nav-tab" data-tab="album">Album</button>
         <button class="nav-tab" data-tab="monkeys">Monkeys</button>
         <button class="nav-tab" data-tab="shop">Shop</button>
-        <button class="nav-tab locked" disabled>?</button>
+        <button class="nav-tab" data-tab="premium">💎</button>
         <button class="nav-tab locked" disabled>?</button>
         <button class="nav-tab" data-tab="daily">Daily</button>
         <button class="nav-tab" data-tab="achieve">Trophies</button>
@@ -135,6 +135,9 @@
       <h3 class="section-title">Upgrades</h3>
       <div class="shop-grid" id="shop-upgrades"></div>
     </section>
+
+    <!-- ===== PREMIUM TAB ===== -->
+    <section class="tab-panel" id="panel-premium"></section>
 
     <!-- ===== STATS TAB (locked — content in Settings) ===== -->
     <section class="tab-panel" id="panel-stats"></section>

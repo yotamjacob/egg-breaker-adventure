@@ -794,6 +794,34 @@ function isTrophyHidden(a) {
   return secretEggs.some(d => a.id.startsWith(d.id + '_'));
 }
 
+function renderPremiumShop() {
+  const panel = $id('panel-premium');
+  if (!panel) return;
+  panel.innerHTML =
+    '<div class="premium-header">' +
+      '<div class="premium-title">💎 Premium</div>' +
+      '<div class="premium-sub">Support the game &amp; speed up your adventure</div>' +
+    '</div>' +
+    '<div class="premium-grid">' +
+    PREMIUM_PRODUCTS.map(function(p) {
+      const bought = p.oneTime && G['premium_' + p.id];
+      return (
+        '<div class="premium-card' + (p.featured ? ' featured' : '') + (bought ? ' bought' : '') + '">' +
+          '<div class="premium-emoji">' + p.emoji + '</div>' +
+          '<div class="premium-name">' + p.name + (p.oneTime ? ' <span class="one-time-badge">ONCE</span>' : '') + '</div>' +
+          '<div class="premium-desc">' + p.desc + '</div>' +
+          '<div class="premium-price">' + p.price + '</div>' +
+          (bought
+            ? '<div class="premium-owned">✓ Purchased</div>'
+            : '<div id="paypal-btn-' + p.id + '" class="paypal-btn-wrap"></div>'
+          ) +
+        '</div>'
+      );
+    }).join('') +
+    '</div>';
+  setTimeout(initPremiumShop, 50);
+}
+
 function renderAchievements() {
   const grid = $id('achieve-grid');
   grid.innerHTML = '';
