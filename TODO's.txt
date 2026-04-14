@@ -11,11 +11,13 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 ---bugs and tech debt---
 
 ---performance and loading---
-[x] delete simulate.js — dead code, not referenced anywhere (16KB)
-[x] remove icon-1024.png from SW precache — only needed for App Store, not gameplay (226KB saved)
-[x] convert monkey PNGs to WebP — 247KB → 53KB (79% smaller)
-[x] LZ-string save compression — localStorage saves now compressed ~70% smaller, legacy saves auto-migrated
-[x] bundle + minify JS/CSS with esbuild — 12 requests → 2, JS 215KB→162KB, CSS 41KB→36KB
+
+---solo dev / scale readiness---
+[ ] add Sentry (free tier, 5k errors/month) — one script tag in index.html — zero visibility into production errors right now
+[ ] add analytics — Plausible or Umami (privacy-friendly, no GDPR headache) — need DAU, retention, which stages players get stuck on
+[x] export/import save — already implemented + mentioned in onboarding tour (Stats tab → Export Save / Load Save)
+[ ] test service worker update flow on a real device — make sure users aren't stuck on old cached versions after a deploy
+[ ] (future) cloud save — Supabase free tier, optional login — localStorage lost if user clears app data
 
 ---mobile app store (android + ios)---
 
