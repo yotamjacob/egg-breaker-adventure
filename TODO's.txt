@@ -15,7 +15,7 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 [x] remove icon-1024.png from SW precache — only needed for App Store, not gameplay (226KB saved)
 [x] convert monkey PNGs to WebP — 247KB → 53KB (79% smaller)
 [x] LZ-string save compression — localStorage saves now compressed ~70% smaller, legacy saves auto-migrated
-[ ] bundle + minify JS/CSS with esbuild — reduce 11 HTTP requests to 2-3, faster parse
+[x] bundle + minify JS/CSS with esbuild — 12 requests → 2, JS 215KB→162KB, CSS 41KB→36KB
 
 ---mobile app store (android + ios)---
 

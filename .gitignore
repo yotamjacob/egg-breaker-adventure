@@ -3,3 +3,5 @@
 **/.DS_Store
 node_modules/
 android-build/
+bundle.min.js
+bundle.min.css

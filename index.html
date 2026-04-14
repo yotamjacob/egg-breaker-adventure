@@ -27,10 +27,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="play.css" />
-  <link rel="stylesheet" href="tabs.css" />
-  <link rel="stylesheet" href="components.css" />
+  <link rel="stylesheet" href="bundle.min.css" />
   <link rel="icon" href="/icon.svg" type="image/svg+xml" />
 </head>
 <body>
@@ -373,14 +370,7 @@
       if (typeof cancelBalloonInflate === 'function') cancelBalloonInflate(document.querySelector('.inflating'));
     }, { capture: true });
   </script>
-  <script src="lz-string.min.js"></script>
-  <script src="config.js"></script>
-  <script src="data.js"></script>
-  <script src="audio.js"></script>
-  <script src="particles.js"></script>
-  <script src="hammers.js"></script>
-  <script src="render.js"></script>
-  <script src="game.js"></script>
+  <script src="bundle.min.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

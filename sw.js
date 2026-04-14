@@ -3,25 +3,15 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '1.2.6';
+const CACHE_VERSION = '1.2.7';
 const CACHE_NAME    = 'eba-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/icon.svg',
-  '/style.css',
-  '/play.css',
-  '/tabs.css',
-  '/components.css',
-  '/lz-string.min.js',
-  '/config.js',
-  '/data.js',
-  '/audio.js',
-  '/particles.js',
-  '/hammers.js',
-  '/render.js',
-  '/game.js',
+  '/bundle.min.css',
+  '/bundle.min.js',
   '/img/mrmonkey.webp',
   '/img/steampunk.webp',
   '/img/princess.webp',

@@ -1,5 +1,11 @@
 {
+  "scripts": {
+    "build": "node build.js"
+  },
   "dependencies": {
     "lz-string": "^1.5.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
   }
 }
