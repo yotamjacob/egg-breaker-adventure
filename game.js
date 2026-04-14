@@ -1740,7 +1740,7 @@ function loadPayPalSDK() {
     }
     _paypalLoading = true;
     const s = document.createElement('script');
-    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD';
+    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD&enable-funding=googlepay';
     s.onload  = () => { _paypalReady = true; _paypalLoading = false; resolve(); };
     s.onerror = () => { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); };
     document.head.appendChild(s);
