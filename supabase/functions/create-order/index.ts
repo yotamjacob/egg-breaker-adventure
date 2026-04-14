@@ -1,7 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// Switch to https://api-m.paypal.com for live
-const PAYPAL_BASE = 'https://api-m.sandbox.paypal.com'
+const PAYPAL_BASE = 'https://api-m.paypal.com'
 
 const PRODUCTS: Record<string, { name: string; price: string; oneTime?: boolean }> = {
   starter_pack: { name: 'Starter Pack',   price: '2.99', oneTime: true },

@@ -1709,7 +1709,7 @@ function buyAlbumItem(stageIdx, itemIdx, cost) {
 // ==================== PREMIUM / PAYPAL ====================
 const _SUPABASE_URL  = 'https://hhpikvqeopscjdzuhbfk.supabase.co';
 const _SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhocGlrdnFlb3BzY2pkenVoYmZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMzA2NDUsImV4cCI6MjA5MTcwNjY0NX0.-iYI6Wf8eREEBKFxfty7ot1Ke8AqjC73xlT7KCTZaqc';
-const _PAYPAL_CLIENT = 'AQDnl8TuJ2EkqZa5bUHTGXoK8R5ji5ORD1lZSjV4vWX4S5kXrWeZmMLRRyjQo-Tul43AyH5QrcAcH9eC';
+const _PAYPAL_CLIENT = 'AShS0nOeix44W4CifOSTB6pL4gvi6k3O_j6CXAmvCanfDKm9PXhjkED8PBZIOHk0aHdqHLtD1LyH9kLd';
 
 const PREMIUM_PRODUCTS = [
   { id: 'starter_pack', name: 'Starter Pack',   emoji: '🎁', price: '$2.99', desc: '25,000 gold + 50 hammers + 3 Crystal Bananas', featured: true, oneTime: true },
@@ -1740,8 +1740,7 @@ function loadPayPalSDK() {
     }
     _paypalLoading = true;
     const s = document.createElement('script');
-    // enable-funding=googlepay only works on live credentials — add back when switching to live
-    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD';
+    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD&enable-funding=googlepay';
     s.onload  = () => { _paypalReady = true; _paypalLoading = false; resolve(); };
     s.onerror = () => { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); };
     document.head.appendChild(s);

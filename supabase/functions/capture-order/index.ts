@@ -1,7 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// Switch to https://api-m.paypal.com for live
-const PAYPAL_BASE = 'https://api-m.sandbox.paypal.com'
+const PAYPAL_BASE = 'https://api-m.paypal.com'
 
 const REWARDS: Record<string, { gold?: number; hammers?: number; bananas?: number }> = {
   starter_pack: { gold: 25000,  hammers: 50, bananas: 3 },
