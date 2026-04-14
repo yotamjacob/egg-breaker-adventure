@@ -1731,16 +1731,6 @@ function getDeviceId() {
 let _paypalReady = false;
 let _paypalLoading = false;
 
-function _appendPayPalScript(extraParams) {
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD' + (extraParams || '');
-    s.onload  = () => resolve();
-    s.onerror = () => { s.remove(); reject(); };
-    document.head.appendChild(s);
-  });
-}
-
 function loadPayPalSDK() {
   return new Promise((resolve, reject) => {
     if (_paypalReady) { resolve(); return; }
@@ -1749,11 +1739,12 @@ function loadPayPalSDK() {
       return;
     }
     _paypalLoading = true;
-    // Try with Google Pay first, fall back to plain if sandbox rejects it
-    _appendPayPalScript('&enable-funding=googlepay')
-      .catch(() => _appendPayPalScript(''))
-      .then(() => { _paypalReady = true; _paypalLoading = false; resolve(); })
-      .catch(() => { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); });
+    const s = document.createElement('script');
+    // enable-funding=googlepay only works on live credentials — add back when switching to live
+    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD';
+    s.onload  = () => { _paypalReady = true; _paypalLoading = false; resolve(); };
+    s.onerror = () => { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); };
+    document.head.appendChild(s);
   });
 }
 
