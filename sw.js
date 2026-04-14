@@ -3,7 +3,7 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '1.2.3';
+const CACHE_VERSION = '1.2.4';
 const CACHE_NAME    = 'eba-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
@@ -33,7 +33,6 @@ const STATIC_ASSETS = [
   '/icon-192-maskable.png',
   '/icon-512.png',
   '/icon-512-maskable.png',
-  '/icon-1024.png',
   '/privacy.html',
   '/screenshots/screen-mobile.png',
   '/screenshots/screen-album.png',
