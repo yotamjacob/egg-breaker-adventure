@@ -784,7 +784,7 @@ function renderStats() {
     ['Milleniums', G.milleniumSmashed || 0],
     ['Hexes hit', G.hexesHit || 0],
     ['Balloons', G.balloonPopped || 0],
-    ['Daily claims', G.totalDailyClaims || 0],
+    ['Longest streak', G.longestStreak || 0],
   ].map(([k, v]) => '<span>' + k + '</span><strong>' + v + '</strong>').join('');
 }
 

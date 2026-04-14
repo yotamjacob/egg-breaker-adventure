@@ -964,10 +964,10 @@ function generateDailyRewards() {
       const fv = 3 + Math.floor(d / 10) * 2;
       rewards.push({ day: d, type: 'feathers', val: fv, icon: '🪶', label: '+' + fv + ' feathers' });
     }
-    // Gold on even days (scales up)
+    // Gold on even days (scales up — 10x base to make daily gold meaningful)
     else if (d % 2 === 0) {
-      const gv = 20 + d * 5;
-      rewards.push({ day: d, type: 'gold', val: gv, icon: '🪙', label: '+' + gv + ' gold' });
+      const gv = (20 + d * 5) * 10;
+      rewards.push({ day: d, type: 'gold', val: gv, icon: '🪙', label: '+' + gv.toLocaleString() + ' gold' });
     }
     // Hammers on odd days
     else {

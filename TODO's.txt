@@ -11,6 +11,9 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 ---bugs and tech debt---
 verify daily works
 change daily claims to - longest daily streak
+all daily gold rewards 10 times more
+but make commoon and uncoomon items more rare
+also - make mults more rare
 
 ---mobile app store (android + ios)---
 

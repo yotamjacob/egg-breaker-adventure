@@ -18,7 +18,7 @@ const DEFAULT_STATE = {
   // Round
   roundEggs: null,
   // Daily
-  lastLoginDate: null, consecutiveDays: 0, dailyClaimed: false, totalDailyClaims: 0,
+  lastLoginDate: null, consecutiveDays: 0, dailyClaimed: false, totalDailyClaims: 0, longestStreak: 0,
   // Regen
   regenCD: CONFIG.regenInterval, fastRegen: false,
   // Stats
@@ -223,6 +223,7 @@ function checkDaily() {
   } else {
     G.consecutiveDays = 1; // streak reset
   }
+  G.longestStreak = Math.max(G.longestStreak || 0, G.consecutiveDays);
   G.lastLoginDate = today;
   G.dailyClaimed = false;
   saveGame();
