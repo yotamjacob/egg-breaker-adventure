@@ -10,10 +10,17 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 
 ---bugs and tech debt---
 verify daily works
-change daily claims to - longest daily streak
-all daily gold rewards 10 times more
-but make commoon and uncoomon items more rare
-also - make mults more rare
+change daily claims to - longest daily streak ✓
+all daily gold rewards 10 times more ✓
+make common and uncommon items more rare ✓
+make mults more rare ✓
+
+---performance and loading---
+[ ] delete simulate.js — dead code, not referenced anywhere (16KB)
+[ ] remove icon-1024.png from SW precache — only needed for App Store, not gameplay (226KB saved)
+[ ] convert monkey PNGs to WebP — ~35-50% smaller files, no visual difference
+[ ] LZ-string save compression — shrink localStorage save data by ~70%
+[ ] bundle + minify JS/CSS with esbuild — reduce 11 HTTP requests to 2-3, faster parse
 
 ---mobile app store (android + ios)---
 
