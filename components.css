@@ -25,8 +25,8 @@
 }
 .pop-icon{font-size:32px;margin-bottom:2px}
 .pop-icon.spin{animation:spin 2s steps(8) infinite}
-.popup strong{font-size:10px;color:var(--gold);text-shadow:2px 2px 0 var(--dark)}
-.pop-sub{font-size:10px;color:var(--gray)}
+.popup strong{font-size:10px;color:var(--gold);text-shadow:2px 2px 0 var(--dark);word-break:break-word;width:100%;text-align:center}
+.pop-sub{font-size:10px;color:var(--gray);word-break:break-word;width:100%;text-align:center}
 .pop-btn{
   margin-top:6px;
   background:linear-gradient(180deg,var(--gold),var(--gold2));
@@ -42,7 +42,7 @@
 
 .confirm-btns{display:flex;gap:6px;margin-top:6px}
 .confirm-yes{background:linear-gradient(180deg,var(--green),var(--green2))!important;border-color:var(--green)!important}
-.confirm-no{background:var(--panel)!important;color:var(--gray)!important;border-color:var(--gray)!important}
+.confirm-no{background:var(--panel)!important;color:#a8b8c8!important;border-color:#a8b8c8!important}
 .pop-quote{font-size:11px;color:var(--amber);font-style:italic;max-width:220px;text-align:center;line-height:1.5}
 
 /* Toast */
@@ -74,4 +74,86 @@
   background:var(--gray);border:1px solid var(--dark);
 }
 .tour-dot.active{background:var(--gold)}
+
+/* ---------- Settings menu + sub-modals (shared design) ---------- */
+.pop-settings,
+.pop-submodal{
+  width:75%;max-width:405px;max-height:75vh;
+  padding:0;gap:0;text-align:left;overflow:hidden;
+  display:flex;flex-direction:column;align-items:stretch;
+}
+
+/* Header row shared by settings and sub-modals */
+.settings-header,
+.submodal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;padding:10px;flex-shrink:0;
+}
+.settings-title-text,
+.submodal-title{
+  flex:1;text-align:center;
+  font-size:11px;color:var(--gold);
+  text-shadow:2px 2px 0 var(--dark);line-height:1.4;
+}
+
+/* Gold header buttons: close, sound toggle, submodal close */
+.settings-close,
+.settings-sound-btn,
+.submodal-close{
+  background:linear-gradient(180deg,var(--gold),var(--gold2));
+  border:2px solid var(--gold3);border-radius:2px;
+  color:var(--dark);font-family:var(--px);
+  width:44px;height:44px;padding:0;cursor:pointer;line-height:1;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:2px 2px 0 var(--dark),inset 1px 1px 0 rgba(255,255,255,.3);
+  transition:transform .08s;white-space:nowrap;
+}
+.settings-close:hover,.settings-sound-btn:hover,.submodal-close:hover{
+  transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dark);
+}
+.settings-close:active,.settings-sound-btn:active,.submodal-close:active{
+  transform:translate(1px,1px);box-shadow:none;
+}
+/* Sound icon size */
+.settings-sound-btn{font-size:20px}
+/* Close button ✕ size */
+.settings-close,.submodal-close{font-size:16px}
+
+/* Scrollable menu list */
+.settings-menu{display:flex;flex-direction:column;gap:6px;padding:10px;flex:1;overflow-y:auto}
+.settings-menu-btn{
+  display:flex;align-items:center;justify-content:center;width:100%;
+  padding:13px 12px;
+  background:linear-gradient(180deg,var(--gold),var(--gold2));
+  border:2px solid var(--gold3);border-radius:2px;
+  color:var(--dark);font-family:var(--px);font-size:10px;
+  cursor:pointer;text-align:center;
+  box-shadow:2px 2px 0 var(--dark),inset 1px 1px 0 rgba(255,255,255,.3);
+  transition:all .08s;
+}
+.settings-menu-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dark)}
+.settings-menu-btn:active{transform:translate(1px,1px);box-shadow:none}
+.settings-menu-btn .btn-label{flex:1}
+.settings-danger-btn{
+  background:var(--panel)!important;
+  border-color:var(--red)!important;color:var(--red)!important;
+  box-shadow:2px 2px 0 var(--dark)!important;
+}
+.settings-danger-btn:hover{background:rgba(231,76,60,.12)!important;transform:translate(-1px,-1px);}
+
+/* Version footer */
+.settings-version{
+  font-size:8px;color:var(--gray);text-align:center;
+  padding:8px 14px;border-top:2px solid var(--gold3);letter-spacing:1px;flex-shrink:0;
+}
+
+/* Scrollable content area inside sub-modals */
+.submodal-body{flex:1;overflow-y:auto;padding:10px}
+.submodal-body.flush{padding:0}
+
+/* Auto-width variant: shrinks to content (used for lifetime stats) */
+.pop-submodal-fit{width:max-content;max-width:calc(100vw - 32px)}
+
+/* Confirm overlay always on top (e.g. reset confirmation over settings) */
+#overlay-confirm{z-index:950}
 

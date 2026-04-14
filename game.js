@@ -25,16 +25,24 @@ const DEFAULT_STATE = {
   totalEggs: 0, totalEmpties: 0, totalGold: 0, totalStarPieces: 0, totalFeathers: 0,
   totalItems: 0, biggestWin: 0, highestMult: 1,
   starfallsUsed: 0, collectionsCompleted: 0, stagesCompleted: 0,
-  roundClears: 0, feathersBought: 0, maxMultUsed: 0, runnySmashed: 0, timerSmashed: 0, timerMissed: 0,
+  roundClears: 0, feathersBought: 0, maxMultUsed: 0, runnySmashed: 0, blackSmashed: 0, timerSmashed: 0, timerMissed: 0, timerCloseCall: 0,
+  totalPlayTime: 0,
   achieved: [],
   discoveredEggs: ['normal','silver','gold'], // egg types the player has seen
   soundOn: true,
   autoBuy: false,
   _tourDone: false,
+  // Shop upgrades (unique one-time purchases)
+  owned_spyglass: false, owned_luckycharm: false, owned_goldmagnet: false,
+  owned_eggradar: false, owned_doubledaily: false, owned_starsaver: false,
+  // Secrets
+  _secretFlip: false, _secretOuch: false, _secretChicken: false, _secretStrikes: false,
+  _secret42: false, _secretMidnight: false, _secretLeet: false, _secretChef: false, _secretOmelette: false,
 };
 
 let G = {};
 let regenInt = null;
+let _sessionStart = Date.now();
 
 function initMonkeys() {
   return MONKEY_DATA.map((m, i) => ({
@@ -51,6 +59,9 @@ function initMonkeys() {
 const SAVE_KEY = 'eggBreaker_v2';
 
 function saveGame() {
+  const now = Date.now();
+  G.totalPlayTime = (G.totalPlayTime || 0) + Math.floor((now - _sessionStart) / 1000);
+  _sessionStart = now;
   const d = {};
   for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
   // Save eggs without transient _smashing lock
@@ -63,6 +74,30 @@ function saveGame() {
   localStorage.setItem(SAVE_KEY, JSON.stringify(d));
 }
 
+function migrateSave(state) {
+  if (state.monkeys) {
+    state.monkeys.forEach((mp, mi) => {
+      if (!mp.tiers) {
+        mp.tiers = MONKEY_DATA[mi].stages.map((_, si) => {
+          if (si < mp.stage) return 3;
+          if (si === mp.stage) return mp.tier || 0;
+          return 0;
+        });
+      }
+      if (mp.activeStage === undefined) mp.activeStage = mp.stage;
+    });
+  }
+  if (state.roundEggs) {
+    state.roundEggs.forEach(egg => {
+      if (egg.maxHp === undefined) {
+        egg.maxHp = EGG_HP[egg.type] || 1;
+        egg.hp = egg.broken ? 0 : egg.maxHp;
+      }
+      delete egg._smashing;
+    });
+  }
+}
+
 function loadGame() {
   G = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null };
   try {
@@ -71,7 +106,7 @@ function loadGame() {
     const d = JSON.parse(raw);
     for (const k of Object.keys(DEFAULT_STATE)) {
       if (!Object.prototype.hasOwnProperty.call(DEFAULT_STATE, k)) continue;
-      if (d[k] !== undefined && d[k] !== null && typeof d[k] === typeof DEFAULT_STATE[k]) G[k] = d[k];
+      if (d[k] !== undefined && d[k] !== null && (DEFAULT_STATE[k] === null || typeof d[k] === typeof DEFAULT_STATE[k])) G[k] = d[k];
     }
     if (d.roundEggs) G.roundEggs = d.roundEggs;
     if (!G.monkeys || G.monkeys.length < MONKEY_DATA.length) {
@@ -82,29 +117,7 @@ function loadGame() {
       G.monkeys = fresh;
     }
   } catch (_) {}
-  // Migrate: add per-stage tiers and activeStage
-  if (G.monkeys) {
-    G.monkeys.forEach((mp, mi) => {
-      if (!mp.tiers) {
-        mp.tiers = MONKEY_DATA[mi].stages.map((_, si) => {
-          if (si < mp.stage) return 3; // stages before current are complete
-          if (si === mp.stage) return mp.tier || 0;
-          return 0;
-        });
-      }
-      if (mp.activeStage === undefined) mp.activeStage = mp.stage;
-    });
-  }
-  // Migrate/clean loaded egg data
-  if (G.roundEggs) {
-    G.roundEggs.forEach(egg => {
-      if (egg.maxHp === undefined) {
-        egg.maxHp = EGG_HP[egg.type] || 1;
-        egg.hp = egg.broken ? 0 : egg.maxHp;
-      }
-      delete egg._smashing; // clear stale lock from save
-    });
-  }
+  migrateSave(G);
 }
 
 function resetGame() {
@@ -166,7 +179,7 @@ function _doImportSave(str) {
     const d = JSON.parse(decodeURIComponent(escape(atob(str.slice(5)))));
     const fresh = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null };
     for (const k of Object.keys(DEFAULT_STATE)) {
-      if (d[k] !== undefined && d[k] !== null && typeof d[k] === typeof DEFAULT_STATE[k]) fresh[k] = d[k];
+      if (d[k] !== undefined && d[k] !== null && (DEFAULT_STATE[k] === null || typeof d[k] === typeof DEFAULT_STATE[k])) fresh[k] = d[k];
     }
     if (d.roundEggs) fresh.roundEggs = d.roundEggs;
     if (!fresh.monkeys || fresh.monkeys.length < MONKEY_DATA.length) {
@@ -174,22 +187,7 @@ function _doImportSave(str) {
       if (fresh.monkeys) for (let i = 0; i < fresh.monkeys.length; i++) base[i] = fresh.monkeys[i];
       fresh.monkeys = base;
     }
-    fresh.monkeys.forEach((mp, mi) => {
-      if (!mp.tiers) {
-        mp.tiers = MONKEY_DATA[mi].stages.map((_, si) => {
-          if (si < mp.stage) return 3;
-          if (si === mp.stage) return mp.tier || 0;
-          return 0;
-        });
-      }
-      if (mp.activeStage === undefined) mp.activeStage = mp.stage;
-    });
-    if (fresh.roundEggs) {
-      fresh.roundEggs.forEach(egg => {
-        if (egg.maxHp === undefined) { egg.maxHp = EGG_HP[egg.type] || 1; egg.hp = egg.broken ? 0 : egg.maxHp; }
-        delete egg._smashing;
-      });
-    }
+    migrateSave(fresh);
     G = fresh;
     saveGame();
     invalidateBonusCache();
@@ -203,14 +201,23 @@ function _doImportSave(str) {
 }
 
 // ==================== DAILY LOGIN ====================
+function localDateStr(d) {
+  const t = d || new Date();
+  return t.getFullYear() + '-' +
+    String(t.getMonth() + 1).padStart(2, '0') + '-' +
+    String(t.getDate()).padStart(2, '0');
+}
+
 function checkDaily() {
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = localDateStr(now);
   if (G.lastLoginDate === today) {
     renderDailyCalendar();
     return;
   }
-  // New day
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  // New day — use local date arithmetic for correct DST handling
+  const yesterdayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const yesterday = localDateStr(yesterdayDate);
   if (G.lastLoginDate === yesterday) {
     G.consecutiveDays++;
   } else {
@@ -341,13 +348,15 @@ function newRound() {
       if (r <= 0) { type = e.type; break; }
     }
     const hp = EGG_HP[type];
+    // Egg effects unlock progressively through Mr. Monkey stages
+    const mrStage = G.monkeys && G.monkeys[0] ? (G.monkeys[0].stage || 0) : 0;
     let effects = [];
-    if (Math.random() < 0.03) {
-      effects = ['balloon'];  // exclusive — no other effects
+    if (mrStage >= 3 && Math.random() < 0.03) {
+      effects = ['balloon'];  // exclusive — no other effects (unlocks Stage 4)
     } else {
-      if (Math.random() < 0.05) effects.push('runny');
-      if (Math.random() < 0.05) effects.push('timer');
-      if (Math.random() < 0.03) effects.push('hex');
+      if (mrStage >= 1 && Math.random() < 0.05) effects.push('runny');  // Stage 2
+      if (mrStage >= 2 && Math.random() < 0.05 && ['normal','silver','gold','crystal'].includes(type)) effects.push('timer'); // Stage 3
+      if (mrStage >= 3 && Math.random() < 0.03) effects.push('hex');  // Stage 4+
     }
     eggs.push({ type, hp, maxHp: hp, broken: false, effects, timer: effects.includes('timer') ? 3.0 : 0 });
     // Discover new egg type
@@ -456,7 +465,9 @@ function resolvePrize(type, eggType) {
     let pool = MULT_VALUES;
     if (!hasBonus('unlock123')) pool = pool.filter(v => v !== 123);
     const val = pool[Math.floor(Math.random() * pool.length)];
-    return { type: 'mult', value: val, bonusGold, usedMult: usedMultBonus, label: 'x' + val + ' multiplier!', color: '#7c3aed' };
+    const count = G.activeMult > 1 ? G.activeMult : 1;
+    const label = count > 1 ? count + '× x' + val + ' mult!' : 'x' + val + ' multiplier!';
+    return { type: 'mult', value: val, count, bonusGold, usedMult: usedMultBonus, label, color: '#7c3aed' };
   }
 
   if (type === 'banana') {
@@ -633,17 +644,19 @@ function popBalloonEgg(index, slot) {
   SFX.play('starfall');
   Particles.emit(cx, cy, egg.type, 30);
   Particles.sparkle(cx, cy, 20, '#FFD700');
-  shake($id('egg-tray-wrap'), 'md');
+  shake(slot, 'md');
 
   // Roll prize and multiply by 10 (only numeric rewards)
   const prize = rollPrize(egg.type);
   const canMultiply = ['gold','star','feather','hammers','banana','maxHammers'].includes(prize.type);
-  if (canMultiply) {
+  if (prize.type === 'mult') {
+    // Balloon gives 10x the number of mult chips
+    prize.count = (prize.count || 1) * 10;
+    prize.label = prize.count + '× x' + prize.value + ' mult!';
+  } else if (canMultiply) {
     if (prize.value) prize.value *= 10;
     if (prize.baseVal) prize.baseVal *= 10;
-    prize.label = '🎈 x10 ' + prize.label;
-  } else {
-    prize.label = '🎈 ' + prize.label;
+    prize.label = 'x10 ' + prize.label;
   }
 
   slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + eggLabel(egg.type, 0, egg.maxHp, true);
@@ -651,9 +664,10 @@ function popBalloonEgg(index, slot) {
   setTimeout(() => {
     applyPrize(prize, cx, cy);
     if (egg.effects && egg.effects.includes('hex')) applyHex(cx, cy);
+    if (G.activeMult > 1) { consumeMultiplier(); }
     renderMultQueue();
     updateStarBtn();
-    msg('🎈 POP! ' + (canMultiply ? 'x10 rewards!' : prize.label), 'prizes');
+    msg('🎈 POP! ' + prize.label, 'prizes');
 
     if (G.roundEggs.every(e => e.broken || e.expired) && !_roundPending) {
       _roundPending = true;
@@ -741,6 +755,11 @@ function smashEgg(index) {
   Particles.emit(cx, cy, egg.type, particleCount);
 
   if (egg.hp > 0) {
+    // Timer eggs: stop countdown after first hit (keep in effects for 3x prize at break)
+    if (egg.effects && egg.effects.includes('timer')) {
+      egg._timerStopped = true;
+      slot.classList.remove('timed');
+    }
     const damage = egg.maxHp - egg.hp;
     slot.innerHTML = makeEggSVG(egg.type, damage) +
       eggLabel(egg.type, egg.hp, egg.maxHp, false) +
@@ -755,7 +774,10 @@ function smashEgg(index) {
   egg.broken = true;
   G.totalEggs++;
   if (egg.effects && egg.effects.includes('runny')) G.runnySmashed = (G.runnySmashed || 0) + 1;
-  if (egg.effects && egg.effects.includes('timer')) G.timerSmashed = (G.timerSmashed || 0) + 1;
+  if (egg.effects && egg.effects.includes('timer')) {
+    G.timerSmashed = (G.timerSmashed || 0) + 1;
+    if (egg.timer > 0 && formatTimer(egg.timer) <= '0:05') G.timerCloseCall = (G.timerCloseCall || 0) + 1;
+  }
   if (egg.effects && egg.effects.includes('runny') && egg.effects.includes('timer')) G.comboSmashed = (G.comboSmashed || 0) + 1;
 
   // Track egg type smashes
@@ -769,9 +791,15 @@ function smashEgg(index) {
   // Effect eggs get bonus rewards
   const fx = egg.effects || [];
   if (fx.includes('runny') || fx.includes('timer')) {
-    if (prize.value) prize.value *= 3;
-    if (prize.baseVal) prize.baseVal *= 3;
-    prize.label = 'x3 ' + prize.label;
+    if (prize.type === 'mult') {
+      // Multiply count, not face value — value must stay a valid MULT_BADGE_VALUES entry
+      prize.count = (prize.count || 1) * 3;
+      prize.label = 'x3 ' + prize.label;
+    } else {
+      if (prize.value) prize.value *= 3;
+      if (prize.baseVal) prize.baseVal *= 3;
+      prize.label = 'x3 ' + prize.label;
+    }
   }
 
   // Apply prize after short delay
@@ -860,10 +888,13 @@ function applyPrize(prize, cx, cy) {
   }
 
   if (prize.type === 'mult') {
-    if (G.multQueue.length < 50) G.multQueue.push(prize.value);
+    const multCount = prize.count || 1;
+    let added = 0;
+    for (let i = 0; i < multCount && G.multQueue.length < 50; i++) { G.multQueue.push(prize.value); added++; }
     G.highestMult = Math.max(G.highestMult, prize.value);
-    spawnFloat(zone, prize.label, '#7c3aed', 'big', cx, cy);
-    msg(prize.label);
+    const displayLabel = added > 1 ? added + '× x' + prize.value + ' mult!' : 'x' + prize.value + ' multiplier!';
+    spawnFloat(zone, displayLabel, '#7c3aed', 'big', cx, cy);
+    msg(displayLabel);
     SFX.play('gem');
     renderMultQueue();
     if (prize.bonusGold) {
@@ -942,8 +973,8 @@ function applyPrize(prize, cx, cy) {
       // Check collection completion
       checkCollectionComplete();
     } else {
-      // Duplicate - give some gold instead
-      const dRange = CONFIG.duplicateGoldRange;
+      // Duplicate - give gold scaled by rarity
+      const dRange = (CONFIG.duplicateGoldByRarity || {})[prize.rarity] || [20, 60];
       const dupeGold = dRange[0] + Math.floor(Math.random() * (dRange[1] - dRange[0] + 1));
       G.gold += dupeGold;
       G.totalGold += dupeGold;
@@ -1043,7 +1074,7 @@ function _doStarfall(message) {
       const slots = $id('egg-tray').children;
       const slot = slots[idx];
       slot.classList.add('smashing');
-      setTimeout(() => slot.classList.remove('smashing'), 450);
+      setTimeout(() => slot.classList.remove('smashing'), 300);
 
       const rect = slot.getBoundingClientRect();
       const wrapRect = wrap.getBoundingClientRect();
@@ -1063,7 +1094,7 @@ function _doStarfall(message) {
         updateStageBar();
         saveGame();
       }, 200);
-    }, i * 400);
+    }, i * 200);
   });
 
   setTimeout(() => {
@@ -1079,7 +1110,7 @@ function _doStarfall(message) {
     updateStarBtn();
     updateResources();
     setTimeout(() => newRound(), 600);
-  }, unbroken.length * 400 + 300);
+  }, unbroken.length * 200 + 300);
 }
 
 
@@ -1553,6 +1584,7 @@ function checkAchievements() {
     timer_1:      () => (G.timerSmashed || 0) >= 1,
     timer_25:     () => (G.timerSmashed || 0) >= 25,
     timer_100:    () => (G.timerSmashed || 0) >= 100,
+    timer_close:  () => (G.timerCloseCall || 0) >= 1,
     missed_1:     () => (G.timerMissed || 0) >= 1,
     missed_10:    () => (G.timerMissed || 0) >= 10,
     combo_effect: () => (G.comboSmashed || 0) >= 1,
@@ -1608,11 +1640,28 @@ function showAchieveToast(a) {
 }
 
 // ==================== SOUND ====================
+function _syncSoundUI(on) {
+  const btn = $id('sound-btn');
+  if (btn) btn.innerHTML = on ? '🔊' : '🔇';
+}
 function toggleSound() {
   const on = SFX.toggle();
   G.soundOn = on;
-  $id('sound-btn').textContent = on ? '🔊' : '🔇';
+  _syncSoundUI(on);
   saveGame();
+}
+
+// ==================== SETTINGS ====================
+function openSettings() {
+  _syncSoundUI(SFX.isOn());
+  const el = document.getElementById('overlay-settings');
+  if (el) el.classList.remove('hidden');
+}
+
+function openSubModal(id, renderFn) {
+  closeOverlay('overlay-settings');
+  if (renderFn) renderFn();
+  document.getElementById(id).classList.remove('hidden');
 }
 
 
@@ -1659,7 +1708,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   tab.classList.add('active');
   $id('panel-' + name).classList.add('active');
   // Refresh content when switching tabs
-  if (name === 'play' && $id('egg-tray').children.length === 0) renderEggTray();
+  if (name === 'play') renderEggTray();
   if (name === 'album') renderAlbum();
   if (name === 'monkeys') renderMonkeys();
   if (name === 'shop') { renderShop(); updateAutoBuyBtn(); }
@@ -1715,20 +1764,35 @@ const _origApplyPrize = applyPrize;
 applyPrize = function(prize, cx, cy) {
   const zone = $id('prize-zone');
 
-  // #5: 1/1000 "ouch!" before prize
-  if (Math.random() < 0.001) {
+  // #5: rare "ouch!" before prize
+  if (Math.random() < CONFIG.secretOuchChance) {
     spawnFloat(zone, 'ouch!', '#fca5a5', '', cx, cy - 25);
     G._secretOuch = true; checkAchievements(); saveGame();
   }
 
-  // #6: 1/500 chicken run
-  if (Math.random() < 0.002) {
+  // #6: rare chicken run
+  if (Math.random() < CONFIG.secretChickenChance) {
     const chicken = document.createElement('div');
     chicken.className = 'chicken-run';
     chicken.textContent = '🐔';
+    chicken.style.cursor = 'pointer';
+    chicken.addEventListener('click', () => {
+      G.feathers += 5;
+      G.totalFeathers += 5;
+      msg('🐔 Bwok! +5 feathers', 'prizes');
+      const wrap = $id('egg-tray-wrap');
+      const wRect = wrap.getBoundingClientRect();
+      const cRect = chicken.getBoundingClientRect();
+      spawnFloat($id('prize-zone'), '🐔 Bwok! +5🪶', '#059669', 'big',
+        cRect.left - wRect.left + cRect.width / 2,
+        cRect.top  - wRect.top  + cRect.height / 2);
+      chicken.remove();
+      updateResources();
+      saveGame();
+    });
     $id('egg-tray-wrap').appendChild(chicken);
     G._secretChicken = true; checkAchievements(); saveGame();
-    setTimeout(() => chicken.remove(), 2500);
+    setTimeout(() => { if (chicken.parentNode) chicken.remove(); }, 2500);
   }
 
   // #9: Empty streak tracking
@@ -1835,6 +1899,7 @@ const TOUR_STEPS = [
   { icon: '🥚', title: 'Welcome!', body: 'Welcome to Egg Breaker Adventures Revival!\n\nA love letter to the classic 2008 Facebook game.\nReady for a quick tour?' },
   { icon: '🔨', title: 'Smash Eggs', body: 'Tap or click eggs to smash them!\nEach hit costs 1 hammer.\nDifferent eggs have different HP — harder eggs give better rewards.' },
   { icon: '🪙', title: 'Prizes', body: 'Break eggs to win gold, star pieces, feathers, multipliers, and collection items.\nSome eggs can be empty — that\'s life.' },
+  { icon: '✖️', title: 'Multipliers', body: 'Earn multiplier badges (x2, x3, x5...) from eggs.\n\nSelect one or more from the mult bar before smashing — they ADD together!\nx2 + x3 = x5 total reward.\n\nMults are consumed after each smash, so save big ones for rare eggs!' },
   { icon: '⭐', title: 'Starfall', body: 'Collect 5 star pieces to trigger Starfall — it smashes ALL remaining eggs for free!\nUnlocks after completing Stage 1.' },
   { icon: '📚', title: 'Collections', body: 'Each stage has themed items to collect.\nReach 40% for Silver, 70% for Gold (unlocks next stage), and 100% for a Crystal Banana!' },
   { icon: '🐵', title: 'Monkeys', body: 'You start with Mr. Monkey.\nEarn Crystal Bananas by completing stages, then unlock new monkeys with unique perks.' },
@@ -1888,6 +1953,7 @@ $id('tour-skip').addEventListener('click', () => {
 loadGame();
 
 if (G.soundOn === false && SFX.isOn()) SFX.toggle();
+_syncSoundUI(SFX.isOn()); // sync icon immediately on page load
 
 Particles.init($id('particle-canvas'));
 

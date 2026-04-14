@@ -1,0 +1,20 @@
+---design---
+ai generate all the icons to make them cooler, maintain 16bit graphics
+avatar changes according to hat equipped?
+go over quotes and improve them manually
+
+---features and playability---
+let's monetize
+gavel - judge hammer
+famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
+
+---bugs and tech debt---
+verify daily works
+
+
+clicking on lexicon:
+render.js:874 Uncaught TypeError: Cannot read properties of undefined (reading '0')
+    at buildLexicon (render.js:874:38)
+    at renderLexicon (render.js:975:3)
+    at openSubModal (game.js:1659:17)
+    at HTMLButtonElement.onclick ((index):234:101)

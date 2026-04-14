@@ -149,7 +149,7 @@ function renderEggTray() {
     slot.style.top = pos.y + 'px';
     const damage = egg.maxHp - egg.hp;
     const balloonExtra = alive && fx.includes('balloon')
-      ? '<div class="balloon-rope"><div class="balloon-knot"></div><div class="balloon-string"></div></div>' : '';
+      ? '<div class="balloon-rope"><div class="balloon-knot"></div><svg class="balloon-string" width="14" height="44" viewBox="0 0 14 44"><path d="M7,0 Q13,11 7,22 Q1,33 7,44" stroke="#aaa" stroke-width="1.5" fill="none"/></svg></div>' : '';
     slot.innerHTML = makeEggSVG(egg.type, (egg.broken || egg.expired) ? egg.maxHp : damage) +
       balloonExtra +
       eggLabel(egg.type, egg.hp, egg.maxHp, egg.broken || egg.expired) +
@@ -185,8 +185,8 @@ function startRunnyDrift(runnySlots, trayW, trayH) {
 
   const eW = 76, eH = 110;
   const pad = 6;
-  // Speed scales with progress: base 0.4, +0.03 per completed stage
-  const speed = 0.4 + (G.stagesCompleted || 0) * 0.03;
+  // Speed scales with progress: base 0.6, +0.05 per completed stage
+  const speed = 0.6 + (G.stagesCompleted || 0) * 0.05;
 
   function tick() {
     let anyAlive = false;
@@ -240,6 +240,7 @@ function startTimerCountdown(timerSlots) {
     for (const t of timerSlots) {
       const egg = G.roundEggs && G.roundEggs[t.idx];
       if (!egg || egg.broken || egg.expired) continue;
+      if (!egg.effects || !egg.effects.includes('timer') || egg._timerStopped) continue;
 
       egg.timer -= dt;
       const timerEl = t.slot.querySelector('.egg-timer');
@@ -332,7 +333,7 @@ function updateStarBtn() {
   if (!isStarfallUnlocked()) {
     btn.disabled = true;
     $id('star-count').textContent = '🔒';
-    $id('star-hint').textContent = 'Complete Stage 1';
+    $id('star-hint').textContent = 'Finish\nStage 1';
     $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '';
     return;
   }
@@ -352,10 +353,15 @@ function updateResources() {
 
   // Hammer row with color + timer
   const hRow = $id('hammer-row');
+  const hexed = typeof _regenPauseTimer !== 'undefined' && _regenPauseTimer !== null;
   let hText = '🔨 Hammers: ' + G.hammers + '/' + G.maxH;
-  if (G.hammers < G.maxH) hText += ' (' + G.regenCD + 's)';
+  if (hexed) {
+    hText += ' paused';
+  } else if (G.hammers < G.maxH) {
+    hText += ' (' + G.regenCD + 's)';
+  }
   hRow.textContent = hText;
-  hRow.className = 'hammer-row' + (G.hammers === 0 ? ' zero' : G.hammers < G.maxH ? ' regen' : ' full');
+  hRow.className = 'hammer-row' + (hexed ? ' hexed' : G.hammers === 0 ? ' zero' : G.hammers < G.maxH ? ' regen' : ' full');
 
   updateStarBtn();
   updateOverallProgress();
@@ -432,7 +438,7 @@ function renderAll() {
   const hatId = G.hat && G.hat !== 'none' ? G.hat : null;
   const avatarSrc = (hatId && monkey.hatImgs && monkey.hatImgs[hatId]) || monkey.img;
   if (avatarSrc) {
-    avatarEl.innerHTML = '<img src="' + avatarSrc + '" style="width:100%;height:100%;object-fit:cover">';
+    avatarEl.innerHTML = '<img src="' + avatarSrc + '" alt="Monkey avatar" style="width:100%;height:100%;object-fit:cover">';
   } else {
     avatarEl.textContent = monkey.emoji;
   }
@@ -458,6 +464,21 @@ function renderAlbum() {
   const prog = curProgress();
   const stagesDiv = $id('album-stages');
   stagesDiv.innerHTML = '';
+
+  // Banner if every stage is 100% complete
+  const allDone = monkey.stages.length > 0 &&
+    monkey.stages.every((_, i) => prog.tiers && prog.tiers[i] >= 3);
+  if (allDone) {
+    const banner = document.createElement('div');
+    banner.className = 'album-complete-banner';
+    banner.innerHTML =
+      '<span>' + monkey.name + ' adventure completed! 🎉</span>' +
+      '<button class="album-try-monkey-btn">Try a new monkey ▶</button>';
+    banner.querySelector('button').addEventListener('click', () => {
+      document.querySelector('[data-tab="monkeys"]').click();
+    });
+    stagesDiv.appendChild(banner);
+  }
 
   monkey.stages.forEach((stage, i) => {
     const btn = document.createElement('button');
@@ -489,7 +510,8 @@ function featherCost(rarity, stageIdx) {
   const C = CONFIG;
   const rarityKey = rarity === 1 ? 'common' : rarity === 2 ? 'uncommon' : 'rare';
   const base = C.featherItemCost[rarityKey];
-  return Math.round(base * Math.pow(C.featherStageMultiplier, stageIdx));
+  const overallProgress = (G.stagesCompleted || 0) + stageIdx;
+  return Math.round(base * Math.pow(C.featherStageMultiplier, overallProgress));
 }
 
 let _albumStageIdx = 0; // track which stage the album is viewing
@@ -516,7 +538,7 @@ function renderAlbumStage(stageIdx) {
     const rarityLabel = ['', 'Common', 'Uncommon', 'Rare'][item[2]];
     const cost = featherCost(item[2], stageIdx);
 
-    const quote = item[3] ? item[3].replace(/^"|"$/g, '') : '';
+    const quote = item[3] || '';
     const tipText = found
       ? item[1] + (quote ? ' — ' + quote : '')
       : (quote ? '??? — ' + quote : '???');
@@ -575,7 +597,7 @@ function renderMonkeys() {
     const cardHatId = G.hat && G.hat !== 'none' ? G.hat : null;
     const cardSrc = (cardHatId && m.hatImgs && m.hatImgs[cardHatId]) || m.img;
     let inner = cardSrc
-      ? '<div class="m-emoji m-avatar-wrap"><img src="' + cardSrc + '"></div>'
+      ? '<div class="m-emoji m-avatar-wrap"><img src="' + cardSrc + '" alt="' + m.name + '"></div>'
       : '<span class="m-emoji">' + m.emoji + '</span>';
     inner += '<span class="m-name">' + m.name + '</span>';
     inner += '<span class="m-perk">' + m.perkDesc + '</span>';
@@ -715,9 +737,21 @@ function renderShop() {
 }
 
 // ==================== STATS / ACHIEVEMENTS ====================
+function formatPlayTime(s) {
+  if (s < 60) return '< 1 min';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60), rm = m % 60;
+  if (h < 24) return h + 'h ' + rm + 'm';
+  const d = Math.floor(h / 24), rh = h % 24;
+  return d + 'd ' + rh + 'h';
+}
+
 function renderStats() {
+  const sessionSecs = Math.floor((Date.now() - _sessionStart) / 1000);
   $id('life-stats').innerHTML = [
-    ['Eggs broken', G.totalEggs],
+    ['Time playing', formatPlayTime((G.totalPlayTime || 0) + sessionSecs)],
+    ['Eggs smashed', G.totalEggs],
     ['Empties', G.totalEmpties || 0],
     ['Gold earned', formatNum(G.totalGold)],
     ['Star pieces', G.totalStarPieces],
@@ -729,14 +763,14 @@ function renderStats() {
     ['Collections', G.collectionsCompleted],
     ['Stages done', G.stagesCompleted],
     ['Round clears', G.roundClears],
-    ['Runny smashed', G.runnySmashed || 0],
-    ['Timed smashed', G.timerSmashed || 0],
-    ['Timed missed', G.timerMissed || 0],
-    ['Millenium eggs', G.milleniumSmashed || 0],
+    ['Runny eggs', G.runnySmashed || 0],
+    ['Timer eggs', G.timerSmashed || 0],
+    ['Timer missed', G.timerMissed || 0],
+    ['Milleniums', G.milleniumSmashed || 0],
     ['Hexes hit', G.hexesHit || 0],
-    ['Balloons popped', G.balloonPopped || 0],
+    ['Balloons', G.balloonPopped || 0],
     ['Daily claims', G.totalDailyClaims || 0],
-  ].map(([k, v]) => '<span>' + k + ': <strong>' + v + '</strong></span>').join('');
+  ].map(([k, v]) => '<span>' + k + '</span><strong>' + v + '</strong>').join('');
 }
 
 // Check if a trophy should be hidden (belongs to an undiscovered egg type)
@@ -853,8 +887,9 @@ function buildLexicon() {
   const maxGold = C.goldValues.gold_l[1];
   const minHammer = Math.min(...C.hammerPrizeAmounts);
   const maxHammer = Math.max(...C.hammerPrizeAmounts);
-  const dupMin = C.duplicateGoldRange[0];
-  const dupMax = C.duplicateGoldRange[1];
+  const dupByRarity = C.duplicateGoldByRarity || { 1:[20,60], 2:[80,200], 3:[250,600] };
+  const dupMin = dupByRarity[1][0];
+  const dupMax = dupByRarity[3][1];
   const fMin = C.featherDropRange[0];
   const fMax = C.featherDropRange[1];
 
@@ -896,12 +931,7 @@ ${C.eggTypes.map(d => isEggDiscovered(d.id)
     id: 'progress', icon: '📚', title: 'Stages & Collections',
     html: () => `
 <p>Each monkey has its own set of stages (between 8 and 9). Each stage has a themed collection of items in three rarities (Common, Uncommon, Rare).</p>
-<table class="lex-table">
-<tr><th>Tier</th><th>Collect</th><th>Reward</th></tr>
-<tr><td class="hl">Bronze → Silver</td><td class="num">${Math.round(C.tierThresholds.bronze * 100)}%</td><td>+${C.tierRewards.silver.maxHammers} max hammers</td></tr>
-<tr><td class="hl">Silver → Gold</td><td class="num">${Math.round(C.tierThresholds.silver * 100)}%</td><td>+${C.tierRewards.gold.maxHammers} max hammers, unlocks next stage</td></tr>
-<tr><td class="hl">Gold → Complete</td><td class="num">${Math.round(C.tierThresholds.gold * 100)}%</td><td>+${C.crystalBananasPerStage} Crystal Banana</td></tr>
-</table>
+<p>Reach ${Math.round(C.tierThresholds.bronze * 100)}% to hit Silver tier (+${C.tierRewards.silver.maxHammers} max hammers), ${Math.round(C.tierThresholds.silver * 100)}% for Gold tier (+${C.tierRewards.gold.maxHammers} max hammers, unlocks next stage), and 100% for Complete (+${C.crystalBananasPerStage} Crystal Banana).</p>
 <p>Later stages have more eggs per round (up to 7) but also more items to find.</p>
 `
   },
@@ -926,23 +956,6 @@ ${C.eggTypes.map(d => isEggDiscovered(d.id)
 <tr><th>Monkey</th><th>Cost</th><th>Perk</th></tr>
 ${rows}
 </table>
-`;
-    }
-  },
-  {
-    id: 'shop', icon: '🛒', title: 'Shop',
-    html: () => {
-      let hRows = '';
-      SHOP_HAMMERS.forEach(h => { if (h.cost > 0) hRows += '<tr><td>' + h.emoji + ' ' + h.name + '</td><td class="num">' + formatNum(h.cost) + '</td><td>' + h.desc + '</td></tr>'; });
-      let hatRows = '';
-      SHOP_HATS.forEach(h => { if (h.cost > 0) hatRows += '<tr><td>' + h.emoji + ' ' + h.name + '</td><td class="num">' + formatNum(h.cost) + '</td><td>' + h.desc + '</td></tr>'; });
-      return `
-<p><strong>Hammers</strong> — permanent. Bonus is always active regardless of what's equipped.</p>
-<table class="lex-table"><tr><th>Hammer</th><th>Cost</th><th>Effect</th></tr>${hRows}</table>
-<p><strong>Hats</strong> — permanent. Bonus is always active regardless of what's equipped.</p>
-<table class="lex-table"><tr><th>Hat</th><th>Cost</th><th>Effect</th></tr>${hatRows}</table>
-<p><strong>Supplies</strong> — consumables: hammer packs, star pieces (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='star1').cost)}), multipliers (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='mult5').cost)}), +5 hammer cap (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='maxhammers').cost)}), fast regen (${formatNum(SHOP_SUPPLIES.find(s=>s.id==='fastregen').cost)}, one-time).</p>
-<p>All bonuses are permanent once purchased and stack multiplicatively — hammers, hats, and monkey perks all accumulate.</p>
 `;
     }
   },
@@ -978,13 +991,21 @@ function renderLexicon() {
   content.innerHTML = '';
   buildLexicon().forEach(sec => {
     const section = document.createElement('div');
-    section.className = 'lex-section';
+    section.className = 'lex-section collapsed';
     section.innerHTML =
       '<div class="lex-section-head">' +
         '<span class="lex-icon">' + sec.icon + '</span>' +
         '<span class="lex-title">' + sec.title + '</span>' +
+        '<span class="lex-toggle">▼</span>' +
       '</div>' +
       '<div class="lex-body">' + sec.html() + '</div>';
+    section.querySelector('.lex-section-head').addEventListener('click', () => {
+      const collapsed = section.classList.toggle('collapsed');
+      section.querySelector('.lex-toggle').textContent = collapsed ? '▼' : '▲';
+      if (!collapsed) {
+        setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+      }
+    });
     content.appendChild(section);
   });
 }

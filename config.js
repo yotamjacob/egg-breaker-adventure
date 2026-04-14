@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '4.21.3';
+const VERSION = '1.1.7';
 
 const CONFIG = {
 
@@ -22,7 +22,7 @@ const CONFIG = {
       goldMult: 1, featherMult: 1, starPieces: 1,
       colors: { f:'#FEF9F0', s:'#D4A853', h:'#fff8e0', sh:'#b8922e' },
       particles: ['#ffe8b0','#e8c878','#d4a840','#c09028'],
-      prizes: { empty:12, gold_s:22, gold_m:13, gold_l:5, star:6, mult:5, feather:5, item:15, hammers:0 },
+      prizes: { empty:5, gold_s:24, gold_m:18, gold_l:8, star:6, mult:4, feather:7, item:19, hammers:0 },
       desc: 'Can be empty',
     },
     {
@@ -31,7 +31,7 @@ const CONFIG = {
       goldMult: 2, featherMult: 2, starPieces: 2,
       colors: { f:'#d8dde3', s:'#8899aa', h:'#eceff2', sh:'#667788' },
       particles: ['#c8d8e8','#a0b8c8','#88a0b0','#6888a0'],
-      prizes: { empty:5, gold_s:10, gold_m:18, gold_l:12, star:10, mult:8, feather:5, item:20, hammers:8 },
+      prizes: { empty:1, gold_s:11, gold_m:20, gold_l:16, star:10, mult:6, feather:7, item:23, hammers:10 },
       desc: 'Rarely empty, 2x prizes, can drop bonus hammers',
     },
     {
@@ -40,7 +40,7 @@ const CONFIG = {
       goldMult: 1.5, featherMult: 1, starPieces: 1,
       colors: { f:'#FFD700', s:'#B8860B', h:'#ffe44d', sh:'#8B6508' },
       particles: ['#FFD700','#FFA500','#FF8C00','#DAA520'],
-      prizes: { empty:0, gold_s:0, gold_m:15, gold_l:20, star:10, mult:7, feather:4, item:25, hammers:7 },
+      prizes: { empty:0, gold_s:0, gold_m:18, gold_l:26, star:10, mult:5, feather:6, item:25, hammers:8 },
       desc: 'Never empty, 1.5x gold, best item drop rate',
     },
     {
@@ -49,7 +49,7 @@ const CONFIG = {
       goldMult: 2, featherMult: 1, starPieces: 3,
       colors: { f:'#E0D0FF', s:'#8B5CF6', h:'#F0E8FF', sh:'#6D28D9' },
       particles: ['#E0D0FF','#C4B5FD','#A78BFA','#8B5CF6'],
-      prizes: { empty:0, gold_s:0, gold_m:5, gold_l:30, star:12, mult:9, feather:6, item:30, hammers:10 },
+      prizes: { empty:0, gold_s:0, gold_m:5, gold_l:30, star:12, mult:9, feather:8, item:33, hammers:11 },
       desc: 'Stage 3+. Never empty, 2x gold, 3 star pieces, rarest drops',
     },
     {
@@ -58,7 +58,7 @@ const CONFIG = {
       goldMult: 3, featherMult: 2, starPieces: 4,
       colors: { f:'#E8143C', s:'#8B0020', h:'#FF6B7A', sh:'#5C0015' },
       particles: ['#FF2D55','#E8143C','#C70039','#8B0020'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:25, star:10, mult:8, feather:5, item:25, hammers:8, banana:3 },
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:25, star:10, mult:8, feather:7, item:28, hammers:9, banana:3 },
       desc: 'Stage 5+. 9 hits, 3x gold, tiny crystal banana chance',
     },
     {
@@ -99,7 +99,7 @@ const CONFIG = {
   //    Base amount is random in [min, max], then multiplied
   //    by 2 for silver eggs.
   // ----------------------------------------------------------
-  featherDropRange: [1, 2],   // base range (before silver 2x)
+  featherDropRange: [1, 3],   // base range (before silver 2x)
 
   // ----------------------------------------------------------
   // 6. MULTIPLIER VALUES
@@ -137,8 +137,8 @@ const CONFIG = {
   },
   featherStageMultiplier: 1.5,  // cost multiplied by this^(stageIndex) — stage1=1x, stage2=1.5x, stage3=2.25x...
 
-  // Gold given when you roll a duplicate item
-  duplicateGoldRange: [1, 5],   // [min, max]
+  // Gold given when you roll a duplicate item (keyed by rarity: 1=common, 2=uncommon, 3=rare)
+  duplicateGoldByRarity: { 1: [20, 60], 2: [80, 200], 3: [250, 600] },
 
   // ----------------------------------------------------------
   // 9. CRYSTAL BANANAS
@@ -169,7 +169,7 @@ const CONFIG = {
   //     When a multiplier is active and the prize type can't be
   //     multiplied directly (multipliers, items), give bonus gold.
   // ----------------------------------------------------------
-  multBonusGoldBase: 5,   // bonus gold = this x activeMult
+  multBonusGoldBase: 20,  // bonus gold = this x activeMult
 
   // ----------------------------------------------------------
   // 12. DAILY LOGIN
@@ -207,4 +207,11 @@ const CONFIG = {
     noHammers:  true,   // snarky no-hammer messages
     freeHit:    true,  // "Free hit! (Chef's Hat)"
   },
+
+  // ----------------------------------------------------------
+  // 16. SECRET EASTER EGG CHANCES
+  //     Probability per egg smash for random-trigger secrets.
+  // ----------------------------------------------------------
+  secretOuchChance:    0.0002,  // 1/5000 — egg says "ouch!"
+  secretChickenChance: 0.0005,  // 1/2000 — runaway chicken appears
 };

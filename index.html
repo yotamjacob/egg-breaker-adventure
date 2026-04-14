@@ -2,17 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:">
   <title>Egg Breaker Adventures</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#f5c542" />
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Egg Breaker" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+
+  <!-- Open Graph (sharing) -->
+  <meta property="og:title" content="Egg Breaker Adventures" />
+  <meta property="og:description" content="Smash eggs, win prizes, complete collections." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/icon-512.png" />
+  <meta property="og:url" content="https://egg-breaker-adventures.vercel.app/" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=4213" />
-  <link rel="stylesheet" href="play.css?v=4213" />
-  <link rel="stylesheet" href="tabs.css?v=4213" />
-  <link rel="stylesheet" href="components.css?v=4213" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🥚</text></svg>">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="play.css" />
+  <link rel="stylesheet" href="tabs.css" />
+  <link rel="stylesheet" href="components.css" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
 </head>
 <body>
   <div id="app">
@@ -22,13 +41,12 @@
       <div class="title-row">
         <div class="monkey-avatar" id="monkey-avatar">🐵</div>
         <div class="title-text">
-          <h1>Egg Breaker Adventures</h1>
           <p class="subtitle" id="monkey-subtitle">Mr. Monkey</p>
           <p class="hammer-row" id="hammer-row">🔨 <span id="res-h">40/40</span></p>
         </div>
-        <button class="god-btn hidden" id="god-btn" onclick="godMode()">GOD MODE</button>
-        <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="Toggle sound">🔊</button>
+        <button class="god-btn hidden" id="god-btn" onclick="godMode()">⚡</button>
       </div>
+      <button class="icon-btn" id="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
       <div class="resource-bar">
         <div class="res"><span>🪙</span><strong id="res-g">0</strong></div>
         <div class="res"><span>🍌</span><strong id="res-b">0</strong></div>
@@ -43,8 +61,8 @@
         <button class="nav-tab" data-tab="album">Album</button>
         <button class="nav-tab" data-tab="monkeys">Monkeys</button>
         <button class="nav-tab" data-tab="shop">Shop</button>
-        <button class="nav-tab" data-tab="stats">Stats</button>
-        <button class="nav-tab" data-tab="lexicon">Lexicon</button>
+        <button class="nav-tab locked" disabled>?</button>
+        <button class="nav-tab locked" disabled>?</button>
         <button class="nav-tab" data-tab="daily">Daily</button>
         <button class="nav-tab" data-tab="achieve">Trophies</button>
         <button class="nav-tab locked" disabled>?</button>
@@ -121,33 +139,11 @@
       <div class="shop-grid" id="shop-upgrades"></div>
     </section>
 
-    <!-- ===== STATS TAB ===== -->
-    <section class="tab-panel" id="panel-stats">
-      <h3 class="section-title">Overall Progress</h3>
-      <div class="overall-prog" id="overall-prog">
-        <div class="overall-header">
-          <span class="overall-pct" id="overall-pct">0%</span>
-        </div>
-        <div class="overall-track"><div class="overall-fill" id="overall-fill"></div></div>
-        <div class="overall-detail" id="overall-detail"></div>
-      </div>
-      <h3 class="section-title">Lifetime Stats</h3>
-      <div class="life-stats" id="life-stats"></div>
-      <h3 class="section-title">Save / Load</h3>
-      <div class="save-load-box">
-        <button class="save-load-btn" onclick="exportSave()">📤 Export Save</button>
-        <textarea id="save-export-str" class="save-str" readonly placeholder="Your save code will appear here..."></textarea>
-        <button class="save-load-btn save-load-import" onclick="importSave()">📥 Load Save</button>
-        <textarea id="save-import-str" class="save-str" placeholder="Paste save code here to import..."></textarea>
-      </div>
-      <button class="reset-btn" onclick="resetGame()">Reset All Progress</button>
-      <div class="version-tag" id="version-tag"></div>
-    </section>
+    <!-- ===== STATS TAB (locked — content in Settings) ===== -->
+    <section class="tab-panel" id="panel-stats"></section>
 
-    <!-- ===== LEXICON TAB ===== -->
-    <section class="tab-panel" id="panel-lexicon">
-      <div class="lex-content" id="lex-content"></div>
-    </section>
+    <!-- ===== LEXICON TAB (locked — content in Settings) ===== -->
+    <section class="tab-panel" id="panel-lexicon"></section>
 
     <!-- ===== DAILY TAB ===== -->
     <section class="tab-panel" id="panel-daily">
@@ -166,7 +162,7 @@
     </section>
 
     <!-- ===== POPUPS ===== -->
-    <div class="overlay hidden" id="overlay-item" onclick="if(event.target===this)closeOverlay('overlay-item')">
+    <div class="overlay hidden" id="overlay-item">
       <div class="popup pop-item">
         <div class="pop-icon" id="pop-item-icon"></div>
         <strong id="pop-item-name"></strong>
@@ -176,7 +172,7 @@
       </div>
     </div>
 
-    <div class="overlay hidden" id="overlay-stage" onclick="if(event.target===this)closeOverlay('overlay-stage')">
+    <div class="overlay hidden" id="overlay-stage">
       <div class="popup pop-stage">
         <div class="pop-icon">🎉</div>
         <strong id="pop-stage-title"></strong>
@@ -185,7 +181,7 @@
       </div>
     </div>
 
-    <div class="overlay hidden" id="overlay-levelup" onclick="if(event.target===this)closeOverlay('overlay-levelup')">
+    <div class="overlay hidden" id="overlay-levelup">
       <div class="popup pop-levelup">
         <div class="pop-icon spin">⭐</div>
         <strong id="pop-level-title"></strong>
@@ -194,7 +190,7 @@
       </div>
     </div>
 
-    <div class="overlay hidden" id="overlay-confirm" onclick="if(event.target===this)cancelConfirm()">
+    <div class="overlay hidden" id="overlay-confirm">
       <div class="popup pop-confirm">
         <div class="pop-icon" id="confirm-icon">🛒</div>
         <strong id="confirm-title"></strong>
@@ -216,6 +212,98 @@
         <div class="confirm-btns">
           <button class="pop-btn confirm-yes" id="tour-next">Next</button>
           <button class="pop-btn confirm-no" id="tour-skip">Skip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS MENU ===== -->
+    <div class="overlay hidden" id="overlay-settings" onclick="if(event.target===this)closeOverlay('overlay-settings')">
+      <div class="popup pop-settings">
+        <div class="settings-header">
+          <button class="settings-sound-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
+          <span class="settings-title-text">Settings</span>
+          <button class="settings-close" onclick="closeOverlay('overlay-settings')">✕</button>
+        </div>
+        <div class="settings-menu">
+          <button class="settings-menu-btn" onclick="openSubModal('overlay-progress',renderStats)">
+            <span class="btn-label">Overall Progress</span>
+          </button>
+          <button class="settings-menu-btn" onclick="openSubModal('overlay-lifestats',renderStats)">
+            <span class="btn-label">Lifetime Stats</span>
+          </button>
+          <button class="settings-menu-btn" onclick="openSubModal('overlay-saveload',null)">
+            <span class="btn-label">Save / Load</span>
+          </button>
+          <button class="settings-menu-btn" onclick="openSubModal('overlay-lexicon',renderLexicon)">
+            <span class="btn-label">Lexicon</span>
+          </button>
+          <button class="settings-menu-btn settings-danger-btn" onclick="resetGame()">
+            <span class="btn-label">Reset All Progress</span>
+          </button>
+        </div>
+        <div class="settings-version" id="version-tag"></div>
+      </div>
+    </div>
+
+    <!-- ===== OVERALL PROGRESS MODAL ===== -->
+    <div class="overlay hidden" id="overlay-progress" onclick="if(event.target===this){closeOverlay('overlay-progress');openSettings();}">
+      <div class="popup pop-submodal">
+        <div class="submodal-header">
+          <span class="submodal-title">Overall Progress</span>
+          <button class="submodal-close" onclick="closeOverlay('overlay-progress');openSettings()">✕</button>
+        </div>
+        <div class="submodal-body">
+          <div class="overall-prog" id="overall-prog">
+            <div class="overall-header">
+              <span class="overall-pct" id="overall-pct">0%</span>
+            </div>
+            <div class="overall-track"><div class="overall-fill" id="overall-fill"></div></div>
+            <div class="overall-detail" id="overall-detail"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LIFETIME STATS MODAL ===== -->
+    <div class="overlay hidden" id="overlay-lifestats" onclick="if(event.target===this){closeOverlay('overlay-lifestats');openSettings();}">
+      <div class="popup pop-submodal pop-submodal-fit">
+        <div class="submodal-header">
+          <span class="submodal-title">Lifetime Stats</span>
+          <button class="submodal-close" onclick="closeOverlay('overlay-lifestats');openSettings()">✕</button>
+        </div>
+        <div class="submodal-body flush">
+          <div class="life-stats" id="life-stats"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SAVE / LOAD MODAL ===== -->
+    <div class="overlay hidden" id="overlay-saveload" onclick="if(event.target===this){closeOverlay('overlay-saveload');openSettings();}">
+      <div class="popup pop-submodal">
+        <div class="submodal-header">
+          <span class="submodal-title">Save / Load</span>
+          <button class="submodal-close" onclick="closeOverlay('overlay-saveload');openSettings()">✕</button>
+        </div>
+        <div class="submodal-body flush">
+          <div class="save-load-box">
+            <button class="save-load-btn" onclick="exportSave()">Export Save</button>
+            <textarea id="save-export-str" class="save-str" readonly placeholder="Your save code will appear here..."></textarea>
+            <button class="save-load-btn save-load-import" onclick="importSave()">Load Save</button>
+            <textarea id="save-import-str" class="save-str" placeholder="Paste save code here to import..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LEXICON MODAL ===== -->
+    <div class="overlay hidden" id="overlay-lexicon" onclick="if(event.target===this){closeOverlay('overlay-lexicon');openSettings();}">
+      <div class="popup pop-submodal">
+        <div class="submodal-header">
+          <span class="submodal-title">Lexicon</span>
+          <button class="submodal-close" onclick="closeOverlay('overlay-lexicon');openSettings()">✕</button>
+        </div>
+        <div class="submodal-body">
+          <div class="lex-content" id="lex-content"></div>
         </div>
       </div>
     </div>
@@ -285,12 +373,19 @@
       if (typeof cancelBalloonInflate === 'function') cancelBalloonInflate(document.querySelector('.inflating'));
     }, { capture: true });
   </script>
-  <script src="config.js?v=4213"></script>
-  <script src="data.js?v=4213"></script>
-  <script src="audio.js?v=4213"></script>
-  <script src="particles.js?v=4213"></script>
-  <script src="hammers.js?v=4213"></script>
-  <script src="render.js?v=4213"></script>
-  <script src="game.js?v=4213"></script>
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="audio.js"></script>
+  <script src="particles.js"></script>
+  <script src="hammers.js"></script>
+  <script src="render.js"></script>
+  <script src="game.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

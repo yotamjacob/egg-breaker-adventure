@@ -43,7 +43,7 @@ body{
   background-attachment: fixed;
   color: var(--white);
   display:flex;justify-content:center;
-  padding:6px 6px 0;
+  padding: max(6px, env(safe-area-inset-top)) 6px env(safe-area-inset-bottom, 0px);
   height:100%;overflow:hidden;
   font-size:12px;
   line-height:1.7;
@@ -52,7 +52,7 @@ body{
 .tab-panel{overflow-y:auto;flex:1;min-height:0}
 
 /* ---------- Top bar ---------- */
-.top-bar{flex-shrink:0;
+.top-bar{flex-shrink:0;position:relative;
   background: linear-gradient(180deg, var(--panel2), var(--panel));
   border: 3px solid var(--border);
   box-shadow:
@@ -62,7 +62,7 @@ body{
   border-radius:2px;
   padding:8px 10px 6px;margin-bottom:4px;
 }
-.title-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.title-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;padding-right:56px}
 .monkey-avatar{
   width:44px;height:44px;font-size:28px;
   display:flex;align-items:center;justify-content:center;
@@ -86,24 +86,27 @@ body{
 .hammer-row.hexed{color:var(--red);animation:hex-pulse 1s steps(2) infinite}
 @keyframes hex-pulse{0%,100%{opacity:1}50%{opacity:.5}}
 .icon-btn{
-  margin-left:auto;background:var(--bg);border:2px solid var(--gray);
-  border-radius:2px;padding:4px 6px;cursor:pointer;font-size:16px;
+  position:absolute;top:8px;right:10px;
+  width:44px;height:44px;
+  background:var(--bg);border:2px solid var(--gray);
+  border-radius:2px;padding:0;cursor:pointer;font-size:20px;
   box-shadow: 2px 2px 0 var(--dark);
-  transition:transform .08s;flex-shrink:0;
+  transition:transform .08s;
+  display:flex;align-items:center;justify-content:center;
 }
 .icon-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dark)}
 .icon-btn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--dark)}
 
 .god-btn{
   background:var(--red);color:var(--white);border:2px solid #7f1d1d;
-  border-radius:2px;padding:4px 8px;font-size:11px;font-family:var(--px);
+  border-radius:2px;padding:4px 6px;font-size:16px;
   cursor:pointer;box-shadow:2px 2px 0 var(--dark);
-  transition:transform .08s;letter-spacing:1px;
+  transition:transform .08s;flex-shrink:0;
   animation:god-pulse 1s steps(2) infinite;
 }
 .god-btn:hover{transform:translate(-1px,-1px)}
 .god-btn:active{transform:translate(2px,2px);box-shadow:0 0 0 transparent}
-.god-btn.hidden{display:none}
+.god-btn.hidden{visibility:hidden}
 @keyframes god-pulse{0%,100%{box-shadow:2px 2px 0 var(--dark)}50%{box-shadow:2px 2px 0 var(--dark),0 0 8px rgba(231,76,60,.5)}}
 
 .resource-bar{display:flex;gap:4px}
@@ -197,14 +200,14 @@ body{
   .nav-tab{font-size:8px;padding:7px 1px}
   .title-text h1{font-size:10px}
   .egg-slot{width:65px;min-height:90px}
-  .egg-slot .egg-label{font-size:11px}
+  .egg-slot .egg-label{font-size:8px}
   .action-btn{font-size:11px;padding:8px 2px}
   .stage-name{font-size:11px}
   .popup{padding:12px 14px;max-width:260px}
   .popup strong{font-size:10px}
   .pop-icon{font-size:36px}
   .achieve-grid{grid-template-columns:1fr}
-  .life-stats{grid-template-columns:1fr}
+  .life-stats{font-size:9px}
   .daily-detail{margin-left:0}
 }
 

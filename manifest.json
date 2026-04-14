@@ -1,0 +1,70 @@
+{
+  "name": "Egg Breaker Adventures",
+  "short_name": "Egg Breaker",
+  "description": "Smash eggs, win prizes, complete collections. A retro egg-breaking adventure with monkeys, hammers, and hidden secrets.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a2e",
+  "theme_color": "#f5c542",
+  "lang": "en",
+  "categories": ["games"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192-maskable.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screen-mobile.png",
+      "type": "image/png",
+      "sizes": "780x1688",
+      "form_factor": "narrow",
+      "label": "Smash eggs and win prizes"
+    },
+    {
+      "src": "/screenshots/screen-album.png",
+      "type": "image/png",
+      "sizes": "780x1688",
+      "form_factor": "narrow",
+      "label": "Collect items across 9 stages"
+    },
+    {
+      "src": "/screenshots/screen-shop.png",
+      "type": "image/png",
+      "sizes": "780x1688",
+      "form_factor": "narrow",
+      "label": "Upgrade with special hammers and hats"
+    }
+  ]
+}

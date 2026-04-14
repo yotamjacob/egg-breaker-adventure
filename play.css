@@ -36,7 +36,7 @@
   background:repeating-linear-gradient(90deg,var(--green),var(--green) 4px,var(--green2) 4px,var(--green2) 8px);
 }
 .stage-footer{display:flex;justify-content:space-between;align-items:center}
-.stage-detail{font-size:11px;color:var(--gray)}
+.stage-detail{font-size:11px;color:#a8b8c8}
 
 /* ---------- Multiplier bar ---------- */
 .mult-bar{
@@ -47,8 +47,8 @@
   box-shadow: inset 1px 1px 0 var(--raised), 2px 2px 0 var(--dark);
   overflow:hidden;
 }
-.mult-label{color:var(--gray);flex-shrink:0;font-size:8px;text-align:center;line-height:1.4;width:50px}
-.mult-label strong{color:var(--purple);font-size:10px;display:block}
+.mult-label{color:#a8b8c8;flex-shrink:0;font-size:8px;text-align:center;line-height:1.4;width:50px}
+.mult-label strong{color:#c084fc;font-size:10px;display:block}
 .mult-queue{
   display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
   flex:1;
@@ -62,9 +62,9 @@
   overflow:hidden;
 }
 .starfall-box:disabled{cursor:default}
-.starfall-icon{font-size:18px}
-.starfall-count{font-size:10px}
-.starfall-hint{font-size:6px;color:var(--dark);opacity:.7;white-space:nowrap}
+.starfall-icon{font-size:18px;text-align:center}
+.starfall-count{font-size:10px;text-align:center}
+.starfall-hint{font-size:8px;color:#3a2a00;text-align:center;line-height:1.4}
 @keyframes pulse-star{0%,100%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark)}50%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark),0 0 10px rgba(245,197,66,.5)}}
 .mult-chip{
   background:var(--panel);border:2px solid var(--purple);border-radius:1px;
@@ -80,7 +80,7 @@
   background:var(--purple);color:var(--white);border-color:#c084fc;
   box-shadow:0 0 6px rgba(155,89,182,.5);
 }
-.mult-chip.muted{opacity:.3;cursor:default}
+.mult-chip.muted{opacity:.5;cursor:default;color:#7c5faa;border-color:#5a3d80}
 
 /* ---------- Egg tray ---------- */
 #panel-play{overflow:hidden}
@@ -91,6 +91,7 @@
   background:var(--bg2);
   border:3px solid var(--gold3);
   box-shadow: inset 3px 3px 0 var(--inset), 4px 4px 0 var(--dark);
+  touch-action:none;overscroll-behavior:none;
 }
 
 /* Egg tray — taps handled by document-level touchstart, not z-index */
@@ -149,7 +150,7 @@
 .egg-slot.balloon.inflating{animation:none !important;cursor:grabbing;transition:none !important}
 .balloon-rope{display:flex;flex-direction:column;align-items:center;pointer-events:none}
 .balloon-knot{width:8px;height:6px;background:var(--amber);border-radius:0 0 50% 50%;margin-top:-2px}
-.balloon-string{width:1px;height:18px;background:var(--gray);border-left:1px dashed var(--gray)}
+.balloon-string{display:block;overflow:visible}
 @keyframes balloon-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .chicken-run{
   position:absolute;bottom:20px;left:-40px;font-size:28px;
@@ -159,7 +160,7 @@
 .egg-slot.smashing{animation:egg-smash-retro .35s steps(6)}
 @keyframes runny-wobble{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 .egg-slot .egg-label{
-  font-size:10px;color:var(--gray);margin-top:1px;
+  font-size:8px;color:var(--gray);margin-top:1px;
   font-family:var(--px);text-transform:uppercase;letter-spacing:0.5px;
   text-align:center;width:100%;line-height:1.2;
 }
