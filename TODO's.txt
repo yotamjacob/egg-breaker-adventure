@@ -9,11 +9,6 @@ gavel - judge hammer
 famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 
 ---bugs and tech debt---
-verify daily works
-change daily claims to - longest daily streak ✓
-all daily gold rewards 10 times more ✓
-make common and uncommon items more rare ✓
-make mults more rare ✓
 
 ---performance and loading---
 [ ] delete simulate.js — dead code, not referenced anywhere (16KB)
