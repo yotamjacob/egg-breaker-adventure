@@ -10,6 +10,7 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 
 ---bugs and tech debt---
 verify daily works
+change daily claims to - longest daily streak
 
 ---mobile app store (android + ios)---
 
@@ -20,8 +21,8 @@ verify daily works
 [x] export/create 1024x1024 PNG app icon — icon-1024.png generated from icon-512.png
 
 ## android (play store)
-[ ] go to pwabuilder.com → enter Vercel URL → Package for Android → download .aab + get SHA256 fingerprint
-[ ] paste SHA256 fingerprint into .well-known/assetlinks.json (currently has REPLACE_WITH placeholder)
+[x] build Android .aab via bubblewrap CLI (android-build/app-release-bundle.aab)
+[x] paste SHA256 fingerprint into .well-known/assetlinks.json
 [ ] get IARC content rating at globalratings.com (free, required for Play Store)
 [ ] create Google Play Developer account at play.google.com/console ($25 one-time fee)
 [ ] prepare store listing: description, screenshots (at least 2 phone screenshots, 1 tablet), feature graphic 1024x500
