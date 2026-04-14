@@ -71,7 +71,9 @@ function saveGame() {
       return clean;
     });
   }
-  localStorage.setItem(SAVE_KEY, JSON.stringify(d));
+  const json = JSON.stringify(d);
+  const compressed = 'lz:' + LZString.compressToUTF16(json);
+  localStorage.setItem(SAVE_KEY, compressed);
 }
 
 function migrateSave(state) {
@@ -103,7 +105,9 @@ function loadGame() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return;
-    const d = JSON.parse(raw);
+    // Support both compressed (lz: prefix) and legacy plain JSON saves
+    const json = raw.startsWith('lz:') ? LZString.decompressFromUTF16(raw.slice(3)) : raw;
+    const d = JSON.parse(json);
     for (const k of Object.keys(DEFAULT_STATE)) {
       if (!Object.prototype.hasOwnProperty.call(DEFAULT_STATE, k)) continue;
       if (d[k] !== undefined && d[k] !== null && (DEFAULT_STATE[k] === null || typeof d[k] === typeof DEFAULT_STATE[k])) G[k] = d[k];
