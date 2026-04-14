@@ -1731,6 +1731,16 @@ function getDeviceId() {
 let _paypalReady = false;
 let _paypalLoading = false;
 
+function _appendPayPalScript(extraParams) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD' + (extraParams || '');
+    s.onload  = () => resolve();
+    s.onerror = () => { s.remove(); reject(); };
+    document.head.appendChild(s);
+  });
+}
+
 function loadPayPalSDK() {
   return new Promise((resolve, reject) => {
     if (_paypalReady) { resolve(); return; }
@@ -1739,11 +1749,11 @@ function loadPayPalSDK() {
       return;
     }
     _paypalLoading = true;
-    const s = document.createElement('script');
-    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD&enable-funding=googlepay';
-    s.onload  = () => { _paypalReady = true; _paypalLoading = false; resolve(); };
-    s.onerror = () => { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); };
-    document.head.appendChild(s);
+    // Try with Google Pay first, fall back to plain if sandbox rejects it
+    _appendPayPalScript('&enable-funding=googlepay')
+      .catch(() => _appendPayPalScript(''))
+      .then(() => { _paypalReady = true; _paypalLoading = false; resolve(); })
+      .catch(() => { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); });
   });
 }
 
