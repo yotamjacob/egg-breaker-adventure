@@ -2392,6 +2392,7 @@ function _applyCloudSave(saveData) {
     migrateSave(G);
     saveGame();
     renderAll();
+    MUSIC.play(curMonkey().id);
   } catch (e) {
     console.warn('[cloud] restore failed:', e);
   }
