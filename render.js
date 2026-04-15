@@ -378,6 +378,8 @@ function updateResources() {
   $id('res-g').textContent = formatNum(G.gold);
   $id('res-b').textContent = G.crystalBananas;
   $id('res-f').textContent = G.feathers;
+  if (G.crystalBananas > 0) $id('res-b-wrap').style.display = '';
+  if (G.totalFeathers > 0)  $id('res-f-wrap').style.display = '';
 
   // Hammer row with color + timer
   const hRow = $id('hammer-row');
