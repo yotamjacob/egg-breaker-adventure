@@ -11,6 +11,7 @@ const fs = require('fs');
 const JS_FILES = [
   'lz-string.min.js',
   'config.js',
+  'quotes.js',
   'data.js',
   'audio.js',
   'particles.js',
