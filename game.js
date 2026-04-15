@@ -1353,7 +1353,7 @@ function toggleAutoBuy() {
 let _snackTimeout = null;
 function showMultInfo() {
   showConfirm('✖️', 'How Multipliers Work',
-    'Tap a chip to select it. Selected mults ADD together — x2 + x3 = x5. The total applies to your next smash. Tip: save big mults for gold or crystal eggs!',
+    'Tap a chip to select it. Selected mults ADD together — x2 + x3 = x5. Applies to gold, stars, feathers and hammers.\n\nDoes NOT apply to: starfall, hexed eggs, or collection items (those give bonus gold instead).\n\nTip: save big mults for gold or crystal eggs!',
     null, 'Got it'
   );
 }

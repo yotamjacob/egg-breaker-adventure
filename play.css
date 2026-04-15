@@ -47,7 +47,8 @@
   box-shadow: inset 1px 1px 0 var(--raised), 2px 2px 0 var(--dark);
   overflow:hidden;
 }
-.mult-label{color:var(--gray);flex-shrink:0;font-size:8px;text-align:center;line-height:1.4;width:50px}
+.mult-label{color:var(--gray);flex-shrink:0;font-size:8px;text-align:center;line-height:1.4;width:56px}
+.mult-label-row{display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}
 .mult-label strong{color:var(--purple);font-size:10px;display:block}
 .mult-info-btn{
   display:inline-flex;align-items:center;justify-content:center;
