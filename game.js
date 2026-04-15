@@ -51,6 +51,7 @@ const DEFAULT_STATE = {
   // Cloud save
   _savedAt: 0,
   _cloudSavedAt: 0,
+  cloudAutoSave: false,
 };
 
 let G = {};
@@ -325,7 +326,7 @@ function newRound() {
     } else {
       if (mrStage >= 1 && Math.random() < 0.05) effects.push('runny');  // Stage 2
       if (mrStage >= 2 && Math.random() < 0.05 && ['normal','silver','gold','crystal'].includes(type)) effects.push('timer'); // Stage 3
-      if (mrStage >= 3 && Math.random() < 0.03) effects.push('hex');  // Stage 4+
+      if (mrStage >= 3 && Math.random() < 0.03 && type !== 'ruby') effects.push('hex');  // Stage 4+ (ruby immune)
     }
     eggs.push({ type, hp, maxHp: hp, broken: false, effects, timer: effects.includes('timer') ? 3.0 : 0 });
     // Discover new egg type
@@ -644,8 +645,12 @@ function popBalloonEgg(index, slot) {
   slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + eggLabel(egg.type, 0, egg.maxHp, true);
 
   setTimeout(() => {
-    applyPrize(prize, cx, cy);
-    if (egg.effects && egg.effects.includes('hex')) applyHex(cx, cy);
+    // Hexed eggs: only the curse fires, no prize reward
+    if (egg.effects && egg.effects.includes('hex')) {
+      applyHex(cx, cy);
+    } else {
+      applyPrize(prize, cx, cy);
+    }
     if (G.activeMult > 1) { consumeMultiplier(); }
     renderMultQueue();
     updateStarBtn();
@@ -813,11 +818,11 @@ function smashEgg(index) {
 
   // Apply prize after short delay
   setTimeout(() => {
-    applyPrize(prize, cx, cy);
-
-    // Apply hex effect if present
+    // Hexed eggs: only the curse fires, no prize reward
     if (egg.effects && egg.effects.includes('hex')) {
       applyHex(cx, cy);
+    } else {
+      applyPrize(prize, cx, cy);
     }
 
     // Update egg visual to fully broken
@@ -1664,7 +1669,7 @@ function showAchieveToast(a) {
   toastTimeout = setTimeout(() => {
     t.classList.remove('show');
     setTimeout(() => t.classList.add('hidden'), 400);
-  }, 5000);
+  }, 4000);
 }
 
 // ==================== SOUND ====================
@@ -2118,6 +2123,7 @@ if (!G.roundEggs || G.roundEggs.length === 0) newRound();
 
 renderAll();
 initCloudSave();
+_startCloudAutoSave();
 
 $id('version-tag').textContent = 'Egg Breaker Adventures v' + VERSION;
 
@@ -2214,6 +2220,7 @@ function _renderCloudModal() {
   const saveBtn  = $id('cloud-save-action-btn');
   const loadBtn  = $id('cloud-load-action-btn');
   const tsEl     = $id('cloud-timestamp');
+  const cbEl     = $id('cloud-autosave-cb');
   if (!linkBtn) return;
   if (linked) {
     linkBtn.classList.add('cloud-link-linked');
@@ -2227,6 +2234,32 @@ function _renderCloudModal() {
   tsEl.textContent = G._cloudSavedAt
     ? 'Last cloud save: ' + _timeAgo(G._cloudSavedAt)
     : 'Last cloud save: never';
+  if (cbEl) {
+    cbEl.checked  = !!G.cloudAutoSave;
+    cbEl.disabled = !linked;
+    cbEl.closest('.cloud-autosave-row').classList.toggle('disabled', !linked);
+  }
+}
+
+function _startCloudAutoSave() {
+  _stopCloudAutoSave();
+  if (!G.cloudAutoSave || !_sbClient || !_cloudUser) return;
+  _cloudSyncTimer = setInterval(async () => {
+    await _syncToCloud();
+    msg('☁️ Auto-saved to cloud');
+  }, 15 * 60 * 1000);
+}
+
+function _stopCloudAutoSave() {
+  if (_cloudSyncTimer) { clearInterval(_cloudSyncTimer); _cloudSyncTimer = null; }
+}
+
+function toggleCloudAutoSave(checked) {
+  if (!_sbClient || !_cloudUser) { G.cloudAutoSave = false; _renderCloudModal(); return; }
+  G.cloudAutoSave = checked;
+  if (checked) _startCloudAutoSave(); else _stopCloudAutoSave();
+  saveGame();
+  _renderCloudModal();
 }
 
 function linkGoogleAccount() {
@@ -2236,6 +2269,7 @@ function linkGoogleAccount() {
       _sbClient.auth.signOut().then(() => {
         track('cloud-save', { action: 'unlink' });
         _cloudUser = null;
+        _stopCloudAutoSave();
         _renderCloudModal();
         showShopSnack('Google account unlinked.');
       });
@@ -2251,7 +2285,8 @@ function linkGoogleAccount() {
 async function _onCloudSignIn() {
   if (!_sbClient || !_cloudUser) return;
   track('cloud-save', { action: 'link' });
-  showShopSnack('☁️ Google account linked! Open Settings → Cloud Save to sync.');
+  showShopSnack('☁️ Google account linked!');
+  _startCloudAutoSave();
   _renderCloudModal();
 }
 
