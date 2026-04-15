@@ -1434,7 +1434,7 @@ function doBuyShopItem(category, id) {
     const item = SHOP_HATS.find(h => h.id === id);
     if (!item || item.cost === 0) return;
     if (G.ownedHats.includes(id)) {
-      if (G.hat === id) return; // already equipped
+      if (G.hat === id) { G.hat = 'none'; invalidateBonusCache(); renderAll(); saveGame(); showShopSnack(item.name + ' removed!'); return; }
       G.hat = id;
       invalidateBonusCache();
       renderAll();
