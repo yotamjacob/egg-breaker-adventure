@@ -1278,14 +1278,7 @@ function calcTotalCollections() {
   return count;
 }
 
-function showItemPopup(prize) {
-  $id('pop-item-icon').textContent = prize.emoji;
-  $id('pop-item-name').textContent = prize.name;
-  $id('pop-item-quote').textContent = prize.quote || '';
-  $id('overlay-item').classList.remove('hidden');
-}
-
-// ── Item toast (non-intrusive, replaces popup for now) ──
+// ── Item toast ──
 const _itemToastQueue = [];
 let   _itemToastActive = false;
 
@@ -1317,7 +1310,7 @@ function _nextItemToast() {
   setTimeout(() => {
     el.classList.add('out');
     setTimeout(() => { el.remove(); _nextItemToast(); }, 350);
-  }, 2500);
+  }, 3500);
 }
 
 function showStagePopup(title, detail) {

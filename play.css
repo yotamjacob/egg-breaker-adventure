@@ -305,7 +305,7 @@
 .item-toast{
   position:absolute;top:8px;left:8px;right:8px;
   display:flex;align-items:center;gap:10px;
-  background:rgba(10,8,20,.88);border:1px solid var(--gold3);border-radius:3px;
+  background:rgba(60,35,10,.72);border:1px solid var(--gold3);border-radius:3px;backdrop-filter:blur(4px);
   padding:8px 12px;z-index:50;pointer-events:none;
   animation:toast-in .3s ease forwards;
 }
