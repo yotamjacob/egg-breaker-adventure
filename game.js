@@ -338,11 +338,13 @@ function curStage() { return curMonkey().stages[curActiveStage()]; }
 // ==================== ROUND MANAGEMENT ====================
 let _roundPending  = false;
 let _spawningRound = false;
+let _centuryCooldown = 0; // rounds remaining before century can spawn again
 
 function newRound() {
   _roundPending  = false;
   _spawningRound = true;
   setTimeout(() => { _spawningRound = false; updateStarBtn(); }, 250);
+  if (_centuryCooldown > 0) _centuryCooldown--;
   const prog = curProgress();
   const stage = curStage();
   const count = stage.eggs;
@@ -351,9 +353,10 @@ function newRound() {
   // Build available egg types for this stage from registry
   const available = [];
   for (const def of CONFIG.eggTypes) {
-    // Special unlock: century requires Mr. Monkey completed
+    // Special unlock: century requires Mr. Monkey completed + cooldown elapsed
     if (def.unlockMonkey0) {
       if (!G.monkeys || !G.monkeys[0] || !G.monkeys[0].completed) continue;
+      if (_centuryCooldown > 0) continue;
     } else if (def.unlockStage > si) {
       continue;
     }
@@ -393,6 +396,8 @@ function newRound() {
     }
   }
   G.roundEggs = eggs;
+  // Start cooldown if a century egg was rolled this round
+  if (eggs.some(e => e.type === 'century')) _centuryCooldown = 100;
   renderEggTray();
   updateResources();
   saveGame();
