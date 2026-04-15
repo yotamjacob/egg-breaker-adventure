@@ -2136,13 +2136,13 @@ function initCloudSave() {
   });
   _sbClient.auth.onAuthStateChange(async (event, session) => {
     _cloudUser = session ? session.user : null;
-    _updateCloudSaveBtn();
+    _renderCloudModal();
     if (event === 'SIGNED_IN') await _onCloudSignIn();
   });
   // Restore session on page load (handles OAuth redirect-back)
   _sbClient.auth.getSession().then(({ data }) => {
     _cloudUser = data.session ? data.session.user : null;
-    _updateCloudSaveBtn();
+    _renderCloudModal();
   });
 }
 
