@@ -206,11 +206,12 @@ function startRunnyDrift(runnySlots, trayW, trayH) {
   // Speed scales with progress: base 0.6, +0.05 per completed stage
   const speed = 0.6 + (G.stagesCompleted || 0) * 0.05;
 
-  // Switch from left/top (layout) to transform:translate (GPU compositing — no layout recalc)
+  // Use CSS standalone `translate` property (separate from `transform`) so the
+  // runny-wobble animation's `rotate` property never conflicts with movement.
   for (const r of runnySlots) {
     r.slot.style.left = '0';
     r.slot.style.top = '0';
-    r.slot.style.transform = 'translate(' + r.x + 'px,' + r.y + 'px)';
+    r.slot.style.translate = r.x + 'px ' + r.y + 'px';
   }
 
   function tick() {
@@ -236,8 +237,7 @@ function startRunnyDrift(runnySlots, trayW, trayH) {
       const len = Math.sqrt(r.vx * r.vx + r.vy * r.vy);
       if (len > 0) { r.vx /= len; r.vy /= len; }
 
-      // GPU-composited transform — avoids layout recalculation each frame
-      r.slot.style.transform = 'translate(' + r.x + 'px,' + r.y + 'px)';
+      r.slot.style.translate = r.x + 'px ' + r.y + 'px';
     }
     if (anyAlive) _runnyRAF = requestAnimationFrame(tick);
     else _runnyRAF = null;
