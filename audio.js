@@ -72,7 +72,7 @@ const MUSIC = (() => {
   };
 
   // Per-track volume overrides (multiplier relative to VOLUME)
-  const TRACK_VOL = { space: 0.765 };  // Space Cadet is louder — reduce 23.5% total
+  const TRACK_VOL = { space: 0.650 };  // Space Cadet is louder — reduce ~35% total
 
   let audio      = null;
   let on         = true;
