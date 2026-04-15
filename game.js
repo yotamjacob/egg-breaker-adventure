@@ -48,6 +48,7 @@ const DEFAULT_STATE = {
   // Secrets
   _secretFlip: false, _secretOuch: false, _secretChicken: false, _secretStrikes: false,
   _secret42: false, _secretMidnight: false, _secretLeet: false, _secretChef: false, _secretOmelette: false,
+  _midnightToday: null,
   // Cloud save
   _savedAt: 0,
   _cloudSavedAt: 0,
@@ -879,7 +880,7 @@ function applyPrize(prize, cx, cy) {
       msg(eq, 'prizes');
     } else {
       spawnFloat(zone, prize.label, '#d97706', cls, cx, cy);
-      msg(prize.label);
+      msg(prize.label, 'prizes');
     }
     SFX.play('coin');
     if (prize.value >= 200) Particles.sparkle(cx, cy, 12, '#FFD700');
@@ -894,7 +895,7 @@ function applyPrize(prize, cx, cy) {
       msg(eq, 'prizes');
     } else {
       spawnFloat(zone, prize.label, '#f59e0b', 'big', cx, cy);
-      msg(prize.label);
+      msg(prize.label, 'prizes');
     }
     SFX.play('star');
     Particles.sparkle(cx, cy, 10, '#FCD34D');
@@ -927,7 +928,7 @@ function applyPrize(prize, cx, cy) {
       msg(eq, 'prizes');
     } else {
       spawnFloat(zone, prize.label, '#059669', '', cx, cy);
-      msg(prize.label);
+      msg(prize.label, 'prizes');
     }
     SFX.play('coin');
   }
@@ -940,7 +941,7 @@ function applyPrize(prize, cx, cy) {
       msg(eq, 'prizes');
     } else {
       spawnFloat(zone, prize.label, '#b45309', 'big', cx, cy);
-      msg(prize.label);
+      msg(prize.label, 'prizes');
     }
     SFX.play('coin');
   }
@@ -1332,7 +1333,7 @@ function unlockMonkey(index) {
   invalidateBonusCache();
   track('monkey-unlock', { monkey: MONKEY_DATA[index].name });
   SFX.play('levelup');
-  msg(MONKEY_DATA[index].name + ' unlocked!', '#16a34a');
+  msg(MONKEY_DATA[index].name + ' unlocked!', 'discovery');
   checkAchievements();
   renderMonkeys();
   updateResources();
@@ -2053,7 +2054,7 @@ document.addEventListener('keydown', (e) => {
 
 function godMode() {
   G.hammers = G.maxH;
-  msg('Hammers refilled!', '#e74c3c');
+  msg('Hammers refilled!');
   SFX.play('tier');
   updateResources();
   saveGame();

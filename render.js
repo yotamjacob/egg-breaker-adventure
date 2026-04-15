@@ -547,10 +547,7 @@ function featherCost(rarity, stageIdx) {
   return Math.round(base * Math.pow(C.featherStageMultiplier, overallProgress));
 }
 
-let _albumStageIdx = 0; // track which stage the album is viewing
-
 function renderAlbumStage(stageIdx) {
-  _albumStageIdx = stageIdx;
   const monkey = curMonkey();
   const prog = curProgress();
   const stage = monkey.stages[stageIdx];

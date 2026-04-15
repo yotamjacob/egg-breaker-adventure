@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.15';
+const VERSION = '1.8.16';
 
 const CONFIG = {
 
@@ -195,7 +195,7 @@ const CONFIG = {
   //     Set to false to hide that category from the log.
   // ----------------------------------------------------------
   logShow: {
-    prizes:     true,   // gold, stars, feathers, hammers, mults, empties
+    prizes:     true,   // gold, stars, feathers, hammers, mults (empties use 'empty' cat)
     items:      true,   // new collection items found
     duplicates: true,  // duplicate item messages
     trophies:   true,   // trophy unlocked
