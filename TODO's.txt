@@ -6,32 +6,16 @@ go over quotes and improve them manually
 gavel - judge hammer
 famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 
-1. balloon rewards, and any other special egg that has base multiplied rewards, when activated with mult - should be additive rewards. so if i pop a balloon with 2 chips of x3 active, the rewards will be 16 times more, not 60 times more
-2. century egg rewards should be base mult by 100
-3. reduce music by 10% volume
-4. no need to show google saves on log
-5. all music should have a few seconds fade out and fade in
-6. cloud save - add a checkbox - 'auto save every 15 minutes'
-7. ruby eggs can't be hexed; hexed eggs give only negative effects, no rewards
-8. trophy popup disappears 1 second quicker
-9. make all items a bit more rare
-10. bat hammer icon — make it slightly grey so it's more visible on dark backgrounds
-11. Mjolnir → 250k gold (it unlocks Odin); Cucumber → 200k gold
-12. Space Cadet music track is too loud — reduce its volume separately
-13. music should stop/pause when app is minimized
-
 ---bugs and tech debt---
-[ ] set up Playwright MCP server for Claude Code — enables live browser interaction, screenshot testing, UI debugging
-    install: claude mcp add playwright npx @playwright/mcp@latest
 
 ---solo dev / scale readiness---
-[ ] (future) cloud save — Supabase free tier, optional login — localStorage lost if user clears app data
-- review security stuff again
-- mayeb a cleanu?
 - try to guess what will be the ap prating? how can i increase it? what is the main pain points for users?
 
 ## android (play store)
-[ ] get IARC content rating at globalratings.com (free, required for Play Store)
-[ ] create Google Play Developer account at play.google.com/console ($25 one-time fee)
+[x] get IARC content rating at globalratings.com (free, required for Play Store)
+[x] create Google Play Developer account at play.google.com/console ($25 one-time fee)
+[ ] fill out data safety form in Play Console (Google OAuth, purchases, Umami, GlitchTip)
+[ ] recruit 12 closed testers + run 14-day closed test (required before production access)
+[ ] (future) implement Play Integrity API — complex for TWA; Digital Asset Links + server-side PayPal already cover the main risk. Revisit when revenue justifies it.
 [ ] prepare store listing: description, screenshots (at least 2 phone screenshots, 1 tablet), feature graphic 1024x500
 [ ] submit .aab to Play Store

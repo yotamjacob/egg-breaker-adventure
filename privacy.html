@@ -56,6 +56,14 @@
     }
     ul { padding-left: 1.5rem; }
     a { color: var(--gold); }
+    .notice {
+      background: rgba(245,197,66,.08);
+      border: 1px solid rgba(245,197,66,.25);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .notice p { margin-bottom: 0; }
     footer {
       margin-top: 3rem;
       padding-top: 1.5rem;
@@ -86,34 +94,66 @@
       <p>Privacy Policy &nbsp;·&nbsp; Last updated: April 2026</p>
     </header>
 
+    <h2>Fan Tribute Disclaimer</h2>
+    <div class="notice">
+      <p>
+        Egg Breaker Adventures is an independent fan tribute inspired by the original
+        Egg Breaker game (2008–2016). It is not affiliated with, endorsed by, sponsored
+        by, or connected in any way to the original developers or rights holders.
+        All code, artwork, and game design in this version are original work created
+        by the fan developer. Attempts have been made to contact the original creators
+        to ensure this tribute is respectful of their work.
+      </p>
+    </div>
+
     <h2>Overview</h2>
     <p>
-      Egg Breaker Adventures is a free browser-based game. We take privacy seriously
-      and have designed the game to collect as little data as possible.
+      Egg Breaker Adventures is a free browser-based game available on web and Android.
+      This policy explains what data is collected, how it is used, and what third-party
+      services are involved.
     </p>
 
-    <h2>Data We Collect</h2>
+    <h2>Game Progress (Local Storage)</h2>
     <p>
-      <strong>We do not collect any personal information.</strong> Specifically:
+      Your game progress — gold, collection items, achievements, and settings — is saved
+      on your device using your browser's <strong>localStorage</strong>. This data stays
+      on your device unless you choose to enable Cloud Save.
     </p>
-    <ul>
-      <li>No account registration is required.</li>
-      <li>No name, email address, or contact information is collected.</li>
-      <li>No location data is collected.</li>
-      <li>No advertising identifiers are used.</li>
-      <li>No analytics or tracking scripts are embedded.</li>
-    </ul>
 
-    <h2>Local Storage</h2>
+    <h2>Cloud Save (Optional)</h2>
     <p>
-      Your game progress (gold, collection items, achievements, settings) is saved
-      entirely on your own device using your browser's
-      <strong>localStorage</strong>. This data never leaves your device and is
-      never transmitted to any server.
+      If you choose to enable Cloud Save, you will be asked to sign in with a Google
+      account. This uses <strong>Google OAuth</strong> via
+      <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Supabase</a>,
+      a third-party backend service. Your game save data is stored securely on Supabase
+      servers and is associated with your Google account. You can unlink your account
+      or delete your cloud save at any time from within the game settings.
+      Cloud Save is entirely optional.
     </p>
+
+    <h2>Payments</h2>
     <p>
-      You can export, import, or delete your save at any time via the
-      <em>Settings → Save / Load</em> menu within the game.
+      Optional in-app purchases are processed through
+      <a href="https://www.paypal.com/us/legalhub/privacy-full" target="_blank" rel="noopener">PayPal</a>.
+      No payment card details are collected or stored by this app. Purchase records
+      (product ID, amount, status) are stored on Supabase servers to verify and
+      restore purchases. This app does not store your PayPal credentials.
+    </p>
+
+    <h2>Analytics</h2>
+    <p>
+      This app uses <a href="https://umami.is/privacy" target="_blank" rel="noopener">Umami</a>,
+      a privacy-focused analytics service. Umami does not use cookies, does not track
+      users across sites, and does not collect personally identifiable information.
+      It records anonymous events such as game actions to help improve the game.
+    </p>
+
+    <h2>Error Tracking</h2>
+    <p>
+      This app uses <a href="https://glitchtip.com" target="_blank" rel="noopener">GlitchTip</a>
+      for crash and error reporting. When an error occurs, basic technical information
+      (error message, stack trace, browser type, app version) is sent to GlitchTip
+      servers. No personal data is included in these reports.
     </p>
 
     <h2>Service Worker &amp; Offline Caching</h2>
@@ -123,20 +163,19 @@
       is included in this cache.
     </p>
 
-    <h2>Third-Party Services</h2>
-    <p>
-      The game loads the <strong>Press Start 2P</strong> font from
-      <a href="https://fonts.google.com" target="_blank" rel="noopener">Google Fonts</a>.
-      This is a standard web font request and is subject to
-      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.
-      No other third-party services are used.
-    </p>
-
     <h2>Children's Privacy</h2>
     <p>
-      Egg Breaker Adventures does not knowingly collect any information from
-      children under the age of 13. Because no personal data is collected from
-      any user, the game is suitable for all ages.
+      This app does not knowingly collect personal information from children under
+      the age of 13. The optional Cloud Save and payment features require a Google
+      account or PayPal account, which have their own age requirements.
+    </p>
+
+    <h2>Data Deletion</h2>
+    <p>
+      To delete your local save data, use <em>Settings → Reset All Progress</em>
+      within the game. To delete your cloud save, unlink your Google account from
+      within <em>Settings → Cloud Save</em>. To request deletion of purchase records,
+      contact us at the address below.
     </p>
 
     <h2>Changes to This Policy</h2>
@@ -147,12 +186,12 @@
 
     <h2>Contact</h2>
     <p>
-      Questions about this privacy policy can be directed to the developer via
-      the game's support page or the app store listing.
+      Questions about this privacy policy can be directed to:
+      <a href="mailto:yotam@exacti.us">yotam@exacti.us</a>
     </p>
 
     <footer>
-      &copy; 2026 Egg Breaker Adventures. All rights reserved.
+      &copy; 2026 Egg Breaker Adventures. Fan tribute. Not affiliated with the original developers.
     </footer>
   </div>
 </body>
