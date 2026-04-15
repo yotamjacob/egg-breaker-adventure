@@ -335,10 +335,13 @@ function curActiveStage() { return curProgress().activeStage !== undefined ? cur
 function curStage() { return curMonkey().stages[curActiveStage()]; }
 
 // ==================== ROUND MANAGEMENT ====================
-let _roundPending = false;
+let _roundPending  = false;
+let _spawningRound = false;
 
 function newRound() {
-  _roundPending = false;
+  _roundPending  = false;
+  _spawningRound = true;
+  setTimeout(() => { _spawningRound = false; updateStarBtn(); }, 600);
   const prog = curProgress();
   const stage = curStage();
   const count = stage.eggs;
@@ -1100,7 +1103,7 @@ function applyHex(cx, cy) {
 
 let _starfallActive = false;
 function useStarfall() {
-  if (_starfallActive) return;
+  if (_starfallActive || _spawningRound) return;
   if (!isStarfallUnlocked()) return;
   const cost = starfallCost();
   if (G.starPieces < cost || !G.roundEggs) return;

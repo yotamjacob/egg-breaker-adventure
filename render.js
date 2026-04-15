@@ -367,7 +367,7 @@ function updateStarBtn() {
   }
   $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '⭐';
   $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '⭐';
-  const ready = G.starPieces >= need && G.roundEggs && !G.roundEggs.every(e => e.broken || e.expired);
+  const ready = G.starPieces >= need && G.roundEggs && !G.roundEggs.every(e => e.broken || e.expired) && !_spawningRound;
   btn.disabled = !ready;
   $id('star-count').textContent = G.starPieces + ' / ' + need;
   $id('star-hint').textContent = ready ? 'Tap!' : '';
