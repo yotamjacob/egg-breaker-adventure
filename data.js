@@ -928,7 +928,7 @@ const ACHIEVEMENT_DATA = [
   { id:'timer_1',      name:'Just In Time',        desc:'Smash a timed egg',              icon:'⏱️', reward:{type:'gold',val:100,      label:'+100 gold'} },
   { id:'timer_25',     name:'Beat The Clock',      desc:'Smash 25 timed eggs',            icon:'⏰', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
   { id:'timer_100',    name:'Time Lord',           desc:'Smash 100 timed eggs',           icon:'🕐', reward:{type:'goldPct',val:3,     label:'+3% gold from eggs'} },
-  { id:'timer_close',  name:'Living Dangerously',  desc:'Smash a timed egg at 0:05',      icon:'💀', reward:{type:'gold',val:777,      label:'+777 gold'} },
+  { id:'timer_close',  name:'Living Dangerously',  desc:'Smash a timed egg with under 0.1s left', icon:'💀', reward:{type:'gold',val:777,      label:'+777 gold'} },
   { id:'missed_1',     name:'Too Slow',            desc:'Let a timed egg expire',         icon:'🐌', reward:{type:'gold',val:50,       label:'+50 gold'} },
   { id:'missed_10',    name:'Butterfingers',       desc:'Let 10 timed eggs expire',       icon:'🧈', reward:{type:'gold',val:200,      label:'+200 gold'} },
   { id:'combo_effect', name:'Double Trouble',      desc:'Smash a runny timed egg',        icon:'🤯', reward:{type:'gold',val:500,      label:'+500 gold'} },

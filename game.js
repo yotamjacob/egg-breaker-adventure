@@ -791,7 +791,7 @@ function smashEgg(index) {
   if (egg.effects && egg.effects.includes('runny')) G.runnySmashed = (G.runnySmashed || 0) + 1;
   if (egg.effects && egg.effects.includes('timer')) {
     G.timerSmashed = (G.timerSmashed || 0) + 1;
-    if (egg.timer > 0 && formatTimer(egg.timer) <= '0:05') G.timerCloseCall = (G.timerCloseCall || 0) + 1;
+    if (egg.timer > 0 && egg.timer < 0.1) G.timerCloseCall = (G.timerCloseCall || 0) + 1;
   }
   if (egg.effects && egg.effects.includes('runny') && egg.effects.includes('timer')) G.comboSmashed = (G.comboSmashed || 0) + 1;
 
