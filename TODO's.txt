@@ -9,15 +9,12 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 ---bugs and tech debt---
 
 ---solo dev / scale readiness---
-- try to guess what will be the ap prating? how can i increase it? what is the main pain points for users?
+
+PayPal checkout — users expect Google Play billing for in-app purchases. Seeing a PayPal popup inside an Android app feels suspicious to many users. This is probably your biggest risk for "feels like a scam" 1-star reviews.
+
+Achievement spam — if users get too many achievement popups early on, it can feel noisy. Worth checking how many fire in the first 10 minutes.
 
 ## android (play store)
-[x] get IARC content rating at globalratings.com (free, required for Play Store)
-[x] create Google Play Developer account at play.google.com/console ($25 one-time fee)
-[x] fill out data safety form in Play Console (Google OAuth, purchases, Umami, GlitchTip)
-[x] prepare store listing: description, screenshots, feature graphic 1024x500, icon
-[x] submit .aab to Play Store (v1.8.19, version code 3)
-[x] store listing sent for review
 [ ] wait for listing approval (1-3 days) → post Facebook tester recruitment post (Hebrew draft ready)
 [ ] recruit 12 closed testers + run 14-day closed test (required before production access)
 [ ] apply for production access → go live

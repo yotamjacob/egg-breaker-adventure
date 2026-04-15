@@ -2153,6 +2153,7 @@ if (!G.roundEggs || G.roundEggs.length === 0) newRound();
 renderAll();
 initCloudSave();
 _startCloudAutoSave();
+_initNotifBtn();
 
 $id('version-tag').textContent = 'Egg Breaker Adventures v' + VERSION;
 
@@ -2375,8 +2376,20 @@ async function _syncToCloud() {
     }
     const json = JSON.stringify(d);
     const compressed = 'lz:' + LZString.compressToUTF16(json);
+    // Calculate when hammers will be full (for push notification scheduling)
+    const regenSec    = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+    const secsToFull  = G.hammers < G.maxH ? (G.maxH - G.hammers) * regenSec : 0;
+    const hammersFullAt = secsToFull > 0
+      ? new Date(Date.now() + secsToFull * 1000).toISOString()
+      : null;
     await _sbClient.from('game_saves').upsert(
-      { user_id: _cloudUser.id, save_data: compressed, saved_at: new Date(G._savedAt).toISOString() },
+      {
+        user_id:         _cloudUser.id,
+        save_data:       compressed,
+        saved_at:        new Date(G._savedAt).toISOString(),
+        last_seen_at:    new Date().toISOString(),
+        hammers_full_at: hammersFullAt,
+      },
       { onConflict: 'user_id' }
     );
     G._cloudSavedAt = G._savedAt;
@@ -2416,4 +2429,77 @@ function _timeAgo(ms) {
   const h = Math.floor(m / 60);
   if (h < 24) return h + 'h ago';
   return Math.floor(h / 24) + 'd ago';
+}
+
+// ==================== PUSH NOTIFICATIONS ====================
+const _VAPID_PUBLIC = 'BGdua8JjkIIkYoN5DKeIWLl9ic0s_W9iPyBopA00Smqr1n_4X7ikxQ5PnK9aasLwnFtqyF243nRS256KeY-aYEw';
+
+function _urlBase64ToUint8Array(b64) {
+  const padding = '='.repeat((4 - (b64.length % 4)) % 4);
+  const base64  = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw     = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function toggleNotifications() {
+  const label = $id('notif-toggle-label');
+
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    msg('Push notifications are not supported on this browser.');
+    return;
+  }
+
+  // Already subscribed — unsubscribe
+  if (localStorage.getItem('eba_push_sub')) {
+    try {
+      const sw  = await navigator.serviceWorker.ready;
+      const sub = await sw.pushManager.getSubscription();
+      if (sub) await sub.unsubscribe();
+    } catch (_) {}
+    localStorage.removeItem('eba_push_sub');
+    label.textContent = 'Notifications: Off';
+    return;
+  }
+
+  // Request permission
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') {
+    msg('Notification permission denied.');
+    return;
+  }
+
+  try {
+    const sw  = await navigator.serviceWorker.ready;
+    const sub = await sw.pushManager.subscribe({
+      userVisibleOnly:      true,
+      applicationServerKey: _urlBase64ToUint8Array(_VAPID_PUBLIC),
+    });
+    await fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
+      body:    JSON.stringify({ device_id: getDeviceId(), subscription: sub.toJSON() }),
+    });
+    localStorage.setItem('eba_push_sub', '1');
+    label.textContent = 'Notifications: On';
+  } catch (e) {
+    console.warn('[push] subscribe failed', e);
+    msg('Could not enable notifications. Try again.');
+  }
+}
+
+function _initNotifBtn() {
+  const btn   = $id('notif-toggle-btn');
+  const label = $id('notif-toggle-label');
+  if (!btn || !label) return;
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    btn.style.display = 'none';
+    return;
+  }
+  const hasSub = localStorage.getItem('eba_push_sub');
+  if (hasSub && Notification.permission === 'granted') {
+    label.textContent = 'Notifications: On';
+  } else {
+    if (hasSub) localStorage.removeItem('eba_push_sub'); // permission was revoked
+    label.textContent = 'Notifications: Off';
+  }
 }

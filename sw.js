@@ -3,7 +3,7 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '1.8.28';
+const CACHE_VERSION = '1.8.29';
 const CACHE_NAME    = 'eba-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
@@ -78,3 +78,31 @@ self.addEventListener('fetch', event => {
     );
   }
 });
+
+// Push notifications
+self.addEventListener('push', event => {
+  let data = { title: 'Egg Breaker Adventure Revival', body: 'Tap to play.', url: '/' }
+  try { if (event.data) data = { ...data, ...event.data.json() } } catch (_) {}
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: data.tag || 'eba',
+      data: { url: data.url || '/' },
+    })
+  )
+})
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close()
+  const url = event.notification.data?.url || '/'
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) {
+        if (c.url.includes(self.location.origin) && 'focus' in c) return c.focus()
+      }
+      return clients.openWindow(url)
+    })
+  )
+})
