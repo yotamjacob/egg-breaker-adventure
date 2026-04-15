@@ -342,7 +342,7 @@ let _spawningRound = false;
 function newRound() {
   _roundPending  = false;
   _spawningRound = true;
-  setTimeout(() => { _spawningRound = false; updateStarBtn(); }, 600);
+  setTimeout(() => { _spawningRound = false; updateStarBtn(); }, 250);
   const prog = curProgress();
   const stage = curStage();
   const count = stage.eggs;
