@@ -45,11 +45,11 @@
   padding:5px 8px;background:var(--bg);border:2px solid var(--purple);
   border-radius:2px;margin-top:4px;font-size:10px;
   box-shadow: inset 1px 1px 0 var(--raised), 2px 2px 0 var(--dark);
-  overflow:hidden;
 }
-.mult-label{color:var(--gray);flex-shrink:0;font-size:8px;text-align:center;line-height:1.4;width:56px}
-.mult-label-row{display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}
-.mult-label strong{color:var(--purple);font-size:10px;display:block}
+
+.mult-label{color:var(--gray);flex-shrink:0;font-size:7px;text-align:center;line-height:1.5;width:68px}
+.mult-label-row{display:flex;align-items:flex-start;justify-content:center;gap:4px}
+.mult-label strong{color:var(--purple);font-size:10px;display:block;margin-top:2px}
 .mult-info-btn{
   display:inline-flex;align-items:center;justify-content:center;
   width:13px;height:13px;border-radius:50%;
@@ -61,7 +61,7 @@
 .mult-info-btn:hover{background:var(--purple);color:var(--white)}
 .mult-queue{
   display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
-  flex:1;
+  flex:1;overflow:hidden;
 }
 .starfall-box{
   flex:0 0 20%;display:flex;flex-direction:column;align-items:center;justify-content:center;
