@@ -1156,7 +1156,6 @@ function checkCollectionComplete() {
 
     if (newTier === 1) {
       // Bronze → Silver (no reward, just milestone)
-      track('tier-silver', { monkey: curMonkey().name, stage: stage.name });
       showStagePopup(
         'Silver Tier!',
         stage.name + ' — keep collecting for Gold!'
@@ -1165,7 +1164,6 @@ function checkCollectionComplete() {
 
     } else if (newTier === 2) {
       // Silver → Gold: unlock next stage
-      track('tier-gold', { monkey: curMonkey().name, stage: stage.name });
       const reward = CONFIG.tierRewards.gold;
       G.maxH += reward.maxHammers;
       G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
