@@ -782,7 +782,7 @@ function smashEgg(index) {
 
   if (hasBonus('freeEgg') && Math.random() < 0.03) {
     G.hammers = Math.min(G.maxH, G.hammers + 1);
-    msg('Free hit! (Chef\'s Hat)', 'freeHit');
+    msg('Free hit! (Chef\'s Hat)', 'specials');
   }
 
   if (!regenInt && G.hammers < G.maxH) startRegen();
@@ -792,13 +792,13 @@ function smashEgg(index) {
   // Cucumber double hit: 5% chance for a bonus hit
   if (hasBonus('doubleHit') && Math.random() < 0.05 && egg.hp > 0) {
     egg.hp -= 1;
-    msg('Cucumbah!', 'freeHit');
+    msg('Cucumbah!', 'specials');
   }
 
   // Mjǫllnir: 3% chance to call a free Starfall
   if (hasBonus('mjolnirStarfall') && Math.random() < 0.03 && !_starfallActive &&
       G.roundEggs && G.roundEggs.some(e => !e.broken && !e.expired)) {
-    setTimeout(() => _doStarfall('⚡ Mjǫllnir calls the storm!'), 350);
+    setTimeout(() => _doStarfall('⚡ Mjǫllnir calls the storm!', 'specials'), 350);
   }
 
   const particleCount = 4 + (egg.maxHp - egg.hp) * 3;
@@ -1132,12 +1132,12 @@ function useStarfall() {
   G.starPieces -= cost;
   _doStarfall('STARFALL! All eggs smashed!');
 }
-function _doStarfall(message) {
+function _doStarfall(message, cat) {
   if (_starfallActive) return;
   _starfallActive = true;
   G.starfallsUsed++;
   SFX.play('starfall');
-  msg(message, 'starfall');
+  msg(message, cat || 'starfall');
 
   // Suspend multiplier during starfall — mults only apply to manual taps
   const savedMult = G.activeMult;
@@ -1205,7 +1205,7 @@ function _doStarfall(message) {
 
 
 // ==================== COLLECTION / STAGE ====================
-function checkCollectionComplete() {
+function checkCollectionComplete(suppressFlash) {
   const prog = curProgress();
   const si = curActiveStage();
   const stage = curStage();
@@ -1269,7 +1269,7 @@ function checkCollectionComplete() {
       renderAlbum();
       renderMonkeys();
       renderStats();
-      flashTierUp(newTier);
+      if (!suppressFlash) flashTierUp(newTier);
     }, 100);
     G.collectionsCompleted = calcTotalCollections();
     checkAchievements();
@@ -1836,7 +1836,7 @@ function buyAlbumItem(stageIdx, itemIdx, cost) {
   const item = monkey.stages[stageIdx].collection.items[itemIdx];
   msg('Bought ' + item[0] + ' ' + item[1] + '!', 'shop');
 
-  checkCollectionComplete();
+  checkCollectionComplete(true);
   checkAchievements();
   updateResources();
   updateStageBar();
