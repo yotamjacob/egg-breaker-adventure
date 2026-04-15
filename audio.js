@@ -52,7 +52,7 @@ const SFX = (() => {
 //  Music Player — per-monkey looping tracks with fade in/out
 // ============================================================
 const MUSIC = (() => {
-  const VOLUME   = 0.3;   // balanced against SFX oscillators
+  const VOLUME   = 0.255; // balanced against SFX oscillators (-15%)
   const FADE_MS  = 700;   // fade duration in ms
   const STEP_MS  = 16;    // ~60 fps
 
