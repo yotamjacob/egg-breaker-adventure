@@ -1674,7 +1674,7 @@ function showAchieveToast(a) {
 // ==================== SOUND ====================
 function _syncSoundUI(on) {
   const btn = $id('sound-btn');
-  if (btn) btn.innerHTML = on ? '🔊' : '🔇';
+  if (btn) { btn.innerHTML = '🔊'; btn.classList.toggle('btn-off', !on); }
 }
 function toggleSound() {
   const on = SFX.toggle();
@@ -1684,8 +1684,7 @@ function toggleSound() {
 }
 function _syncMusicUI(on) {
   const btn = $id('music-btn');
-  if (btn) btn.innerHTML = on ? '🎵' : '🎵';
-  if (btn) btn.style.opacity = on ? '1' : '0.45';
+  if (btn) { btn.innerHTML = '🎵'; btn.classList.toggle('btn-off', !on); }
 }
 function toggleMusic() {
   const on = MUSIC.toggle();

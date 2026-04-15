@@ -471,7 +471,8 @@ function renderAll() {
     avatarEl.textContent = monkey.emoji;
   }
   $id('monkey-subtitle').textContent = monkey.name;
-  $id('sound-btn').textContent = G.soundOn ? '🔊' : '🔇';
+  _syncSoundUI(SFX.isOn());
+  _syncMusicUI(MUSIC.isOn());
 
   // Apply per-monkey tray background
   const wrap = $id('egg-tray-wrap');

@@ -111,7 +111,8 @@
   width:44px;height:44px;padding:0;cursor:pointer;line-height:1;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
   box-shadow:2px 2px 0 var(--dark),inset 1px 1px 0 rgba(255,255,255,.3);
-  transition:transform .08s;white-space:nowrap;
+  transition:transform .08s, background .2s, border-color .2s, box-shadow .08s;
+  white-space:nowrap;
 }
 .settings-close:hover,.settings-sound-btn:hover,.submodal-close:hover{
   transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dark);
@@ -119,8 +120,15 @@
 .settings-close:active,.settings-sound-btn:active,.submodal-close:active{
   transform:translate(1px,1px);box-shadow:none;
 }
-/* Sound icon size */
+/* Sound/music icon size */
 .settings-sound-btn{font-size:20px}
+/* Off state — grey background, same emoji */
+.settings-sound-btn.btn-off{
+  background:linear-gradient(180deg,#666,#444);
+  border-color:#333;
+  color:#888;
+  box-shadow:2px 2px 0 var(--dark),inset 1px 1px 0 rgba(255,255,255,.08);
+}
 /* Close button ✕ size */
 .settings-close,.submodal-close{font-size:16px}
 
