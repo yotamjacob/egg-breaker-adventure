@@ -1048,7 +1048,7 @@ function applyPrize(prize, cx, cy) {
       Particles.sparkle(cx, cy, 15, '#F59E0B');
       // Show popup for new item
       msg('New item collected: ' + prize.emoji + ' ' + prize.name, 'items');
-      setTimeout(() => showItemPopup(prize), 400);
+      setTimeout(() => showItemToast(prize), 400);
       // Check collection completion
       checkCollectionComplete();
     } else {
@@ -1283,6 +1283,41 @@ function showItemPopup(prize) {
   $id('pop-item-name').textContent = prize.name;
   $id('pop-item-quote').textContent = prize.quote || '';
   $id('overlay-item').classList.remove('hidden');
+}
+
+// ── Item toast (non-intrusive, replaces popup for now) ──
+const _itemToastQueue = [];
+let   _itemToastActive = false;
+
+function showItemToast(prize) {
+  _itemToastQueue.push(prize);
+  if (!_itemToastActive) _nextItemToast();
+}
+
+function _nextItemToast() {
+  if (!_itemToastQueue.length) { _itemToastActive = false; return; }
+  _itemToastActive = true;
+  const prize = _itemToastQueue.shift();
+
+  const wrap = $id('egg-tray-wrap');
+  const old  = wrap.querySelector('.item-toast');
+  if (old) old.remove();
+
+  const el = document.createElement('div');
+  el.className = 'item-toast';
+  el.innerHTML =
+    '<span class="item-toast-icon">' + prize.emoji + '</span>' +
+    '<div class="item-toast-body">' +
+      '<div class="item-toast-title">' + prize.name + '</div>' +
+      '<div class="item-toast-sub">New item found!</div>' +
+      (prize.quote ? '<div class="item-toast-quote">\u201c' + prize.quote + '\u201d</div>' : '') +
+    '</div>';
+  wrap.appendChild(el);
+
+  setTimeout(() => {
+    el.classList.add('out');
+    setTimeout(() => { el.remove(); _nextItemToast(); }, 350);
+  }, 2500);
 }
 
 function showStagePopup(title, detail) {
