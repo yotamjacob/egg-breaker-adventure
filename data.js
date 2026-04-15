@@ -357,7 +357,9 @@ const ITEM_QUOTES = {
 
 const MONKEY_DATA = [
   {
-    id: 'mr_monkey', name: 'Mr. Monkey', emoji: '🐵', img: 'img/mrmonkey.webp', cost: 0,
+    id: 'mr_monkey', name: 'Mr. Monkey', emoji: '🐵', img: 'img/mrmonkey_nohat.jpeg',
+    hatImgs: { chef:'img/mrmonkey_chef.jpeg', crown:'img/mrmonkey_crown.jpeg', wizard:'img/mrmonkey_wizard.jpeg', tophat:'img/mrmonkey_tophat.jpeg', pirate:'img/mrmonkey_pirate.jpeg' },
+    cost: 0,
     perk: 'none', perkDesc: 'The original egg breaker!',
     stages: [
       { name: 'Tropical Paradise', eggs: 3, collection: { name: 'Tropical Fruits', items: [
@@ -442,7 +444,9 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'steampunk', name: 'Steampunk Monkey', emoji: '🔧', img: 'img/steampunk.webp', cost: 7,
+    id: 'steampunk', name: 'Steampunk Monkey', emoji: '🔧', img: 'img/steampunk_nohat.jpeg',
+    hatImgs: { chef:'img/steampunk_chef.jpeg', crown:'img/steam_crown.jpeg', wizard:'img/steampunk_wizard.jpeg', tophat:'img/steampunk_tophat.jpeg', pirate:'img/steampunk_pirate.jpeg' },
+    cost: 7,
     perk: 'moreStars', perkDesc: '+15% star piece chance',
     stages: [
       { name: 'Gear Workshop', eggs: 3, collection: { name: 'Basic Gears', items: [
@@ -527,7 +531,9 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'princess', name: 'Princess Monkey', emoji: '👸', img: 'img/princess.webp', cost: 7,
+    id: 'princess', name: 'Princess Monkey', emoji: '👸', img: 'img/princess_nohat.jpeg',
+    hatImgs: { chef:'img/princess_chef.jpeg', crown:'img/princess_crown.jpeg', wizard:'img/princess_wizard.jpeg', tophat:'img/princess_tophat.jpeg', pirate:'img/princess_pirate.jpeg' },
+    cost: 7,
     perk: 'moreGold', perkDesc: '+20% gold from eggs',
     stages: [
       { name: 'Royal Garden', eggs: 3, collection: { name: 'Garden Flowers', items: [
@@ -612,7 +618,9 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'space', name: 'Space Cadette', emoji: '🚀', img: 'img/space.webp', cost: 7,
+    id: 'space', name: 'Space Cadette', emoji: '🚀', img: 'img/space_nohat.jpeg',
+    hatImgs: { chef:'img/space_chef.jpeg', crown:'img/space_crown.jpeg', wizard:'img/space_wizard.jpeg', tophat:'img/space_tophat.jpeg', pirate:'img/space_pirate.jpeg' },
+    cost: 7,
     perk: 'moreItems', perkDesc: '+10% item chance',
     stages: [
       { name: 'Launch Pad', eggs: 3, collection: { name: 'Launch Gear', items: [
@@ -697,7 +705,9 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'odin', name: 'Odin Grímnir, the All-Father', emoji: '🧙', img: null, cost: 7,
+    id: 'odin', name: 'Odin Grímnir, the All-Father', emoji: '🧙', img: 'img/odin_nohat.jpeg',
+    hatImgs: { chef:'img/odin_chef.jpeg', crown:'img/odin_crown.jpeg', wizard:'img/odin_wizard.jpeg', tophat:'img/odin_tophat.jpeg', pirate:'img/odin_pirate.jpeg' },
+    cost: 7,
     unlockRequires: { hammer: 'mjolnir', hint: 'Wield Mjǫllnir to reveal the All-Father' },
     perk: 'allfather', perkDesc: "+10% gold, stars & feathers",
     stages: [

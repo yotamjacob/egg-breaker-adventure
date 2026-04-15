@@ -622,10 +622,8 @@ function renderMonkeys() {
     card.className = 'monkey-card' + (isActive ? ' active' : '');
     if (mp.unlocked && !isActive) card.setAttribute('data-monkey', String(i));
 
-    const cardHatId = G.hat && G.hat !== 'none' ? G.hat : null;
-    const cardSrc = (cardHatId && m.hatImgs && m.hatImgs[cardHatId]) || m.img;
-    let inner = cardSrc
-      ? '<div class="m-emoji m-avatar-wrap"><img src="' + cardSrc + '" alt="' + m.name + '"></div>'
+    let inner = m.img
+      ? '<div class="m-emoji m-avatar-wrap"><img src="' + m.img + '" alt="' + m.name + '"></div>'
       : '<span class="m-emoji">' + m.emoji + '</span>';
     inner += '<span class="m-name">' + m.name + '</span>';
     inner += '<span class="m-perk">' + m.perkDesc + '</span>';
