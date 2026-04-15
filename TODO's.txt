@@ -1,5 +1,6 @@
 ---design---
 go over quotes and improve them manually
+[ ] (premium) exclusive cosmetic(s) — premium-only items never available through gold grind: e.g. special monkey skin variant, animated egg trail, limited-edition hat design. purely cosmetic, no gameplay advantage.
 
 ---features and playability---
 gavel - judge hammer
@@ -9,23 +10,22 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 [ ] set up Playwright MCP server for Claude Code — enables live browser interaction, screenshot testing, UI debugging
     install: claude mcp add playwright npx @playwright/mcp@latest
 
----performance and loading---
+1. balloon rewards, and any other special egg that has base multiplied rewards, when activated with mult - should be additive rewards. so if i pop a balloon with 2 chips of x3 active, the rewards will be 16 times more, not 60 times more 
+2. century egg rewards should be base mult by 100
+3. reduce music by 10% volume
+4. no need to show google saves on log
+5. all music should have a few seconds fade out and fade in
+6. cloud save - add a checkbox - 'auto save every 15 minutes'
+
 
 ---solo dev / scale readiness---
 [ ] (future) cloud save — Supabase free tier, optional login — localStorage lost if user clears app data
-
----mobile app store (android + ios)---
+- review security stuff again
+- mayeb a cleanu?
+- try to guess what will be the ap prating? how can i increase it? what is the main pain points for users? 
 
 ## android (play store)
 [ ] get IARC content rating at globalratings.com (free, required for Play Store)
 [ ] create Google Play Developer account at play.google.com/console ($25 one-time fee)
 [ ] prepare store listing: description, screenshots (at least 2 phone screenshots, 1 tablet), feature graphic 1024x500
 [ ] submit .aab to Play Store
-
-## ios (app store)
-[ ] create Apple Developer account at developer.apple.com ($99/year)
-[ ] go to pwabuilder.com → Package for iOS → download Xcode project
-[ ] open Xcode project, set Bundle ID (e.g. com.eggbreakeradventures.app), sign with Apple account
-[ ] prepare App Store listing: description, screenshots for iPhone 6.7" and 6.5" (required sizes)
-[ ] submit via Xcode → Product → Archive → Distribute App → App Store Connect
-[ ] set age rating in App Store Connect (likely 4+ for this game)

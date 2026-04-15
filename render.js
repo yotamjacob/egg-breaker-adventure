@@ -823,7 +823,7 @@ function renderPremiumShop() {
     '</div>' +
     '<div class="premium-grid">' +
     PREMIUM_PRODUCTS.map(function(p) {
-      const bought = p.oneTime && G['premium_' + p.id];
+      const bought = p.oneTime && (p.boughtKey ? G[p.boughtKey] : G['premium_' + p.id]);
       return (
         '<div class="premium-card' + (p.featured ? ' featured' : '') + (bought ? ' bought' : '') + '">' +
           '<div class="premium-emoji">' + p.emoji + '</div>' +

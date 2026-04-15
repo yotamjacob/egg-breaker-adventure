@@ -3,12 +3,19 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const PAYPAL_BASE = 'https://api-m.paypal.com'
 
 const PRODUCTS: Record<string, { name: string; price: string; oneTime?: boolean }> = {
+  // Packs
   starter_pack: { name: 'Starter Pack',   price: '2.99', oneTime: true },
   gold_s:       { name: 'Gold Pack S',    price: '0.99' },
   gold_m:       { name: 'Gold Pack M',    price: '2.99' },
   gold_l:       { name: 'Gold Pack L',    price: '7.99' },
   hammers:      { name: 'Hammer Pack',    price: '0.99' },
-  bananas:      { name: 'Banana Bundle',  price: '1.99' },
+  bananas:      { name: 'Monkey Key',     price: '1.99' },
+  // Premium upgrades (one-time)
+  luckycharm:   { name: 'Lucky Charm',    price: '2.99', oneTime: true },
+  eggradar:     { name: 'Egg Radar',      price: '3.99', oneTime: true },
+  doubledaily:  { name: 'Double Daily',   price: '3.99', oneTime: true },
+  starsaver:    { name: 'Star Saver',     price: '2.99', oneTime: true },
+  goldmagnet:   { name: 'Golden Magnet',  price: '1.99', oneTime: true },
 }
 
 const corsHeaders = {

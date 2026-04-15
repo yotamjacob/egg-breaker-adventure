@@ -3,12 +3,19 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const PAYPAL_BASE = 'https://api-m.paypal.com'
 
 const REWARDS: Record<string, { gold?: number; hammers?: number; bananas?: number }> = {
-  starter_pack: { gold: 25000,  hammers: 50, bananas: 3 },
+  // Packs
+  starter_pack: { gold: 25000, hammers: 50, bananas: 3 },
   gold_s:       { gold: 10000 },
   gold_m:       { gold: 50000 },
   gold_l:       { gold: 200000 },
   hammers:      { hammers: 100 },
-  bananas:      { bananas: 5 },
+  bananas:      { bananas: 7 },
+  // Premium upgrades — no resource reward; client applies owned flag via product_id
+  luckycharm:   {},
+  eggradar:     {},
+  doubledaily:  {},
+  starsaver:    {},
+  goldmagnet:   {},
 }
 
 const corsHeaders = {

@@ -787,7 +787,7 @@ const SHOP_HAMMERS = [
   { id: 'golden',     name: 'Golden Hammer',     emoji: '⭐', desc: '2x gold from eggs',           cost: 75000, currency: 'gold', bonus: 'moreGold' },
   { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% collection items',       cost: 150000, currency: 'gold', bonus: 'moreItems' },
   { id: 'cucumber',   name: 'Cucumber Hammer',   emoji: '🥒', desc: '5% double hit chance',        cost: 250000, currency: 'gold', bonus: 'doubleHit' },
-  { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% chance to summon Starfall', cost: 500000, currency: 'gold', bonus: 'mjolnirStarfall' },
+  { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% chance to summon Starfall', cost: 200000, currency: 'gold', bonus: 'mjolnirStarfall' },
 ];
 
 const SHOP_HATS = [
@@ -807,11 +807,6 @@ const SHOP_SUPPLIES = [
   { id: 'spyglass',   name: 'Spyglass',         emoji: '🔍', desc: 'Reveal egg names & HP', cost: 5000, currency: 'gold', type: 'upgrade', unique: true },
   { id: 'maxhammers', name: '+5 Hammer Cap',    emoji: '📦', desc: 'Increase max hammers by 5', cost: 8000, currency: 'gold', type: 'upgrade' },
   { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', desc: 'Hammers regen 2x faster', cost: 12500, currency: 'gold', type: 'upgrade', unique: true },
-  { id: 'luckycharm', name: 'Lucky Charm',      emoji: '🍀', desc: '2x rare item chance',    cost: 200000, currency: 'gold', type: 'upgrade', unique: true },
-  { id: 'goldmagnet', name: 'Golden Magnet',    emoji: '🧲', desc: 'Gold rounded up to 10',  cost: 300000, currency: 'gold', type: 'upgrade', unique: true },
-  { id: 'eggradar',   name: 'Egg Radar',        emoji: '📡', desc: '+50% rare egg spawns',   cost: 400000, currency: 'gold', type: 'upgrade', unique: true },
-  { id: 'doubledaily', name: 'Double Daily',    emoji: '📅', desc: '2x daily rewards',       cost: 500000, currency: 'gold', type: 'upgrade', unique: true },
-  { id: 'starsaver',  name: 'Star Saver',       emoji: '✨', desc: 'Starfall costs 4 stars', cost: 600000, currency: 'gold', type: 'upgrade', unique: true },
 ];
 
 // All tuning values are read from CONFIG (config.js)

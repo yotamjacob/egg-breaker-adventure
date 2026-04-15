@@ -1426,11 +1426,6 @@ function doBuyShopItem(category, id) {
     if (id === 'maxhammers') { G.maxH += 5; showShopSnack('+5 max hammers!'); }
     if (id === 'fastregen') { G.fastRegen = true; showShopSnack('Fast Regen unlocked!'); }
     if (id === 'spyglass') { G['owned_spyglass'] = true; renderEggTray(); showShopSnack('Spyglass unlocked!'); }
-    if (id === 'luckycharm') { G['owned_luckycharm'] = true; showShopSnack('Lucky Charm unlocked!'); }
-    if (id === 'goldmagnet') { G['owned_goldmagnet'] = true; showShopSnack('Golden Magnet unlocked!'); }
-    if (id === 'eggradar') { G['owned_eggradar'] = true; showShopSnack('Egg Radar unlocked!'); }
-    if (id === 'doubledaily') { G['owned_doubledaily'] = true; showShopSnack('Double Daily unlocked!'); }
-    if (id === 'starsaver') { G['owned_starsaver'] = true; showShopSnack('Star Saver unlocked!'); }
 
     SFX.play('buy');
   }
@@ -1708,12 +1703,19 @@ const _SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmF
 const _PAYPAL_CLIENT = 'AShS0nOeix44W4CifOSTB6pL4gvi6k3O_j6CXAmvCanfDKm9PXhjkED8PBZIOHk0aHdqHLtD1LyH9kLd';
 
 const PREMIUM_PRODUCTS = [
+  // ── Packs ────────────────────────────────────────────────────────────────
   { id: 'starter_pack', name: 'Starter Pack',   emoji: '🎁', price: '$2.99', desc: '25,000 gold + 50 hammers + 3 Crystal Bananas', featured: true, oneTime: true },
   { id: 'gold_s',       name: 'Gold Pack S',    emoji: '🪙', price: '$0.99', desc: '10,000 gold' },
   { id: 'gold_m',       name: 'Gold Pack M',    emoji: '💰', price: '$2.99', desc: '50,000 gold' },
   { id: 'gold_l',       name: 'Gold Pack L',    emoji: '🏆', price: '$7.99', desc: '200,000 gold' },
   { id: 'hammers',      name: 'Hammer Pack',    emoji: '🔨', price: '$0.99', desc: '100 hammers' },
-  { id: 'bananas',      name: 'Banana Bundle',  emoji: '🍌', price: '$1.99', desc: '5 Crystal Bananas' },
+  { id: 'bananas',      name: 'Monkey Key',     emoji: '🍌', price: '$1.99', desc: '7 Crystal Bananas — unlock any monkey instantly', oneTime: false },
+  // ── Premium upgrades (moved from gold shop — too long to grind) ──────────
+  { id: 'luckycharm',  name: 'Lucky Charm',    emoji: '🍀', price: '$2.99', desc: '2x rare item drop chance', oneTime: true, boughtKey: 'owned_luckycharm' },
+  { id: 'eggradar',    name: 'Egg Radar',       emoji: '📡', price: '$3.99', desc: '+50% rare egg spawns',    oneTime: true, boughtKey: 'owned_eggradar' },
+  { id: 'doubledaily', name: 'Double Daily',    emoji: '📅', price: '$3.99', desc: '2x daily login rewards',  oneTime: true, boughtKey: 'owned_doubledaily' },
+  { id: 'starsaver',   name: 'Star Saver',      emoji: '✨', price: '$2.99', desc: 'Starfall costs 4 stars instead of 5', oneTime: true, boughtKey: 'owned_starsaver' },
+  { id: 'goldmagnet',  name: 'Golden Magnet',   emoji: '🧲', price: '$1.99', desc: 'All gold drops rounded up to nearest 10', oneTime: true, boughtKey: 'owned_goldmagnet' },
 ];
 
 function getDeviceId() {
@@ -1788,6 +1790,9 @@ function applyPurchaseReward(productId, reward) {
   if (reward.hammers) { G.hammers += reward.hammers; }
   if (reward.bananas) { G.crystalBananas += reward.bananas; }
   if (productId === 'starter_pack') G.premium_starter_pack = true;
+  // Premium upgrades: set owned flag by boughtKey
+  const prod = PREMIUM_PRODUCTS.find(p => p.id === productId);
+  if (prod && prod.boughtKey) G[prod.boughtKey] = true;
   G.premiumPurchases = (G.premiumPurchases || 0) + 1;
   track('premium-purchase', { product: productId });
   checkAchievements();
@@ -1798,7 +1803,12 @@ function applyPurchaseReward(productId, reward) {
   if (reward.gold)    parts.push(reward.gold.toLocaleString() + ' gold');
   if (reward.hammers) parts.push(reward.hammers + ' hammers');
   if (reward.bananas) parts.push(reward.bananas + ' Crystal Bananas');
-  msg('🎉 ' + parts.join(' + ') + ' added to your account!');
+  if (parts.length > 0) {
+    msg('🎉 ' + parts.join(' + ') + ' added to your account!');
+  } else {
+    const prod = PREMIUM_PRODUCTS.find(p => p.id === productId);
+    msg('🎉 ' + (prod ? prod.name : 'Upgrade') + ' unlocked!');
+  }
   SFX.play('buy');
 }
 
