@@ -29,23 +29,23 @@ function makeHammerSVG(hammerId) {
     // ---- BAT: Sleek dark batmobile-inspired weapon ----
     case 'bat': return `<svg width="40" height="90" viewBox="0 0 44 100" ${S}>
       <defs><linearGradient id="bat-g" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#3a3a50"/><stop offset="100%" stop-color="#0f0f1e"/>
+        <stop offset="0%" stop-color="#606075"/><stop offset="100%" stop-color="#303048"/>
       </linearGradient></defs>
       <!-- Carbon fiber handle -->
-      <rect x="19" y="0" width="6" height="60" fill="#1a1a2e" stroke="#0a0a18" stroke-width="1"/>
-      <rect x="20" y="5" width="1" height="50" fill="#2a2a40" opacity=".5"/>
-      <rect x="23" y="5" width="1" height="50" fill="#2a2a40" opacity=".3"/>
+      <rect x="19" y="0" width="6" height="60" fill="#3a3a55" stroke="#2a2a40" stroke-width="1"/>
+      <rect x="20" y="5" width="1" height="50" fill="#5a5a78" opacity=".5"/>
+      <rect x="23" y="5" width="1" height="50" fill="#5a5a78" opacity=".3"/>
       <!-- Grip rings -->
-      <rect x="17" y="10" width="10" height="2" fill="#3a3a50"/>
-      <rect x="17" y="16" width="10" height="2" fill="#3a3a50"/>
-      <rect x="17" y="22" width="10" height="2" fill="#3a3a50"/>
+      <rect x="17" y="10" width="10" height="2" fill="#606075"/>
+      <rect x="17" y="16" width="10" height="2" fill="#606075"/>
+      <rect x="17" y="22" width="10" height="2" fill="#606075"/>
       <!-- Bat wing head -->
-      <polygon points="22,58 0,72 4,82 14,78 22,92 30,78 40,82 44,72 22,58" fill="url(#bat-g)" stroke="#0a0a18" stroke-width="1.5"/>
+      <polygon points="22,58 0,72 4,82 14,78 22,92 30,78 40,82 44,72 22,58" fill="url(#bat-g)" stroke="#2a2a40" stroke-width="1.5"/>
       <!-- Wing membrane lines -->
-      <line x1="22" y1="62" x2="6" y2="74" stroke="#2a2a3e" stroke-width="1"/>
-      <line x1="22" y1="62" x2="38" y2="74" stroke="#2a2a3e" stroke-width="1"/>
-      <line x1="22" y1="62" x2="14" y2="78" stroke="#1a1a30" stroke-width="1"/>
-      <line x1="22" y1="62" x2="30" y2="78" stroke="#1a1a30" stroke-width="1"/>
+      <line x1="22" y1="62" x2="6" y2="74" stroke="#505068" stroke-width="1"/>
+      <line x1="22" y1="62" x2="38" y2="74" stroke="#505068" stroke-width="1"/>
+      <line x1="22" y1="62" x2="14" y2="78" stroke="#404058" stroke-width="1"/>
+      <line x1="22" y1="62" x2="30" y2="78" stroke="#404058" stroke-width="1"/>
       <!-- Eyes -->
       <ellipse cx="16" cy="72" rx="3" ry="2" fill="#ff3030"/>
       <ellipse cx="28" cy="72" rx="3" ry="2" fill="#ff3030"/>

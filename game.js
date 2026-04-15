@@ -1476,7 +1476,8 @@ function doBuyShopItem(category, id) {
 
   checkAchievements();
   updateResources();
-  // Flash animation on the card, then re-render
+  // Re-render immediately (no delay), then flash the fresh card
+  renderShop(); renderPremiumShop(); saveGame();
   const grids = category === 'supply'
     ? [...$id('shop-consumables').children, ...$id('shop-upgrades').children]
     : [...$id('shop-' + (category === 'hammer' ? 'hammers' : 'hats')).children];
@@ -1486,7 +1487,6 @@ function doBuyShopItem(category, id) {
       break;
     }
   }
-  setTimeout(() => { renderShop(); renderPremiumShop(); saveGame(); }, 250);
 }
 
 // ==================== ACHIEVEMENTS ====================

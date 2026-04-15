@@ -71,57 +71,63 @@ const MUSIC = (() => {
     odin:       'audio/odin.mp3',
   };
 
+  // Per-track volume overrides (multiplier relative to VOLUME)
+  const TRACK_VOL = { space: 0.85 };  // Space Cadet is louder — reduce 15%
+
   let audio      = null;
   let on         = true;
   let currentSrc = null;
+  let currentVol = VOLUME;
   let _timer     = null;
 
   function _clearTimer() {
     if (_timer) { clearInterval(_timer); _timer = null; }
   }
 
-  function _fadeIn(el) {
+  function _fadeIn(el, targetVol) {
+    const target = targetVol !== undefined ? targetVol : currentVol;
     _clearTimer();
     el.volume = 0;
     el.play().catch(() => {});
-    const delta = VOLUME / (FADE_MS / STEP_MS);
+    const delta = target / (FADE_MS / STEP_MS);
     _timer = setInterval(() => {
-      el.volume = Math.min(VOLUME, el.volume + delta);
-      if (el.volume >= VOLUME) _clearTimer();
+      el.volume = Math.min(target, el.volume + delta);
+      if (el.volume >= target) _clearTimer();
     }, STEP_MS);
   }
 
   function _fadeOut(el, done) {
     _clearTimer();
-    const delta = (el.volume || VOLUME) / (FADE_MS / STEP_MS);
+    const delta = (el.volume || currentVol) / (FADE_MS / STEP_MS);
     _timer = setInterval(() => {
       el.volume = Math.max(0, el.volume - delta);
       if (el.volume <= 0) { _clearTimer(); el.pause(); if (done) done(); }
     }, STEP_MS);
   }
 
-  function _start(src) {
+  function _start(src, targetVol) {
     audio = new Audio(src);
     audio.loop = true;
-    if (on) _fadeIn(audio);
+    if (on) _fadeIn(audio, targetVol);
   }
 
   function play(monkeyId) {
     const src = TRACKS[monkeyId];
     if (!src || currentSrc === src) return;
     currentSrc = src;
+    currentVol = VOLUME * (TRACK_VOL[monkeyId] !== undefined ? TRACK_VOL[monkeyId] : 1);
     if (audio && !audio.paused) {
-      _fadeOut(audio, () => _start(src));
+      _fadeOut(audio, () => _start(src, currentVol));
     } else {
-      _start(src);
+      _start(src, currentVol);
     }
   }
 
   function toggle() {
     on = !on;
     if (on) {
-      if (audio) _fadeIn(audio);
-      else if (currentSrc) _start(currentSrc);
+      if (audio) _fadeIn(audio, currentVol);
+      else if (currentSrc) _start(currentSrc, currentVol);
     } else {
       if (audio) _fadeOut(audio, () => {});
     }
@@ -132,7 +138,7 @@ const MUSIC = (() => {
 
   // Retry on first user gesture — browser autoplay policy
   document.addEventListener('pointerdown', () => {
-    if (on && audio && audio.paused) _fadeIn(audio);
+    if (on && audio && audio.paused) _fadeIn(audio, currentVol);
   }, { once: true });
 
   return { play, toggle, isOn };
