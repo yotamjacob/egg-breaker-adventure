@@ -1310,7 +1310,7 @@ function _nextItemToast() {
   setTimeout(() => {
     el.classList.add('out');
     setTimeout(() => { el.remove(); _nextItemToast(); }, 350);
-  }, 3500);
+  }, 4000);
 }
 
 function showStagePopup(title, detail) {
