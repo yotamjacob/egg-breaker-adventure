@@ -18,9 +18,21 @@ const PRODUCTS: Record<string, { name: string; price: string; oneTime?: boolean 
   goldmagnet:   { name: 'Golden Magnet',  price: '1.99', oneTime: true },
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// Allowlist: set ALLOWED_ORIGIN in Supabase Edge Function env vars (your production URL).
+// Localhost variants are always allowed for local development.
+const ALLOWED_ORIGINS = new Set([
+  'http://localhost',
+  'http://localhost:3000',
+  'http://127.0.0.1',
+  ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
+])
+
+function corsHeaders(origin: string | null) {
+  const allowed = origin && ALLOWED_ORIGINS.has(origin) ? origin : null
+  return {
+    'Access-Control-Allow-Origin': allowed ?? '',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  }
 }
 
 async function getPayPalToken(clientId: string, secret: string): Promise<string> {
@@ -38,7 +50,9 @@ async function getPayPalToken(clientId: string, secret: string): Promise<string>
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+  const origin = req.headers.get('origin')
+  const hdrs = corsHeaders(origin)
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: hdrs })
 
   try {
     const { device_id, product_id } = await req.json()
@@ -98,12 +112,12 @@ Deno.serve(async (req) => {
     })
 
     return new Response(JSON.stringify({ paypal_order_id: order.id }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...hdrs, 'Content-Type': 'application/json' },
     })
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...hdrs, 'Content-Type': 'application/json' },
     })
   }
 })

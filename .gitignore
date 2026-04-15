@@ -6,3 +6,4 @@ android-build/
 bundle.min.js
 bundle.min.css
 .claude/
+supabase/.temp/
