@@ -3,7 +3,7 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '1.5.2';
+const CACHE_VERSION = '1.5.3';
 const CACHE_NAME    = 'eba-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
@@ -20,11 +20,15 @@ const STATIC_ASSETS = [
 
 // ── Install: pre-cache all static assets ──────────────────────
 self.addEventListener('install', event => {
+  // Do NOT skipWaiting automatically — wait for user confirmation via SKIP_WAITING message
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
   );
+});
+
+// ── Message: allow page to trigger activation after user confirms update ──
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 // ── Activate: delete old caches ───────────────────────────────

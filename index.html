@@ -310,6 +310,11 @@
 
     <div class="shop-snack" id="shop-snack"></div>
 
+    <div class="update-banner hidden" id="update-banner">
+      <span id="update-banner-msg">⬆ New version available!</span>
+      <button id="update-reload-btn">RELOAD</button>
+    </div>
+
     <div class="toast hidden" id="toast-achieve">
       <span id="toast-icon"></span>
       <div><small id="toast-header">Trophy Unlocked!</small><br><strong id="toast-name"></strong><br><small id="toast-desc"></small></div>
@@ -377,7 +382,37 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+
+          function showUpdateBanner(sw) {
+            const banner = document.getElementById('update-banner');
+            if (!banner) return;
+            banner.classList.remove('hidden');
+            document.getElementById('update-reload-btn').onclick = () => {
+              sw.postMessage({ type: 'SKIP_WAITING' });
+            };
+          }
+
+          // Already waiting (e.g. user refreshed while update was pending)
+          if (reg.waiting) showUpdateBanner(reg.waiting);
+
+          // New SW found during this session
+          reg.addEventListener('updatefound', () => {
+            const sw = reg.installing;
+            sw.addEventListener('statechange', () => {
+              if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+                showUpdateBanner(sw);
+              }
+            });
+          });
+
+        }).catch(() => {});
+
+        // Once the new SW takes control, reload to use fresh assets
+        let reloading = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!reloading) { reloading = true; window.location.reload(); }
+        });
       });
     }
   </script>

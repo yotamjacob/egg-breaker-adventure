@@ -157,3 +157,25 @@
 /* Confirm overlay always on top (e.g. reset confirmation over settings) */
 #overlay-confirm{z-index:950}
 
+/* ---------- SW update banner ---------- */
+.update-banner{
+  position:fixed;bottom:70px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:10px;
+  background:var(--gold);color:var(--dark);
+  font-family:var(--px);font-size:9px;letter-spacing:1px;
+  padding:7px 12px;border-radius:2px;
+  border:2px solid var(--gold2);
+  box-shadow:3px 3px 0 var(--dark);
+  z-index:500;white-space:nowrap;
+}
+.update-banner.hidden{display:none}
+#update-reload-btn{
+  background:var(--dark);color:var(--gold);
+  border:2px solid var(--dark);border-radius:1px;
+  font-family:var(--px);font-size:9px;letter-spacing:1px;
+  padding:4px 10px;cursor:pointer;
+  box-shadow:2px 2px 0 rgba(0,0,0,.4);
+  transition:all .08s;
+}
+#update-reload-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(0,0,0,.4)}
+
