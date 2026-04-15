@@ -473,6 +473,10 @@ function renderAll() {
   $id('monkey-subtitle').textContent = monkey.name;
   $id('sound-btn').textContent = G.soundOn ? '🔊' : '🔇';
 
+  // Apply per-monkey tray background
+  const wrap = $id('egg-tray-wrap');
+  if (wrap) wrap.style.setProperty('--monkey-bg', 'url(img/background/' + monkey.id + '.svg)');
+
   updateResources();
   updateStageBar();
   updateHammerSVG();

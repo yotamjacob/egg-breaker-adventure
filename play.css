@@ -92,6 +92,15 @@
   border:3px solid var(--gold3);
   box-shadow: inset 3px 3px 0 var(--inset), 4px 4px 0 var(--dark);
   touch-action:none;overscroll-behavior:none;
+  overflow:hidden;
+}
+/* Per-monkey themed background — sits behind all tray content */
+.egg-tray-wrap::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:var(--monkey-bg,none);
+  background-size:cover;background-position:center;
+  opacity:0.18;
+  transition:opacity 0.6s ease;
 }
 
 /* Egg tray — taps handled by document-level touchstart, not z-index */
@@ -143,8 +152,8 @@
 @keyframes timer-pulse{0%,100%{opacity:1}50%{opacity:.7}}
 .egg-timer{
   font-size:10px;font-family:var(--px);color:#ffa500;
-  text-shadow:1px 1px 0 var(--dark);text-align:center;
-  display:block;margin-top:1px;font-variant-numeric:tabular-nums;
+  text-shadow:0 0 3px #000, 1px 1px 0 #000, -1px -1px 0 #000;
+  text-align:center;display:block;margin-top:1px;font-variant-numeric:tabular-nums;
 }
 .egg-slot.balloon{animation:balloon-float 2s ease-in-out infinite;cursor:grab}
 .egg-slot.balloon.inflating{animation:none !important;cursor:grabbing;transition:none !important}
@@ -163,6 +172,7 @@
   font-size:8px;color:var(--gray);margin-top:1px;
   font-family:var(--px);text-transform:uppercase;letter-spacing:0.5px;
   text-align:center;width:100%;line-height:1.2;
+  text-shadow:0 0 3px #000, 1px 1px 0 #000, -1px -1px 0 #000;
 }
 
 /* ---------- Action row ---------- */
@@ -174,7 +184,7 @@
   pointer-events:none;
 }
 .rlog-title{font-size:8px;color:var(--gold3);letter-spacing:1px;margin-bottom:1px}
-.reward-log .log-line{color:var(--gold);text-shadow:1px 1px 0 var(--dark)}
+.reward-log .log-line{color:var(--gold);text-shadow:0 0 4px #000, 1px 1px 0 #000, -1px -1px 0 #000}
 .reward-log .log-line.log-err{color:var(--red)}
 .reward-log .log-line.log-green{color:#86efac}
 .reward-log .log-line.log-blue{color:#93c5fd}
@@ -191,7 +201,7 @@
   font-family:var(--px);
   z-index:30;text-align:center;
   white-space:nowrap;
-  text-shadow:2px 2px 0 var(--dark), 0 0 6px rgba(0,0,0,.5);
+  text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 6px rgba(0,0,0,.8);
   animation:float-up-retro 2s steps(20) forwards;
 }
 .prize-float.big{font-size:12px;animation:float-up-retro-big 2.5s steps(24) forwards}

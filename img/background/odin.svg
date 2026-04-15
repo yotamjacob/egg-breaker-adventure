@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <defs>
+    <pattern id="norse" x="0" y="0" width="90" height="90" patternUnits="userSpaceOnUse">
+      <!-- Valknut (3 interlocked triangles) -->
+      <polygon points="30,6 42,28 18,28"   fill="none" stroke="#8ab0d0" stroke-width="2"/>
+      <polygon points="36,14 52,14 38,36"  fill="none" stroke="#7090b0" stroke-width="2"/>
+      <polygon points="18,28 42,28 30,50"  fill="none" stroke="#8ab0d0" stroke-width="2"/>
+      <!-- rune: Algiz (protection) -->
+      <line x1="70" y1="12" x2="70" y2="42" stroke="#a0b8d0" stroke-width="2"/>
+      <line x1="70" y1="22" x2="62" y2="14" stroke="#a0b8d0" stroke-width="2"/>
+      <line x1="70" y1="22" x2="78" y2="14" stroke="#a0b8d0" stroke-width="2"/>
+      <line x1="70" y1="30" x2="62" y2="22" stroke="#a0b8d0" stroke-width="2"/>
+      <line x1="70" y1="30" x2="78" y2="22" stroke="#a0b8d0" stroke-width="2"/>
+      <!-- rune: Tiwaz (victory) -->
+      <line x1="20" y1="58" x2="20" y2="82" stroke="#90a8c0" stroke-width="2"/>
+      <line x1="14" y1="68" x2="20" y2="60" stroke="#90a8c0" stroke-width="2"/>
+      <line x1="26" y1="68" x2="20" y2="60" stroke="#90a8c0" stroke-width="2"/>
+      <!-- mjolnir silhouette -->
+      <rect x="58" y="56" width="20" height="10" fill="#6a8098" rx="1"/>
+      <rect x="65" y="66" width="6"  height="20" fill="#6a8098" rx="1"/>
+      <rect x="61" y="54" width="4"  height="4"  fill="#5a7088"/>
+      <rect x="75" y="54" width="4"  height="4"  fill="#5a7088"/>
+      <!-- lightning bolt -->
+      <polygon points="4,56 10,56 6,68 14,68 8,84 12,84 6,68 14,68 10,56" fill="#60c0e0" opacity="0.7"/>
+      <!-- border knotwork (top) -->
+      <rect x="0"  y="0"  width="90" height="3" fill="#3a5068"/>
+      <rect x="0"  y="0"  width="3"  height="90" fill="#3a5068"/>
+      <!-- dots -->
+      <circle cx="45" cy="70" r="2" fill="#8ab0d0" opacity="0.5"/>
+      <circle cx="35" cy="78" r="2" fill="#8ab0d0" opacity="0.5"/>
+      <circle cx="55" cy="78" r="2" fill="#8ab0d0" opacity="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="300" fill="#0a0e18"/>
+  <rect width="400" height="300" fill="url(#norse)"/>
+</svg>
