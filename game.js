@@ -3,6 +3,11 @@
 //  game.js  (requires all other JS files loaded first)
 // ============================================================
 
+// ── Analytics helper (Umami) ──────────────────────────────────
+function track(event, props) {
+  try { if (typeof umami !== 'undefined') umami.track(event, props); } catch(e) {}
+}
+
 
 // ==================== GAME STATE ====================
 const DEFAULT_STATE = {
@@ -254,6 +259,7 @@ function claimDaily() {
 
   G.dailyClaimed = true;
   G.totalDailyClaims = (G.totalDailyClaims || 0) + 1;
+  track('daily-claim', { day: G.consecutiveDays });
   msg('Day ' + G.consecutiveDays + ': ' + reward.label, 'daily');
   SFX.play('coin');
   checkAchievements();
@@ -1150,6 +1156,7 @@ function checkCollectionComplete() {
 
     if (newTier === 1) {
       // Bronze → Silver (no reward, just milestone)
+      track('tier-silver', { monkey: curMonkey().name, stage: stage.name });
       showStagePopup(
         'Silver Tier!',
         stage.name + ' — keep collecting for Gold!'
@@ -1158,6 +1165,7 @@ function checkCollectionComplete() {
 
     } else if (newTier === 2) {
       // Silver → Gold: unlock next stage
+      track('tier-gold', { monkey: curMonkey().name, stage: stage.name });
       const reward = CONFIG.tierRewards.gold;
       G.maxH += reward.maxHammers;
       G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
@@ -1175,6 +1183,7 @@ function checkCollectionComplete() {
 
     } else if (newTier >= 3) {
       // Gold → Complete: banana reward
+      track('stage-complete', { monkey: curMonkey().name, stage: stage.name });
       G.stagesCompleted++;
       G.crystalBananas += CONFIG.crystalBananasPerStage;
       // Also unlock next stage if not already
@@ -1320,6 +1329,7 @@ function unlockMonkey(index) {
   G.crystalBananas -= MONKEY_DATA[index].cost;
   G.monkeys[index].unlocked = true;
   invalidateBonusCache();
+  track('monkey-unlock', { monkey: MONKEY_DATA[index].name });
   SFX.play('levelup');
   msg(MONKEY_DATA[index].name + ' unlocked!', '#16a34a');
   checkAchievements();
@@ -1429,6 +1439,7 @@ function doBuyShopItem(category, id) {
     invalidateBonusCache();
     G.hat = id;
     G.purchases = (G.purchases || 0) + 1;
+    track('hat-purchase', { hat: item.name });
     SFX.play('buy');
     showShopSnack(item.name + ' purchased!');
   }
@@ -1804,6 +1815,7 @@ function applyPurchaseReward(productId, reward) {
   if (reward.bananas) { G.crystalBananas += reward.bananas; }
   if (productId === 'starter_pack') G.premium_starter_pack = true;
   G.premiumPurchases = (G.premiumPurchases || 0) + 1;
+  track('premium-purchase', { product: productId });
   checkAchievements();
   saveGame();
   updateResources();
