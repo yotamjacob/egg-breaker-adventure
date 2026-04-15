@@ -146,9 +146,9 @@
 .egg-slot.runny.broken{filter:grayscale(.4);animation:none}
 .egg-slot.timed{filter:drop-shadow(0 0 6px rgba(255,165,0,.6));animation:timer-pulse .8s ease-in-out infinite}
 .egg-slot.timed.broken{filter:grayscale(.4);animation:none}
-.egg-slot.egg-millenium{filter:drop-shadow(0 0 10px rgba(255,215,0,.6));animation:millenium-glow 2s ease-in-out infinite}
-.egg-slot.egg-millenium.broken{filter:grayscale(.4);animation:none}
-@keyframes millenium-glow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,215,0,.4))}50%{filter:drop-shadow(0 0 16px rgba(255,215,0,.8))}}
+.egg-slot.egg-century{filter:drop-shadow(0 0 10px rgba(255,215,0,.6));animation:century-glow 2s ease-in-out infinite}
+.egg-slot.egg-century.broken{filter:grayscale(.4);animation:none}
+@keyframes century-glow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,215,0,.4))}50%{filter:drop-shadow(0 0 16px rgba(255,215,0,.8))}}
 @keyframes timer-pulse{0%,100%{opacity:1}50%{opacity:.7}}
 .egg-timer{
   font-size:10px;font-family:var(--px);color:#ffa500;

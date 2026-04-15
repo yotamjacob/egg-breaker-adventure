@@ -297,7 +297,7 @@ function newRound() {
   // Build available egg types for this stage from registry
   const available = [];
   for (const def of CONFIG.eggTypes) {
-    // Special unlock: millenium requires Mr. Monkey completed
+    // Special unlock: century requires Mr. Monkey completed
     if (def.unlockMonkey0) {
       if (!G.monkeys || !G.monkeys[0] || !G.monkeys[0].completed) continue;
     } else if (def.unlockStage > si) {
@@ -1578,7 +1578,7 @@ function checkAchievements() {
     missed_1:     () => (G.timerMissed || 0) >= 1,
     missed_10:    () => (G.timerMissed || 0) >= 10,
     combo_effect: () => (G.comboSmashed || 0) >= 1,
-    millenium_1:  () => (G.milleniumSmashed || 0) >= 1,
+    century_1:    () => (G.centurySmashed || 0) >= 1,
     hex_1:        () => (G.hexesHit || 0) >= 1,
     hex_10:       () => (G.hexesHit || 0) >= 10,
     hex_50:       () => (G.hexesHit || 0) >= 50,

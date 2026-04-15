@@ -932,8 +932,8 @@ const ACHIEVEMENT_DATA = [
   { id:'missed_1',     name:'Too Slow',            desc:'Let a timed egg expire',         icon:'🐌', reward:{type:'gold',val:50,       label:'+50 gold'} },
   { id:'missed_10',    name:'Butterfingers',       desc:'Let 10 timed eggs expire',       icon:'🧈', reward:{type:'gold',val:200,      label:'+200 gold'} },
   { id:'combo_effect', name:'Double Trouble',      desc:'Smash a runny timed egg',        icon:'🤯', reward:{type:'gold',val:500,      label:'+500 gold'} },
-  // -- Millenium egg --
-  { id:'millenium_1', name:'The Chosen One',      desc:'Break a Millenium Egg',          icon:'🌀', reward:{type:'goldPct',val:15,    label:'+15% gold from eggs'} },
+  // -- Century egg --
+  { id:'century_1',   name:'The Chosen One',      desc:'Break a Century Egg',            icon:'🌀', reward:{type:'goldPct',val:15,    label:'+15% gold from eggs'} },
   // -- Hex --
   { id:'hex_1',        name:'Cursed!',             desc:'Get hexed for the first time',   icon:'😈', reward:{type:'gold',val:100,      label:'+100 gold'} },
   { id:'hex_10',       name:'Bad Karma',           desc:'Get hexed 10 times',             icon:'👹', reward:{type:'gold',val:500,      label:'+500 gold'} },

@@ -42,8 +42,8 @@ function makeEggSVG(type, damage) {
     <rect x="26" y="22" width="3" height="18" fill="${c.h}" opacity=".5"/>
     <rect x="29" y="19" width="3" height="12" fill="${c.h}" opacity=".35"/>`;
 
-  // Millenium egg: bigger, glowing, ornate
-  if (type === 'millenium') {
+  // Century egg: bigger, glowing, ornate
+  if (type === 'century') {
     const glow = damage < 500 ? `
     <ellipse cx="40" cy="50" rx="30" ry="38" fill="${c.f}" opacity=".15"/>
     <ellipse cx="40" cy="50" rx="35" ry="42" fill="${c.f}" opacity=".08"/>` : '';
@@ -152,7 +152,7 @@ function renderEggTray() {
     const eDef = EGG_REGISTRY[egg.type] || {};
     let cls = 'egg-slot';
     if (eDef.big) cls += ' egg-big';
-    if (egg.type === 'millenium' && alive) cls += ' egg-millenium';
+    if (egg.type === 'century' && alive) cls += ' egg-century';
     if (egg.broken || egg.expired) cls += ' broken';
     if (alive && fx.includes('runny')) cls += ' runny';
     if (alive && fx.includes('timer')) cls += ' timed';
@@ -800,7 +800,7 @@ function renderStats() {
     ['Runny eggs', G.runnySmashed || 0],
     ['Timer eggs', G.timerSmashed || 0],
     ['Timer missed', G.timerMissed || 0],
-    ['Milleniums', G.milleniumSmashed || 0],
+    ['Centuries', G.centurySmashed || 0],
     ['Hexes hit', G.hexesHit || 0],
     ['Balloons', G.balloonPopped || 0],
     ['Longest streak', G.longestStreak || 0],
