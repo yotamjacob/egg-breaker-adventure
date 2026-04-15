@@ -1311,7 +1311,7 @@ function _nextItemToast() {
   setTimeout(() => {
     el.classList.add('out');
     setTimeout(() => { el.remove(); _nextItemToast(); }, 350);
-  }, 4000);
+  }, 3500);
 }
 
 function showStagePopup(title, detail) {
