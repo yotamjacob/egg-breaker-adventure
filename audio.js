@@ -43,6 +43,13 @@ const SFX = (() => {
       if (n === 'buy')     { tone(523, .06, .1, 'square'); setTimeout(() => tone(659, .08, .08, 'square'), 50); }
       if (n === 'err')     { tone(196, .1, .12, 'square'); setTimeout(() => tone(165, .08, .1, 'square'), 60); }
       if (n === 'tier')    { [0,70,140,210,280].forEach((t, i) => setTimeout(() => tone(523 * Math.pow(2, i / 6), .15, .1, 'square'), t)); }
+      if (n === 'complete') {
+        // Ascending arpeggio C-E-G-C'-E'
+        [[523,.2],[659,.2],[784,.2],[1047,.25],[1319,.3]].forEach(([f, d], i) =>
+          setTimeout(() => tone(f, d, .12, 'square'), i * 110));
+        // Triumphant held chord
+        setTimeout(() => { tone(1047, .6, .1, 'square'); tone(1319, .6, .09, 'triangle'); tone(1568, .6, .08, 'triangle'); }, 620);
+      }
     } catch (_) {}
   }
   return { play, toggle() { on = !on; return on; }, isOn() { return on; } };

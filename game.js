@@ -1153,6 +1153,7 @@ function checkCollectionComplete() {
       // Check if ALL stages are complete
       if (prog.tiers.every(t => t >= 3)) {
         prog.completed = true;
+        SFX.play('complete');
       }
     }
     // Refresh UI after tier change — skip renderEggTray so eggs don't jump positions
