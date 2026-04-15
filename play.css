@@ -158,7 +158,7 @@
 }
 @keyframes chicken-dash{0%{left:-40px;transform:scaleX(1)}100%{left:110%;transform:scaleX(1)}}
 .egg-slot.smashing{animation:egg-smash-retro .35s steps(6)}
-@keyframes runny-wobble{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes runny-wobble{0%,100%{rotate:-2deg}50%{rotate:2deg}}
 .egg-slot .egg-label{
   font-size:8px;color:var(--gray);margin-top:1px;
   font-family:var(--px);text-transform:uppercase;letter-spacing:0.5px;
