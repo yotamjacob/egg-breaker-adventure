@@ -13,22 +13,11 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 
 ---solo dev / scale readiness---
 [ ] add Sentry (GlitchTip, Sentry SDK) — SDK wired up v1.5.4, CSP fixed v1.5.8–v1.5.9, confirm events flowing in dashboard
-[x] add analytics — Umami with custom game events (shop purchases, stage-complete) — wired up v1.5.5–v1.5.7, CSP fixed v1.6.0
-[x] export/import save — already implemented + mentioned in onboarding tour (Stats tab → Export Save / Load Save)
-[x] test service worker update flow — SW update banner added in v1.5.3, prompts users to reload on new deploy
 [ ] (future) cloud save — Supabase free tier, optional login — localStorage lost if user clears app data
 
 ---mobile app store (android + ios)---
 
-## code fixes (do first)
-[x] add overscroll-behavior:none to body/html — prevent pull-to-refresh in all tabs
-[x] add user-select:none to body — prevent text highlight on fast taps in menus
-[x] apply env(safe-area-inset-bottom) to bottom nav — already handled by body padding
-[x] export/create 1024x1024 PNG app icon — icon-1024.png generated from icon-512.png
-
 ## android (play store)
-[x] build Android .aab via bubblewrap CLI (android-build/app-release-bundle.aab)
-[x] paste SHA256 fingerprint into .well-known/assetlinks.json
 [ ] get IARC content rating at globalratings.com (free, required for Play Store)
 [ ] create Google Play Developer account at play.google.com/console ($25 one-time fee)
 [ ] prepare store listing: description, screenshots (at least 2 phone screenshots, 1 tablet), feature graphic 1024x500
