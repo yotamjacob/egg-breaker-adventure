@@ -144,7 +144,7 @@
 .monkey-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;overflow:hidden;width:100%}
 .monkey-card{
   background:var(--panel);border:3px solid var(--gray);border-radius:2px;
-  padding:12px 8px 16px;text-align:center;cursor:pointer;
+  padding:12px 8px 22px;text-align:center;cursor:pointer;
   transition:all .08s;display:flex;flex-direction:column;align-items:center;gap:4px;
   box-shadow:3px 3px 0 var(--dark);min-width:0;min-height:180px;
 }
