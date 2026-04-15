@@ -730,18 +730,21 @@ function renderShop() {
   hatGrid.innerHTML = '';
   SHOP_HATS.forEach(h => {
     if (h.cost === 0) return;
-    const owned = G.ownedHats.includes(h.id);
+    const owned      = G.ownedHats.includes(h.id);
+    const isEquipped = G.hat === h.id;
     const card = document.createElement('div');
-    card.className = 'shop-card' + (owned ? ' owned' : '');
+    card.className = 'shop-card' + (owned ? ' owned' : '') + (isEquipped ? ' equipped' : '');
     card.dataset.id = h.id;
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
       '<span class="s-name">' + h.name + '</span>' +
       '<span class="s-desc">' + h.desc + '</span>' +
-      (owned
-        ? '<span class="s-status">OWNED</span>'
-        : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
-    if (!owned) card.addEventListener('click', () => buyShopItem('hat', h.id));
+      (isEquipped
+        ? '<span class="s-status">EQUIPPED</span>'
+        : owned
+          ? '<span class="s-status">OWNED</span>'
+          : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
+    card.addEventListener('click', () => buyShopItem('hat', h.id));
     hatGrid.appendChild(card);
   });
 

@@ -1434,7 +1434,12 @@ function doBuyShopItem(category, id) {
     const item = SHOP_HATS.find(h => h.id === id);
     if (!item || item.cost === 0) return;
     if (G.ownedHats.includes(id)) {
-      showShopSnack('Already owned!');
+      if (G.hat === id) return; // already equipped
+      G.hat = id;
+      invalidateBonusCache();
+      renderAll();
+      saveGame();
+      showShopSnack(item.name + ' equipped!');
       return;
     }
     if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
