@@ -2205,6 +2205,7 @@ function linkGoogleAccount() {
   if (_cloudUser) {
     showConfirm('☁️', 'Unlink Google account?', _cloudUser.email, function() {
       _sbClient.auth.signOut().then(() => {
+        track('cloud-save', { action: 'unlink' });
         _cloudUser = null;
         _updateCloudSaveBtn();
         msg('Google account unlinked.');
@@ -2236,6 +2237,7 @@ async function _onCloudSignIn() {
 
     if (!data) {
       await _syncToCloud();
+      track('cloud-save', { action: 'link-new' });
       msg('☁️ Save backed up to Google account!');
       return;
     }
@@ -2248,10 +2250,12 @@ async function _onCloudSignIn() {
         'Saved ' + _timeAgo(cloudMs) + '. Restore it?',
         async function() {
           _applyCloudSave(data.save_data);
+          track('cloud-save', { action: 'restore' });
           msg('☁️ Cloud save restored!');
         }, 'Restore');
     } else {
       await _syncToCloud();
+      track('cloud-save', { action: 'link-existing' });
       msg('☁️ Google account linked!');
     }
   } catch (e) {
