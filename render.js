@@ -102,13 +102,26 @@ function renderEggTray() {
 
   // Calculate grid: find best cols/rows to fit all eggs
   let cols = Math.ceil(Math.sqrt(count * (usableW / usableH)));
-  let rows = Math.ceil(count / cols);
   if (cols < 1) cols = 1;
+  let rows = Math.ceil(count / cols);
   if (rows < 1) rows = 1;
+
+  // Clamp cols/rows so each cell is at least as wide/tall as one egg,
+  // preventing overlap at spawn (runny eggs drift freely after placement).
+  const maxCols = Math.max(1, Math.floor(usableW / eW));
+  const maxRows = Math.max(1, Math.floor(usableH / eH));
+  if (cols > maxCols) {
+    cols = maxCols;
+    rows = Math.max(Math.ceil(count / cols), 1);
+  }
+  if (rows > maxRows) {
+    rows = maxRows;
+    cols = Math.max(Math.ceil(count / rows), 1);
+  }
 
   const cellW = usableW / cols;
   const cellH = usableH / rows;
-  // Max jitter so egg stays within its cell and away from border
+  // Jitter is half the slack space so eggs never cross into adjacent cells
   const jitterX = Math.max(0, (cellW - eW) / 2);
   const jitterY = Math.max(0, (cellH - eH) / 2);
 

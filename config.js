@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.3.8';
+const VERSION = '1.3.9';
 
 const CONFIG = {
 
@@ -135,7 +135,7 @@ const CONFIG = {
     uncommon: 8,    // rarity 2 base cost
     rare:     20,   // rarity 3 base cost
   },
-  featherStageMultiplier: 1.5,  // cost multiplied by this^(stageIndex) — stage1=1x, stage2=1.5x, stage3=2.25x...
+  featherStageMultiplier: 1.25,  // cost multiplied by this^(stageIndex) — stage1=1x, stage2=1.25x, stage3=1.56x...
 
   // Gold given when you roll a duplicate item (keyed by rarity: 1=common, 2=uncommon, 3=rare)
   duplicateGoldByRarity: { 1: [20, 60], 2: [80, 200], 3: [250, 600] },

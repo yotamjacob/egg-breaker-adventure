@@ -33,8 +33,9 @@ const DEFAULT_STATE = {
   autoBuy: false,
   _tourDone: false,
   deviceId: null,
-  // Premium purchases (one-time flags)
+  // Premium purchases (one-time flags + counter)
   premium_starter_pack: false,
+  premiumPurchases: 0,
   // Shop upgrades (unique one-time purchases)
   owned_spyglass: false, owned_luckycharm: false, owned_goldmagnet: false,
   owned_eggradar: false, owned_doubledaily: false, owned_starsaver: false,
@@ -1603,6 +1604,10 @@ function checkAchievements() {
     balloon_1:    () => (G.balloonPopped || 0) >= 1,
     balloon_10:   () => (G.balloonPopped || 0) >= 10,
     balloon_50:   () => (G.balloonPopped || 0) >= 50,
+    // Premium
+    premium_first:     () => (G.premiumPurchases || 0) >= 1,
+    premium_starter:   () => !!G.premium_starter_pack,
+    premium_supporter: () => (G.premiumPurchases || 0) >= 3,
     // Secrets
     secret_flip:     () => G._secretFlip,
     secret_omelette: () => G._secretOmelette,
@@ -1792,6 +1797,8 @@ function applyPurchaseReward(productId, reward) {
   if (reward.hammers) { G.hammers += reward.hammers; }
   if (reward.bananas) { G.crystalBananas += reward.bananas; }
   if (productId === 'starter_pack') G.premium_starter_pack = true;
+  G.premiumPurchases = (G.premiumPurchases || 0) + 1;
+  checkAchievements();
   saveGame();
   updateResources();
   renderPremiumShop();
@@ -1807,6 +1814,7 @@ function applyPurchaseReward(productId, reward) {
 $id('nav-tabs').addEventListener('click', (e) => {
   const tab = e.target.closest('.nav-tab, .nav-play');
   if (!tab || tab.disabled) return;
+  if (tab.classList.contains('active')) return;
   const name = tab.dataset.tab;
   document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));

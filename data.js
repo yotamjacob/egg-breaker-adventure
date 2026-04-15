@@ -932,6 +932,10 @@ const ACHIEVEMENT_DATA = [
   { id:'balloon_1',    name:'Pop!',                desc:'Pop your first balloon egg',     icon:'🎈', reward:{type:'gold',val:200,      label:'+200 gold'} },
   { id:'balloon_10',   name:'Party Animal',        desc:'Pop 10 balloon eggs',            icon:'🎉', reward:{type:'gold',val:2000,     label:'+2,000 gold'} },
   { id:'balloon_50',   name:'Balloon Master',      desc:'Pop 50 balloon eggs',            icon:'🎊', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
+  // -- Premium --
+  { id:'premium_first',     name:'High Roller',       desc:'Make your first premium purchase',  icon:'💎', reward:{type:'feathers',val:20,   label:'+20 feathers'} },
+  { id:'premium_starter',   name:'Ready to Roll',     desc:'Purchase the Starter Pack',          icon:'🎁', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  { id:'premium_supporter', name:'True Supporter',    desc:'Make 3 premium purchases',           icon:'👑', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
 ];
 
 // Secret achievements — hidden until discovered
