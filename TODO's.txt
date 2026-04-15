@@ -1,14 +1,44 @@
 ---design---
-ai generate all the icons to make them cooler, maintain 16bit graphics
-avatar changes according to hat equipped?
 go over quotes and improve them manually
 
+### hat variants — generate one per monkey per hat, then wire up hatImgs in data.js
+# chef hat images already exist but are NOT yet wired up (need code fix in data.js)
+[x] mr_monkey + chef hat      — img/mrmonkey_chef.webp (exists, unwired)
+[x] steampunk + chef hat      — img/steampunk_chef.webp (exists, unwired)
+[x] princess + chef hat       — img/princess_chef.webp (exists, unwired)
+[x] space + chef hat          — img/space_chef.webp (exists, unwired)
+[ ] mr_monkey + crown         — img/mrmonkey_crown.webp
+[ ] mr_monkey + wizard hat    — img/mrmonkey_wizard.webp
+[ ] mr_monkey + top hat       — img/mrmonkey_tophat.webp
+[ ] mr_monkey + pirate hat    — img/mrmonkey_pirate.webp
+[ ] steampunk + crown         — img/steampunk_crown.webp
+[ ] steampunk + wizard hat    — img/steampunk_wizard.webp
+[ ] steampunk + top hat       — img/steampunk_tophat.webp
+[ ] steampunk + pirate hat    — img/steampunk_pirate.webp
+[ ] princess + crown          — img/princess_crown.webp
+[ ] princess + wizard hat     — img/princess_wizard.webp
+[ ] princess + top hat        — img/princess_tophat.webp
+[ ] princess + pirate hat     — img/princess_pirate.webp
+[ ] space + crown             — img/space_crown.webp
+[ ] space + wizard hat        — img/space_wizard.webp
+[ ] space + top hat           — img/space_tophat.webp
+[ ] space + pirate hat        — img/space_pirate.webp
+
+### special / hidden monkeys
+[ ] Odin Grímnir — img/odin.webp (currently has no image, falls back to 🧙 emoji)
+[ ] Odin + hat variants (optional, do last)
+
+### code task (do after images are ready)
+[ ] wire up hatImgs in data.js for all 4 monkeys (chef + all new hats)
+    format: hatImgs: { chef: 'img/mrmonkey_chef.webp', crown: 'img/mrmonkey_crown.webp', ... }
+
 ---features and playability---
-let's monetize
 gavel - judge hammer
 famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 
 ---bugs and tech debt---
+[ ] set up Playwright MCP server for Claude Code — enables live browser interaction, screenshot testing, UI debugging
+    install: claude mcp add playwright npx @playwright/mcp@latest
 
 ---performance and loading---
 
