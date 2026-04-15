@@ -1,20 +1,25 @@
 ---design---
 go over quotes and improve them manually
-music?
+[x] per-monkey egg tray background (SVG pixel-art, 18% opacity) — v1.6.4
+[x] music emoji added and sized consistently with sound button
 
 ---features and playability---
 gavel - judge hammer
 famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
+[x] per-monkey looping music with fade in/out — v1.6.3
+[x] music mute button in settings header — v1.6.3
 
 ---bugs and tech debt---
+[x] runny egg stuck wiggling in place (CSS rotate vs transform conflict) — v1.6.2
+[x] Living Dangerously achievement threshold tightened to <0.1s — v1.6.1
 [ ] set up Playwright MCP server for Claude Code — enables live browser interaction, screenshot testing, UI debugging
     install: claude mcp add playwright npx @playwright/mcp@latest
 
 ---performance and loading---
 
 ---solo dev / scale readiness---
-[ ] add Sentry (GlitchTip, Sentry SDK) — SDK wired up in v1.5.4 but CSP/setup incomplete
-[x] add analytics — Umami with custom game events (shop purchases, stage-complete) — wired up in v1.5.5–v1.5.7
+[ ] add Sentry (GlitchTip, Sentry SDK) — SDK wired up v1.5.4, CSP fixed v1.5.8–v1.5.9, confirm events flowing in dashboard
+[x] add analytics — Umami with custom game events (shop purchases, stage-complete) — wired up v1.5.5–v1.5.7, CSP fixed v1.6.0
 [x] export/import save — already implemented + mentioned in onboarding tour (Stats tab → Export Save / Load Save)
 [x] test service worker update flow — SW update banner added in v1.5.3, prompts users to reload on new deploy
 [ ] (future) cloud save — Supabase free tier, optional login — localStorage lost if user clears app data
