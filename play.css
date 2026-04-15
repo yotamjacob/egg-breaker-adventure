@@ -57,9 +57,9 @@
   65% { transform:scale(0.92) }
   100%{ transform:scale(1) }
 }
-.prog-track.tier-glow-silver  { animation:tier-glow-silver  0.5s ease-in-out 5;overflow:visible }
-.prog-track.tier-glow-gold    { animation:tier-glow-gold    0.5s ease-in-out 5;overflow:visible }
-.prog-track.tier-glow-complete{ animation:tier-glow-complete 0.5s ease-in-out 6;overflow:visible }
+.prog-track.tier-glow-silver  { animation:tier-glow-silver  0.5s ease-in-out 3;overflow:visible }
+.prog-track.tier-glow-gold    { animation:tier-glow-gold    0.5s ease-in-out 3;overflow:visible }
+.prog-track.tier-glow-complete{ animation:tier-glow-complete 0.5s ease-in-out 3;overflow:visible }
 .stage-tier.tier-badge-pop    { animation:tier-badge-pop 0.45s ease-out 1;display:inline-block }
 
 /* ---------- Multiplier bar ---------- */
