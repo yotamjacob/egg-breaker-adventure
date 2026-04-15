@@ -50,6 +50,7 @@ const DEFAULT_STATE = {
   _secret42: false, _secretMidnight: false, _secretLeet: false, _secretChef: false, _secretOmelette: false,
   // Cloud save
   _savedAt: 0,
+  _cloudSavedAt: 0,
 };
 
 let G = {};
@@ -90,7 +91,6 @@ function saveGame() {
   const json = JSON.stringify(d);
   const compressed = 'lz:' + LZString.compressToUTF16(json);
   localStorage.setItem(SAVE_KEY, compressed);
-  scheduleCloudSync();
 }
 
 function migrateSave(state) {
@@ -2146,6 +2146,40 @@ function initCloudSave() {
   });
 }
 
+function openCloudSaveModal() {
+  closeOverlay('overlay-settings');
+  $id('overlay-cloudsave').classList.remove('hidden');
+  _renderCloudModal();
+  // Fetch last cloud save timestamp if linked
+  if (_sbClient && _cloudUser) {
+    _sbClient.from('game_saves').select('saved_at').eq('user_id', _cloudUser.id).maybeSingle()
+      .then(({ data }) => {
+        if (data) { G._cloudSavedAt = new Date(data.saved_at).getTime(); _renderCloudModal(); }
+      }).catch(() => {});
+  }
+}
+
+function _renderCloudModal() {
+  const linked   = !!_cloudUser;
+  const linkBtn  = $id('cloud-link-btn');
+  const saveBtn  = $id('cloud-save-action-btn');
+  const loadBtn  = $id('cloud-load-action-btn');
+  const tsEl     = $id('cloud-timestamp');
+  if (!linkBtn) return;
+  if (linked) {
+    linkBtn.classList.add('cloud-link-linked');
+    $id('cloud-link-label').textContent = '✓ ' + _cloudUser.email;
+  } else {
+    linkBtn.classList.remove('cloud-link-linked');
+    $id('cloud-link-label').textContent = 'Link Google Account';
+  }
+  saveBtn.disabled = !linked;
+  loadBtn.disabled = !linked;
+  tsEl.textContent = G._cloudSavedAt
+    ? 'Last cloud save: ' + _timeAgo(G._cloudSavedAt)
+    : 'Last cloud save: never';
+}
+
 function linkGoogleAccount() {
   if (!_sbClient) return;
   if (_cloudUser) {
@@ -2153,7 +2187,7 @@ function linkGoogleAccount() {
       _sbClient.auth.signOut().then(() => {
         track('cloud-save', { action: 'unlink' });
         _cloudUser = null;
-        _updateCloudSaveBtn();
+        _renderCloudModal();
         msg('Google account unlinked.');
       });
     }, 'Unlink');
@@ -2165,59 +2199,41 @@ function linkGoogleAccount() {
   });
 }
 
-function _updateCloudSaveBtn() {
-  const btn = $id('cloud-save-btn');
-  if (!btn) return;
-  btn.querySelector('.btn-label').textContent =
-    _cloudUser ? '☁️ ' + _cloudUser.email : '☁️ Link Google Account';
-}
-
 async function _onCloudSignIn() {
   if (!_sbClient || !_cloudUser) return;
-  try {
-    const { data } = await _sbClient
-      .from('game_saves')
-      .select('save_data, saved_at')
-      .eq('user_id', _cloudUser.id)
-      .maybeSingle();
-
-    if (!data) {
-      await _syncToCloud();
-      track('cloud-save', { action: 'link-new' });
-      msg('☁️ Save backed up to Google account!');
-      return;
-    }
-
-    const cloudMs = new Date(data.saved_at).getTime();
-    const localMs = G._savedAt || 0;
-
-    if (cloudMs > localMs + 5000) {
-      showConfirm('☁️', 'Cloud save found!',
-        'Saved ' + _timeAgo(cloudMs) + '. Restore it?',
-        async function() {
-          _applyCloudSave(data.save_data);
-          track('cloud-save', { action: 'restore' });
-          msg('☁️ Cloud save restored!');
-        }, 'Restore');
-    } else {
-      await _syncToCloud();
-      track('cloud-save', { action: 'link-existing' });
-      msg('☁️ Google account linked!');
-    }
-  } catch (e) {
-    console.warn('[cloud] sign-in check failed:', e);
-  }
+  track('cloud-save', { action: 'link' });
+  msg('☁️ Google account linked! Open Settings → Cloud Save to sync.');
+  _renderCloudModal();
 }
 
-function scheduleCloudSync() {
+function cloudSaveManual() {
   if (!_sbClient || !_cloudUser) return;
-  if (_cloudSyncTimer) clearTimeout(_cloudSyncTimer);
-  _cloudSyncTimer = setTimeout(_syncToCloud, 60000);
+  showConfirm('☁️', 'Save to cloud?', 'This will overwrite your current cloud save.', async function() {
+    await _syncToCloud();
+    _renderCloudModal();
+    msg('☁️ Saved to cloud!');
+  }, 'Save');
+}
+
+function cloudLoadManual() {
+  if (!_sbClient || !_cloudUser) return;
+  showConfirm('📥', 'Load from cloud?', 'This will overwrite your current game progress.', async function() {
+    try {
+      const { data } = await _sbClient
+        .from('game_saves').select('save_data').eq('user_id', _cloudUser.id).maybeSingle();
+      if (!data) { msg('No cloud save found.'); return; }
+      _applyCloudSave(data.save_data);
+      track('cloud-save', { action: 'load' });
+      msg('☁️ Cloud save loaded!');
+    } catch (e) {
+      msg('Failed to load cloud save.');
+      console.warn('[cloud] load failed:', e);
+    }
+  }, 'Load');
 }
 
 async function _syncToCloud() {
   if (!_sbClient || !_cloudUser) return;
-  _cloudSyncTimer = null;
   try {
     const d = {};
     for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
@@ -2230,6 +2246,9 @@ async function _syncToCloud() {
       { user_id: _cloudUser.id, save_data: compressed, saved_at: new Date(G._savedAt).toISOString() },
       { onConflict: 'user_id' }
     );
+    G._cloudSavedAt = G._savedAt;
+    saveGame();
+    track('cloud-save', { action: 'save' });
   } catch (e) {
     console.warn('[cloud] sync failed:', e);
   }

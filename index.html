@@ -242,8 +242,8 @@
           <button class="settings-menu-btn" onclick="openSubModal('overlay-lexicon',renderLexicon)">
             <span class="btn-label">Lexicon</span>
           </button>
-          <button class="settings-menu-btn" id="cloud-save-btn" onclick="linkGoogleAccount()">
-            <span class="btn-label">☁️ Link Google Account</span>
+          <button class="settings-menu-btn" onclick="openCloudSaveModal()">
+            <span class="btn-label">☁️ Cloud Save</span>
           </button>
           <button class="settings-menu-btn settings-danger-btn" onclick="resetGame()">
             <span class="btn-label">Reset All Progress</span>
@@ -285,6 +285,31 @@
       </div>
     </div>
 
+
+    <!-- ===== CLOUD SAVE MODAL ===== -->
+    <div class="overlay hidden" id="overlay-cloudsave" onclick="if(event.target===this){closeOverlay('overlay-cloudsave');openSettings();}">
+      <div class="popup pop-submodal" style="max-width:320px">
+        <div class="submodal-header">
+          <span class="submodal-title">Cloud Save</span>
+          <button class="submodal-close" onclick="closeOverlay('overlay-cloudsave');openSettings()">✕</button>
+        </div>
+        <div class="submodal-body">
+          <div class="cloud-save-box">
+            <button class="cloud-link-btn" id="cloud-link-btn" onclick="linkGoogleAccount()">
+              <span class="cloud-g-icon">G</span>
+              <span id="cloud-link-label">Link Google Account</span>
+            </button>
+            <button class="cloud-action-btn" id="cloud-save-action-btn" onclick="cloudSaveManual()" disabled>
+              ☁️ Save to Cloud
+            </button>
+            <button class="cloud-action-btn" id="cloud-load-action-btn" onclick="cloudLoadManual()" disabled>
+              📥 Load from Cloud
+            </button>
+            <div class="cloud-timestamp" id="cloud-timestamp">Last cloud save: never</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- ===== LEXICON MODAL ===== -->
     <div class="overlay hidden" id="overlay-lexicon" onclick="if(event.target===this){closeOverlay('overlay-lexicon');openSettings();}">
