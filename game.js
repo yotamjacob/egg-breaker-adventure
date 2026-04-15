@@ -1449,6 +1449,12 @@ function doBuyShopItem(category, id) {
     track('shop-purchase', { item: item.name, category: 'hat' });
     SFX.play('buy');
     showShopSnack(item.name + ' purchased!');
+    checkAchievements();
+    updateResources();
+    renderAll(); renderPremiumShop(); saveGame();
+    const hatCard = [...$id('shop-hats').children].find(c => c.dataset && c.dataset.id === id);
+    if (hatCard) hatCard.classList.add('just-bought');
+    return;
   }
 
   if (category === 'supply') {
@@ -2111,6 +2117,18 @@ $id('tour-skip').addEventListener('click', () => {
 // ==================== INIT ====================
 loadGame();
 
+// Offline hammer regen — apply hammers earned while the app was closed
+if (G._savedAt > 0 && G.hammers < G.maxH) {
+  const elapsed = Math.floor((Date.now() - G._savedAt) / 1000);
+  if (elapsed > 0) {
+    const interval = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+    if (elapsed >= G.regenCD) {
+      const earned = 1 + Math.floor((elapsed - G.regenCD) / interval);
+      G.hammers = Math.min(G.maxH, G.hammers + earned);
+    }
+  }
+}
+
 if (G.soundOn === false && SFX.isOn()) SFX.toggle();
 _syncSoundUI(SFX.isOn());
 if (G.musicOn === false && MUSIC.isOn()) MUSIC.toggle();
@@ -2285,7 +2303,6 @@ function linkGoogleAccount() {
 async function _onCloudSignIn() {
   if (!_sbClient || !_cloudUser) return;
   track('cloud-save', { action: 'link' });
-  showShopSnack('☁️ Google account linked!');
   _startCloudAutoSave();
   _renderCloudModal();
 }

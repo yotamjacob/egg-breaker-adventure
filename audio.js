@@ -72,13 +72,14 @@ const MUSIC = (() => {
   };
 
   // Per-track volume overrides (multiplier relative to VOLUME)
-  const TRACK_VOL = { space: 0.85 };  // Space Cadet is louder — reduce 15%
+  const TRACK_VOL = { space: 0.765 };  // Space Cadet is louder — reduce 23.5% total
 
   let audio      = null;
   let on         = true;
   let currentSrc = null;
   let currentVol = VOLUME;
   let _timer     = null;
+  let _pausedForVisibility = false;
 
   function _clearTimer() {
     if (_timer) { clearInterval(_timer); _timer = null; }
@@ -138,8 +139,23 @@ const MUSIC = (() => {
 
   // Retry on first user gesture — browser autoplay policy
   document.addEventListener('pointerdown', () => {
-    if (on && audio && audio.paused) _fadeIn(audio, currentVol);
+    if (on && audio && audio.paused && !_pausedForVisibility) _fadeIn(audio, currentVol);
   }, { once: true });
+
+  // Pause music when tab/window is hidden, resume when restored
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (on && audio && !audio.paused) {
+        _fadeOut(audio, () => {});
+        _pausedForVisibility = true;
+      }
+    } else {
+      if (_pausedForVisibility) {
+        _pausedForVisibility = false;
+        if (on && audio) _fadeIn(audio, currentVol);
+      }
+    }
+  });
 
   return { play, toggle, isOn };
 })();
