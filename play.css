@@ -38,6 +38,30 @@
 .stage-footer{display:flex;justify-content:space-between;align-items:center}
 .stage-detail{font-size:11px;color:var(--gray)}
 
+/* Tier advancement flash */
+@keyframes tier-glow-silver {
+  0%,100%{ box-shadow:inset 1px 1px 0 rgba(0,0,0,.5) }
+  50%    { box-shadow:inset 1px 1px 0 rgba(0,0,0,.5),0 0 14px 5px #c0cfe0,0 0 5px 2px #8096a8 }
+}
+@keyframes tier-glow-gold {
+  0%,100%{ box-shadow:inset 1px 1px 0 rgba(0,0,0,.5) }
+  50%    { box-shadow:inset 1px 1px 0 rgba(0,0,0,.5),0 0 18px 7px #fbbf24,0 0 7px 2px #f59e0b }
+}
+@keyframes tier-glow-complete {
+  0%,100%{ box-shadow:inset 1px 1px 0 rgba(0,0,0,.5) }
+  50%    { box-shadow:inset 1px 1px 0 rgba(0,0,0,.5),0 0 18px 7px #4ade80,0 0 7px 2px #22c55e }
+}
+@keyframes tier-badge-pop {
+  0%  { transform:scale(1) }
+  35% { transform:scale(1.4) }
+  65% { transform:scale(0.92) }
+  100%{ transform:scale(1) }
+}
+.prog-track.tier-glow-silver  { animation:tier-glow-silver  0.5s ease-in-out 5;overflow:visible }
+.prog-track.tier-glow-gold    { animation:tier-glow-gold    0.5s ease-in-out 5;overflow:visible }
+.prog-track.tier-glow-complete{ animation:tier-glow-complete 0.5s ease-in-out 6;overflow:visible }
+.stage-tier.tier-badge-pop    { animation:tier-badge-pop 0.45s ease-out 1;display:inline-block }
+
 /* ---------- Multiplier bar ---------- */
 .mult-bar{
   flex-shrink:0;

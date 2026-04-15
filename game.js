@@ -1206,10 +1206,6 @@ function checkCollectionComplete() {
 
     if (newTier === 1) {
       // Bronze → Silver (no reward, just milestone)
-      showStagePopup(
-        'Silver Tier!',
-        stage.name + ' — keep collecting for Gold!'
-      );
       msg('⬆️ Silver Tier! ' + stage.name, 'tiers');
 
     } else if (newTier === 2) {
@@ -1223,10 +1219,6 @@ function checkCollectionComplete() {
       }
       const nextName = si < curMonkey().stages.length - 1
         ? curMonkey().stages[si + 1].name : null;
-      showStagePopup(
-        stage.name + ' - Gold Tier',
-        nextName ? 'Stage ' + (si + 2) + ': ' + nextName + ' unlocked' : ''
-      );
       msg('🥇 Gold Tier! ' + stage.name + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
 
     } else if (newTier >= 3) {
@@ -1238,10 +1230,6 @@ function checkCollectionComplete() {
       if (si >= prog.stage && si < curMonkey().stages.length - 1) {
         prog.stage = si + 1;
       }
-      showStagePopup(
-        stage.name + ' - 100%',
-        '+' + CONFIG.crystalBananasPerStage + ' Crystal Banana'
-      );
       msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌', 'tiers');
       // Check if ALL stages are complete
       if (prog.tiers.every(t => t >= 3)) {
@@ -1256,6 +1244,7 @@ function checkCollectionComplete() {
       renderAlbum();
       renderMonkeys();
       renderStats();
+      flashTierUp(newTier);
     }, 100);
     G.collectionsCompleted = calcTotalCollections();
     checkAchievements();

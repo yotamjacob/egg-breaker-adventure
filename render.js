@@ -462,6 +462,29 @@ function updateStageBar() {
   }
 }
 
+function flashTierUp(newTier) {
+  const fill  = $id('stage-fill');
+  const track = fill ? fill.parentElement : null;
+  const badge = $id('stage-tier');
+  if (!track || !badge) return;
+
+  const glowCls = newTier === 1 ? 'tier-glow-silver'
+                : newTier === 2 ? 'tier-glow-gold'
+                : 'tier-glow-complete';
+
+  // Clear any prior flash in case of rapid tier-ups
+  track.classList.remove('tier-glow-silver', 'tier-glow-gold', 'tier-glow-complete');
+  badge.classList.remove('tier-badge-pop');
+  // Force reflow so re-adding the class restarts the animation
+  void track.offsetWidth;
+  void badge.offsetWidth;
+
+  track.classList.add(glowCls);
+  badge.classList.add('tier-badge-pop');
+  track.addEventListener('animationend', () => track.classList.remove(glowCls), { once: true });
+  badge.addEventListener('animationend', () => badge.classList.remove('tier-badge-pop'), { once: true });
+}
+
 function renderAll() {
   const monkey = curMonkey();
   const avatarEl = $id('monkey-avatar');
