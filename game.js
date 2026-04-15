@@ -1421,6 +1421,7 @@ function doBuyShopItem(category, id) {
     invalidateBonusCache();
     G.hammer = id;
     G.purchases = (G.purchases || 0) + 1;
+    track('shop-purchase', { item: item.name, category: 'hammer' });
     SFX.play('buy');
     updateHammerSVG();
     showShopSnack(item.name + ' purchased!');
@@ -1439,7 +1440,7 @@ function doBuyShopItem(category, id) {
     invalidateBonusCache();
     G.hat = id;
     G.purchases = (G.purchases || 0) + 1;
-    track('hat-purchase', { hat: item.name });
+    track('shop-purchase', { item: item.name, category: 'hat' });
     SFX.play('buy');
     showShopSnack(item.name + ' purchased!');
   }
@@ -1454,6 +1455,7 @@ function doBuyShopItem(category, id) {
     if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
     G.gold -= item.cost;
     G.purchases = (G.purchases || 0) + 1;
+    track('shop-purchase', { item: item.name, category: item.type });
 
     if (id === 'hammers5') { G.hammers = Math.min(G.maxH, G.hammers + 5); showShopSnack('+5 hammers purchased!'); }
     if (id === 'hammers20') { G.hammers = Math.min(G.maxH, G.hammers + 20); showShopSnack('+20 hammers purchased!'); }
