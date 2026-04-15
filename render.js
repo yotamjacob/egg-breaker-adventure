@@ -92,18 +92,19 @@ function renderEggTray() {
     newRound();
     return;
   }
-  // If the play panel is hidden, offsetWidth/Height will be 0 and eggs
-  // will all land at 0,0. Defer the render until the panel is visible.
-  const panel = $id('panel-play');
-  if (panel && !panel.classList.contains('active')) {
+  // Measure first — if the tray has no layout size the panel is hidden or
+  // the browser hasn't done a layout pass yet. Clear the tray and defer;
+  // the nav handler will retry via requestAnimationFrame.
+  const tW = tray.offsetWidth;
+  const tH = tray.offsetHeight;
+  if (tW === 0 || tH === 0) {
+    tray.innerHTML = '';        // ensure empty so nav handler retries
     _trayNeedsRender = true;
     return;
   }
   _trayNeedsRender = false;
   tray.innerHTML = '';
   // Grid-based placement with random jitter — guarantees no overlap
-  const tW = tray.offsetWidth || 300;
-  const tH = tray.offsetHeight || 250;
   const eW = 76, eH = 110; // SVG 88px + label ~20px
   const padX = 12, padTop = 10, padBot = 80; // extra bottom clearance for reward log
   const usableW = tW - padX * 2;

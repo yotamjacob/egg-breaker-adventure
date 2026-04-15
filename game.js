@@ -1977,7 +1977,11 @@ $id('nav-tabs').addEventListener('click', (e) => {
   tab.classList.add('active');
   $id('panel-' + name).classList.add('active');
   // Refresh content when switching tabs
-  if (name === 'play' && (_trayNeedsRender || !$id('egg-tray').children.length)) renderEggTray();
+  if (name === 'play' && (_trayNeedsRender || !$id('egg-tray').children.length)) {
+    // rAF ensures the browser has laid out the panel (display:flex) before
+    // renderEggTray reads offsetWidth/offsetHeight for egg positioning.
+    requestAnimationFrame(renderEggTray);
+  }
   if (name === 'album') renderAlbum();
   if (name === 'monkeys') renderMonkeys();
   if (name === 'shop') { renderShop(); updateAutoBuyBtn(); }
