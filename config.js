@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.48';
+const VERSION = '1.8.49';
 
 const CONFIG = {
 
@@ -86,9 +86,9 @@ const CONFIG = {
   // 2. GOLD DROP RANGES
   // ----------------------------------------------------------
   goldValues: {
-    gold_s: [1,   5],
-    gold_m: [8,  22],
-    gold_l: [30, 90],
+    gold_s: [1,   4],
+    gold_m: [5,  15],
+    gold_l: [18, 60],
   },
 
   starPiecesForStarfall: 5,

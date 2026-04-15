@@ -434,10 +434,10 @@ const SHOP_HAMMERS = [
   { id: 'drumstick',  name: 'Drumstick Hammer', emoji: '🍗', desc: '+15% star pieces',            cost: 8000, currency: 'gold', bonus: 'moreStars' },
   { id: 'bat',        name: 'Bat Hammer',       emoji: '🦇', desc: 'Fewer empty eggs',            cost: 12000, currency: 'gold', bonus: 'lessEmpty' },
   { id: 'crystal',    name: 'Crystal Hammer',    emoji: '🔮', desc: '+20% feathers',               cost: 25000, currency: 'gold', bonus: 'moreFeathers' },
-  { id: 'golden',     name: 'Golden Hammer',     emoji: '⭐', desc: '2x gold from eggs',           cost: 75000, currency: 'gold', bonus: 'moreGold' },
-  { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% collection items',       cost: 150000, currency: 'gold', bonus: 'moreItems' },
-  { id: 'cucumber',   name: 'Cucumber Hammer',   emoji: '🥒', desc: '5% double hit chance',        cost: 200000, currency: 'gold', bonus: 'doubleHit' },
-  { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% chance to summon Starfall', cost: 250000, currency: 'gold', bonus: 'mjolnirStarfall' },
+  { id: 'golden',     name: 'Golden Hammer',     emoji: '⭐', desc: '2x gold from eggs',           cost: 120000, currency: 'gold', bonus: 'moreGold' },
+  { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% collection items',       cost: 220000, currency: 'gold', bonus: 'moreItems' },
+  { id: 'cucumber',   name: 'Cucumber Hammer',   emoji: '🥒', desc: '5% double hit chance',        cost: 300000, currency: 'gold', bonus: 'doubleHit' },
+  { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% chance to summon Starfall', cost: 420000, currency: 'gold', bonus: 'mjolnirStarfall' },
 ];
 
 const SHOP_HATS = [
@@ -445,8 +445,8 @@ const SHOP_HATS = [
   { id: 'chef',    name: 'Chef\'s Hat',   emoji: '👨‍🍳', desc: '3% chance egg was free',   cost: 15000, currency: 'gold', bonus: 'freeEgg' },
   { id: 'crown',   name: 'Crown',         emoji: '👑', desc: '+10% gold',                 cost: 30000, currency: 'gold', bonus: 'goldBoost' },
   { id: 'wizard',  name: 'Wizard Hat',    emoji: '🧙', desc: '+10% stars',                cost: 45000, currency: 'gold', bonus: 'starBoost' },
-  { id: 'tophat',  name: 'Top Hat',       emoji: '🎩', desc: 'Unlocks x123 multiplier',   cost: 75000, currency: 'gold', bonus: 'unlock123' },
-  { id: 'pirate',  name: 'Pirate Hat',    emoji: '🏴‍☠️', desc: '+15% collection items',    cost: 120000, currency: 'gold', bonus: 'itemBoost' },
+  { id: 'tophat',  name: 'Top Hat',       emoji: '🎩', desc: 'Unlocks x123 multiplier',   cost: 110000, currency: 'gold', bonus: 'unlock123' },
+  { id: 'pirate',  name: 'Pirate Hat',    emoji: '🏴‍☠️', desc: '+15% collection items',    cost: 180000, currency: 'gold', bonus: 'itemBoost' },
 ];
 
 const SHOP_SUPPLIES = [

@@ -452,8 +452,8 @@ function resolvePrize(type, eggType) {
     if (hasBonus('allfather')) val = Math.round(val * 1.1);
     const ab = getAchievementBonuses();
     if (ab.goldPct > 0) val = Math.round(val * (1 + ab.goldPct / 100));
-    // Progressive gold: +5% per completed stage
-    if (G.stagesCompleted > 0) val = Math.round(val * (1 + G.stagesCompleted * 0.05));
+    // Progressive gold: +2% per completed stage, capped at +30%
+    if (G.stagesCompleted > 0) val = Math.round(val * (1 + Math.min(G.stagesCompleted * 0.02, 0.30)));
     // Golden Magnet: round up to nearest 10
     if (G['owned_goldmagnet']) val = Math.ceil(val / 10) * 10;
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
