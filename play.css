@@ -23,7 +23,7 @@
 .stage-tier.gold{background:var(--gold3);color:var(--gold);border-color:var(--gold)}
 .stage-tier.complete{background:var(--green2);color:var(--green);border-color:var(--green)}
 .prog-track{
-  background:var(--dark);border:2px solid #444;
+  background:var(--dark);border:2px solid var(--gold3);
   border-radius:1px;height:10px;overflow:hidden;margin-bottom:4px;
   box-shadow:inset 1px 1px 0 rgba(0,0,0,.5);
 }
@@ -36,7 +36,7 @@
   background:repeating-linear-gradient(90deg,var(--green),var(--green) 4px,var(--green2) 4px,var(--green2) 8px);
 }
 .stage-footer{display:flex;justify-content:space-between;align-items:center}
-.stage-detail{font-size:11px;color:#a8b8c8}
+.stage-detail{font-size:11px;color:var(--gray)}
 
 /* ---------- Multiplier bar ---------- */
 .mult-bar{
@@ -47,8 +47,8 @@
   box-shadow: inset 1px 1px 0 var(--raised), 2px 2px 0 var(--dark);
   overflow:hidden;
 }
-.mult-label{color:#a8b8c8;flex-shrink:0;font-size:8px;text-align:center;line-height:1.4;width:50px}
-.mult-label strong{color:#c084fc;font-size:10px;display:block}
+.mult-label{color:var(--gray);flex-shrink:0;font-size:8px;text-align:center;line-height:1.4;width:50px}
+.mult-label strong{color:var(--purple);font-size:10px;display:block}
 .mult-queue{
   display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
   flex:1;
@@ -175,7 +175,7 @@
 }
 .rlog-title{font-size:8px;color:var(--gold3);letter-spacing:1px;margin-bottom:1px}
 .reward-log .log-line{color:var(--gold);text-shadow:1px 1px 0 var(--dark)}
-.reward-log .log-line.log-err{color:#fca5a5}
+.reward-log .log-line.log-err{color:var(--red)}
 .reward-log .log-line.log-green{color:#86efac}
 .reward-log .log-line.log-blue{color:#93c5fd}
 .reward-log .log-line.log-gray{color:var(--gray)}

@@ -42,7 +42,7 @@
 
 .confirm-btns{display:flex;gap:6px;margin-top:6px}
 .confirm-yes{background:linear-gradient(180deg,var(--green),var(--green2))!important;border-color:var(--green)!important}
-.confirm-no{background:var(--panel)!important;color:#a8b8c8!important;border-color:#a8b8c8!important}
+.confirm-no{background:var(--panel)!important;color:var(--gray)!important;border-color:var(--gray)!important}
 .pop-quote{font-size:11px;color:var(--amber);font-style:italic;max-width:220px;text-align:center;line-height:1.5}
 
 /* Toast */
