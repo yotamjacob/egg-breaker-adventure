@@ -1,36 +1,6 @@
 ---design---
 go over quotes and improve them manually
-
-### hat variants — generate one per monkey per hat, then wire up hatImgs in data.js
-# chef hat images already exist but are NOT yet wired up (need code fix in data.js)
-[x] mr_monkey + chef hat      — img/mrmonkey_chef.webp (exists, unwired)
-[x] steampunk + chef hat      — img/steampunk_chef.webp (exists, unwired)
-[x] princess + chef hat       — img/princess_chef.webp (exists, unwired)
-[x] space + chef hat          — img/space_chef.webp (exists, unwired)
-[ ] mr_monkey + crown         — img/mrmonkey_crown.webp
-[ ] mr_monkey + wizard hat    — img/mrmonkey_wizard.webp
-[ ] mr_monkey + top hat       — img/mrmonkey_tophat.webp
-[ ] mr_monkey + pirate hat    — img/mrmonkey_pirate.webp
-[ ] steampunk + crown         — img/steampunk_crown.webp
-[ ] steampunk + wizard hat    — img/steampunk_wizard.webp
-[ ] steampunk + top hat       — img/steampunk_tophat.webp
-[ ] steampunk + pirate hat    — img/steampunk_pirate.webp
-[ ] princess + crown          — img/princess_crown.webp
-[ ] princess + wizard hat     — img/princess_wizard.webp
-[ ] princess + top hat        — img/princess_tophat.webp
-[ ] princess + pirate hat     — img/princess_pirate.webp
-[ ] space + crown             — img/space_crown.webp
-[ ] space + wizard hat        — img/space_wizard.webp
-[ ] space + top hat           — img/space_tophat.webp
-[ ] space + pirate hat        — img/space_pirate.webp
-
-### special / hidden monkeys
-[ ] Odin Grímnir — img/odin.webp (currently has no image, falls back to 🧙 emoji)
-[ ] Odin + hat variants (optional, do last)
-
-### code task (do after images are ready)
-[ ] wire up hatImgs in data.js for all 4 monkeys (chef + all new hats)
-    format: hatImgs: { chef: 'img/mrmonkey_chef.webp', crown: 'img/mrmonkey_crown.webp', ... }
+music?
 
 ---features and playability---
 gavel - judge hammer
@@ -43,10 +13,10 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 ---performance and loading---
 
 ---solo dev / scale readiness---
-[ ] add Sentry (free tier, 5k errors/month) — one script tag in index.html — zero visibility into production errors right now
-[ ] add analytics — Plausible or Umami (privacy-friendly, no GDPR headache) — need DAU, retention, which stages players get stuck on
+[ ] add Sentry (GlitchTip, Sentry SDK) — SDK wired up in v1.5.4 but CSP/setup incomplete
+[x] add analytics — Umami with custom game events (shop purchases, stage-complete) — wired up in v1.5.5–v1.5.7
 [x] export/import save — already implemented + mentioned in onboarding tour (Stats tab → Export Save / Load Save)
-[ ] test service worker update flow on a real device — make sure users aren't stuck on old cached versions after a deploy
+[x] test service worker update flow — SW update banner added in v1.5.3, prompts users to reload on new deploy
 [ ] (future) cloud save — Supabase free tier, optional login — localStorage lost if user clears app data
 
 ---mobile app store (android + ios)---
