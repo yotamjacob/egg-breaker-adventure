@@ -308,6 +308,9 @@
             <button class="cloud-action-btn" id="cloud-load-action-btn" onclick="cloudLoadManual()" disabled>
               📥 Load from Cloud
             </button>
+            <button class="cloud-action-btn settings-danger-btn" id="cloud-delete-action-btn" onclick="deleteCloudData()" disabled>
+              🗑️ Delete Cloud Data
+            </button>
             <div class="cloud-timestamp" id="cloud-timestamp">Last cloud save: never</div>
             <label class="cloud-autosave-row disabled" id="cloud-autosave-row">
               <input type="checkbox" id="cloud-autosave-cb" onchange="toggleCloudAutoSave(this.checked)" disabled>

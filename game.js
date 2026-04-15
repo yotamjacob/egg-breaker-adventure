@@ -2250,6 +2250,8 @@ function _renderCloudModal() {
   }
   saveBtn.disabled = !linked;
   loadBtn.disabled = !linked;
+  const delBtn = $id('cloud-delete-action-btn');
+  if (delBtn) delBtn.disabled = !linked;
   tsEl.textContent = G._cloudSavedAt
     ? 'Last cloud save: ' + _timeAgo(G._cloudSavedAt)
     : 'Last cloud save: never';
@@ -2299,6 +2301,25 @@ function linkGoogleAccount() {
     provider: 'google',
     options: { redirectTo: window.location.origin + '/' },
   });
+}
+
+async function deleteCloudData() {
+  if (!_sbClient || !_cloudUser) return;
+  showConfirm('🗑️', 'Delete all cloud data?', 'This removes your save from our servers. Your local save is unaffected.', async function() {
+    try {
+      await _sbClient.from('game_saves').delete().eq('user_id', _cloudUser.id);
+      G._cloudSavedAt = 0;
+      saveGame();
+      track('cloud-save', { action: 'delete-data' });
+      await _sbClient.auth.signOut();
+      _cloudUser = null;
+      _stopCloudAutoSave();
+      _renderCloudModal();
+      showShopSnack('Cloud data deleted.');
+    } catch (e) {
+      showShopSnack('Delete failed. Try again.');
+    }
+  }, 'Delete');
 }
 
 async function _onCloudSignIn() {
