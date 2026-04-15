@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Egg Breaker Adventures — Music Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1a2e;
+      color: #f5c542;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 20px;
+      user-select: none;
+    }
+    h1 { font-size: 14px; letter-spacing: 3px; text-shadow: 2px 2px 0 #8b6508; }
+    .subtitle { font-size: 10px; color: #a0a0c0; letter-spacing: 2px; }
+    .controls { display: flex; gap: 12px; }
+    button {
+      background: #2a2a4a;
+      color: #f5c542;
+      border: 2px solid #f5c542;
+      padding: 10px 24px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 #000;
+      transition: all 0.08s;
+    }
+    button:hover { background: #f5c542; color: #1a1a2e; transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #000; }
+    button:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #000; }
+    #status { font-size: 10px; color: #7070a0; letter-spacing: 2px; min-height: 16px; }
+    .info {
+      font-size: 9px; color: #4a5a4a; letter-spacing: 1px;
+      text-align: center; line-height: 2;
+    }
+  </style>
+</head>
+<body>
+  <h1>🥚 EGG BREAKER ADVENTURES</h1>
+  <p class="subtitle">♪ MUSIC PREVIEW — TRACK 1 ♪</p>
+  <div class="controls">
+    <button id="btn-play">▶  PLAY</button>
+    <button id="btn-stop">■  STOP</button>
+  </div>
+  <div id="status">READY</div>
+  <div class="info">
+    140 BPM · C MAJOR · 8-BAR LOOP<br>
+    LEAD (SQUARE) · ARP (SAW) · BASS (TRI) · DRUMS (NOISE)<br>
+    I – vi – IV – V
+  </div>
+
+  <script>
+  // ============================================================
+  //  Egg Breaker Adventures — Chiptune Engine
+  //  audio/preview.html
+  //
+  //  Standalone preview — not yet wired into the game.
+  //
+  //  4 channels:
+  //    Ch1  Lead      square wave     main melody
+  //    Ch2  Arpeggio  sawtooth        chord fills (16th notes)
+  //    Ch3  Bass      triangle        root + fifth per bar
+  //    Ch4  Drums     noise bursts    kick / snare / hi-hat
+  //
+  //  Structure: 8 bars × 4 beats @ 140 BPM, loops seamlessly.
+  //  Progression: I – vi – IV – V (C major)
+  // ============================================================
+
+  const AC = window.AudioContext || window.webkitAudioContext;
+
+  let ctx      = null;
+  let master   = null;
+  let running  = false;
+  let loopTimer = null;
+
+  const BPM  = 140;
+  const Q    = 60 / BPM;      // quarter note (seconds)
+  const E    = Q / 2;         // eighth note
+  const S    = Q / 4;         // sixteenth note
+  const BARS = 8;
+  const LOOP = BARS * 4 * Q;  // total loop length in seconds
+
+  // ---- Note → frequency ----
+  function freq(name) {
+    if (name === 'R') return 0;
+    const BASE = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
+    const m = name.match(/^([A-G])(\d)$/);
+    if (!m) return 0;
+    const semi = BASE[m[1]] + (parseInt(m[2]) - 4) * 12 - 9;
+    return 440 * Math.pow(2, semi / 12);
+  }
+
+  // ---- Sequences ----
+  // Each entry: [note, duration_in_beats]  (1 beat = Q seconds)
+  //
+  // LEAD — 8 bars, 32 beats total
+
+  const LEAD = [
+    // Bar 1  (I — C major)
+    ['E5',0.5], ['G5',0.5], ['A5',0.5], ['G5',0.5], ['E5',1], ['C5',0.5], ['D5',0.5],
+    // Bar 2  (vi — A minor feel)
+    ['E5',1], ['G5',1], ['A5',0.5], ['G5',0.5], ['E5',1],
+    // Bar 3  (IV — F major feel, melodic landing)
+    ['C5',1], ['E5',1], ['G5',1], ['E5',1],
+    // Bar 4  (V — G, rising to a cadence)
+    ['D5',0.5], ['E5',0.5], ['G5',1], ['E5',0.5], ['D5',0.5], ['C5',1],
+    // Bar 5  (I — repeat of bar 1 variation)
+    ['E5',0.5], ['G5',0.5], ['A5',0.5], ['G5',0.5], ['E5',1], ['C5',1],
+    // Bar 6  (IV — slower, stepwise descent)
+    ['E5',1], ['D5',1], ['C5',1], ['D5',1],
+    // Bar 7  (V — tension build)
+    ['E5',0.5], ['G5',0.5], ['A5',1], ['G5',0.5], ['E5',0.5], ['D5',1],
+    // Bar 8  (I — resolution + rest before loop)
+    ['C5',1], ['E5',1], ['G5',1], ['R',1],
+  ];
+
+  // BASS — power fifths (root + fifth), half-note per step, 32 beats total
+  const BASS = [
+    ['C3',2], ['G3',2],   // Bar 1  I
+    ['A2',2], ['E3',2],   // Bar 2  vi
+    ['F2',2], ['C3',2],   // Bar 3  IV
+    ['G2',2], ['D3',2],   // Bar 4  V
+    ['C3',2], ['G3',2],   // Bar 5  I
+    ['F2',2], ['C3',2],   // Bar 6  IV
+    ['G2',2], ['D3',2],   // Bar 7  V
+    ['C3',2], ['G3',2],   // Bar 8  I
+  ];
+
+  // ARPEGGIO — 4-note chord pattern per bar, repeated as 16th notes
+  const ARP = [
+    ['C4','E4','G4','E4'],   // Bar 1  I
+    ['A3','C4','E4','C4'],   // Bar 2  vi
+    ['F3','A3','C4','A3'],   // Bar 3  IV
+    ['G3','B3','D4','B3'],   // Bar 4  V
+    ['C4','E4','G4','E4'],   // Bar 5  I
+    ['F3','A3','C4','A3'],   // Bar 6  IV
+    ['G3','B3','D4','B3'],   // Bar 7  V
+    ['C4','E4','G4','E4'],   // Bar 8  I
+  ];
+
+  // ---- Audio helpers ----
+
+  function playOsc(f, type, t0, dur, vol) {
+    if (!f) return;
+    const g   = ctx.createGain();
+    const osc = ctx.createOscillator();
+    osc.type = type;
+    osc.frequency.value = f;
+    osc.connect(g);
+    g.connect(master);
+
+    const atk = Math.min(0.008, dur * 0.05);
+    const rel = Math.min(0.06,  dur * 0.25);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + atk);
+    g.gain.setValueAtTime(vol, t0 + dur - rel);
+    g.gain.linearRampToValueAtTime(0, t0 + dur);
+
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function playNoise(t0, dur, vol, kind) {
+    // kind: 'kick' | 'snare' | 'hat'
+    const len = Math.ceil(ctx.sampleRate * 0.25);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d   = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+
+    const src  = ctx.createBufferSource();
+    src.buffer = buf;
+
+    const filt = ctx.createBiquadFilter();
+    if (kind === 'kick') {
+      filt.type = 'lowpass';  filt.frequency.value = 160;
+    } else if (kind === 'snare') {
+      filt.type = 'bandpass'; filt.frequency.value = 1400; filt.Q.value = 0.6;
+    } else {
+      filt.type = 'highpass'; filt.frequency.value = 6000;
+    }
+
+    const g = ctx.createGain();
+    src.connect(filt); filt.connect(g); g.connect(master);
+
+    const rel = kind === 'hat' ? 0.035 : kind === 'snare' ? 0.10 : 0.16;
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + rel);
+
+    src.start(t0);
+    src.stop(t0 + rel + 0.02);
+  }
+
+  // ---- Schedule one full loop ----
+
+  function scheduleLoop(t0) {
+
+    // Ch 1 — Lead (square wave)
+    let t = t0;
+    for (const [n, beats] of LEAD) {
+      const d = beats * Q;
+      playOsc(freq(n), 'square', t, d * 0.80, 0.17);
+      t += d;
+    }
+
+    // Ch 2 — Arpeggio (sawtooth, quiet, fills space)
+    t = t0;
+    for (let bar = 0; bar < BARS; bar++) {
+      const chord = ARP[bar];
+      for (let beat = 0; beat < 4; beat++) {
+        for (let s16 = 0; s16 < 4; s16++) {
+          playOsc(freq(chord[s16 % 4]), 'sawtooth', t, S * 0.50, 0.04);
+          t += S;
+        }
+      }
+    }
+
+    // Ch 3 — Bass (triangle)
+    t = t0;
+    for (const [n, beats] of BASS) {
+      const d = beats * Q;
+      playOsc(freq(n), 'triangle', t, d * 0.88, 0.22);
+      t += d;
+    }
+
+    // Ch 4 — Drums (noise bursts)
+    // 64 eighth-note slots (8 bars × 4 beats × 2 eighths)
+    t = t0;
+    for (let i = 0; i < BARS * 4 * 2; i++) {
+      const b8 = i % 8;         // position within bar: 0..7
+      const st = t + i * E;
+      if (b8 === 0 || b8 === 4) playNoise(st, E, 0.30, 'kick');
+      if (b8 === 2 || b8 === 6) playNoise(st, E, 0.22, 'snare');
+      // hi-hat every 8th; louder on off-beats (1,3,5,7) for shuffle
+      playNoise(st, E * 0.2, b8 % 2 === 1 ? 0.10 : 0.06, 'hat');
+    }
+
+    // Schedule next iteration, a little ahead of time to avoid gaps
+    const nextAt  = t0 + LOOP;
+    const aheadMs = 150;
+    const delayMs = Math.max(50, (nextAt - ctx.currentTime) * 1000 - aheadMs);
+    loopTimer = setTimeout(() => {
+      if (running) scheduleLoop(nextAt);
+    }, delayMs);
+  }
+
+  // ---- Controls ----
+
+  function play() {
+    if (running) return;
+    ctx    = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0.55;
+    master.connect(ctx.destination);
+    running = true;
+    setStatus('PLAYING  ♪');
+    scheduleLoop(ctx.currentTime + 0.1);
+  }
+
+  function stop() {
+    if (!running && !ctx) return;
+    running = false;
+    clearTimeout(loopTimer);
+    if (ctx) { ctx.close(); ctx = null; master = null; }
+    setStatus('STOPPED');
+  }
+
+  function setStatus(s) { document.getElementById('status').textContent = s; }
+
+  document.getElementById('btn-play').onclick = play;
+  document.getElementById('btn-stop').onclick = stop;
+  </script>
+</body>
+</html>
