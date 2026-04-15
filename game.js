@@ -164,6 +164,7 @@ function resetGame() {
     invalidateAchieveCache();
     newRound();
     renderAll();
+    MUSIC.play(curMonkey().id);
     msg('All progress reset!');
   }, 'Reset');
 }
