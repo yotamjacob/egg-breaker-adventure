@@ -393,9 +393,11 @@ function newRound() {
 
 
 
-function multEquation(base, multVals, result, unit) {
-  var total = multVals.reduce(function(a, b) { return a + b; }, 0);
-  return '+' + result + ' ' + unit + ' (x' + total + ')';
+function multEquation(base, multVals, result, unit, balloonMult) {
+  const chipTotal = multVals ? multVals.reduce(function(a, b) { return a + b; }, 0) : 1;
+  const totalMult = chipTotal * (balloonMult || 1);
+  const prefix = balloonMult ? '🎈 POP! ' : '';
+  return prefix + '+' + result + ' ' + unit + ' (' + totalMult + 'x' + base + ' ' + unit + ')';
 }
 
 // ==================== PRIZE ROLLING ====================
@@ -671,9 +673,9 @@ function popBalloonEgg(index, slot) {
     prize.label = prize.count + '× x' + prize.value + ' mult!';
   } else if (canMultiply) {
     if (prize.value) prize.value *= 10;
-    if (prize.baseVal) prize.baseVal *= 10;
-    prize.label = 'x10 ' + prize.label;
+    prize.balloonMult = 10; // tracked separately so baseVal stays as the original roll
   }
+  prize.popPrefix = '🎈 POP! ';
 
   slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + eggLabel(egg.type, 0, egg.maxHp, true);
 
@@ -683,7 +685,6 @@ function popBalloonEgg(index, slot) {
     if (G.activeMult > 1) { consumeMultiplier(); }
     renderMultQueue();
     updateStarBtn();
-    msg('🎈 POP! ' + prize.label, 'prizes');
 
     if (G.roundEggs.every(e => e.broken || e.expired) && !_roundPending) {
       _roundPending = true;
@@ -875,10 +876,10 @@ function applyPrize(prize, cx, cy) {
     G.totalGold += prize.value;
     G.biggestWin = Math.max(G.biggestWin, prize.value);
     const cls = prize.value >= 500 ? 'mega' : prize.value >= 200 ? 'big' : '';
-    if (prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'gold');
+    if (prize.balloonMult || prize.usedMult) {
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'gold', prize.balloonMult);
       spawnFloat(zone, eq, '#d97706', cls || 'big', cx, cy);
-      msg(eq);
+      msg(eq, 'prizes');
     } else {
       spawnFloat(zone, prize.label, '#d97706', cls, cx, cy);
       msg(prize.label);
@@ -890,10 +891,10 @@ function applyPrize(prize, cx, cy) {
   if (prize.type === 'star') {
     G.starPieces += prize.value;
     G.totalStarPieces += prize.value;
-    if (prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'stars');
+    if (prize.balloonMult || prize.usedMult) {
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'stars', prize.balloonMult);
       spawnFloat(zone, eq, '#f59e0b', 'big', cx, cy);
-      msg(eq);
+      msg(eq, 'prizes');
     } else {
       spawnFloat(zone, prize.label, '#f59e0b', 'big', cx, cy);
       msg(prize.label);
@@ -908,9 +909,9 @@ function applyPrize(prize, cx, cy) {
     let added = 0;
     for (let i = 0; i < multCount && G.multQueue.length < 50; i++) { G.multQueue.push(prize.value); added++; }
     G.highestMult = Math.max(G.highestMult, prize.value);
-    const displayLabel = added > 1 ? added + '× x' + prize.value + ' mult!' : 'x' + prize.value + ' multiplier!';
+    const displayLabel = (prize.popPrefix || '') + (added > 1 ? added + '× x' + prize.value + ' mult!' : 'x' + prize.value + ' multiplier!');
     spawnFloat(zone, displayLabel, '#7c3aed', 'big', cx, cy);
-    msg(displayLabel);
+    msg(displayLabel, 'prizes');
     SFX.play('gem');
     renderMultQueue();
     if (prize.bonusGold) {
@@ -923,10 +924,10 @@ function applyPrize(prize, cx, cy) {
   if (prize.type === 'feather') {
     G.feathers += prize.value;
     G.totalFeathers += prize.value;
-    if (prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'feathers');
+    if (prize.balloonMult || prize.usedMult) {
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'feathers', prize.balloonMult);
       spawnFloat(zone, eq, '#059669', 'big', cx, cy);
-      msg(eq);
+      msg(eq, 'prizes');
     } else {
       spawnFloat(zone, prize.label, '#059669', '', cx, cy);
       msg(prize.label);
@@ -936,10 +937,10 @@ function applyPrize(prize, cx, cy) {
 
   if (prize.type === 'hammers') {
     G.hammers += prize.value;
-    if (prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'hammers');
+    if (prize.balloonMult || prize.usedMult) {
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'hammers', prize.balloonMult);
       spawnFloat(zone, eq, '#b45309', 'big', cx, cy);
-      msg(eq);
+      msg(eq, 'prizes');
     } else {
       spawnFloat(zone, prize.label, '#b45309', 'big', cx, cy);
       msg(prize.label);
@@ -949,8 +950,9 @@ function applyPrize(prize, cx, cy) {
 
   if (prize.type === 'banana') {
     G.crystalBananas += prize.value;
-    spawnFloat(zone, prize.label, prize.color, 'mega', cx, cy);
-    msg('+1 Crystal Banana!', 'prizes');
+    const bananaLabel = (prize.popPrefix || '') + prize.label;
+    spawnFloat(zone, bananaLabel, prize.color, 'mega', cx, cy);
+    msg(bananaLabel, 'prizes');
     SFX.play('levelup');
     Particles.sparkle(cx, cy, 20, '#F59E0B');
     if (prize.bonusGold) {
@@ -961,8 +963,9 @@ function applyPrize(prize, cx, cy) {
 
   if (prize.type === 'maxHammers') {
     G.maxH += prize.value;
-    spawnFloat(zone, prize.label, prize.color, 'mega', cx, cy);
-    msg('+3 max hammers!', 'prizes');
+    const mhLabel = (prize.popPrefix || '') + prize.label;
+    spawnFloat(zone, mhLabel, prize.color, 'mega', cx, cy);
+    msg(mhLabel, 'prizes');
     SFX.play('levelup');
     Particles.sparkle(cx, cy, 20, '#b45309');
     if (prize.bonusGold) {
