@@ -74,15 +74,23 @@ const MUSIC = (() => {
   // Per-track volume overrides (multiplier relative to VOLUME)
   const TRACK_VOL = { space: 0.650 };  // Space Cadet is louder — reduce ~35% total
 
-  let audio      = null;
-  let on         = true;
-  let currentSrc = null;
-  let currentVol = VOLUME;
-  let _timer     = null;
+  // Tracks with abrupt loop points — use crossfade instead of audio.loop
+  const CROSSFADE_TRACKS = new Set(['steampunk']);
+
+  let audio           = null;
+  let _crossfadeNext  = null;  // second element during active crossfade
+  let on              = true;
+  let currentSrc      = null;
+  let currentVol      = VOLUME;
+  let _timer          = null;
+  let _crossTimer     = null;
   let _pausedForVisibility = false;
 
   function _clearTimer() {
     if (_timer) { clearInterval(_timer); _timer = null; }
+  }
+  function _clearCrossTimer() {
+    if (_crossTimer) { clearInterval(_crossTimer); _crossTimer = null; }
   }
 
   function _fadeIn(el, targetVol) {
@@ -106,10 +114,46 @@ const MUSIC = (() => {
     }, STEP_MS);
   }
 
+  function _setupCrossfade(el, src, targetVol) {
+    el.loop = false;
+    function onTimeUpdate() {
+      if (!el.duration || !isFinite(el.duration)) return;
+      if (el.duration - el.currentTime > FADE_MS / 1000 + 0.1) return;
+      el.removeEventListener('timeupdate', onTimeUpdate);
+      const next = new Audio(src);
+      next.volume = 0;
+      next.play().catch(() => {});
+      _crossfadeNext = next;
+      _clearCrossTimer();
+      const steps = FADE_MS / STEP_MS;
+      const delta = targetVol / steps;
+      let step = 0;
+      _crossTimer = setInterval(() => {
+        step++;
+        el.volume  = Math.max(0, targetVol - delta * step);
+        next.volume = Math.min(targetVol, delta * step);
+        if (step >= steps) {
+          _clearCrossTimer();
+          el.pause(); el.src = '';
+          audio = next;
+          _crossfadeNext = null;
+          _setupCrossfade(next, src, targetVol);
+        }
+      }, STEP_MS);
+    }
+    el.addEventListener('timeupdate', onTimeUpdate);
+  }
+
   function _start(src, targetVol) {
+    const needsCross = CROSSFADE_TRACKS.has(
+      Object.keys(TRACKS).find(id => TRACKS[id] === src)
+    );
     audio = new Audio(src);
-    audio.loop = true;
+    audio.loop = !needsCross;
     if (on) _fadeIn(audio, targetVol);
+    if (needsCross) {
+      audio.addEventListener('loadedmetadata', () => _setupCrossfade(audio, src, targetVol), { once: true });
+    }
   }
 
   function play(monkeyId) {
@@ -117,6 +161,9 @@ const MUSIC = (() => {
     if (!src || currentSrc === src) return;
     currentSrc = src;
     currentVol = VOLUME * (TRACK_VOL[monkeyId] !== undefined ? TRACK_VOL[monkeyId] : 1);
+    // Clean up any in-progress crossfade
+    _clearCrossTimer();
+    if (_crossfadeNext) { _crossfadeNext.pause(); _crossfadeNext.src = ''; _crossfadeNext = null; }
     if (audio && !audio.paused) {
       _fadeOut(audio, () => _start(src, currentVol));
     } else {
