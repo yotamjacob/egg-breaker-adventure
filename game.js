@@ -166,60 +166,6 @@ function resetGame() {
   }, 'Reset');
 }
 
-// ==================== EXPORT / IMPORT SAVE ====================
-function exportSave() {
-  showConfirm('💾', 'Export Save?', 'This will generate a save code for your current progress.', function() {
-    const d = {};
-    for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
-    if (G.roundEggs) {
-      d.roundEggs = G.roundEggs.map(egg => {
-        const { _smashing, ...clean } = egg;
-        return clean;
-      });
-    }
-    const str = 'EBA1:' + btoa(unescape(encodeURIComponent(JSON.stringify(d))));
-    const ta = $id('save-export-str');
-    ta.value = str;
-    navigator.clipboard.writeText(str).then(() => {
-      msg('Save code copied to clipboard!');
-    }).catch(() => {
-      msg('Save code ready — copy it from the box below.');
-    });
-  }, 'Export');
-}
-
-function importSave() {
-  const str = ($id('save-import-str').value || '').trim();
-  if (!str) { msg('Paste a save code first!'); return; }
-  showConfirm('📥', 'Load Save?', 'This will replace your current progress with the pasted save code.', function() { _doImportSave(str); }, 'Load');
-}
-
-function _doImportSave(str) {
-  try {
-    if (!str.startsWith('EBA1:')) throw new Error('bad prefix');
-    const d = JSON.parse(decodeURIComponent(escape(atob(str.slice(5)))));
-    const fresh = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null };
-    for (const k of Object.keys(DEFAULT_STATE)) {
-      if (d[k] !== undefined && d[k] !== null && (DEFAULT_STATE[k] === null || typeof d[k] === typeof DEFAULT_STATE[k])) fresh[k] = d[k];
-    }
-    if (d.roundEggs) fresh.roundEggs = d.roundEggs;
-    if (!fresh.monkeys || fresh.monkeys.length < MONKEY_DATA.length) {
-      const base = initMonkeys();
-      if (fresh.monkeys) for (let i = 0; i < fresh.monkeys.length; i++) base[i] = fresh.monkeys[i];
-      fresh.monkeys = base;
-    }
-    migrateSave(fresh);
-    G = fresh;
-    saveGame();
-    invalidateBonusCache();
-    invalidateAchieveCache();
-    renderAll();
-    $id('save-import-str').value = '';
-    msg('Save loaded!');
-  } catch(_) {
-    msg('Invalid save code — could not load.');
-  }
-}
 
 // ==================== DAILY LOGIN ====================
 function localDateStr(d) {
