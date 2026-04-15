@@ -851,7 +851,7 @@ function smashEgg(index) {
   // Century egg: 100x rewards already applied via goldMult=100 in resolvePrize.
   // Flag for unique log display; make chip interaction additive.
   if (egg.type === 'century') {
-    const CM = 1000; // must match config.js goldMult/featherMult/starPieces for century
+    const CM = 100; // must match config.js goldMult/featherMult/starPieces for century
     if (prize.type === 'gold' || prize.type === 'feather' || prize.type === 'star') {
       const chipTotal = G.activeMult > 1 ? G.activeMult : 0;
       if (chipTotal > 0) {

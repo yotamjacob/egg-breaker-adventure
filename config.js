@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.49';
+const VERSION = '1.8.50';
 
 const CONFIG = {
 
@@ -73,11 +73,11 @@ const CONFIG = {
     {
       id: 'century', name: 'Century', emoji: '🌀',
       hp: 100, spawnWeight: 0.1, unlockStage: 99, unlockMonkey0: true,
-      goldMult: 1000, featherMult: 1000, starPieces: 1000,
+      goldMult: 100, featherMult: 100, starPieces: 100,
       colors: { f:'#FFD700', s:'#B8860B', h:'#FFF8DC', sh:'#8B6508' },
       particles: ['#FFD700','#FFA500','#FF6347','#FF00FF','#00FFFF','#7CFC00'],
       prizes: { empty:0, gold_s:0, gold_m:0, gold_l:100, star:20, mult:0, feather:10, item:0, hammers:20, banana:0 },
-      desc: 'Complete Mr. Monkey. 100 hits. 1000x rewards. Legendary.',
+      desc: 'Complete Mr. Monkey. 100 hits. 100x rewards. Legendary.',
       big: true,
     },
   ],
