@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EBA — Castle Runner</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#1a0d2e;color:#ffb3e6;font-family:'Courier New',monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;user-select:none}
+    h1{font-size:14px;letter-spacing:3px;text-shadow:2px 2px 0 #6a0050}
+    .subtitle{font-size:10px;color:#cc66aa;letter-spacing:2px}
+    .controls{display:flex;gap:12px}
+    button{background:#2e0d3e;color:#ffb3e6;border:2px solid #ffb3e6;padding:10px 24px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;cursor:pointer;box-shadow:3px 3px 0 #000;transition:all .08s}
+    button:hover{background:#ffb3e6;color:#1a0d2e;transform:translate(-1px,-1px);box-shadow:4px 4px 0 #000}
+    button:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #000}
+    #status{font-size:10px;color:#884466;letter-spacing:2px;min-height:16px}
+    .info{font-size:9px;color:#5a2244;letter-spacing:1px;text-align:center;line-height:2}
+  </style>
+</head>
+<body>
+  <h1>🏰 CASTLE RUNNER</h1>
+  <p class="subtitle">TRACK 3 — KIRBY / MARIO VIBES</p>
+  <div class="controls">
+    <button id="btn-play">▶  PLAY</button>
+    <button id="btn-stop">■  STOP</button>
+  </div>
+  <div id="status">READY</div>
+  <div class="info">165 BPM · G MAJOR · 8 BARS<br>SQUARE LEAD · SPARKLY ARP · BOUNCY DRUMS</div>
+  <script>
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let ctx = null, master = null, running = false, loopTimer = null;
+  const BPM = 165, Q = 60/BPM, E = Q/2, S = Q/4, BARS = 8, LOOP = BARS*4*Q;
+
+  function freq(n) {
+    if (n==='R') return 0;
+    const B={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+    const m=n.match(/^([A-G])([#b]?)(\d)$/); if(!m) return 0;
+    return 440*Math.pow(2,(B[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0)+(parseInt(m[3])-4)*12-9)/12);
+  }
+
+  // G major — happy, skipping, lots of leaps
+  const LEAD = [
+    ['G5',0.5],['B5',0.5],['D6',0.5],['B5',0.5],['G5',1],['D5',0.5],['E5',0.5], // bar1 = 4
+    ['C5',0.5],['E5',0.5],['G5',1],['E5',0.5],['C5',0.5],['D5',1],               // bar2 = 4
+    ['B4',0.5],['D5',0.5],['G5',0.5],['D5',0.5],['B4',1],['G4',0.5],['A4',0.5], // bar3 = 4
+    ['G4',1],['A4',0.5],['B4',0.5],['D5',1],['G5',1],                           // bar4 = 4
+    ['E5',0.5],['G5',0.5],['B5',0.5],['G5',0.5],['E5',1],['C5',1],             // bar5 = 4
+    ['D5',0.5],['C5',0.5],['B4',0.5],['A4',0.5],['G4',1],['D5',1],             // bar6 = 4
+    ['G5',0.5],['A5',0.5],['B5',1],['G5',0.5],['D5',0.5],['B4',1],             // bar7 = 4
+    ['G5',2],['D5',1],['G5',1],                                                 // bar8 = 4
+  ];
+  const BASS = [
+    ['G3',2],['D3',2], ['C3',2],['G3',2],
+    ['G2',2],['D3',2], ['G2',4],
+    ['G3',2],['E3',2], ['C3',2],['D3',2],
+    ['G2',2],['D3',2], ['G2',4],
+  ];
+  const ARP = [
+    ['G4','B4','D5','B4'], ['C4','E4','G4','E4'],
+    ['G3','B3','D4','B3'], ['D4','F#4','A4','F#4'],
+    ['G4','B4','D5','B4'], ['C4','E4','G4','E4'],
+    ['E4','G4','B4','G4'], ['G4','D5','G5','D5'],
+  ];
+
+  function playOsc(f, type, t0, dur, vol, detune) {
+    if (!f) return;
+    const g=ctx.createGain(), o=ctx.createOscillator();
+    o.type=type; o.frequency.value=f; if(detune) o.detune.value=detune;
+    o.connect(g); g.connect(master);
+    const a=Math.min(0.006,dur*.04), r=Math.min(0.05,dur*.2);
+    g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(vol,t0+a);
+    g.gain.setValueAtTime(vol,t0+dur-r); g.gain.linearRampToValueAtTime(0,t0+dur);
+    o.start(t0); o.stop(t0+dur+.02);
+  }
+  function playNoise(t0, rel, vol, ftype, ffreq) {
+    const len=Math.ceil(ctx.sampleRate*.2);
+    const buf=ctx.createBuffer(1,len,ctx.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const filt=ctx.createBiquadFilter(); filt.type=ftype; filt.frequency.value=ffreq;
+    const g=ctx.createGain(); src.connect(filt); filt.connect(g); g.connect(master);
+    g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(.001,t0+rel);
+    src.start(t0); src.stop(t0+rel+.02);
+  }
+
+  function scheduleLoop(t0) {
+    // Lead — square (bright, classic chip)
+    let t = t0;
+    for (const [n,b] of LEAD) { const d=b*Q; playOsc(freq(n),'square',t,d*.80,.18); t+=d; }
+
+    // Arp — sawtooth 16ths (sparkly fills)
+    t = t0;
+    for (let bar=0;bar<BARS;bar++) {
+      const ch=ARP[bar];
+      for (let beat=0;beat<4;beat++)
+        for (let s=0;s<4;s++) { playOsc(freq(ch[s%4]),'sawtooth',t,S*.45,.035); t+=S; }
+    }
+
+    // Bass — triangle (warm, springy)
+    t = t0;
+    for (const [n,b] of BASS) { const d=b*Q; playOsc(freq(n),'triangle',t,d*.85,.22); t+=d; }
+
+    // Drums — light, bouncy Kirby style
+    t = t0;
+    for (let i=0;i<BARS*8;i++) {
+      const b8=i%8, st=t+i*E;
+      if(b8===0||b8===4) playNoise(st,E*.5,.26,'lowpass',160);  // kick
+      if(b8===2||b8===6) playNoise(st,E*.4,.16,'bandpass',1800); // light snare
+      playNoise(st,E*.18,b8%2===1?.09:.05,'highpass',7000);      // hi-hat (louder offbeat)
+      // "boing" accent: tiny square blip on beat 1 of bars 1,3,5,7
+      if(b8===0 && Math.floor(i/8)%2===0) playOsc(freq('G6'),'square',st,S*.3,.07);
+    }
+
+    const nextAt=t0+LOOP;
+    loopTimer=setTimeout(()=>{ if(running) scheduleLoop(nextAt); },
+      Math.max(50,(nextAt-ctx.currentTime)*1000-150));
+  }
+
+  function play() {
+    if(running) return;
+    ctx=new AC(); master=ctx.createGain(); master.gain.value=.55; master.connect(ctx.destination);
+    running=true; setStatus('PLAYING ♪'); scheduleLoop(ctx.currentTime+.1);
+  }
+  function stop() {
+    running=false; clearTimeout(loopTimer);
+    if(ctx){ctx.close();ctx=null;master=null;} setStatus('STOPPED');
+  }
+  function setStatus(s){document.getElementById('status').textContent=s;}
+  document.getElementById('btn-play').onclick=play;
+  document.getElementById('btn-stop').onclick=stop;
+  </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EBA — Jungle Tribal</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#071a07;color:#7ddb5a;font-family:'Courier New',monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;user-select:none}
+    h1{font-size:14px;letter-spacing:3px;text-shadow:2px 2px 0 #1a4a00}
+    .subtitle{font-size:10px;color:#4a8a30;letter-spacing:2px}
+    .controls{display:flex;gap:12px}
+    button{background:#0d2b0d;color:#7ddb5a;border:2px solid #7ddb5a;padding:10px 24px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;cursor:pointer;box-shadow:3px 3px 0 #000;transition:all .08s}
+    button:hover{background:#7ddb5a;color:#071a07;transform:translate(-1px,-1px);box-shadow:4px 4px 0 #000}
+    button:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #000}
+    #status{font-size:10px;color:#3a6a25;letter-spacing:2px;min-height:16px}
+    .info{font-size:9px;color:#2a4a1a;letter-spacing:1px;text-align:center;line-height:2}
+  </style>
+</head>
+<body>
+  <h1>🦍 JUNGLE TRIBAL</h1>
+  <p class="subtitle">TRACK 2 — KING KONG VIBES</p>
+  <div class="controls">
+    <button id="btn-play">▶  PLAY</button>
+    <button id="btn-stop">■  STOP</button>
+  </div>
+  <div id="status">READY</div>
+  <div class="info">90 BPM · D MINOR PENTATONIC · 8 BARS<br>TRIANGLE LEAD · BONGO DRUMS · HEAVY BASS</div>
+  <script>
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let ctx = null, master = null, running = false, loopTimer = null;
+  const BPM = 90, Q = 60/BPM, E = Q/2, S = Q/4, BARS = 8, LOOP = BARS*4*Q;
+
+  function freq(n) {
+    if (n==='R') return 0;
+    const B={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+    const m=n.match(/^([A-G])([#b]?)(\d)$/); if(!m) return 0;
+    return 440*Math.pow(2,(B[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0)+(parseInt(m[3])-4)*12-9)/12);
+  }
+
+  // D minor pentatonic: D F G A C — slow, funky, syncopated
+  const LEAD = [
+    ['D5',0.5],['R',0.5],['F5',0.5],['G5',0.5],['A5',1],['G5',0.5],['F5',0.5], // bar1 = 4
+    ['D5',0.5],['R',0.5],['F5',0.5],['R',0.5],['G5',1],['A5',1],               // bar2 = 4
+    ['A5',1],['R',0.5],['G5',0.5],['F5',1],['D5',1],                           // bar3 = 4
+    ['C5',2],['A4',2],                                                           // bar4 = 4
+    ['G5',0.5],['R',0.5],['A5',0.5],['G5',0.5],['F5',1],['A5',1],             // bar5 = 4
+    ['D5',1],['R',0.5],['G5',0.5],['A5',2],                                    // bar6 = 4
+    ['G5',0.5],['F5',0.5],['G5',0.5],['A5',0.5],['G5',1],['F5',1],           // bar7 = 4
+    ['D5',2],['R',2],                                                           // bar8 = 4
+  ];
+  const BASS = [
+    ['D2',1],['A2',1],['D2',1],['A2',1],  // bar1
+    ['F2',2],['C3',2],                     // bar2
+    ['G2',2],['D3',2],                     // bar3
+    ['A2',2],['E3',2],                     // bar4
+    ['D2',1],['A2',1],['D2',1],['A2',1],  // bar5
+    ['F2',2],['G2',2],                     // bar6
+    ['A2',2],['D3',2],                     // bar7
+    ['D2',4],                              // bar8
+  ];
+  const ARP = [
+    ['D4','F4','A4','F4'],['F3','A3','C4','A3'],
+    ['G3','A3','C4','A3'],['A3','C4','E4','C4'],
+    ['D4','F4','A4','F4'],['F3','A3','C4','A3'],
+    ['A3','C4','E4','C4'],['D4','F4','A4','F4'],
+  ];
+
+  function playOsc(f, type, t0, dur, vol) {
+    if (!f) return;
+    const g=ctx.createGain(), o=ctx.createOscillator();
+    o.type=type; o.frequency.value=f; o.connect(g); g.connect(master);
+    const a=Math.min(0.01,dur*.06), r=Math.min(0.08,dur*.3);
+    g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(vol,t0+a);
+    g.gain.setValueAtTime(vol,t0+dur-r); g.gain.linearRampToValueAtTime(0,t0+dur);
+    o.start(t0); o.stop(t0+dur+.02);
+  }
+  function playNoise(t0, rel, vol, ftype, ffreq, fQ) {
+    const len=Math.ceil(ctx.sampleRate*.3);
+    const buf=ctx.createBuffer(1,len,ctx.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const filt=ctx.createBiquadFilter(); filt.type=ftype; filt.frequency.value=ffreq;
+    if(fQ) filt.Q.value=fQ;
+    const g=ctx.createGain(); src.connect(filt); filt.connect(g); g.connect(master);
+    g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(.001,t0+rel);
+    src.start(t0); src.stop(t0+rel+.02);
+  }
+
+  function scheduleLoop(t0) {
+    // Lead — triangle (woody, organic)
+    let t = t0;
+    for (const [n,b] of LEAD) { const d=b*Q; playOsc(freq(n),'triangle',t,d*.85,.20); t+=d; }
+
+    // Arp — sawtooth (low volume, textural)
+    t = t0;
+    for (let bar=0;bar<BARS;bar++) {
+      const ch=ARP[bar];
+      for (let beat=0;beat<4;beat++)
+        for (let s=0;s<4;s++) { playOsc(freq(ch[s%4]),'sawtooth',t,S*.5,.025); t+=S; }
+    }
+
+    // Bass — sawtooth (heavy, deep)
+    t = t0;
+    for (const [n,b] of BASS) { const d=b*Q; playOsc(freq(n),'sawtooth',t,d*.9,.25); t+=d; }
+
+    // Drums — tribal, syncopated
+    t = t0;
+    for (let i=0;i<BARS*8;i++) {
+      const b8=i%8, st=t+i*E;
+      if(b8===0||b8===3||b8===4) playNoise(st,E*.6,.32,'lowpass',130,null);  // bass drum
+      if(b8===2||b8===5)         playNoise(st,E*.5,.22,'bandpass',420,2.5);   // bongo hit
+      if(b8===1||b8===6||b8===7) playNoise(st,E*.25,.14,'bandpass',900,1.5); // high bongo
+      if(b8===0||b8===4)         playNoise(st,E*.2,.07,'highpass',5000,null); // open hat
+    }
+
+    const nextAt=t0+LOOP;
+    loopTimer=setTimeout(()=>{ if(running) scheduleLoop(nextAt); },
+      Math.max(50,(nextAt-ctx.currentTime)*1000-150));
+  }
+
+  function play() {
+    if(running) return;
+    ctx=new AC(); master=ctx.createGain(); master.gain.value=.55; master.connect(ctx.destination);
+    running=true; setStatus('PLAYING ♪'); scheduleLoop(ctx.currentTime+.1);
+  }
+  function stop() {
+    running=false; clearTimeout(loopTimer);
+    if(ctx){ctx.close();ctx=null;master=null;} setStatus('STOPPED');
+  }
+  function setStatus(s){document.getElementById('status').textContent=s;}
+  document.getElementById('btn-play').onclick=play;
+  document.getElementById('btn-stop').onclick=stop;
+  </script>
+</body>
+</html>

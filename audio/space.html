@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EBA — Space Odyssey</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#00000f;color:#80c8ff;font-family:'Courier New',monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;user-select:none}
+    h1{font-size:14px;letter-spacing:3px;text-shadow:2px 2px 0 #004488}
+    .subtitle{font-size:10px;color:#3388bb;letter-spacing:2px}
+    .controls{display:flex;gap:12px}
+    button{background:#00001e;color:#80c8ff;border:2px solid #80c8ff;padding:10px 24px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;cursor:pointer;box-shadow:3px 3px 0 #000;transition:all .08s}
+    button:hover{background:#80c8ff;color:#00000f;transform:translate(-1px,-1px);box-shadow:4px 4px 0 #000}
+    button:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #000}
+    #status{font-size:10px;color:#224466;letter-spacing:2px;min-height:16px}
+    .info{font-size:9px;color:#112233;letter-spacing:1px;text-align:center;line-height:2}
+  </style>
+</head>
+<body>
+  <h1>🌌 SPACE ODYSSEY</h1>
+  <p class="subtitle">TRACK 5 — STAR FOX / METROID VIBES</p>
+  <div class="controls">
+    <button id="btn-play">▶  PLAY</button>
+    <button id="btn-stop">■  STOP</button>
+  </div>
+  <div id="status">READY</div>
+  <div class="info">72 BPM · D MINOR DORIAN · 8 BARS<br>SINE LEAD · SLOW PAD SWELLS · SPARSE DRUMS</div>
+  <script>
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let ctx = null, master = null, running = false, loopTimer = null;
+  const BPM = 72, Q = 60/BPM, E = Q/2, S = Q/4, BARS = 8, LOOP = BARS*4*Q;
+
+  function freq(n) {
+    if (n==='R') return 0;
+    const B={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+    const m=n.match(/^([A-G])([#b]?)(\d)$/); if(!m) return 0;
+    return 440*Math.pow(2,(B[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0)+(parseInt(m[3])-4)*12-9)/12);
+  }
+
+  // D Dorian (D E F G A B C) — mysterious, space-like
+  const LEAD = [
+    ['A5',2],['F5',2],         // bar1 = 4
+    ['D5',3],['R',1],          // bar2 = 4
+    ['G5',1],['A5',1],['C6',2],// bar3 = 4
+    ['A5',4],                  // bar4 = 4
+    ['F5',2],['G5',1],['A5',1],// bar5 = 4
+    ['A5',1],['C6',1],['B5',2],// bar6 = 4 (B natural = Dorian bright 6th)
+    ['A5',2],['G5',1],['F5',1],// bar7 = 4
+    ['D5',4],                  // bar8 = 4
+  ];
+  const BASS = [
+    ['D2',4], ['A2',4], ['F2',4], ['G2',4],
+    ['D2',4], ['F2',4], ['G2',2],['A2',2], ['D2',4],
+  ];
+  // Pads: played as slow-attack chords per bar (whole-note duration)
+  const PAD_CHORDS = [
+    ['D4','A4','D5'],   // Dm
+    ['A3','E4','A4'],   // Am
+    ['F3','A3','C4'],   // F
+    ['G3','D4','G4'],   // G
+    ['D4','A4','D5'],   // Dm
+    ['F3','C4','F4'],   // F
+    ['G3','D4','G4'],   // G
+    ['D4','A4','D5'],   // Dm
+  ];
+
+  function playOsc(f, type, t0, dur, vol, detune) {
+    if (!f) return;
+    const g=ctx.createGain(), o=ctx.createOscillator();
+    o.type=type; o.frequency.value=f; if(detune) o.detune.value=detune;
+    o.connect(g); g.connect(master);
+    const a=Math.min(0.02,dur*.1), r=Math.min(0.15,dur*.3);
+    g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(vol,t0+a);
+    g.gain.setValueAtTime(vol,t0+dur-r); g.gain.linearRampToValueAtTime(0,t0+dur);
+    o.start(t0); o.stop(t0+dur+.05);
+  }
+  function playPad(notes, t0, dur) {
+    // Long slow attack — creates a "swell" pad effect
+    for (const n of notes) {
+      const f=freq(n); if(!f) continue;
+      const g=ctx.createGain(), o=ctx.createOscillator();
+      o.type='sine'; o.frequency.value=f; o.connect(g); g.connect(master);
+      const atk=Math.min(dur*.5, 2.0), rel=Math.min(dur*.35, 1.8);
+      g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(.045,t0+atk);
+      g.gain.setValueAtTime(.045,t0+dur-rel); g.gain.linearRampToValueAtTime(0,t0+dur);
+      o.start(t0); o.stop(t0+dur+.1);
+      // Slight shimmer: second oscillator detuned +7 cents
+      const g2=ctx.createGain(), o2=ctx.createOscillator();
+      o2.type='sine'; o2.frequency.value=f; o2.detune.value=7; o2.connect(g2); g2.connect(master);
+      g2.gain.setValueAtTime(0,t0); g2.gain.linearRampToValueAtTime(.02,t0+atk);
+      g2.gain.setValueAtTime(.02,t0+dur-rel); g2.gain.linearRampToValueAtTime(0,t0+dur);
+      o2.start(t0); o2.stop(t0+dur+.1);
+    }
+  }
+  function playNoise(t0, rel, vol, ftype, ffreq) {
+    const len=Math.ceil(ctx.sampleRate*.4);
+    const buf=ctx.createBuffer(1,len,ctx.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const filt=ctx.createBiquadFilter(); filt.type=ftype; filt.frequency.value=ffreq;
+    const g=ctx.createGain(); src.connect(filt); filt.connect(g); g.connect(master);
+    g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(.001,t0+rel);
+    src.start(t0); src.stop(t0+rel+.05);
+  }
+
+  function scheduleLoop(t0) {
+    // Pads — one swell per bar, very slow attack
+    let t = t0;
+    for (let bar=0;bar<BARS;bar++) {
+      playPad(PAD_CHORDS[bar], t, 4*Q);
+      t += 4*Q;
+    }
+
+    // Lead — pure sine (clean, ethereal)
+    t = t0;
+    for (const [n,b] of LEAD) { const d=b*Q; playOsc(freq(n),'sine',t,d*.88,.20); t+=d; }
+
+    // Bass — triangle, slow and deep
+    t = t0;
+    for (const [n,b] of BASS) { const d=b*Q; playOsc(freq(n),'triangle',t,d*.92,.18); t+=d; }
+
+    // Drums — very sparse (kick every 2 bars, soft shimmer on off-bars)
+    t = t0;
+    for (let bar=0;bar<BARS;bar++) {
+      const barStart=t+bar*4*Q;
+      if(bar%2===0) playNoise(barStart, Q*.8, .20, 'lowpass', 110);      // kick beat 1 (bars 0,2,4,6)
+      else          playNoise(barStart+2*Q, Q*.5, .12, 'lowpass', 140);  // soft kick beat 3 (bars 1,3,5,7)
+      // Distant shimmer on beat 3
+      playNoise(barStart+2*Q, Q*1.2, .08, 'bandpass', 3000);
+    }
+
+    const nextAt=t0+LOOP;
+    loopTimer=setTimeout(()=>{ if(running) scheduleLoop(nextAt); },
+      Math.max(50,(nextAt-ctx.currentTime)*1000-150));
+  }
+
+  function play() {
+    if(running) return;
+    ctx=new AC(); master=ctx.createGain(); master.gain.value=.55; master.connect(ctx.destination);
+    running=true; setStatus('PLAYING ♪'); scheduleLoop(ctx.currentTime+.1);
+  }
+  function stop() {
+    running=false; clearTimeout(loopTimer);
+    if(ctx){ctx.close();ctx=null;master=null;} setStatus('STOPPED');
+  }
+  function setStatus(s){document.getElementById('status').textContent=s;}
+  document.getElementById('btn-play').onclick=play;
+  document.getElementById('btn-stop').onclick=stop;
+  </script>
+</body>
+</html>
