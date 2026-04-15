@@ -1191,8 +1191,14 @@ function checkCollectionComplete() {
         prog.completed = true;
       }
     }
-    // Refresh all UI after any tier change
-    setTimeout(() => renderAll(), 100);
+    // Refresh UI after tier change — skip renderEggTray so eggs don't jump positions
+    setTimeout(() => {
+      updateResources();
+      updateStageBar();
+      renderAlbum();
+      renderMonkeys();
+      renderStats();
+    }, 100);
     G.collectionsCompleted = calcTotalCollections();
     checkAchievements();
     saveGame();
