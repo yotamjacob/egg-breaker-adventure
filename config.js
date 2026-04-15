@@ -197,7 +197,7 @@ const CONFIG = {
   logShow: {
     prizes:     true,   // gold, stars, feathers, hammers, mults, empties
     items:      true,   // new collection items found
-    duplicates: false,  // duplicate item messages
+    duplicates: true,  // duplicate item messages
     trophies:   true,   // trophy unlocked
     tiers:      false,   // silver/gold/complete tier-ups
     starfall:   false,  // "STARFALL! All eggs smashed!"
