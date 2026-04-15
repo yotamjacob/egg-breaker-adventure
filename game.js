@@ -851,17 +851,21 @@ function smashEgg(index) {
   // Century egg: 100x rewards already applied via goldMult=100 in resolvePrize.
   // Flag for unique log display; make chip interaction additive.
   if (egg.type === 'century') {
-    const centuryTypes = { gold: 100, feather: 100, star: 100 };
-    const centuryMult = centuryTypes[prize.type];
-    if (centuryMult) {
+    const CM = 1000; // must match config.js goldMult/featherMult/starPieces for century
+    if (prize.type === 'gold' || prize.type === 'feather' || prize.type === 'star') {
       const chipTotal = G.activeMult > 1 ? G.activeMult : 0;
       if (chipTotal > 0) {
-        // Additive: century(100) + chips instead of 100 × chips
-        prize.value = Math.round(prize.value * (centuryMult + chipTotal) / (chipTotal * centuryMult));
+        // Additive: (1000 + chips) × base instead of 1000 × chips × base
+        prize.value = Math.round(prize.value * (CM + chipTotal) / (chipTotal * CM));
       }
-      prize.balloonMult = centuryMult + chipTotal;
-      prize.usedMult = null;
-      prize.popPrefix = '🌀 Century Egg! ';
+      // Show a clean label — stacking bonuses (stages, equipment) make the equation misleading
+      const unit = prize.type === 'gold' ? 'gold'
+                 : prize.type === 'feather' ? (prize.value !== 1 ? 'feathers' : 'feather')
+                 : (prize.value !== 1 ? 'star pieces' : 'star piece');
+      prize.label    = '🌀 Century Egg! +' + prize.value + ' ' + unit;
+      prize.balloonMult = null;
+      prize.usedMult    = null;
+      prize.popPrefix   = null;
     }
   }
 

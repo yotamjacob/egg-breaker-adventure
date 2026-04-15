@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.45';
+const VERSION = '1.8.46';
 
 const CONFIG = {
 
@@ -63,7 +63,7 @@ const CONFIG = {
     },
     {
       id: 'black', name: 'Black', emoji: '🖤',
-      hp: 20, spawnWeight: 0.5, unlockStage: 8,
+      hp: 20, spawnWeight: 0.7, unlockStage: 8,
       goldMult: 4, featherMult: 3, starPieces: 5,
       colors: { f:'#1a1a1a', s:'#000000', h:'#3a3a3a', sh:'#0a0a0a' },
       particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
@@ -72,7 +72,7 @@ const CONFIG = {
     },
     {
       id: 'century', name: 'Century', emoji: '🌀',
-      hp: 100, spawnWeight: 0.3, unlockStage: 99, unlockMonkey0: true,
+      hp: 100, spawnWeight: 0.1, unlockStage: 99, unlockMonkey0: true,
       goldMult: 1000, featherMult: 1000, starPieces: 1000,
       colors: { f:'#FFD700', s:'#B8860B', h:'#FFF8DC', sh:'#8B6508' },
       particles: ['#FFD700','#FFA500','#FF6347','#FF00FF','#00FFFF','#7CFC00'],
