@@ -378,7 +378,24 @@
       if (typeof cancelBalloonInflate === 'function') cancelBalloonInflate(document.querySelector('.inflating'));
     }, { capture: true });
   </script>
+  <script src="https://browser.sentry-cdn.com/7.99.0/bundle.min.js" crossorigin="anonymous"></script>
   <script src="bundle.min.js"></script>
+  <script>
+    // ── Error tracking (GlitchTip / Sentry) ──────────────────────
+    if (typeof Sentry !== 'undefined') {
+      Sentry.init({
+        dsn: 'https://e4551c877a8c413eb81b78f11b7fc5ed@app.glitchtip.com/22260',
+        release: 'egg-breaker-adventures@' + (typeof VERSION !== 'undefined' ? VERSION : 'unknown'),
+        environment: 'production',
+        ignoreErrors: [
+          'ResizeObserver loop limit exceeded',
+          'Non-Error promise rejection captured',
+          /chrome-extension/i,
+          /webkit-masked-url/i,
+        ],
+      });
+    }
+  </script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
