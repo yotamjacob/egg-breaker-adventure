@@ -171,6 +171,10 @@ body{
   opacity:.35;cursor:not-allowed;color:var(--gray);
   font-size:11px;letter-spacing:2px;
 }
+.nav-tab[data-tab="premium"]{
+  border:1px solid var(--gold3);
+  color:var(--gold);
+}
 
 /* ---------- Tab panels ---------- */
 .tab-panel{display:none}
