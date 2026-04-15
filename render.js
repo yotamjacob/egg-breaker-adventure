@@ -84,12 +84,22 @@ function eggLabel(type, hp, maxHp, broken) {
   return '<span class="egg-label">' + type + '<br>' + hp + '/' + maxHp + '</span>';
 }
 
+let _trayNeedsRender = false;
+
 function renderEggTray() {
   const tray = $id('egg-tray');
   if (!G.roundEggs || G.roundEggs.length === 0) {
     newRound();
     return;
   }
+  // If the play panel is hidden, offsetWidth/Height will be 0 and eggs
+  // will all land at 0,0. Defer the render until the panel is visible.
+  const panel = $id('panel-play');
+  if (panel && !panel.classList.contains('active')) {
+    _trayNeedsRender = true;
+    return;
+  }
+  _trayNeedsRender = false;
   tray.innerHTML = '';
   // Grid-based placement with random jitter — guarantees no overlap
   const tW = tray.offsetWidth || 300;
