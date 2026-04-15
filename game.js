@@ -48,6 +48,8 @@ const DEFAULT_STATE = {
   // Secrets
   _secretFlip: false, _secretOuch: false, _secretChicken: false, _secretStrikes: false,
   _secret42: false, _secretMidnight: false, _secretLeet: false, _secretChef: false, _secretOmelette: false,
+  // Cloud save
+  _savedAt: 0,
 };
 
 let G = {};
@@ -72,6 +74,7 @@ function saveGame() {
   const now = Date.now();
   G.totalPlayTime = (G.totalPlayTime || 0) + Math.floor((now - _sessionStart) / 1000);
   _sessionStart = now;
+  G._savedAt = now;
   const d = {};
   for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
   // Save eggs without transient _smashing lock
@@ -84,6 +87,7 @@ function saveGame() {
   const json = JSON.stringify(d);
   const compressed = 'lz:' + LZString.compressToUTF16(json);
   localStorage.setItem(SAVE_KEY, compressed);
+  scheduleCloudSync();
 }
 
 function migrateSave(state) {
@@ -2115,6 +2119,7 @@ Particles.init($id('particle-canvas'));
 if (!G.roundEggs || G.roundEggs.length === 0) newRound();
 
 renderAll();
+initCloudSave();
 
 $id('version-tag').textContent = 'Egg Breaker Adventures v' + VERSION;
 
@@ -2173,3 +2178,140 @@ let _isDesktop = !('ontouchstart' in window) && navigator.maxTouchPoints === 0;
 
   // Double-tap zoom prevention handled by CSS touch-action:manipulation
 })();
+
+// ==================== CLOUD SAVE ====================
+let _sbClient     = null;
+let _cloudUser    = null;
+let _cloudSyncTimer = null;
+
+function initCloudSave() {
+  if (typeof supabase === 'undefined') return;
+  _sbClient = supabase.createClient(_SUPABASE_URL, _SUPABASE_ANON, {
+    auth: { persistSession: true, autoRefreshToken: true },
+  });
+  _sbClient.auth.onAuthStateChange(async (event, session) => {
+    _cloudUser = session ? session.user : null;
+    _updateCloudSaveBtn();
+    if (event === 'SIGNED_IN') await _onCloudSignIn();
+  });
+  // Restore session on page load (handles OAuth redirect-back)
+  _sbClient.auth.getSession().then(({ data }) => {
+    _cloudUser = data.session ? data.session.user : null;
+    _updateCloudSaveBtn();
+  });
+}
+
+function linkGoogleAccount() {
+  if (!_sbClient) return;
+  if (_cloudUser) {
+    showConfirm('☁️', 'Unlink Google account?', _cloudUser.email, function() {
+      _sbClient.auth.signOut().then(() => {
+        _cloudUser = null;
+        _updateCloudSaveBtn();
+        msg('Google account unlinked.');
+      });
+    }, 'Unlink');
+    return;
+  }
+  _sbClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/' },
+  });
+}
+
+function _updateCloudSaveBtn() {
+  const btn = $id('cloud-save-btn');
+  if (!btn) return;
+  btn.querySelector('.btn-label').textContent =
+    _cloudUser ? '☁️ ' + _cloudUser.email : '☁️ Link Google Account';
+}
+
+async function _onCloudSignIn() {
+  if (!_sbClient || !_cloudUser) return;
+  try {
+    const { data } = await _sbClient
+      .from('game_saves')
+      .select('save_data, saved_at')
+      .eq('user_id', _cloudUser.id)
+      .maybeSingle();
+
+    if (!data) {
+      await _syncToCloud();
+      msg('☁️ Save backed up to Google account!');
+      return;
+    }
+
+    const cloudMs = new Date(data.saved_at).getTime();
+    const localMs = G._savedAt || 0;
+
+    if (cloudMs > localMs + 5000) {
+      showConfirm('☁️', 'Cloud save found!',
+        'Saved ' + _timeAgo(cloudMs) + '. Restore it?',
+        async function() {
+          _applyCloudSave(data.save_data);
+          msg('☁️ Cloud save restored!');
+        }, 'Restore');
+    } else {
+      await _syncToCloud();
+      msg('☁️ Google account linked!');
+    }
+  } catch (e) {
+    console.warn('[cloud] sign-in check failed:', e);
+  }
+}
+
+function scheduleCloudSync() {
+  if (!_sbClient || !_cloudUser) return;
+  if (_cloudSyncTimer) clearTimeout(_cloudSyncTimer);
+  _cloudSyncTimer = setTimeout(_syncToCloud, 60000);
+}
+
+async function _syncToCloud() {
+  if (!_sbClient || !_cloudUser) return;
+  _cloudSyncTimer = null;
+  try {
+    const d = {};
+    for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
+    if (G.roundEggs) {
+      d.roundEggs = G.roundEggs.map(egg => { const { _smashing, ...clean } = egg; return clean; });
+    }
+    const json = JSON.stringify(d);
+    const compressed = 'lz:' + LZString.compressToUTF16(json);
+    await _sbClient.from('game_saves').upsert(
+      { user_id: _cloudUser.id, save_data: compressed, saved_at: new Date(G._savedAt).toISOString() },
+      { onConflict: 'user_id' }
+    );
+  } catch (e) {
+    console.warn('[cloud] sync failed:', e);
+  }
+}
+
+function _applyCloudSave(saveData) {
+  try {
+    const json = saveData.startsWith('lz:')
+      ? LZString.decompressFromUTF16(saveData.slice(3)) : saveData;
+    const d = JSON.parse(json);
+    for (const k of Object.keys(DEFAULT_STATE)) {
+      if (d[k] !== undefined && d[k] !== null &&
+          (DEFAULT_STATE[k] === null || typeof d[k] === typeof DEFAULT_STATE[k])) {
+        G[k] = d[k];
+      }
+    }
+    if (d.roundEggs) G.roundEggs = d.roundEggs;
+    migrateSave(G);
+    saveGame();
+    renderAll();
+  } catch (e) {
+    console.warn('[cloud] restore failed:', e);
+  }
+}
+
+function _timeAgo(ms) {
+  const diff = Date.now() - ms;
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h / 24) + 'd ago';
+}
