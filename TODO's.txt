@@ -12,7 +12,6 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 ---performance and loading---
 
 ---solo dev / scale readiness---
-[ ] add Sentry (GlitchTip, Sentry SDK) — SDK wired up v1.5.4, CSP fixed v1.5.8–v1.5.9, confirm events flowing in dashboard
 [ ] (future) cloud save — Supabase free tier, optional login — localStorage lost if user clears app data
 
 ---mobile app store (android + ios)---
