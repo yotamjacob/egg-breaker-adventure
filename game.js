@@ -601,7 +601,18 @@ const NO_HAMMER_MSGS = [
   'Zero hammers. Infinite sadness.',
   'Patience is a virtue you don\'t have.',
 ];
+let _shopNudgeDone = false;
 function noHammerMsg() {
+  if (!_shopNudgeDone) {
+    _shopNudgeDone = true;
+    // Pulse the Shop tab to guide the player
+    const shopTab = document.querySelector('.nav-tab[data-tab="shop"]');
+    if (shopTab) {
+      shopTab.classList.add('shop-nudge');
+      shopTab.addEventListener('animationend', () => shopTab.classList.remove('shop-nudge'), { once: true });
+    }
+    return 'Out of hammers — buy more in the Shop!';
+  }
   return NO_HAMMER_MSGS[Math.floor(Math.random() * NO_HAMMER_MSGS.length)];
 }
 

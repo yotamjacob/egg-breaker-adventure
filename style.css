@@ -175,6 +175,11 @@ body{
   border:1px solid var(--gold3);
   color:var(--gold);
 }
+@keyframes shop-nudge{
+  0%,100%{background:transparent;color:inherit}
+  50%{background:var(--gold3);color:#000}
+}
+.nav-tab.shop-nudge{animation:shop-nudge .5s ease-in-out 3}
 
 /* ---------- Tab panels ---------- */
 .tab-panel{display:none}
