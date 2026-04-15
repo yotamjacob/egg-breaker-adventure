@@ -3,7 +3,7 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '1.5.1';
+const CACHE_VERSION = '1.5.2';
 const CACHE_NAME    = 'eba-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
@@ -11,22 +11,11 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/bundle.min.css',
   '/bundle.min.js',
-  '/img/mrmonkey.webp',
-  '/img/steampunk.webp',
-  '/img/princess.webp',
-  '/img/space.webp',
-  '/img/mrmonkey_chef.webp',
-  '/img/steampunk_chef.webp',
-  '/img/princess_chef.webp',
-  '/img/space_chef.webp',
   '/icon-192.png',
   '/icon-192-maskable.png',
   '/icon-512.png',
   '/icon-512-maskable.png',
   '/privacy.html',
-  '/screenshots/screen-mobile.png',
-  '/screenshots/screen-album.png',
-  '/screenshots/screen-shop.png',
 ];
 
 // ── Install: pre-cache all static assets ──────────────────────
