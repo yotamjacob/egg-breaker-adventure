@@ -3,7 +3,7 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '1.7.0';
+const CACHE_VERSION = '1.7.2';
 const CACHE_NAME    = 'eba-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
