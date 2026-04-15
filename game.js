@@ -35,6 +35,7 @@ const DEFAULT_STATE = {
   achieved: [],
   discoveredEggs: ['normal','silver','gold'], // egg types the player has seen
   soundOn: true,
+  musicOn: true,
   autoBuy: false,
   _tourDone: false,
   deviceId: null,
@@ -1307,6 +1308,7 @@ function switchMonkey(index) {
   const prog = curProgress();
   if (prog.activeStage === undefined) prog.activeStage = prog.stage;
   G.roundEggs = null;
+  MUSIC.play(curMonkey().id);
   newRound();
   renderAll();
   saveGame();
@@ -1678,6 +1680,17 @@ function toggleSound() {
   const on = SFX.toggle();
   G.soundOn = on;
   _syncSoundUI(on);
+  saveGame();
+}
+function _syncMusicUI(on) {
+  const btn = $id('music-btn');
+  if (btn) btn.innerHTML = on ? '🎵' : '🎵';
+  if (btn) btn.style.opacity = on ? '1' : '0.45';
+}
+function toggleMusic() {
+  const on = MUSIC.toggle();
+  G.musicOn = on;
+  _syncMusicUI(on);
   saveGame();
 }
 
@@ -2085,7 +2098,10 @@ $id('tour-skip').addEventListener('click', () => {
 loadGame();
 
 if (G.soundOn === false && SFX.isOn()) SFX.toggle();
-_syncSoundUI(SFX.isOn()); // sync icon immediately on page load
+_syncSoundUI(SFX.isOn());
+if (G.musicOn === false && MUSIC.isOn()) MUSIC.toggle();
+_syncMusicUI(MUSIC.isOn());
+MUSIC.play(curMonkey().id);
 
 Particles.init($id('particle-canvas'));
 

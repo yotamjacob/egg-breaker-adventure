@@ -223,9 +223,14 @@
     <div class="overlay hidden" id="overlay-settings" onclick="if(event.target===this)closeOverlay('overlay-settings')">
       <div class="popup pop-settings">
         <div class="settings-header">
-          <button class="settings-sound-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
+          <div class="settings-header-left">
+            <button class="settings-sound-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
+            <button class="settings-sound-btn" id="music-btn" onclick="toggleMusic()">🎵</button>
+          </div>
           <span class="settings-title-text">Settings</span>
-          <button class="settings-close" onclick="closeOverlay('overlay-settings')">✕</button>
+          <div class="settings-header-right">
+            <button class="settings-close" onclick="closeOverlay('overlay-settings')">✕</button>
+          </div>
         </div>
         <div class="settings-menu">
           <button class="settings-menu-btn" onclick="openSubModal('overlay-progress',renderStats)">
