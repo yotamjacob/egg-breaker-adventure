@@ -390,6 +390,8 @@
         dsn: 'https://e4551c877a8c413eb81b78f11b7fc5ed@app.glitchtip.com/22260',
         release: 'egg-breaker-adventures@' + (typeof VERSION !== 'undefined' ? VERSION : 'unknown'),
         environment: 'production',
+        tracesSampleRate: 0.01,
+        autoSessionTracking: false,
         ignoreErrors: [
           'ResizeObserver loop limit exceeded',
           'Non-Error promise rejection captured',
@@ -397,6 +399,7 @@
           /webkit-masked-url/i,
         ],
       });
+      Sentry.captureMessage('Sentry init OK', 'info');
     }
   </script>
   <script>
