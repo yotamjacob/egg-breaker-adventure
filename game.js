@@ -2211,7 +2211,7 @@ function cloudSaveManual() {
   showConfirm('☁️', 'Save to cloud?', 'This will overwrite your current cloud save.', async function() {
     await _syncToCloud();
     _renderCloudModal();
-    msg('☁️ Saved to cloud!');
+    showShopSnack('☁️ Saved to cloud!');
   }, 'Save');
 }
 
@@ -2224,7 +2224,7 @@ function cloudLoadManual() {
       if (!data) { msg('No cloud save found.'); return; }
       _applyCloudSave(data.save_data);
       track('cloud-save', { action: 'load' });
-      msg('☁️ Cloud save loaded!');
+      showShopSnack('☁️ Cloud save loaded!');
     } catch (e) {
       msg('Failed to load cloud save.');
       console.warn('[cloud] load failed:', e);
