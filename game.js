@@ -346,10 +346,10 @@ function newRound() {
 
 
 
-function multEquation(base, multVals, result, unit, balloonMult) {
+function multEquation(base, multVals, result, unit, balloonMult, customPrefix) {
   const chipTotal = multVals ? multVals.reduce(function(a, b) { return a + b; }, 0) : 1;
   const totalMult = chipTotal * (balloonMult || 1);
-  const prefix = balloonMult ? '🎈 POP! ' : '';
+  const prefix = customPrefix !== undefined ? customPrefix : (balloonMult ? '🎈 POP! ' : '');
   return prefix + '+' + result + ' ' + unit + ' (' + totalMult + 'x' + base + ' ' + unit + ')';
 }
 
@@ -617,16 +617,27 @@ function popBalloonEgg(index, slot) {
   Particles.sparkle(cx, cy, 20, '#FFD700');
   shake(slot, 'md');
 
-  // Roll prize and multiply by 10 (only numeric rewards)
+  // Roll prize — balloon gives 10x base, additive with any active chip mult
   const prize = rollPrize(egg.type);
   const canMultiply = ['gold','star','feather','hammers','banana','maxHammers'].includes(prize.type);
+  const chipTotal = G.activeMult > 1 ? G.activeMult : 0;
   if (prize.type === 'mult') {
     // Balloon gives 10x the number of mult chips
     prize.count = (prize.count || 1) * 10;
     prize.label = prize.count + '× x' + prize.value + ' mult!';
   } else if (canMultiply) {
-    if (prize.value) prize.value *= 10;
-    prize.balloonMult = 10; // tracked separately so baseVal stays as the original roll
+    if (chipTotal > 0) {
+      // Additive: balloon(10) + chips, not 10 × chips
+      prize.value = Math.round(prize.value * (10 + chipTotal) / chipTotal);
+      prize.balloonMult = 10 + chipTotal;
+      prize.usedMult = null; // baked into balloonMult total for display
+    } else {
+      if (prize.value) prize.value *= 10;
+      prize.balloonMult = 10;
+    }
+    // Update label for prize types that use it directly (banana, maxHammers)
+    if (prize.type === 'banana')     prize.label = '+' + prize.value + ' Crystal Banana' + (prize.value !== 1 ? 's' : '') + '!';
+    if (prize.type === 'maxHammers') prize.label = '+' + prize.value + ' max hammers!';
   }
   prize.popPrefix = '🎈 POP! ';
 
@@ -758,13 +769,41 @@ function smashEgg(index) {
   // Roll prize
   const prize = rollPrize(egg.type);
 
+  // Century egg: 100x rewards already applied via goldMult=100 in resolvePrize.
+  // Flag for unique log display; make chip interaction additive.
+  if (egg.type === 'century') {
+    const centuryTypes = { gold: 100, feather: 100, star: 100 };
+    const centuryMult = centuryTypes[prize.type];
+    if (centuryMult) {
+      const chipTotal = G.activeMult > 1 ? G.activeMult : 0;
+      if (chipTotal > 0) {
+        // Additive: century(100) + chips instead of 100 × chips
+        prize.value = Math.round(prize.value * (centuryMult + chipTotal) / (chipTotal * centuryMult));
+      }
+      prize.balloonMult = centuryMult + chipTotal;
+      prize.usedMult = null;
+      prize.popPrefix = '🌀 Century Egg! ';
+    }
+  }
+
   // Effect eggs get bonus rewards
   const fx = egg.effects || [];
   if (fx.includes('runny') || fx.includes('timer')) {
+    const chipTotal = G.activeMult > 1 ? G.activeMult : 0;
     if (prize.type === 'mult') {
       // Multiply count, not face value — value must stay a valid MULT_BADGE_VALUES entry
       prize.count = (prize.count || 1) * 3;
       prize.label = 'x3 ' + prize.label;
+    } else if (chipTotal > 0) {
+      // Additive: egg bonus(3) + chips instead of 3 × chips
+      if (prize.value) prize.value = Math.round(prize.value * (3 + chipTotal) / chipTotal);
+      prize.usedMult = null; // suppress chips equation; combined value shown in label
+      const v = prize.value;
+      if (prize.type === 'gold')    prize.label = 'x3 +' + v + ' gold';
+      else if (prize.type === 'feather') prize.label = 'x3 +' + v + (v !== 1 ? ' feathers' : ' feather');
+      else if (prize.type === 'hammers') prize.label = 'x3 +' + v + ' hammers!';
+      else if (prize.type === 'star')    prize.label = 'x3 +' + v + ' star piece' + (v !== 1 ? 's' : '');
+      else prize.label = 'x3 ' + prize.label;
     } else {
       if (prize.value) prize.value *= 3;
       if (prize.baseVal) prize.baseVal *= 3;
@@ -830,7 +869,7 @@ function applyPrize(prize, cx, cy) {
     G.biggestWin = Math.max(G.biggestWin, prize.value);
     const cls = prize.value >= 500 ? 'mega' : prize.value >= 200 ? 'big' : '';
     if (prize.balloonMult || prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'gold', prize.balloonMult);
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'gold', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#d97706', cls || 'big', cx, cy);
       msg(eq, 'prizes');
     } else {
@@ -845,7 +884,7 @@ function applyPrize(prize, cx, cy) {
     G.starPieces += prize.value;
     G.totalStarPieces += prize.value;
     if (prize.balloonMult || prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'stars', prize.balloonMult);
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'stars', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#f59e0b', 'big', cx, cy);
       msg(eq, 'prizes');
     } else {
@@ -878,7 +917,7 @@ function applyPrize(prize, cx, cy) {
     G.feathers += prize.value;
     G.totalFeathers += prize.value;
     if (prize.balloonMult || prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'feathers', prize.balloonMult);
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'feathers', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#059669', 'big', cx, cy);
       msg(eq, 'prizes');
     } else {
@@ -891,7 +930,7 @@ function applyPrize(prize, cx, cy) {
   if (prize.type === 'hammers') {
     G.hammers += prize.value;
     if (prize.balloonMult || prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'hammers', prize.balloonMult);
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'hammers', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#b45309', 'big', cx, cy);
       msg(eq, 'prizes');
     } else {
@@ -2198,7 +2237,7 @@ function linkGoogleAccount() {
         track('cloud-save', { action: 'unlink' });
         _cloudUser = null;
         _renderCloudModal();
-        msg('Google account unlinked.');
+        showShopSnack('Google account unlinked.');
       });
     }, 'Unlink');
     return;
@@ -2212,7 +2251,7 @@ function linkGoogleAccount() {
 async function _onCloudSignIn() {
   if (!_sbClient || !_cloudUser) return;
   track('cloud-save', { action: 'link' });
-  msg('☁️ Google account linked! Open Settings → Cloud Save to sync.');
+  showShopSnack('☁️ Google account linked! Open Settings → Cloud Save to sync.');
   _renderCloudModal();
 }
 
@@ -2231,12 +2270,12 @@ function cloudLoadManual() {
     try {
       const { data } = await _sbClient
         .from('game_saves').select('save_data').eq('user_id', _cloudUser.id).maybeSingle();
-      if (!data) { msg('No cloud save found.'); return; }
+      if (!data) { showShopSnack('No cloud save found.'); return; }
       _applyCloudSave(data.save_data);
       track('cloud-save', { action: 'load' });
       showShopSnack('☁️ Cloud save loaded!');
     } catch (e) {
-      msg('Failed to load cloud save.');
+      showShopSnack('⚠️ Failed to load cloud save.');
       console.warn('[cloud] load failed:', e);
     }
   }, 'Load');
