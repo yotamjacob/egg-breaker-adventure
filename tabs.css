@@ -158,7 +158,7 @@
 .m-avatar-wrap{width:56px;height:56px;border-radius:2px;overflow:hidden;background:#1a1a2e;border:2px solid var(--gold3);position:relative}
 .m-avatar-wrap img{width:100%;height:100%;object-fit:cover;pointer-events:none}
 .monkey-card .m-name{font-size:10px;color:var(--white);text-shadow:1px 1px 0 var(--dark)}
-.monkey-card .m-perk{font-size:10px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.monkey-card .m-perk{font-size:9px;color:var(--gray);text-align:center;line-height:1.4;max-width:100%;word-break:break-word}
 .monkey-card .m-cost{font-size:11px;color:var(--amber);margin-top:2px}
 .monkey-card .m-progress{font-size:10px;color:var(--gold)}
 .monkey-card .m-progress.done{color:var(--green)}

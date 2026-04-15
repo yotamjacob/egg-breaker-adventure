@@ -613,7 +613,7 @@ const MONKEY_DATA = [
   },
   {
     id: 'space', name: 'Space Cadette', emoji: '🚀', img: 'img/space.webp', cost: 7,
-    perk: 'moreItems', perkDesc: '+10% collection item chance',
+    perk: 'moreItems', perkDesc: '+10% item chance',
     stages: [
       { name: 'Launch Pad', eggs: 3, collection: { name: 'Launch Gear', items: [
         ['🚀','Rocket',1,ITEM_QUOTES.space['Rocket']],
@@ -699,7 +699,7 @@ const MONKEY_DATA = [
   {
     id: 'odin', name: 'Odin Grímnir, the All-Father', emoji: '🧙', img: null, cost: 7,
     unlockRequires: { hammer: 'mjolnir', hint: 'Wield Mjǫllnir to reveal the All-Father' },
-    perk: 'allfather', perkDesc: "All-Father's Grace: +10% gold, stars & feathers",
+    perk: 'allfather', perkDesc: "+10% gold, stars & feathers",
     stages: [
       { name: 'Asgard, the Golden Realm', eggs: 3, collection: { name: 'Aesir Treasures', items: [
         ['⚡', "Thor's Blessing",     1, ITEM_QUOTES.odin["Thor's Blessing"]],
