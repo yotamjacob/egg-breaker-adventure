@@ -14,8 +14,11 @@ famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 ## android (play store)
 [x] get IARC content rating at globalratings.com (free, required for Play Store)
 [x] create Google Play Developer account at play.google.com/console ($25 one-time fee)
-[ ] fill out data safety form in Play Console (Google OAuth, purchases, Umami, GlitchTip)
+[x] fill out data safety form in Play Console (Google OAuth, purchases, Umami, GlitchTip)
+[x] prepare store listing: description, screenshots, feature graphic 1024x500, icon
+[x] submit .aab to Play Store (v1.8.19, version code 3)
+[x] store listing sent for review
+[ ] wait for listing approval (1-3 days) → post Facebook tester recruitment post (Hebrew draft ready)
 [ ] recruit 12 closed testers + run 14-day closed test (required before production access)
+[ ] apply for production access → go live
 [ ] (future) implement Play Integrity API — complex for TWA; Digital Asset Links + server-side PayPal already cover the main risk. Revisit when revenue justifies it.
-[ ] prepare store listing: description, screenshots (at least 2 phone screenshots, 1 tablet), feature graphic 1024x500
-[ ] submit .aab to Play Store
