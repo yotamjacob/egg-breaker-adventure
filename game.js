@@ -1442,7 +1442,7 @@ function doBuyShopItem(category, id) {
       break;
     }
   }
-  setTimeout(() => { renderShop(); saveGame(); }, 250);
+  setTimeout(() => { renderShop(); renderPremiumShop(); saveGame(); }, 250);
 }
 
 // ==================== ACHIEVEMENTS ====================
@@ -1806,7 +1806,6 @@ function applyPurchaseReward(productId, reward) {
   if (parts.length > 0) {
     msg('🎉 ' + parts.join(' + ') + ' added to your account!');
   } else {
-    const prod = PREMIUM_PRODUCTS.find(p => p.id === productId);
     msg('🎉 ' + (prod ? prod.name : 'Upgrade') + ' unlocked!');
   }
   SFX.play('buy');
