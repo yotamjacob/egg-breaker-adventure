@@ -55,6 +55,9 @@ const DEFAULT_STATE = {
 let G = {};
 let regenInt = null;
 let _sessionStart = Date.now();
+let _sbClient = null;
+let _cloudUser = null;
+let _cloudSyncTimer = null;
 
 function initMonkeys() {
   return MONKEY_DATA.map((m, i) => ({
@@ -2180,10 +2183,6 @@ let _isDesktop = !('ontouchstart' in window) && navigator.maxTouchPoints === 0;
 })();
 
 // ==================== CLOUD SAVE ====================
-let _sbClient     = null;
-let _cloudUser    = null;
-let _cloudSyncTimer = null;
-
 function initCloudSave() {
   if (typeof supabase === 'undefined') return;
   _sbClient = supabase.createClient(_SUPABASE_URL, _SUPABASE_ANON, {
