@@ -1149,9 +1149,9 @@ function _doStarfall(message, cat) {
   wrap.style.animation = 'starfall-glow 1s ease';
   setTimeout(() => wrap.style.animation = '', 1000);
 
-  // Break all unbroken eggs in sequence
+  // Break all unbroken eggs in sequence — century eggs are immune
   const unbroken = [];
-  G.roundEggs.forEach((e, i) => { if (!e.broken && !e.expired) unbroken.push(i); });
+  G.roundEggs.forEach((e, i) => { if (!e.broken && !e.expired && e.type !== 'century') unbroken.push(i); });
 
   unbroken.forEach((idx, i) => {
     setTimeout(() => {
