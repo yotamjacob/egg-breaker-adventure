@@ -62,7 +62,7 @@
         <button class="nav-tab" data-tab="monkeys">Monkeys</button>
         <button class="nav-tab" data-tab="shop">Shop</button>
         <button class="nav-tab" data-tab="premium">Premium</button>
-        <button class="nav-tab locked" disabled>?</button>
+        <button class="nav-tab" data-tab="log">Log</button>
         <button class="nav-tab" data-tab="daily">Daily</button>
         <button class="nav-tab" data-tab="achieve">Trophies</button>
         <button class="nav-tab locked" disabled>?</button>
@@ -154,6 +154,19 @@
         <div class="daily-header">📅 Daily Rewards — Day <strong id="daily-day">1</strong></div>
         <div class="daily-calendar" id="daily-calendar"></div>
       </div>
+    </section>
+
+    <!-- ===== LOG TAB ===== -->
+    <section class="tab-panel" id="panel-log">
+      <h3 class="section-title">Activity Log</h3>
+      <div class="log-controls">
+        <button class="log-filter-btn active" data-cat="">All</button>
+        <button class="log-filter-btn" data-cat="prizes">Prizes</button>
+        <button class="log-filter-btn" data-cat="trophies">Trophies</button>
+        <button class="log-filter-btn" data-cat="items">Items</button>
+        <button class="log-filter-btn" data-cat="discovery">Discoveries</button>
+      </div>
+      <div class="full-log-list" id="full-log-list"></div>
     </section>
 
     <!-- ===== ACHIEVEMENTS TAB ===== -->

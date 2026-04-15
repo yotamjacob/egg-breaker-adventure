@@ -229,12 +229,19 @@ function claimDaily() {
 function $id(id) { return document.getElementById(id); }
 
 const _logLines = [];
+const _fullLog   = [];   // timestamped history, max 200 entries
+const _FULL_LOG_MAX = 200;
 function msg(text, cat) {
   const show = CONFIG.logShow || {};
   if (cat && show[cat] === false) return;
   _logLines.unshift({ text: text, cat: cat || '' });
   if (_logLines.length > 4) _logLines.length = 4;
   renderLog();
+  // Full log — skip noisy no-hammer noise, keep everything else
+  if (cat !== 'noHammers') {
+    _fullLog.unshift({ text, cat: cat || '', ts: Date.now() });
+    if (_fullLog.length > _FULL_LOG_MAX) _fullLog.length = _FULL_LOG_MAX;
+  }
 }
 function renderLog() {
   const el = $id('reward-log');
@@ -250,6 +257,47 @@ function renderLog() {
       return '<div class="' + cls + '">' + l.text + '</div>';
     }).join('');
 }
+
+let _logFilter = '';
+
+function renderFullLog() {
+  const el = $id('full-log-list');
+  if (!el) return;
+  const entries = _logFilter
+    ? _fullLog.filter(e => e.cat === _logFilter)
+    : _fullLog;
+  if (!entries.length) {
+    el.innerHTML = '<div class="flog-empty">No activity recorded yet.</div>';
+    return;
+  }
+  const now = Date.now();
+  el.innerHTML = entries.map(e => {
+    const age  = now - e.ts;
+    const mins = Math.floor(age / 60000);
+    const hrs  = Math.floor(mins / 60);
+    const time = mins < 1  ? 'just now'
+               : mins < 60 ? mins + 'm ago'
+               : hrs  < 24 ? hrs + 'h ' + (mins % 60) + 'm ago'
+               : Math.floor(hrs / 24) + 'd ago';
+    const cls = e.cat === 'trophies' || e.cat === 'tiers'  ? 'log-green'
+              : e.cat === 'items'                            ? 'log-blue'
+              : e.cat === 'discovery'                        ? 'log-purple'
+              : e.cat === 'empty'                            ? 'log-gray'
+              : e.cat === 'prizes'                           ? ''
+              : '';
+    return `<div class="flog-row ${cls}"><span class="flog-time">${time}</span><span class="flog-text">${e.text}</span></div>`;
+  }).join('');
+}
+
+// Filter buttons for the log panel
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.log-filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.log-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _logFilter = btn.dataset.cat;
+  renderFullLog();
+});
 
 function spawnFloat(zone, text, color, cls, cx, cy) {
   const el = document.createElement('div');
@@ -1892,6 +1940,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (name === 'daily') renderDailyCalendar();
   if (name === 'achieve') renderAchievements();
   if (name === 'premium') renderPremiumShop();
+  if (name === 'log') renderFullLog();
 });
 
 // ==================== BALLOON DESKTOP HANDLERS ====================
