@@ -49,6 +49,15 @@
 }
 .mult-label{color:var(--gray);flex-shrink:0;font-size:8px;text-align:center;line-height:1.4;width:50px}
 .mult-label strong{color:var(--purple);font-size:10px;display:block}
+.mult-info-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:13px;height:13px;border-radius:50%;
+  background:var(--panel2);border:1px solid var(--purple);
+  color:var(--purple);font-family:var(--px);font-size:7px;
+  cursor:pointer;margin-top:2px;line-height:1;
+  box-shadow:1px 1px 0 var(--dark);
+}
+.mult-info-btn:hover{background:var(--purple);color:var(--white)}
 .mult-queue{
   display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
   flex:1;

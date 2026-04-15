@@ -1351,6 +1351,13 @@ function toggleAutoBuy() {
 
 
 let _snackTimeout = null;
+function showMultInfo() {
+  showConfirm('✖️', 'How Multipliers Work',
+    'Tap a chip to select it. Selected mults ADD together — x2 + x3 = x5. The total applies to your next smash. Tip: save big mults for gold or crystal eggs!',
+    null, 'Got it'
+  );
+}
+
 function showShopSnack(text) {
   const el = $id('shop-snack');
   el.textContent = text;
@@ -1367,18 +1374,21 @@ function showAlert(icon, text) {
 }
 
 function showConfirm(icon, title, detail, onYes, yesText) {
-  $id('confirm-yes').style.display = '';
-  $id('confirm-yes').textContent = yesText || 'Buy';
-  const noBtn = $id('overlay-confirm').querySelector('.confirm-no');
-  if (noBtn) noBtn.textContent = 'Cancel';
-  $id('confirm-icon').textContent = icon;
+  const yesBtn = $id('confirm-yes');
+  const noBtn  = $id('overlay-confirm').querySelector('.confirm-no');
+  $id('confirm-icon').textContent  = icon;
   $id('confirm-title').textContent = title;
   $id('confirm-detail').textContent = detail;
+  if (onYes) {
+    yesBtn.style.display = '';
+    yesBtn.textContent   = yesText || 'Buy';
+    yesBtn.onclick       = function() { closeOverlay('overlay-confirm'); onYes(); };
+    if (noBtn) noBtn.textContent = 'Cancel';
+  } else {
+    yesBtn.style.display = 'none';
+    if (noBtn) noBtn.textContent = yesText || 'Got it';
+  }
   $id('overlay-confirm').classList.remove('hidden');
-  $id('confirm-yes').onclick = function() {
-    closeOverlay('overlay-confirm');
-    onYes();
-  };
 }
 function cancelConfirm() { closeOverlay('overlay-confirm'); }
 
