@@ -734,26 +734,6 @@ const BONUS_INFO = {
   itemBoost:    { stat: 'Item drop weight',   effect: 'x1.15 (+15%)',         unit: '' },
 };
 
-function buildShopTooltip(bonus, owned) {
-  if (!bonus || !BONUS_INFO[bonus]) return '';
-  const info = BONUS_INFO[bonus];
-  if (owned) return info.stat + ': ' + info.effect + ' (active)';
-  const already = hasBonus(bonus);
-  if (already) return info.stat + ': already active from another source';
-  return info.stat + ': ' + info.effect + ' on purchase';
-}
-
-function buildSupplyTooltip(id) {
-  switch (id) {
-    case 'hammers5':   return 'Adds 5 hammers (current: ' + G.hammers + '/' + G.maxH + ')';
-    case 'hammers20':  return 'Adds 20 hammers (current: ' + G.hammers + '/' + G.maxH + ')';
-    case 'star1':      return 'Adds 1 star piece (current: ' + G.starPieces + '/' + CONFIG.starPiecesForStarfall + ')';
-    case 'mult5':      return 'Adds x5 to your multiplier queue (current queue: ' + G.multQueue.length + ')';
-    case 'maxhammers': return 'Hammer cap +5 (current max: ' + G.maxH + ' → ' + (G.maxH + 5) + ')';
-    case 'fastregen':  return 'Hammer regen: ' + CONFIG.regenInterval + 's → ' + CONFIG.fastRegenInterval + 's per hammer';
-    default: return '';
-  }
-}
 
 function renderShop() {
   // Hammers
@@ -823,15 +803,6 @@ function renderShop() {
 }
 
 // ==================== STATS / ACHIEVEMENTS ====================
-function formatPlayTime(s) {
-  if (s < 60) return '< 1 min';
-  const m = Math.floor(s / 60);
-  if (m < 60) return m + ' min';
-  const h = Math.floor(m / 60), rm = m % 60;
-  if (h < 24) return h + 'h ' + rm + 'm';
-  const d = Math.floor(h / 24), rh = h % 24;
-  return d + 'd ' + rh + 'h';
-}
 
 function formatDate(ts) {
   if (!ts) return '—';

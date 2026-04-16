@@ -38,8 +38,6 @@
 .pop-btn:hover{transform:translate(-1px,-1px)}
 .pop-btn:active{transform:translate(2px,2px);box-shadow:0 0 0 transparent}
 
-.pop-item .pop-icon{animation:pop-bounce-retro .4s steps(5)}
-
 .confirm-btns{display:flex;gap:6px;margin-top:6px}
 .confirm-yes{background:linear-gradient(180deg,var(--green),var(--green2))!important;border-color:var(--green)!important}
 .confirm-no{background:var(--panel)!important;color:var(--gray)!important;border-color:var(--gray)!important}

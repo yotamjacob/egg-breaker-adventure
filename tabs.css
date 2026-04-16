@@ -10,7 +10,6 @@
   box-shadow:inset 2px 2px 0 var(--raised),inset -2px -2px 0 var(--inset),3px 3px 0 var(--dark);
 }
 .overall-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.overall-label{font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-shadow:1px 1px 0 var(--dark)}
 .overall-pct{font-size:11px;color:var(--gold);text-shadow:1px 1px 0 var(--dark);font-weight:bold}
 .overall-track{
   background:var(--dark);border:3px solid var(--gold3);

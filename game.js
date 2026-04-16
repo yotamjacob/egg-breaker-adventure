@@ -1356,11 +1356,6 @@ function _nextItemToast() {
   }, 3500);
 }
 
-function showStagePopup(title, detail) {
-  $id('pop-stage-title').textContent = title;
-  $id('pop-stage-detail').textContent = detail;
-  $id('overlay-stage').classList.remove('hidden');
-}
 
 function closeOverlay(id) {
   $id(id).classList.add('hidden');
