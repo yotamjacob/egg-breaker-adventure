@@ -2500,18 +2500,16 @@ async function _onCloudSignIn() {
 }
 
 function cloudSaveManual() {
-  console.log('[cloud-save] cloudSaveManual called, _cloudUser:', !!_cloudUser, '_sbClient:', !!_sbClient);
-  if (!_sbClient || !_cloudUser) { showShopSnack('⚠️ Not linked.'); return; }
+  if (!_sbClient || !_cloudUser) { showShopSnack('DBG: no client/user sb=' + !!_sbClient + ' u=' + !!_cloudUser); return; }
+  showShopSnack('DBG: save confirm opening...');
   showConfirm('☁️', 'Save to cloud?', 'This will overwrite your current cloud save.', function() {
     closeOverlay('overlay-cloudsave');
-    console.log('[cloud-save] confirm callback running');
+    showShopSnack('DBG: saving...');
     (async function() {
       try {
         await _syncToCloud();
-        console.log('[cloud-save] _syncToCloud done');
         showShopSnack('☁️ Saved to cloud!');
       } catch (e) {
-        console.error('[cloud-save] error:', e);
         showShopSnack('⚠️ Save failed: ' + e.message);
       }
     })();
@@ -2519,22 +2517,20 @@ function cloudSaveManual() {
 }
 
 function cloudLoadManual() {
-  console.log('[cloud-load] cloudLoadManual called, _cloudUser:', !!_cloudUser, '_sbClient:', !!_sbClient);
-  if (!_sbClient || !_cloudUser) { showShopSnack('⚠️ Not linked.'); return; }
+  if (!_sbClient || !_cloudUser) { showShopSnack('DBG: no client/user sb=' + !!_sbClient + ' u=' + !!_cloudUser); return; }
+  showShopSnack('DBG: load confirm opening...');
   showConfirm('📥', 'Load from cloud?', 'This will overwrite your current game progress.', function() {
     closeOverlay('overlay-cloudsave');
-    console.log('[cloud-load] confirm callback running');
+    showShopSnack('DBG: loading...');
     (async function() {
       try {
         const { data } = await _sbClient
           .from('game_saves').select('save_data').eq('user_id', _cloudUser.id).maybeSingle();
-        console.log('[cloud-load] data received:', !!data);
         if (!data) { showShopSnack('No cloud save found.'); return; }
         _applyCloudSave(data.save_data);
         track('cloud-save', { action: 'load' });
         showShopSnack('☁️ Cloud save loaded!');
       } catch (e) {
-        console.error('[cloud-load] error:', e);
         showShopSnack('⚠️ Load failed: ' + e.message);
       }
     })();
