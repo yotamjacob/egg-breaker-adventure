@@ -61,6 +61,7 @@ let _sessionStart = Date.now();
 let _sbClient = null;
 let _cloudUser = null;
 let _cloudSyncTimer = null;
+let _cloudUnlinking = false;  // guard against SIGNED_IN re-firing after signOut
 
 function initMonkeys() {
   return MONKEY_DATA.map((m, i) => ({
@@ -2326,6 +2327,10 @@ function initCloudSave() {
     auth: { persistSession: true, autoRefreshToken: true },
   });
   _sbClient.auth.onAuthStateChange(async (event, session) => {
+    // If we're in the middle of an intentional unlink, ignore any SIGNED_IN that
+    // fires (can happen if Supabase auto-refreshes the token immediately after signOut).
+    if (_cloudUnlinking && event === 'SIGNED_IN') return;
+    if (event === 'SIGNED_OUT') _cloudUnlinking = false;
     _cloudUser = session ? session.user : null;
     _renderCloudModal();
     if (event === 'SIGNED_IN') await _onCloudSignIn();
@@ -2404,17 +2409,19 @@ function linkGoogleAccount() {
   if (!_sbClient) return;
   if (_cloudUser) {
     // overlay-confirm has z-index:950, overlay-cloudsave has z-index:900 —
-    // so the confirm appears on top without needing to close the cloud modal first.
-    // We close the cloud modal inside the confirm callback instead.
+    // confirm appears on top without closing the cloud modal first.
     showConfirm('☁️', 'Unlink Google account?', _cloudUser.email, function() {
+      // Clear state immediately — don't wait for signOut to resolve.
+      // _cloudUnlinking prevents onAuthStateChange(SIGNED_IN) from restoring the user
+      // if Supabase fires a token refresh right after signOut.
+      _cloudUnlinking = true;
+      _cloudUser = null;
+      _stopCloudAutoSave();
       closeOverlay('overlay-cloudsave');
-      _sbClient.auth.signOut().then(() => {
-        track('cloud-save', { action: 'unlink' });
-        _cloudUser = null;
-        _stopCloudAutoSave();
-        _renderCloudModal();
-        showShopSnack('Google account unlinked.');
-      });
+      track('cloud-save', { action: 'unlink' });
+      _renderCloudModal();
+      showShopSnack('Google account unlinked.');
+      _sbClient.auth.signOut().catch(e => { console.error('[cloud] signOut error:', e); _cloudUnlinking = false; });
     }, 'Unlink');
     return;
   }
