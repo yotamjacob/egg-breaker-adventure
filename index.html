@@ -289,7 +289,10 @@
       <div class="popup pop-submodal pop-submodal-fit">
         <div class="submodal-header">
           <span class="submodal-title">Lifetime Stats</span>
-          <button class="submodal-close" onclick="closeOverlay('overlay-lifestats');openSettings()">✕</button>
+          <div style="display:flex;gap:6px">
+            <button class="submodal-close" onclick="copyStatsToClipboard()" title="Copy stats to clipboard">📋</button>
+            <button class="submodal-close" onclick="closeOverlay('overlay-lifestats');openSettings()">✕</button>
+          </div>
         </div>
         <div class="submodal-body flush">
           <div class="life-stats" id="life-stats"></div>

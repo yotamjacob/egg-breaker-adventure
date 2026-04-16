@@ -1469,6 +1469,51 @@ function showShopSnack(text, duration) {
   _snackTimeout = setTimeout(() => el.classList.remove('show'), duration || 1800);
 }
 
+function copyStatsToClipboard() {
+  const total = Math.max(G.totalEggs, 1);
+  const per100 = (n) => ((n || 0) / total * 100).toFixed(1);
+  const W = 22; // label column width (includes colon)
+  const row = (label, value) => (label + ':').padEnd(W) + value;
+  const divider = '─'.repeat(36);
+
+  const text = [
+    '🥚 Egg Breaker Adventures — Lifetime Stats',
+    divider,
+    row('Game started',   formatDate(G.firstPlayDate || 0)),
+    row('Eggs smashed',   String(G.totalEggs)),
+    row('Empties',        String(G.totalEmpties || 0)),
+    row('Gold earned',    formatNum(G.totalGold)),
+    row('Star pieces',    String(G.totalStarPieces)),
+    row('Feathers',       String(G.totalFeathers)),
+    row('Items found',    String(G.totalItems)),
+    row('Biggest win',    formatNum(G.biggestWin)),
+    row('Highest mult',   'x' + G.highestMult),
+    row('Starfalls',      String(G.starfallsUsed)),
+    row('Collections',    String(G.collectionsCompleted)),
+    row('Stages done',    String(G.stagesCompleted)),
+    row('Round clears',   String(G.roundClears)),
+    row('Runny eggs',     String(G.runnySmashed || 0)),
+    row('Timer eggs',     String(G.timerSmashed || 0)),
+    row('Timer missed',   String(G.timerMissed || 0)),
+    row('Centuries',      String(G.centurySmashed || 0)),
+    row('Hexes hit',      String(G.hexesHit || 0)),
+    row('Balloons',       String(G.balloonPopped || 0)),
+    row('Longest streak', String(G.longestStreak || 0)),
+    '',
+    '── Per 100 eggs ' + '─'.repeat(20),
+    row('Silver',   per100(G.silverSmashed)),
+    row('Gold',     per100(G.goldSmashed)),
+    row('Crystal',  per100(G.crystalSmashed)),
+    row('Ruby',     per100(G.rubySmashed)),
+    row('Black',    per100(G.blackSmashed)),
+    row('Century',  per100(G.centurySmashed)),
+  ].join('\n');
+
+  navigator.clipboard.writeText(text)
+    .then(() => showShopSnack('📋 Stats copied!'))
+    .catch(() => showShopSnack('Copy failed'));
+}
+
 function showAlert(icon, text) {
   showConfirm(icon, text, '', null);
   $id('confirm-yes').style.display = 'none';
