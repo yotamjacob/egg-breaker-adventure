@@ -2593,8 +2593,11 @@ function linkGoogleAccount() {
   }
   _sbClient.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin + '/' },
-  });
+    options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true },
+  }).then(({ data, error }) => {
+    if (error) { showShopSnack('⚠️ ' + error.message); return; }
+    if (data?.url) window.location.href = data.url;
+  }).catch(e => showShopSnack('⚠️ ' + e.message));
 }
 
 async function deleteCloudData() {
