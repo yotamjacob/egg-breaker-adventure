@@ -67,19 +67,19 @@
 .mult-bar{
   flex-shrink:0;
   display:flex;align-items:center;gap:6px;
-  padding:5px 8px;background:var(--bg);border:2px solid var(--purple);
+  padding:8px 10px;background:var(--bg);border:2px solid var(--purple);
   border-radius:2px;margin-top:4px;margin-bottom:6px;font-size:10px;
   box-shadow: inset 1px 1px 0 var(--raised), 2px 2px 0 var(--dark);
 }
 
-.mult-label{color:var(--gray);flex-shrink:0;font-size:7px;text-align:center;line-height:1.5;width:68px}
+.mult-label{color:var(--gray);flex-shrink:0;font-size:9px;text-align:center;line-height:1.5;width:74px}
 .mult-label-row{display:flex;align-items:flex-start;justify-content:center;gap:4px}
-.mult-label strong{color:var(--purple);font-size:10px;display:block;margin-top:2px}
+.mult-label strong{color:var(--purple);font-size:13px;display:block;margin-top:2px}
 .mult-info-btn{
   display:inline-flex;align-items:center;justify-content:center;
-  width:13px;height:13px;border-radius:50%;
+  width:16px;height:16px;border-radius:50%;
   background:var(--panel2);border:1px solid var(--purple);
-  color:var(--purple);font-family:var(--px);font-size:7px;
+  color:var(--purple);font-family:var(--px);font-size:9px;
   cursor:pointer;margin-top:2px;line-height:1;
   box-shadow:1px 1px 0 var(--dark);
 }
@@ -92,23 +92,23 @@
   flex:0 0 20%;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:2px;border:3px solid var(--gold);border-radius:2px;
   background:linear-gradient(180deg,var(--gold),var(--gold2));color:var(--dark);
-  font-family:var(--px);cursor:pointer;padding:4px;
+  font-family:var(--px);cursor:pointer;padding:6px 4px;
   box-shadow:inset 2px 2px 0 var(--raised),inset -2px -2px 0 var(--inset),3px 3px 0 var(--dark);
   overflow:hidden;
 }
 .starfall-box:disabled{cursor:default}
-.starfall-icon{font-size:18px;text-align:center}
-.starfall-count{font-size:10px;text-align:center}
-.starfall-hint{font-size:8px;color:#3a2a00;text-align:center;line-height:1.4}
+.starfall-icon{font-size:22px;text-align:center}
+.starfall-count{font-size:12px;text-align:center}
+.starfall-hint{font-size:9px;color:#3a2a00;text-align:center;line-height:1.4}
 @keyframes pulse-star{0%,100%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark)}50%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark),0 0 10px rgba(245,197,66,.5)}}
 .mult-chip{
   background:var(--panel);border:2px solid var(--purple);border-radius:1px;
-  padding:3px 4px;font-size:9px;font-family:var(--px);color:var(--purple);
+  padding:4px 6px;font-size:11px;font-family:var(--px);color:var(--purple);
   cursor:pointer;transition:all .08s;
   box-shadow:1px 1px 0 var(--dark);
   display:flex;align-items:center;justify-content:center;
   white-space:nowrap;text-align:center;overflow:hidden;
-  height:24px;
+  height:32px;
 }
 .mult-chip:hover:not(.muted){background:var(--panel2);transform:translate(-1px,-1px)}
 .mult-chip.active{
