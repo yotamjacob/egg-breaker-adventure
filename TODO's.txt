@@ -6,45 +6,13 @@ go over quotes and improve them manually
 gavel - judge hammer
 stop hammer time?
 famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
+Prestige?
+2. item Combos - dark egg and bat give bonus? odin + muijlnir?
 
 ---bugs and tech debt---
 
-no monkey is more profitable than the other right? 
-Analyze stats
-Fix reward for century
-Fix size done done tier
-Less max hammers
-Excessive bananas
-Combos - dark egg and bat give bonus?
-Runny eggs faster
-Sell banana for 10k?
-Century not immune and should be more rare
-Make crystal ruby and black more rewarding
-Black does not have hex
-Hex on main log
-Century not immune and should be more rare
-To starfall
-Add stats
-'Found x unqiue eggs in every 100 round'
-Baloon show up later and a bit more rare
-Black - better drops
-But also there's a bug in the equation
-In general unique egg rewards should scale to the amount of tap they need
-Mult duplicates logs seems to missing correct amount
-Prestige?
-Also balloons has fault equation
-Black and ruby immune to hex
-How should we measure timr played? Lets changed it to game started date
-Eggs wiggle on entry
-Make chicken clickable
-
-
 ---solo dev / scale readiness---
-
-PayPal checkout — users expect Google Play billing for in-app purchases. Seeing a PayPal popup inside an Android app feels suspicious to many users. This is probably your biggest risk for "feels like a scam" 1-star reviews.
-
 ## android (play store)
-[ ] wait for listing approval (1-3 days) → post Facebook tester recruitment post (Hebrew draft ready)
 [ ] recruit 12 closed testers + run 14-day closed test (required before production access)
 [ ] apply for production access → go live
-[ ] (future) implement Play Integrity API — complex for TWA; Digital Asset Links + server-side PayPal already cover the main risk. Revisit when revenue justifies it.
+[ ] add google pay
