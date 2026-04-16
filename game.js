@@ -2024,7 +2024,7 @@ async function purchaseWithPlayBilling(productId) {
     const { purchaseToken } = paymentResponse.details;
     const res = await fetch(_SUPABASE_URL + '/functions/v1/verify-play-purchase', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
+      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
       body: JSON.stringify({ device_id: getDeviceId(), product_id: productId, purchase_token: purchaseToken }),
     });
     const data = await res.json();
@@ -2075,7 +2075,7 @@ async function initPremiumShop() {
     const createOrder = async () => {
       const res = await fetch(_SUPABASE_URL + '/functions/v1/create-order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
+        headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
         body: JSON.stringify({ device_id: deviceId, product_id: pid }),
       });
       const data = await res.json();
@@ -2086,7 +2086,7 @@ async function initPremiumShop() {
     const captureOrder = async (orderId) => {
       const res = await fetch(_SUPABASE_URL + '/functions/v1/capture-order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
+        headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
         body: JSON.stringify({ device_id: deviceId, paypal_order_id: orderId, product_id: pid }),
       });
       const result = await res.json();
@@ -2926,7 +2926,7 @@ async function toggleNotifications() {
     });
     await fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
+      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
       body:    JSON.stringify({ device_id: getDeviceId(), subscription: sub.toJSON() }),
     });
     localStorage.setItem('eba_push_sub', '1');
