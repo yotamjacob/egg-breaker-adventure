@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.52';
+const VERSION = '1.8.53';
 
 const CONFIG = {
 
@@ -67,7 +67,7 @@ const CONFIG = {
       goldMult: 4, featherMult: 3, starPieces: 5,
       colors: { f:'#1a1a1a', s:'#000000', h:'#3a3a3a', sh:'#0a0a0a' },
       particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:30, star:10, mult:5, feather:5, item:7, hammers:10, maxHammers:3 },
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:30, star:10, mult:5, feather:5, item:7, hammers:10, maxHammers:1 },
       desc: 'Stage 9. 20 hits, 4x gold, can boost max hammers',
     },
     {
@@ -160,8 +160,8 @@ const CONFIG = {
 
   // Rewards for tier-ups (max hammer increases)
   tierRewards: {
-    silver: { maxHammers: 5,  hammerRefill: 5 },
-    gold:   { maxHammers: 10, hammerRefill: 5 },
+    silver: { maxHammers: 2,  hammerRefill: 5 },
+    gold:   { maxHammers: 3, hammerRefill: 5 },
   },
 
   // ----------------------------------------------------------

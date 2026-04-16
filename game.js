@@ -850,29 +850,8 @@ function smashEgg(index) {
     G[egg.type + 'Smashed'] = (G[egg.type + 'Smashed'] || 0) + 1;
   }
 
-  // Roll prize
-  const prize = rollPrize(egg.type);
-
-  // Century egg: 100x rewards already applied via goldMult=100 in resolvePrize.
-  // Flag for unique log display; make chip interaction additive.
-  if (egg.type === 'century') {
-    const CM = 100; // must match config.js goldMult/featherMult/starPieces for century
-    if (prize.type === 'gold' || prize.type === 'feather' || prize.type === 'star') {
-      const chipTotal = G.activeMult > 1 ? G.activeMult : 0;
-      if (chipTotal > 0) {
-        // Additive: (1000 + chips) × base instead of 1000 × chips × base
-        prize.value = Math.round(prize.value * (CM + chipTotal) / (chipTotal * CM));
-      }
-      // Show a clean label — stacking bonuses (stages, equipment) make the equation misleading
-      const unit = prize.type === 'gold' ? 'gold'
-                 : prize.type === 'feather' ? (prize.value !== 1 ? 'feathers' : 'feather')
-                 : (prize.value !== 1 ? 'star pieces' : 'star piece');
-      prize.label    = '🌀 Century Egg! +' + prize.value + ' ' + unit;
-      prize.balloonMult = null;
-      prize.usedMult    = null;
-      prize.popPrefix   = null;
-    }
-  }
+  // Roll prize (century egg uses fixed multi-reward, not random roll)
+  const prize = egg.type !== 'century' ? rollPrize(egg.type) : null;
 
   // Effect eggs get bonus rewards
   const fx = egg.effects || [];
@@ -904,6 +883,24 @@ function smashEgg(index) {
     // Hexed eggs: only the curse fires, no prize reward
     if (egg.effects && egg.effects.includes('hex')) {
       applyHex(cx, cy);
+    } else if (egg.type === 'century') {
+      // Fixed rewards: 10k gold + 50 feathers + 50 star pieces (all × active mult), + 25% item
+      const mult = G.activeMult > 1 ? G.activeMult : 1;
+      // Gold with equipment bonuses
+      let gVal = 10000 * mult;
+      if (hasBonus('moreGold'))  gVal = Math.round(gVal * 1.2);
+      if (hasBonus('goldBoost')) gVal = Math.round(gVal * 1.1);
+      if (hasBonus('allfather')) gVal = Math.round(gVal * 1.1);
+      const _ab = getAchievementBonuses();
+      if (_ab.goldPct > 0) gVal = Math.round(gVal * (1 + _ab.goldPct / 100));
+      if (G.stagesCompleted > 0) gVal = Math.round(gVal * (1 + Math.min(G.stagesCompleted * 0.02, 0.30)));
+      if (G['owned_goldmagnet']) gVal = Math.ceil(gVal / 10) * 10;
+      applyPrize({ type: 'gold',    value: gVal,     label: '🌀 Century! +' + gVal + ' gold',    color: '#d97706' }, cx, cy);
+      const fVal = Math.round(50 * mult);
+      applyPrize({ type: 'feather', value: fVal,     label: '🌀 +' + fVal + ' feathers!',        color: '#059669' }, cx, cy);
+      const sVal = Math.round(50 * mult);
+      applyPrize({ type: 'star',    value: sVal,     label: '🌀 +' + sVal + ' star pieces!',     color: '#f59e0b' }, cx, cy);
+      if (Math.random() < 0.25) applyPrize(resolvePrize('item', 'century'), cx, cy);
     } else {
       applyPrize(prize, cx, cy);
     }
