@@ -1997,10 +1997,15 @@ function loadPayPalSDK() {
 
 // ── Google Play Billing (Android TWA) ─────────────────────────────────────
 async function _initPlayBilling() {
+  _oauthLog('PlayBilling: getDigitalGoodsService=' + (typeof window.getDigitalGoodsService));
   if (!window.getDigitalGoodsService) { _playBillingService = false; return; }
   try {
     _playBillingService = await window.getDigitalGoodsService('https://play.google.com/billing') || false;
-  } catch { _playBillingService = false; }
+    _oauthLog('PlayBilling: service=' + (!!_playBillingService));
+  } catch (e) {
+    _oauthLog('PlayBilling: catch=' + e.message);
+    _playBillingService = false;
+  }
 }
 
 async function purchaseWithPlayBilling(productId) {
