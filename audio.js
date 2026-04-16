@@ -144,13 +144,32 @@ const MUSIC = (() => {
     el.addEventListener('timeupdate', onTimeUpdate);
   }
 
+  function _updateMediaSession(playing) {
+    if (!('mediaSession' in navigator)) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: 'Egg Breaker Adventure Revival',
+      artwork: [
+        { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+        { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+      ]
+    });
+    navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+  }
+
+  // Wire up system media controls (notification shade play/pause on Android)
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play',  () => { if (!on) toggle(); });
+    navigator.mediaSession.setActionHandler('pause', () => { if (on)  toggle(); });
+    navigator.mediaSession.setActionHandler('stop',  () => { if (on)  toggle(); });
+  }
+
   function _start(src, targetVol) {
     const needsCross = CROSSFADE_TRACKS.has(
       Object.keys(TRACKS).find(id => TRACKS[id] === src)
     );
     audio = new Audio(src);
     audio.loop = !needsCross;
-    if (on) _fadeIn(audio, targetVol);
+    if (on) { _fadeIn(audio, targetVol); _updateMediaSession(true); }
     if (needsCross) {
       audio.addEventListener('loadedmetadata', () => _setupCrossfade(audio, src, targetVol), { once: true });
     }
@@ -176,8 +195,10 @@ const MUSIC = (() => {
     if (on) {
       if (audio) _fadeIn(audio, currentVol);
       else if (currentSrc) _start(currentSrc, currentVol);
+      _updateMediaSession(true);
     } else {
       if (audio) _fadeOut(audio, () => {});
+      _updateMediaSession(false);
     }
     return on;
   }
