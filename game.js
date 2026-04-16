@@ -2570,7 +2570,8 @@ function toggleCloudAutoSave(checked) {
 }
 
 function linkGoogleAccount() {
-  if (!_sbClient) { showShopSnack('⚠️ Cloud not initialised'); return; }
+  if (!_sbClient) { alert('DEBUG: sbClient is null'); return; }
+  alert('DEBUG: calling signInWithOAuth');
   if (_cloudUser) {
     // overlay-confirm has z-index:950, overlay-cloudsave has z-index:900 —
     // confirm appears on top without closing the cloud modal first.
