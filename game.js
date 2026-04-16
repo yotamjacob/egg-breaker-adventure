@@ -2212,6 +2212,7 @@ document.addEventListener('keydown', (e) => {
       $id('god-btn').classList.toggle('hidden');
       taps = 0;
     }
+    document.querySelector('.nav-tab[data-tab="monkeys"]').click();
   });
 })();
 
