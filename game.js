@@ -2462,12 +2462,43 @@ let _isDesktop = !('ontouchstart' in window) && navigator.maxTouchPoints === 0;
 })();
 
 // ==================== CLOUD SAVE ====================
+
+// ── OAuth debug logger ───────────────────────────────────────────────────────
+// Persists across page reloads (survives the OAuth redirect) via localStorage.
+// Read with the "📋 OAuth Debug" button in the Cloud Save modal.
+function _oauthLog(msg) {
+  try {
+    const ts = new Date().toISOString().substring(11, 19);
+    const logs = JSON.parse(localStorage.getItem('_oauthDbg') || '[]');
+    logs.push('[' + ts + '] ' + msg);
+    if (logs.length > 40) logs.splice(0, logs.length - 40);
+    localStorage.setItem('_oauthDbg', JSON.stringify(logs));
+  } catch (e) { /* storage full or private mode */ }
+}
+function showOauthDebugLog() {
+  const logs = JSON.parse(localStorage.getItem('_oauthDbg') || '[]');
+  alert(logs.length ? logs.join('\n') : '(log is empty — tap Link Google Account first)');
+}
+function clearOauthDebugLog() {
+  localStorage.removeItem('_oauthDbg');
+  showShopSnack('OAuth debug log cleared.');
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 function initCloudSave() {
-  if (typeof supabase === 'undefined') return;
+  if (typeof supabase === 'undefined') { _oauthLog('INIT: supabase SDK not loaded'); return; }
+
+  // Log the page URL at startup — this is the key line after an OAuth redirect:
+  // if the auth code was delivered, it shows up here as ?code=... or #access_token=...
+  _oauthLog('INIT url=' + window.location.href.substring(0, 200));
+  _oauthLog('INIT AndroidBridge=' + (typeof window.AndroidBridge) +
+            ' UA=' + navigator.userAgent.substring(50, 110));
+
   _sbClient = supabase.createClient(_SUPABASE_URL, _SUPABASE_ANON, {
     auth: { persistSession: true, autoRefreshToken: true },
   });
   _sbClient.auth.onAuthStateChange(async (event, session) => {
+    _oauthLog('AUTH event=' + event + ' user=' + (session?.user?.email || 'none'));
     // If we're in the middle of an intentional unlink, ignore any SIGNED_IN that
     // fires (can happen if Supabase auto-refreshes the token immediately after signOut).
     if (_cloudUnlinking && event === 'SIGNED_IN') return;
@@ -2481,10 +2512,11 @@ function initCloudSave() {
   });
   // Restore session on page load (handles OAuth redirect-back)
   _sbClient.auth.getSession().then(({ data }) => {
+    _oauthLog('getSession user=' + (data?.session?.user?.email || 'none'));
     _cloudSession = data.session || null;
     _cloudUser = data.session ? data.session.user : null;
     _renderCloudModal();
-  });
+  }).catch(e => _oauthLog('getSession ERROR: ' + e.message));
 }
 
 function openCloudSaveModal() {
@@ -2600,16 +2632,22 @@ function linkGoogleAccount() {
   const redirectTo = isAndroidApp
     ? 'eggbreakeradventures://oauth/callback'
     : window.location.origin + '/';
+  _oauthLog('LINK isAndroid=' + isAndroidApp + ' redirectTo=' + redirectTo);
   showShopSnack('Connecting to Google...');
   _sbClient.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo, skipBrowserRedirect: true },
   }).then(({ data, error }) => {
-    if (error) { showShopSnack('⚠️ ' + error.message); return; }
+    if (error) {
+      _oauthLog('OAUTH error=' + error.message);
+      showShopSnack('⚠️ ' + error.message);
+      return;
+    }
+    _oauthLog('OAUTH url=' + (data?.url?.substring(0, 100) || 'null'));
     if (!data?.url) { showShopSnack('⚠️ No auth URL'); return; }
     showShopSnack('Opening Google sign-in...');
     window.location.href = data.url;
-  }).catch(e => showShopSnack('⚠️ ' + e.message));
+  }).catch(e => { _oauthLog('OAUTH catch=' + e.message); showShopSnack('⚠️ ' + e.message); });
 }
 
 async function deleteCloudData() {
