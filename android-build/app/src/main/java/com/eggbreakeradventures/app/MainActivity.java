@@ -2,15 +2,18 @@ package com.eggbreakeradventures.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 public class MainActivity extends Activity {
 
@@ -47,19 +50,41 @@ public class MainActivity extends Activity {
         s.setAllowContentAccess(false);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 
-        // Remove the "(wv)" WebView marker from the user agent string.
-        // Google OAuth blocks requests from WebViews (Error 403: disallowed_useragent)
-        // when it detects the "wv" flag. Stripping it lets OAuth proceed normally.
-        String ua = s.getUserAgentString().replace(" (wv)", "");
-        s.setUserAgentString(ua);
-
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                // Google OAuth blocks WebView requests (Error 403: disallowed_useragent).
+                // Intercept the Supabase auth URL and open it in Chrome Custom Tabs,
+                // which Google trusts as a real browser. The OAuth redirect back to
+                // egg-breaker-adventures.vercel.app is caught by the App Link intent-filter
+                // in AndroidManifest and routed to onNewIntent(), which reloads the WebView.
+                if (url.contains("supabase.co/auth") || url.contains("accounts.google.com")) {
+                    new CustomTabsIntent.Builder().build().launchUrl(MainActivity.this, Uri.parse(url));
+                    return true;
+                }
+                return false;
+            }
+        });
         webView.setWebChromeClient(new WebChromeClient());
 
-        // If launched from a shortcut, use the shortcut's URL (e.g. ?tab=play)
+        // If launched from a shortcut or App Link (OAuth callback), use that URL
         Uri intentData = getIntent().getData();
         String url = (intentData != null) ? intentData.toString() : GAME_URL;
         webView.loadUrl(url);
+    }
+
+    // Called when the OAuth redirect (App Link) returns to this already-running activity.
+    // singleTask launch mode ensures we land here rather than a new instance.
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Uri data = intent.getData();
+        if (data != null && webView != null) {
+            // Load the redirect URL (contains auth tokens/code) in the WebView so
+            // the Supabase JS SDK can detect and complete the sign-in.
+            webView.loadUrl(data.toString());
+        }
     }
 
     private void applyImmersiveMode() {
