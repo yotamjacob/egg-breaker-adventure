@@ -2570,8 +2570,7 @@ function toggleCloudAutoSave(checked) {
 }
 
 function linkGoogleAccount() {
-  if (!_sbClient) { alert('DEBUG: sbClient is null'); return; }
-  alert('DEBUG: calling signInWithOAuth');
+  if (!_sbClient) return;
   if (_cloudUser) {
     // overlay-confirm has z-index:950, overlay-cloudsave has z-index:900 —
     // confirm appears on top without closing the cloud modal first.
@@ -2592,16 +2591,25 @@ function linkGoogleAccount() {
     }, 'Unlink');
     return;
   }
+  // On Android the WebView is not Chrome — Custom Tabs cannot route an HTTPS
+  // redirect_to back into the WebView (the session lands in Chrome's storage,
+  // not ours). A custom URI scheme bypasses Chrome entirely: Android always
+  // sends it straight to onNewIntent(), which reloads the game URL with the
+  // auth code so Supabase JS can complete the PKCE exchange in our WebView.
+  const isAndroidApp = typeof window.AndroidBridge !== 'undefined';
+  const redirectTo = isAndroidApp
+    ? 'eggbreakeradventures://oauth/callback'
+    : window.location.origin + '/';
   showShopSnack('Connecting to Google...');
   _sbClient.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true },
+    options: { redirectTo, skipBrowserRedirect: true },
   }).then(({ data, error }) => {
-    if (error) { alert('DEBUG error: ' + error.message); return; }
-    if (!data?.url) { alert('DEBUG: no URL, data=' + JSON.stringify(data)); return; }
-    alert('DEBUG: got URL, navigating to: ' + data.url.substring(0, 120));
+    if (error) { showShopSnack('⚠️ ' + error.message); return; }
+    if (!data?.url) { showShopSnack('⚠️ No auth URL'); return; }
+    showShopSnack('Opening Google sign-in...');
     window.location.href = data.url;
-  }).catch(e => alert('DEBUG catch: ' + e.message));
+  }).catch(e => showShopSnack('⚠️ ' + e.message));
 }
 
 async function deleteCloudData() {
