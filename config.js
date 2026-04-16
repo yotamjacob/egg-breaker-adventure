@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.54';
+const VERSION = '1.8.55';
 
 const CONFIG = {
 
@@ -49,7 +49,7 @@ const CONFIG = {
       goldMult: 2, featherMult: 1, starPieces: 3,
       colors: { f:'#E0D0FF', s:'#8B5CF6', h:'#F0E8FF', sh:'#6D28D9' },
       particles: ['#E0D0FF','#C4B5FD','#A78BFA','#8B5CF6'],
-      prizes: { empty:0, gold_s:0, gold_m:5, gold_l:30, star:12, mult:4, feather:8, item:11, hammers:11 },
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:42, star:16, mult:6, feather:8, item:14, hammers:8 },
       desc: 'Stage 3+. Never empty, 2x gold, 3 star pieces, rarest drops',
     },
     {
@@ -58,8 +58,8 @@ const CONFIG = {
       goldMult: 3, featherMult: 2, starPieces: 4,
       colors: { f:'#E8143C', s:'#8B0020', h:'#FF6B7A', sh:'#5C0015' },
       particles: ['#FF2D55','#E8143C','#C70039','#8B0020'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:25, star:10, mult:4, feather:7, item:8, hammers:9, banana:3 },
-      desc: 'Stage 5+. 9 hits, 3x gold, tiny crystal banana chance',
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:40, star:15, mult:6, feather:7, item:10, hammers:8, banana:0 },
+      desc: 'Stage 5+. 9 hits, 3x gold, best rewards',
     },
     {
       id: 'black', name: 'Black', emoji: '🖤',
@@ -67,12 +67,12 @@ const CONFIG = {
       goldMult: 4, featherMult: 3, starPieces: 5,
       colors: { f:'#1a1a1a', s:'#000000', h:'#3a3a3a', sh:'#0a0a0a' },
       particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:30, star:10, mult:5, feather:5, item:7, hammers:10, maxHammers:1 },
-      desc: 'Stage 9. 20 hits, 4x gold, can boost max hammers',
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:48, star:18, mult:8, feather:8, item:8, hammers:8, maxHammers:1 },
+      desc: 'Stage 9. 20 hits, 4x gold, best rewards in the game',
     },
     {
       id: 'century', name: 'Century', emoji: '🌀',
-      hp: 100, spawnWeight: 0.1, unlockStage: 99, unlockMonkey0: true,
+      hp: 100, spawnWeight: 0.05, unlockStage: 99, unlockMonkey0: true,
       goldMult: 100, featherMult: 100, starPieces: 100,
       colors: { f:'#FFD700', s:'#B8860B', h:'#FFF8DC', sh:'#8B6508' },
       particles: ['#FFD700','#FFA500','#FF6347','#FF00FF','#00FFFF','#7CFC00'],

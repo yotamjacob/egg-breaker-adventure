@@ -214,8 +214,8 @@ function startRunnyDrift(runnySlots, trayW, trayH) {
 
   const eW = 76, eH = 110;
   const pad = 6;
-  // Speed scales with progress: base 0.6, +0.05 per completed stage
-  const speed = 0.6 + (G.stagesCompleted || 0) * 0.05;
+  // Speed scales with progress: base 1.4, +0.05 per completed stage
+  const speed = 1.4 + (G.stagesCompleted || 0) * 0.05;
 
   // Use CSS standalone `translate` property (separate from `transform`) so the
   // runny-wobble animation's `rotate` property never conflicts with movement.

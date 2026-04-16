@@ -382,7 +382,7 @@ function newRound() {
     } else {
       if (mrStage >= 1 && Math.random() < 0.05) effects.push('runny');  // Stage 2
       if (mrStage >= 2 && Math.random() < 0.05 && ['normal','silver','gold','crystal'].includes(type)) effects.push('timer'); // Stage 3
-      if (mrStage >= 3 && Math.random() < 0.03 && type !== 'ruby') effects.push('hex');  // Stage 4+ (ruby immune)
+      if (mrStage >= 3 && Math.random() < 0.03 && type !== 'ruby' && type !== 'black' && type !== 'crystal') effects.push('hex');  // Stage 4+ (ruby/black/crystal immune)
     }
     eggs.push({ type, hp, maxHp: hp, broken: false, effects, timer: effects.includes('timer') ? 3.0 : 0 });
     // Discover new egg type
@@ -1123,7 +1123,7 @@ function applyHex(cx, cy) {
   const text = hex.apply();
   G.hexesHit = (G.hexesHit || 0) + 1;
   spawnFloat(zone, text, '#ff4444', 'big', cx, cy - 30);
-  msg(text, 'noHammers');
+  msg(text, 'prizes');
   SFX.play('err');
   checkAchievements();
   updateResources();
