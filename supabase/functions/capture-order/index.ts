@@ -19,6 +19,7 @@ const REWARDS: Record<string, { gold?: number; hammers?: number; bananas?: numbe
 }
 
 const ALLOWED_ORIGINS = new Set([
+  'https://egg-breaker-adventures.vercel.app',
   'http://localhost',
   'http://localhost:3000',
   'http://127.0.0.1',
@@ -26,9 +27,10 @@ const ALLOWED_ORIGINS = new Set([
 ])
 
 function corsHeaders(origin: string | null) {
-  const allowed = origin && ALLOWED_ORIGINS.has(origin) ? origin : null
+  const allowed = origin && ALLOWED_ORIGINS.has(origin) ? origin : '*'
   return {
-    'Access-Control-Allow-Origin': allowed ?? '',
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   }
 }
@@ -106,7 +108,7 @@ Deno.serve(async (req) => {
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...hdrs, 'Content-Type': 'application/json' },
     })
   }
 })

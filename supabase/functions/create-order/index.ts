@@ -18,9 +18,8 @@ const PRODUCTS: Record<string, { name: string; price: string; oneTime?: boolean 
   goldmagnet:   { name: 'Golden Magnet',  price: '1.99', oneTime: true },
 }
 
-// Allowlist: set ALLOWED_ORIGIN in Supabase Edge Function env vars (your production URL).
-// Localhost variants are always allowed for local development.
 const ALLOWED_ORIGINS = new Set([
+  'https://egg-breaker-adventures.vercel.app',
   'http://localhost',
   'http://localhost:3000',
   'http://127.0.0.1',
@@ -28,9 +27,10 @@ const ALLOWED_ORIGINS = new Set([
 ])
 
 function corsHeaders(origin: string | null) {
-  const allowed = origin && ALLOWED_ORIGINS.has(origin) ? origin : null
+  const allowed = origin && ALLOWED_ORIGINS.has(origin) ? origin : '*'
   return {
-    'Access-Control-Allow-Origin': allowed ?? '',
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   }
 }

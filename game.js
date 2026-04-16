@@ -1988,7 +1988,7 @@ function loadPayPalSDK() {
     }
     _paypalLoading = true;
     const s = document.createElement('script');
-    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD';
+    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD&enable-funding=googlepay,venmo';
     s.onload  = () => { _paypalReady = true; _paypalLoading = false; resolve(); };
     s.onerror = () => { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); };
     document.head.appendChild(s);
@@ -2068,8 +2068,8 @@ async function initPremiumShop() {
     if (!el || el.dataset.rendered) continue;
     el.dataset.rendered = '1';
     const pid = product.id;
-    paypal.Buttons({
-      style: { layout: 'horizontal', color: 'blue', shape: 'rect', label: 'pay', height: 35, tagline: false },
+
+    const orderHandlers = {
       createOrder: async () => {
         const res = await fetch(_SUPABASE_URL + '/functions/v1/create-order', {
           method: 'POST',
@@ -2091,7 +2091,24 @@ async function initPremiumShop() {
         applyPurchaseReward(pid, result.reward);
       },
       onError: () => msg('Payment failed. Please try again.'),
+    };
+
+    // PayPal button
+    paypal.Buttons({
+      ...orderHandlers,
+      style: { layout: 'horizontal', color: 'blue', shape: 'rect', label: 'pay', height: 35, tagline: false },
     }).render('#paypal-btn-' + pid);
+
+    // Google Pay button (only renders if Google Pay is available on this device/browser)
+    if (paypal.Buttons.isEligible({ fundingSource: paypal.FUNDING.GOOGLEPAY })) {
+      const gpDiv = document.createElement('div');
+      el.appendChild(gpDiv);
+      paypal.Buttons({
+        ...orderHandlers,
+        fundingSource: paypal.FUNDING.GOOGLEPAY,
+        style: { height: 35 },
+      }).render(gpDiv);
+    }
   }
 }
 
