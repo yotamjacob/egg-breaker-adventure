@@ -461,8 +461,7 @@ function resolvePrize(type, eggType) {
     if (ab.goldPct > 0) val = Math.round(val * (1 + ab.goldPct / 100));
     // Progressive gold: +2% per completed stage, capped at +30%
     if (G.stagesCompleted > 0) val = Math.round(val * (1 + Math.min(G.stagesCompleted * 0.02, 0.30)));
-    // Golden Magnet: round up to nearest 10
-    if (G['owned_goldmagnet']) val = Math.ceil(val / 10) * 10;
+    if (G['owned_goldmagnet']) val = Math.round(val * 1.2);
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' gold', color: '#d97706' };
   }
@@ -897,7 +896,7 @@ function smashEgg(index) {
       const _ab = getAchievementBonuses();
       if (_ab.goldPct > 0) gVal = Math.round(gVal * (1 + _ab.goldPct / 100));
       if (G.stagesCompleted > 0) gVal = Math.round(gVal * (1 + Math.min(G.stagesCompleted * 0.02, 0.30)));
-      if (G['owned_goldmagnet']) gVal = Math.ceil(gVal / 10) * 10;
+      if (G['owned_goldmagnet']) gVal = Math.round(gVal * 1.2);
       applyPrize({ type: 'gold',    value: gVal,     label: '🌀 Century! +' + gVal + ' gold',    color: '#d97706' }, cx, cy);
       const fVal = Math.round(50 * mult);
       applyPrize({ type: 'feather', value: fVal,     label: '🌀 +' + fVal + ' feathers!',        color: '#059669' }, cx, cy);
@@ -1924,7 +1923,7 @@ const PREMIUM_PRODUCTS = [
   { id: 'eggradar',    name: 'Egg Radar',       emoji: '📡', price: '$3.99', desc: '+50% rare egg spawns',    oneTime: true, boughtKey: 'owned_eggradar' },
   { id: 'doubledaily', name: 'Double Daily',    emoji: '📅', price: '$3.99', desc: '2x daily login rewards',  oneTime: true, boughtKey: 'owned_doubledaily' },
   { id: 'starsaver',   name: 'Star Saver',      emoji: '✨', price: '$2.99', desc: 'Starfall costs 6 stars instead of 7', oneTime: true, boughtKey: 'owned_starsaver' },
-  { id: 'goldmagnet',  name: 'Golden Magnet',   emoji: '🧲', price: '$1.99', desc: 'All gold drops rounded up to nearest 10', oneTime: true, boughtKey: 'owned_goldmagnet' },
+  { id: 'goldmagnet',  name: 'Golden Magnet',   emoji: '🧲', price: '$1.99', desc: '+20% gold from all egg drops', oneTime: true, boughtKey: 'owned_goldmagnet' },
 ];
 
 function getDeviceId() {
