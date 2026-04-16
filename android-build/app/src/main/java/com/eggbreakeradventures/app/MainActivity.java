@@ -8,12 +8,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import androidx.browser.customtabs.CustomTabsIntent;
 
 public class MainActivity extends Activity {
 
@@ -50,17 +50,27 @@ public class MainActivity extends Activity {
         s.setAllowContentAccess(false);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 
+        // Exposes window.AndroidBridge to JS so the game can detect it's inside
+        // the Android app (e.g. to use a custom OAuth redirect scheme).
+        webView.addJavascriptInterface(new Object() {
+            @JavascriptInterface
+            public boolean isAndroidApp() { return true; }
+        }, "AndroidBridge");
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 String url = request.getUrl().toString();
                 // Google OAuth blocks WebView requests (Error 403: disallowed_useragent).
-                // Intercept the Supabase auth URL and open it in Chrome Custom Tabs,
-                // which Google trusts as a real browser. The OAuth redirect back to
-                // egg-breaker-adventures.vercel.app is caught by the App Link intent-filter
-                // in AndroidManifest and routed to onNewIntent(), which reloads the WebView.
+                // Open the Supabase/Google auth URL in the device's default browser via a
+                // plain ACTION_VIEW intent (not a Custom Tab). Custom Tabs can suppress
+                // the custom-scheme intent that fires on the OAuth redirect, so a real
+                // browser window gives more reliable onNewIntent() routing for the
+                // eggbreakeradventures:// callback.
                 if (url.contains("supabase.co/auth") || url.contains("accounts.google.com")) {
-                    new CustomTabsIntent.Builder().build().launchUrl(MainActivity.this, Uri.parse(url));
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(browserIntent);
                     return true;
                 }
                 return false;
@@ -74,17 +84,51 @@ public class MainActivity extends Activity {
         webView.loadUrl(url);
     }
 
-    // Called when the OAuth redirect (App Link) returns to this already-running activity.
+    // Called when the OAuth redirect returns to this already-running activity.
     // singleTask launch mode ensures we land here rather than a new instance.
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Uri data = intent.getData();
-        if (data != null && webView != null) {
-            // Load the redirect URL (contains auth tokens/code) in the WebView so
-            // the Supabase JS SDK can detect and complete the sign-in.
+
+        // Log into the JS debug log so we can see this from the in-app debug button.
+        final String dataStr = (data != null) ? data.toString() : "null";
+        jsLog("onNewIntent data=" + dataStr.substring(0, Math.min(dataStr.length(), 120)));
+
+        if (data == null || webView == null) return;
+
+        String scheme = data.getScheme();
+        if ("eggbreakeradventures".equals(scheme)) {
+            String fragment = data.getFragment(); // implicit: access_token=...&refresh_token=...
+            String query    = data.getQuery();    // PKCE:     code=XXXX
+
+            if (fragment != null) {
+                // Implicit flow: webView.loadUrl() with a hash is a same-page navigation —
+                // the page doesn't reload so Supabase never scans the URL. Instead, call
+                // handleAndroidOAuthCallback() via JS to pass the tokens to setSession().
+                jsLog("onNewIntent: implicit, injecting via JS");
+                final String escaped = fragment.replace("\\", "\\\\").replace("'", "\\'");
+                webView.post(() -> webView.evaluateJavascript(
+                    "if(typeof handleAndroidOAuthCallback==='function')" +
+                    "handleAndroidOAuthCallback('" + escaped + "')", null));
+            } else if (query != null) {
+                // PKCE flow: full page reload with ?code=... so Supabase can exchange it.
+                String gameUrl = GAME_URL + "?" + query;
+                jsLog("onNewIntent: PKCE, reloading gameUrl=" + gameUrl.substring(0, Math.min(gameUrl.length(), 100)));
+                webView.loadUrl(gameUrl);
+            }
+        } else {
+            // Fallback: HTTPS App Link or shortcut launch.
             webView.loadUrl(data.toString());
         }
+    }
+
+    /** Injects a _oauthLog() call into the WebView — visible via the in-app debug button. */
+    private void jsLog(final String msg) {
+        if (webView == null) return;
+        final String escaped = msg.replace("\\", "\\\\").replace("'", "\\'");
+        webView.post(() -> webView.evaluateJavascript(
+            "if(typeof _oauthLog==='function')_oauthLog('" + escaped + "')", null));
     }
 
     private void applyImmersiveMode() {

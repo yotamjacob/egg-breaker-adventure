@@ -36,6 +36,15 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="egg-breaker-adventures.vercel.app" />
             </intent-filter>
+            <!-- Custom URI scheme: used as OAuth redirect_to on Android so Chrome
+                 Custom Tabs can't intercept it — Android routes it straight to
+                 onNewIntent(), which reloads the WebView with the auth code. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="eggbreakeradventures" android:host="oauth" android:pathPrefix="/callback" />
+            </intent-filter>
         </activity>
 
         <!-- ── Play Billing (for future IAP integration) ─────── -->

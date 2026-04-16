@@ -7,13 +7,16 @@
 | `data.js` | Static game data — monkey definitions, stage collections, achievement data, item quotes |
 | `game.js` | Game engine — DEFAULT_STATE, smash logic, prize rolling, shop, cloud save, payments |
 | `render.js` | All DOM rendering — renderEggTray, renderAlbum, renderShop, renderPremiumShop, etc. |
+| `audio.js` | Sound effects and music — loaded separately, not bundled |
+| `particles.js` | Particle effects for egg breaking animations |
+| `hammers.js` | Hammer regeneration logic — regen interval, fast regen, max hammer tracking |
 | `play.css` | Play-tab styles — egg tray, hammer bar, log, mult bar, stage chip, particles |
 | `style.css` | Global styles — CSS variables, nav, resource bar, tab panels, modals |
 | `tabs.css` | Non-play tab styles — album, shop, monkeys, premium, daily, lexicon, achievements |
 | `components.css` | Shared component styles — toast, snack, tooltips |
 | `sw.js` | Service worker — cache versioning, network-first fetch strategy |
 | `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css |
-| `supabase/functions/` | Edge Functions: create-order, capture-order, verify-play-purchase, subscribe-push |
+| `supabase/functions/` | Edge Functions: create-order, capture-order, verify-play-purchase, subscribe-push, send-notifications |
 
 ## Build & deploy
 ```bash
@@ -24,7 +27,7 @@ supabase functions deploy <name> # deploy a single edge function
 Never run `npx vercel --prod` manually.
 
 ## Version bumping (every commit)
-- `config.js` line 1: `const VERSION = 'X.Y.Z'`
+- `config.js` near top: `const VERSION = 'X.Y.Z'`
 - `sw.js` line 6: `const CACHE_VERSION = 'X.Y.Z'`
 
 ## Android build & sign
@@ -72,7 +75,7 @@ Edit `prizes:` inside the relevant egg type in `CONFIG.eggTypes`. Weights are re
 - `purchases` table: device_id, product_id, paypal_order_id, amount, status
 
 ## CSS variables (style.css)
-`--gold:#f5c542` `--gold2:#d4a017` `--gold3:#a67c00` `--green:#22c55e` `--panel:#1e1e3a` `--dark:#0d0d1a` `--bg:#12122a`
+`--gold:#f5c542` `--gold2:#d4a017` `--gold3:#a67c00` `--green:#2ecc71` `--panel:#0f3460` `--dark:#0a0a18` `--bg:#1a1a2e` `--bg2:#16213e` `--amber:#e88d2a` `--gray:#7f8c8d`
 
 ## Common pitfalls
 - `renderEggTray` must run inside `requestAnimationFrame` when switching to play tab (needs laid-out dimensions)
