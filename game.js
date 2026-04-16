@@ -2444,6 +2444,41 @@ async function _onCloudSignIn() {
   track('cloud-save', { action: 'link' });
   _startCloudAutoSave();
   _renderCloudModal();
+
+  // Smart load: compare cloud vs local timestamps and act accordingly
+  try {
+    const { data } = await _sbClient
+      .from('game_saves').select('save_data, saved_at')
+      .eq('user_id', _cloudUser.id).maybeSingle();
+
+    if (!data) return; // no cloud save on record — nothing to do
+
+    const cloudTs  = new Date(data.saved_at).getTime();
+    G._cloudSavedAt = cloudTs;
+    _renderCloudModal();
+
+    const localEmpty  = G.totalEggs === 0;           // fresh install / new device
+    const cloudNewer  = cloudTs > (G._savedAt || 0); // cloud has more recent progress
+
+    if (localEmpty) {
+      // No local progress — silently restore cloud save
+      _applyCloudSave(data.save_data);
+      track('cloud-save', { action: 'load' });
+      showShopSnack('☁️ Cloud save loaded!');
+    } else if (cloudNewer) {
+      // Both sides have progress but cloud is newer — ask the player
+      showConfirm('☁️', 'Load cloud save?',
+        'Found a cloud save from ' + _timeAgo(cloudTs) + '.\nLoad it? Your current local progress will be replaced.',
+        function() {
+          _applyCloudSave(data.save_data);
+          track('cloud-save', { action: 'load' });
+          showShopSnack('☁️ Cloud save loaded!');
+        }, 'Load it');
+    }
+    // local is newer — do nothing; auto-save will sync local → cloud shortly
+  } catch (e) {
+    console.warn('[cloud] sign-in check failed:', e);
+  }
 }
 
 function cloudSaveManual() {
