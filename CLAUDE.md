@@ -37,7 +37,7 @@ JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 ./gradlew bundleRelease
 "$JAVA_HOME/bin/jarsigner" \
   -keystore android.keystore -storepass 'Eggrolls1246' -keypass 'Eggrolls1246' \
-  -signedjar app-release-signed-X.Y.Z.aab \
+  -signedjar app-release-signed.aab \
   app/build/outputs/bundle/release/app-release.aab eggbreaker
 ```
 - Version code/name lives in `android-build/app/build.gradle` (versionCode int, versionName string)
