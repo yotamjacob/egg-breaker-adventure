@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.eggbreakeradventures.app",
       "sha256_cert_fingerprints": [
-        "DE:B6:A5:8F:A0:D2:90:24:8A:94:14:45:57:A7:80:AB:79:3A:55:35:A1:AC:81:E7:BF:BB:D5:C2:E0:95:59:16"
+        "DE:B6:A5:8F:A0:D2:90:24:8A:94:14:45:57:A7:80:AB:79:3A:55:35:A1:AC:81:E7:BF:BB:D5:C2:E0:95:59:16",
+        "4E:D3:3A:CD:4C:D4:27:BB:96:88:9D:9B:7E:86:86:25:C0:24:52:81:1A:28:DF:A6:9B:69:A0:79:A6:73:42:12"
       ]
     }
   }
