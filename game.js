@@ -1861,7 +1861,41 @@ function checkAchievements() {
   }
 }
 
+let _toastSwipeReady = false;
+function _initToastSwipe() {
+  if (_toastSwipeReady) return;
+  _toastSwipeReady = true;
+  const t = $id('toast-achieve');
+  if (!t) return;
+  let startY = 0, dragging = false;
+  t.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    dragging = true;
+    t.style.transition = 'none';
+  }, { passive: true });
+  t.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy < 0) t.style.transform = 'translateY(' + dy + 'px)';
+  }, { passive: true });
+  t.addEventListener('touchend', e => {
+    if (!dragging) return;
+    dragging = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    t.style.transition = '';
+    if (dy < -40) {
+      clearTimeout(toastTimeout);
+      t.style.transform = '';
+      t.classList.remove('show');
+      setTimeout(() => t.classList.add('hidden'), 400);
+    } else {
+      t.style.transform = '';
+    }
+  }, { passive: true });
+}
+
 function showAchieveToast(a) {
+  _initToastSwipe();
   const t = $id('toast-achieve');
   $id('toast-icon').textContent = a.icon;
   $id('toast-name').textContent = a.name;
