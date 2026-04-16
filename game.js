@@ -2439,9 +2439,28 @@ function _startCloudAutoSave() {
   _stopCloudAutoSave();
   if (!G.cloudAutoSave || !_sbClient || !_cloudUser) return;
   _cloudSyncTimer = setInterval(async () => {
-    await _syncToCloud();
-    msg('☁️ Auto-saved to cloud');
+    try {
+      await _syncToCloud();
+      msg('☁️ Auto-saved to cloud');
+    } catch (e) {
+      console.warn('[cloud] auto-save failed:', e);
+    }
   }, 15 * 60 * 1000);
+}
+
+// On a 401 (expired token cached before Supabase finished refreshing), call
+// refreshSession() directly — it's a plain HTTP POST that won't hang like the
+// DB auth interceptor — then update _cloudSession for the next request.
+async function _refreshCloudSession() {
+  const result = await Promise.race([
+    _sbClient.auth.refreshSession(),
+    new Promise((_, r) => setTimeout(() => r(new Error('refresh timeout')), 5000)),
+  ]);
+  if (result.data && result.data.session) {
+    _cloudSession = result.data.session;
+    return true;
+  }
+  return false;
 }
 
 function _stopCloudAutoSave() {
@@ -2570,10 +2589,16 @@ function cloudLoadManual() {
     const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
     const _load = (async function() {
       if (!_cloudSession) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
-      const resp = await fetch(
+      const _doLoadFetch = (token) => fetch(
         _SUPABASE_URL + '/rest/v1/game_saves?select=save_data&user_id=eq.' + _cloudUser.id,
-        { headers: { 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _cloudSession.access_token, 'Accept': 'application/json' } }
+        { headers: { 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' } }
       );
+      let resp = await _doLoadFetch(_cloudSession.access_token);
+      if (resp.status === 401) {
+        const refreshed = await _refreshCloudSession();
+        if (!refreshed) throw new Error('HTTP 401 — session expired');
+        resp = await _doLoadFetch(_cloudSession.access_token);
+      }
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const rows = await resp.json();
       if (!rows.length) throw new Error('no data');
@@ -2605,15 +2630,15 @@ async function _syncToCloud() {
   const hammersFullAt = secsToFull > 0
     ? new Date(Date.now() + secsToFull * 1000).toISOString()
     : null;
-  // Use the session token cached by onAuthStateChange — completely synchronous,
-  // no network call at all. Supabase fires TOKEN_REFRESHED → onAuthStateChange
-  // automatically, so _cloudSession always has a current access_token.
+  // Use the session token cached by onAuthStateChange.
+  // If it's expired (401), refresh once then retry — covers the race where
+  // onAuthStateChange fires before _recoverAndRefresh finishes its refresh.
   if (!_cloudSession) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
-  const resp = await fetch(_SUPABASE_URL + '/rest/v1/game_saves', {
+  const _doSaveFetch = (token) => fetch(_SUPABASE_URL + '/rest/v1/game_saves', {
     method: 'POST',
     headers: {
       'apikey':        _SUPABASE_ANON,
-      'Authorization': 'Bearer ' + _cloudSession.access_token,
+      'Authorization': 'Bearer ' + token,
       'Content-Type':  'application/json',
       'Prefer':        'resolution=merge-duplicates,return=minimal',
     },
@@ -2625,6 +2650,12 @@ async function _syncToCloud() {
       hammers_full_at: hammersFullAt,
     }),
   });
+  let resp = await _doSaveFetch(_cloudSession.access_token);
+  if (resp.status === 401) {
+    const refreshed = await _refreshCloudSession();
+    if (!refreshed) throw new Error('HTTP 401 — session expired');
+    resp = await _doSaveFetch(_cloudSession.access_token);
+  }
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
   G._cloudSavedAt = G._savedAt;
   saveGame();
