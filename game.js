@@ -2403,6 +2403,9 @@ function toggleCloudAutoSave(checked) {
 function linkGoogleAccount() {
   if (!_sbClient) return;
   if (_cloudUser) {
+    // Close cloud modal first — overlay-confirm sits behind overlay-cloudsave in the DOM
+    // so the confirm dialog would be invisible without closing the modal first.
+    closeOverlay('overlay-cloudsave');
     showConfirm('☁️', 'Unlink Google account?', _cloudUser.email, function() {
       _sbClient.auth.signOut().then(() => {
         track('cloud-save', { action: 'unlink' });
@@ -2444,6 +2447,7 @@ async function _onCloudSignIn() {
   track('cloud-save', { action: 'link' });
   _startCloudAutoSave();
   _renderCloudModal();
+  showShopSnack('☁️ Google account linked!');
 
   // Smart load: compare cloud vs local timestamps and act accordingly
   try {
