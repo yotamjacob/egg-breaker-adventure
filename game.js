@@ -514,6 +514,7 @@ function resolvePrize(type, eggType) {
     const result = rollCollectionItem(eggType);
     result.bonusGold = bonusGold;
     result.usedMult = usedMultBonus;
+    result.goldMult = goldMult;   // passed through so duplicate gold scales with egg type
     return result;
   }
 
@@ -1075,9 +1076,9 @@ function applyPrize(prize, cx, cy) {
       // Check collection completion
       checkCollectionComplete();
     } else {
-      // Duplicate - give gold scaled by rarity
+      // Duplicate - give gold scaled by rarity × egg goldMult (ruby=3x, black=4x, century=100x)
       const dRange = (CONFIG.duplicateGoldByRarity || {})[prize.rarity] || [20, 60];
-      const dupeGold = dRange[0] + Math.floor(Math.random() * (dRange[1] - dRange[0] + 1));
+      const dupeGold = Math.round((dRange[0] + Math.floor(Math.random() * (dRange[1] - dRange[0] + 1))) * (prize.goldMult || 1));
       G.gold += dupeGold;
       G.totalGold += dupeGold;
       msg('Duplicate! +' + dupeGold + ' gold', 'duplicates');
