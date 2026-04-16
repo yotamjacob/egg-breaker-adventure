@@ -2500,28 +2500,25 @@ async function _onCloudSignIn() {
 }
 
 function cloudSaveManual() {
-  if (!_sbClient || !_cloudUser) { showShopSnack('DBG: no client/user sb=' + !!_sbClient + ' u=' + !!_cloudUser); return; }
-  showShopSnack('DBG: save confirm opening...');
+  if (!_sbClient || !_cloudUser) return;
   showConfirm('☁️', 'Save to cloud?', 'This will overwrite your current cloud save.', function() {
     closeOverlay('overlay-cloudsave');
-    showShopSnack('DBG: saving...');
     (async function() {
       try {
         await _syncToCloud();
         showShopSnack('☁️ Saved to cloud!');
       } catch (e) {
-        showShopSnack('⚠️ Save failed: ' + e.message);
+        showShopSnack('⚠️ Save failed.');
+        console.warn('[cloud] save error:', e);
       }
     })();
   }, 'Save');
 }
 
 function cloudLoadManual() {
-  if (!_sbClient || !_cloudUser) { showShopSnack('DBG: no client/user sb=' + !!_sbClient + ' u=' + !!_cloudUser); return; }
-  showShopSnack('DBG: load confirm opening...');
+  if (!_sbClient || !_cloudUser) return;
   showConfirm('📥', 'Load from cloud?', 'This will overwrite your current game progress.', function() {
     closeOverlay('overlay-cloudsave');
-    showShopSnack('DBG: loading...');
     (async function() {
       try {
         const { data } = await _sbClient
@@ -2531,7 +2528,8 @@ function cloudLoadManual() {
         track('cloud-save', { action: 'load' });
         showShopSnack('☁️ Cloud save loaded!');
       } catch (e) {
-        showShopSnack('⚠️ Load failed: ' + e.message);
+        showShopSnack('⚠️ Load failed.');
+        console.warn('[cloud] load error:', e);
       }
     })();
   }, 'Load');
