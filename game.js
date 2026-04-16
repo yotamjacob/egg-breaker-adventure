@@ -2519,6 +2519,26 @@ function initCloudSave() {
   }).catch(e => _oauthLog('getSession ERROR: ' + e.message));
 }
 
+// Called from Android onNewIntent() via evaluateJavascript when the OAuth
+// redirect arrives as #access_token=...&refresh_token=... (implicit flow).
+// webView.loadUrl() with a hash fragment is a same-page navigation — the page
+// doesn't reload so Supabase never scans the URL. Injecting via setSession()
+// bypasses that limitation entirely.
+function handleAndroidOAuthCallback(fragment) {
+  _oauthLog('handleAndroidOAuthCallback fragment=' + fragment.substring(0, 80));
+  if (!_sbClient) { _oauthLog('handleAndroidOAuthCallback: no _sbClient'); return; }
+  const params = new URLSearchParams(fragment.replace(/^#/, ''));
+  const access_token  = params.get('access_token');
+  const refresh_token = params.get('refresh_token');
+  if (!access_token) { _oauthLog('handleAndroidOAuthCallback: no access_token'); return; }
+  _sbClient.auth.setSession({ access_token, refresh_token: refresh_token || '' })
+    .then(({ data, error }) => {
+      _oauthLog('setSession user=' + (data?.session?.user?.email || 'none') +
+                ' err=' + (error?.message || 'none'));
+    })
+    .catch(e => _oauthLog('setSession catch=' + e.message));
+}
+
 function openCloudSaveModal() {
   closeOverlay('overlay-settings');
   $id('overlay-cloudsave').classList.remove('hidden');
