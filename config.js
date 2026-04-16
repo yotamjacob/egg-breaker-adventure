@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.84';
+const VERSION = '1.8.85';
 
 const CONFIG = {
 
@@ -160,8 +160,8 @@ const CONFIG = {
 
   // Rewards for tier-ups (max hammer increases)
   tierRewards: {
-    silver: { maxHammers: 2,  hammerRefill: 5 },
-    gold:   { maxHammers: 3, hammerRefill: 5 },
+    silver: { maxHammers: 2,  hammerRefill: 10 },
+    gold:   { maxHammers: 3, hammerRefill: 10 },
   },
 
   // ----------------------------------------------------------
@@ -189,6 +189,7 @@ const CONFIG = {
   // ----------------------------------------------------------
   startingHammers:     60,
   startingMaxHammers:  60,
+  startingGold:        1000,
 
   // ----------------------------------------------------------
   // 15. REWARD LOG — which message types show in the log
@@ -199,7 +200,7 @@ const CONFIG = {
     items:      true,   // new collection items found
     duplicates: true,  // duplicate item messages
     trophies:   true,   // trophy unlocked
-    tiers:      false,   // silver/gold/complete tier-ups
+    tiers:      true,    // silver/gold/complete tier-ups
     starfall:   false,  // "STARFALL! All eggs smashed!"
     discovery:  true,   // new egg type discovered
     daily:      false,   // daily reward claimed

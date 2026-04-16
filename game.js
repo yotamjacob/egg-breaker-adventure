@@ -11,7 +11,7 @@ function track(event, props) {
 
 // ==================== GAME STATE ====================
 const DEFAULT_STATE = {
-  hammers: CONFIG.startingHammers, maxH: CONFIG.startingMaxHammers, gold: 0, starPieces: 0, crystalBananas: 0,
+  hammers: CONFIG.startingHammers, maxH: CONFIG.startingMaxHammers, gold: CONFIG.startingGold, starPieces: 0, crystalBananas: 0,
   feathers: 0,
   multQueue: [],     // multipliers in hand
   activeMult: 1,     // sum of all selected mults
@@ -443,6 +443,9 @@ function rollPrize(eggType) {
   if (hasBonus('starBoost'))    w.star *= 1.1;
   if (hasBonus('itemBoost'))    w.item *= 1.15;
   if (hasBonus('allfather'))  { w.star *= 1.1; w.feather *= 1.1; }
+
+  // Mr Monkey: slightly more item drops
+  if (monkey && monkey.id === 'mr_monkey') w.item *= 1.5;
 
   // Achievement percentage bonuses
   const ab = getAchievementBonuses();
@@ -1273,7 +1276,7 @@ function checkCollectionComplete(suppressFlash) {
       }
       const nextName = si < curMonkey().stages.length - 1
         ? curMonkey().stages[si + 1].name : null;
-      msg('🥇 Gold Tier! ' + stage.name + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
+      msg('🥇 Gold Tier! ' + stage.name + ' +' + reward.hammerRefill + ' 🔨' + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
 
     } else if (newTier >= 3) {
       // Gold → Complete: banana reward
@@ -2066,7 +2069,7 @@ async function initPremiumShop() {
     el.dataset.rendered = '1';
     const pid = product.id;
     paypal.Buttons({
-      style: { layout: 'horizontal', color: 'gold', shape: 'rect', label: 'pay', height: 35, tagline: false },
+      style: { layout: 'horizontal', color: 'blue', shape: 'rect', label: 'pay', height: 35, tagline: false },
       createOrder: async () => {
         const res = await fetch(_SUPABASE_URL + '/functions/v1/create-order', {
           method: 'POST',
