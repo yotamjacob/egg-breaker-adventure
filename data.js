@@ -65,7 +65,7 @@ const MONKEY_DATA = [
       { name: 'Volcano Island', eggs: 5, collection: { name: 'Volcanic Treasures', items: [
         ['🌋','Lava Rock',1,ITEM_QUOTES.mr_monkey['Lava Rock']],
         ['🔥','Fire Opal',1,ITEM_QUOTES.mr_monkey['Fire Opal']],
-        ['♨️','Hot Spring Pearl',1,ITEM_QUOTES.mr_monkey['Hot Spring Pearl']],
+        ['♨️','Secret Hot Springs',1,ITEM_QUOTES.mr_monkey['Secret Hot Springs']],
         ['🪨','Obsidian',2,ITEM_QUOTES.mr_monkey['Obsidian']],
         ['⚗️','Alchemist Stone',2,ITEM_QUOTES.mr_monkey['Alchemist Stone']],
         ['🫧','Lava Bubble',3,ITEM_QUOTES.mr_monkey['Lava Bubble']],
