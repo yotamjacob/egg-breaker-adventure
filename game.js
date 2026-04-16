@@ -2518,10 +2518,16 @@ function cloudLoadManual() {
     showShopSnack('☁️ Loading...', 12000);
     const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
     const _load = (async function() {
-      const { data } = await _sbClient
-        .from('game_saves').select('save_data').eq('user_id', _cloudUser.id).maybeSingle();
-      if (!data) throw new Error('no data');
-      _applyCloudSave(data.save_data);
+      const { data: { session } } = await _sbClient.auth.getSession();
+      if (!session) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
+      const resp = await fetch(
+        _SUPABASE_URL + '/rest/v1/game_saves?select=save_data&user_id=eq.' + _cloudUser.id,
+        { headers: { 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + session.access_token, 'Accept': 'application/json' } }
+      );
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const rows = await resp.json();
+      if (!rows.length) throw new Error('no data');
+      _applyCloudSave(rows[0].save_data);
       track('cloud-save', { action: 'load' });
     })();
     Promise.race([_load, _timeout])
@@ -2536,36 +2542,44 @@ function cloudLoadManual() {
 
 async function _syncToCloud() {
   if (!_sbClient || !_cloudUser) return;
-  try {
-    const d = {};
-    for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
-    if (G.roundEggs) {
-      d.roundEggs = G.roundEggs.map(egg => { const { _smashing, ...clean } = egg; return clean; });
-    }
-    const json = JSON.stringify(d);
-    const compressed = 'lz:' + LZString.compressToUTF16(json);
-    // Calculate when hammers will be full (for push notification scheduling)
-    const regenSec    = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
-    const secsToFull  = G.hammers < G.maxH ? (G.maxH - G.hammers) * regenSec : 0;
-    const hammersFullAt = secsToFull > 0
-      ? new Date(Date.now() + secsToFull * 1000).toISOString()
-      : null;
-    await _sbClient.from('game_saves').upsert(
-      {
-        user_id:         _cloudUser.id,
-        save_data:       compressed,
-        saved_at:        new Date(G._savedAt).toISOString(),
-        last_seen_at:    new Date().toISOString(),
-        hammers_full_at: hammersFullAt,
-      },
-      { onConflict: 'user_id' }
-    );
-    G._cloudSavedAt = G._savedAt;
-    saveGame();
-    track('cloud-save', { action: 'save' });
-  } catch (e) {
-    console.warn('[cloud] sync failed:', e);
+  const d = {};
+  for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
+  if (G.roundEggs) {
+    d.roundEggs = G.roundEggs.map(egg => { const { _smashing, ...clean } = egg; return clean; });
   }
+  const json = JSON.stringify(d);
+  const compressed = 'lz:' + LZString.compressToUTF16(json);
+  // Calculate when hammers will be full (for push notification scheduling)
+  const regenSec    = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  const secsToFull  = G.hammers < G.maxH ? (G.maxH - G.hammers) * regenSec : 0;
+  const hammersFullAt = secsToFull > 0
+    ? new Date(Date.now() + secsToFull * 1000).toISOString()
+    : null;
+  // Get session token directly (reads from cache, no network call) — avoids Supabase
+  // client auto-refresh machinery which can hang indefinitely on a stale token.
+  const { data: { session } } = await _sbClient.auth.getSession();
+  if (!session) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
+  // Raw fetch to PostgREST bypasses the Supabase client auth interceptor entirely.
+  const resp = await fetch(_SUPABASE_URL + '/rest/v1/game_saves', {
+    method: 'POST',
+    headers: {
+      'apikey':        _SUPABASE_ANON,
+      'Authorization': 'Bearer ' + session.access_token,
+      'Content-Type':  'application/json',
+      'Prefer':        'resolution=merge-duplicates,return=minimal',
+    },
+    body: JSON.stringify({
+      user_id:         _cloudUser.id,
+      save_data:       compressed,
+      saved_at:        new Date(G._savedAt).toISOString(),
+      last_seen_at:    new Date().toISOString(),
+      hammers_full_at: hammersFullAt,
+    }),
+  });
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  G._cloudSavedAt = G._savedAt;
+  saveGame();
+  track('cloud-save', { action: 'save' });
 }
 
 function _applyCloudSave(saveData) {
