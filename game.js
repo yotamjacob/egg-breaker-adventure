@@ -2421,7 +2421,9 @@ function linkGoogleAccount() {
       track('cloud-save', { action: 'unlink' });
       _renderCloudModal();
       showShopSnack('Google account unlinked.');
-      _sbClient.auth.signOut().catch(e => { console.error('[cloud] signOut error:', e); _cloudUnlinking = false; });
+      _sbClient.auth.signOut()
+        .then(() => { _cloudUnlinking = false; })
+        .catch(e => { console.error('[cloud] signOut error:', e); _cloudUnlinking = false; });
     }, 'Unlink');
     return;
   }
@@ -2500,8 +2502,8 @@ async function _onCloudSignIn() {
 function cloudSaveManual() {
   if (!_sbClient || !_cloudUser) return;
   showConfirm('☁️', 'Save to cloud?', 'This will overwrite your current cloud save.', async function() {
+    closeOverlay('overlay-cloudsave');
     await _syncToCloud();
-    _renderCloudModal();
     showShopSnack('☁️ Saved to cloud!');
   }, 'Save');
 }
@@ -2509,6 +2511,7 @@ function cloudSaveManual() {
 function cloudLoadManual() {
   if (!_sbClient || !_cloudUser) return;
   showConfirm('📥', 'Load from cloud?', 'This will overwrite your current game progress.', async function() {
+    closeOverlay('overlay-cloudsave');
     try {
       const { data } = await _sbClient
         .from('game_saves').select('save_data').eq('user_id', _cloudUser.id).maybeSingle();
