@@ -368,6 +368,5 @@
   font-size:7px;padding:2px 5px;border-radius:2px;margin-left:4px;vertical-align:middle;
 }
 .paypal-btn-wrap{width:100%;min-height:40px;margin-top:6px}
-.pay-or{text-align:center;font-size:9px;color:var(--gray);margin:4px 0;opacity:.7}
 .play-buy-btn{width:100%;margin-top:6px;padding:8px 4px;background:var(--gold);color:#000;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.5px}
 .play-buy-btn:active{opacity:.8}
