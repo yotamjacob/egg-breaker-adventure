@@ -137,9 +137,16 @@ function renderEggTray() {
   const jitterY = Math.max(0, (cellH - eH) / 2);
 
   const positions = [];
-  // Reuse stored positions if available — prevents wiggle when returning to play tab
+  // Reuse stored positions if available — prevents wiggle when returning to play tab.
+  // Clamp to current tray bounds in case the screen size changed since positions were set.
   if (G.roundEggs[0] && G.roundEggs[0]._pos !== undefined) {
-    G.roundEggs.forEach((egg, i) => positions.push(egg._pos || { x: padX, y: padTop }));
+    G.roundEggs.forEach((egg) => {
+      const p = egg._pos || { x: padX, y: padTop };
+      const cx = Math.min(Math.max(p.x, padX), tW - padX - eW);
+      const cy = Math.min(Math.max(p.y, padTop), tH - padBot - eH);
+      if (cx !== p.x || cy !== p.y) egg._pos = { x: cx, y: cy }; // update if clamped
+      positions.push({ x: cx, y: cy });
+    });
   } else {
     const rawPos = [];
     for (let i = 0; i < count; i++) {

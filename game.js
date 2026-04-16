@@ -143,7 +143,12 @@ function loadGame() {
       if (!Object.prototype.hasOwnProperty.call(DEFAULT_STATE, k)) continue;
       if (d[k] !== undefined && d[k] !== null && (DEFAULT_STATE[k] === null || typeof d[k] === typeof DEFAULT_STATE[k])) G[k] = d[k];
     }
-    if (d.roundEggs) G.roundEggs = d.roundEggs;
+    if (d.roundEggs) {
+      G.roundEggs = d.roundEggs;
+      // _pos values are pixel positions from a previous session that may have had
+      // a different screen size — delete them so renderEggTray recalculates fresh.
+      G.roundEggs.forEach(egg => { delete egg._pos; });
+    }
     if (!G.monkeys || G.monkeys.length < MONKEY_DATA.length) {
       const fresh = initMonkeys();
       if (G.monkeys) {
