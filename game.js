@@ -2403,21 +2403,19 @@ function toggleCloudAutoSave(checked) {
 function linkGoogleAccount() {
   if (!_sbClient) return;
   if (_cloudUser) {
-    const email = _cloudUser.email;
-    closeOverlay('overlay-cloudsave');
-    // Defer showConfirm until after the current click event has fully propagated —
-    // without this, the bubbling click can re-open settings or dismiss the dialog.
-    setTimeout(() => {
-      showConfirm('☁️', 'Unlink Google account?', email, function() {
-        _sbClient.auth.signOut().then(() => {
-          track('cloud-save', { action: 'unlink' });
-          _cloudUser = null;
-          _stopCloudAutoSave();
-          _renderCloudModal();
-          showShopSnack('Google account unlinked.');
-        });
-      }, 'Unlink');
-    }, 0);
+    // overlay-confirm has z-index:950, overlay-cloudsave has z-index:900 —
+    // so the confirm appears on top without needing to close the cloud modal first.
+    // We close the cloud modal inside the confirm callback instead.
+    showConfirm('☁️', 'Unlink Google account?', _cloudUser.email, function() {
+      closeOverlay('overlay-cloudsave');
+      _sbClient.auth.signOut().then(() => {
+        track('cloud-save', { action: 'unlink' });
+        _cloudUser = null;
+        _stopCloudAutoSave();
+        _renderCloudModal();
+        showShopSnack('Google account unlinked.');
+      });
+    }, 'Unlink');
     return;
   }
   _sbClient.auth.signInWithOAuth({
