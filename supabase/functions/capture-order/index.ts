@@ -9,7 +9,7 @@ const REWARDS: Record<string, { gold?: number; hammers?: number; bananas?: numbe
   gold_m:       { gold: 50000 },
   gold_l:       { gold: 200000 },
   hammers:      { hammers: 100 },
-  bananas:      { bananas: 7 },
+  bananas:      { bananas: 9 },
   // Premium upgrades — no resource reward; client applies owned flag via product_id
   luckycharm:   {},
   eggradar:     {},

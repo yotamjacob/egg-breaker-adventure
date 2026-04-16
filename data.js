@@ -96,7 +96,7 @@ const MONKEY_DATA = [
   {
     id: 'steampunk', name: 'Steampunk Monkey', emoji: '🔧', img: 'img/steampunk_nohat.jpeg',
     hatImgs: { chef:'img/steampunk_chef.jpeg', crown:'img/steam_crown.jpeg', wizard:'img/steampunk_wizard.jpeg', tophat:'img/steampunk_tophat.jpeg', pirate:'img/steampunk_pirate.jpeg' },
-    cost: 7,
+    cost: 9,
     perk: 'moreStars', perkDesc: '+15% star piece chance',
     stages: [
       { name: 'Gear Workshop', eggs: 3, collection: { name: 'Basic Gears', items: [
@@ -183,7 +183,7 @@ const MONKEY_DATA = [
   {
     id: 'princess', name: 'Princess Monkey', emoji: '👸', img: 'img/princess_nohat.jpeg',
     hatImgs: { chef:'img/princess_chef.jpeg', crown:'img/princess_crown.jpeg', wizard:'img/princess_wizard.jpeg', tophat:'img/princess_tophat.jpeg', pirate:'img/princess_pirate.jpeg' },
-    cost: 7,
+    cost: 9,
     perk: 'moreGold', perkDesc: '+20% gold from eggs',
     stages: [
       { name: 'Royal Garden', eggs: 3, collection: { name: 'Garden Flowers', items: [
@@ -270,7 +270,7 @@ const MONKEY_DATA = [
   {
     id: 'space', name: 'Space Cadette', emoji: '🚀', img: 'img/space_nohat.jpeg',
     hatImgs: { chef:'img/space_chef.jpeg', crown:'img/space_crown.jpeg', wizard:'img/space_wizard.jpeg', tophat:'img/space_tophat.jpeg', pirate:'img/space_pirate.jpeg' },
-    cost: 7,
+    cost: 9,
     perk: 'moreItems', perkDesc: '+10% item chance',
     stages: [
       { name: 'Launch Pad', eggs: 3, collection: { name: 'Launch Gear', items: [
@@ -357,8 +357,8 @@ const MONKEY_DATA = [
   {
     id: 'odin', name: 'Odin Grímnir, the All-Father', emoji: '🧙', img: 'img/odin_nohat.jpeg',
     hatImgs: { chef:'img/odin_chef.jpeg', crown:'img/odin_crown.jpeg', wizard:'img/odin_wizard.jpeg', tophat:'img/odin_tophat.jpeg', pirate:'img/odin_pirate.jpeg' },
-    cost: 7,
-    unlockRequires: { hammer: 'mjolnir', hint: 'Wield Mjǫllnir to reveal the All-Father' },
+    cost: 9,
+    unlockRequires: { monkey: 'space', hint: 'Unlock Space Cadette to reveal the All-Father' },
     perk: 'allfather', perkDesc: "+10% gold, stars & feathers",
     stages: [
       { name: 'Asgard, the Golden Realm', eggs: 3, collection: { name: 'Aesir Treasures', items: [

@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.76';
+const VERSION = '1.8.78';
 
 const CONFIG = {
 
@@ -146,7 +146,7 @@ const CONFIG = {
   //    and how many needed to unlock a monkey.
   // ----------------------------------------------------------
   crystalBananasPerStage: 1,    // earned when finishing a stage at gold tier
-  crystalBananasToUnlock: 8,    // cost to unlock a new monkey
+  crystalBananasToUnlock: 9,    // cost to unlock a new monkey (matches data.js monkey cost fields)
 
   // ----------------------------------------------------------
   // 10. STAGE TIER THRESHOLDS

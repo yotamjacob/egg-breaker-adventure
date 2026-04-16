@@ -652,9 +652,11 @@ function renderMonkeys() {
     const isActive = i === G.activeMonkey;
     const card = document.createElement('div');
 
-    // Check if unlock requirements are met (e.g. must own Mjǫllnir)
+    // Check if unlock requirements are met
     const req = m.unlockRequires;
-    const reqMet = !req || !req.hammer || G.ownedHammers.includes(req.hammer);
+    const reqMet = !req ||
+      (!req.hammer || G.ownedHammers.includes(req.hammer)) &&
+      (!req.monkey || (() => { const ri = MONKEY_DATA.findIndex(x => x.id === req.monkey); return ri !== -1 && G.monkeys[ri]?.unlocked; })());
 
     // Mystery card — requirements not met and not yet unlocked
     if (!mp.unlocked && !reqMet) {
@@ -1071,7 +1073,9 @@ ${C.eggTypes.map(d => isEggDiscovered(d.id)
       let rows = '';
       MONKEY_DATA.forEach((m, i) => {
         const req = m.unlockRequires;
-        const revealed = !req || !req.hammer || G.ownedHammers.includes(req.hammer);
+        const revealed = !req ||
+          (!req.hammer || G.ownedHammers.includes(req.hammer)) &&
+          (!req.monkey || (() => { const ri = MONKEY_DATA.findIndex(x => x.id === req.monkey); return ri !== -1 && G.monkeys[ri]?.unlocked; })());
         if (!revealed) {
           rows += '<tr><td>❓ ???</td><td class="num">' + m.cost + ' 🍌</td><td><em>Hidden — ' + (req.hint || 'meet special conditions') + '</em></td></tr>';
         } else {

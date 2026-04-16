@@ -1438,6 +1438,14 @@ function unlockMonkey(index) {
     SFX.play('err');
     return;
   }
+  if (req && req.monkey) {
+    const reqIdx = MONKEY_DATA.findIndex(m => m.id === req.monkey);
+    if (reqIdx === -1 || !G.monkeys[reqIdx]?.unlocked) {
+      showAlert('🔒', req.hint || 'Unlock another warrior first.');
+      SFX.play('err');
+      return;
+    }
+  }
   if (G.crystalBananas < MONKEY_DATA[index].cost) {
     showAlert('🍌', 'Need ' + MONKEY_DATA[index].cost + ' Crystal Bananas! (have ' + G.crystalBananas + ')');
     SFX.play('err');
@@ -1942,7 +1950,7 @@ const PREMIUM_PRODUCTS = [
   { id: 'gold_m',       name: 'Gold Pack M',    emoji: '💰', price: '$2.99', desc: '50,000 gold' },
   { id: 'gold_l',       name: 'Gold Pack L',    emoji: '🏆', price: '$7.99', desc: '200,000 gold' },
   { id: 'hammers',      name: 'Hammer Pack',    emoji: '🔨', price: '$0.99', desc: '100 hammers' },
-  { id: 'bananas',      name: 'Monkey Key',     emoji: '🍌', price: '$1.99', desc: '7 Crystal Bananas — unlock any monkey instantly', oneTime: false },
+  { id: 'bananas',      name: 'Monkey Key',     emoji: '🍌', price: '$1.99', desc: '9 Crystal Bananas — unlock any monkey instantly', oneTime: false },
   // ── Premium upgrades (moved from gold shop — too long to grind) ──────────
   { id: 'luckycharm',  name: 'Lucky Charm',    emoji: '🍀', price: '$2.99', desc: '2x rare item drop chance', oneTime: true, boughtKey: 'owned_luckycharm' },
   { id: 'eggradar',    name: 'Egg Radar',       emoji: '📡', price: '$3.99', desc: '+50% rare egg spawns',    oneTime: true, boughtKey: 'owned_eggradar' },
@@ -1961,6 +1969,7 @@ function getDeviceId() {
 
 let _paypalReady = false;
 let _paypalLoading = false;
+let _playBillingService; // undefined=unchecked, false=unavailable, object=ready
 
 function loadPayPalSDK() {
   return new Promise((resolve, reject) => {
@@ -1978,7 +1987,67 @@ function loadPayPalSDK() {
   });
 }
 
+// ── Google Play Billing (Android TWA) ─────────────────────────────────────
+async function _initPlayBilling() {
+  if (!window.getDigitalGoodsService) { _playBillingService = false; return; }
+  try {
+    _playBillingService = await window.getDigitalGoodsService('https://play.google.com/billing') || false;
+  } catch { _playBillingService = false; }
+}
+
+async function purchaseWithPlayBilling(productId) {
+  const product = PREMIUM_PRODUCTS.find(p => p.id === productId);
+  if (!product || !_playBillingService) return;
+
+  const request = new PaymentRequest(
+    [{ supportedMethods: 'https://play.google.com/billing', data: { sku: productId } }],
+    { total: { label: product.name, amount: { currency: 'USD', value: product.price.replace('$', '') } } },
+  );
+
+  let paymentResponse;
+  try {
+    paymentResponse = await request.show();
+  } catch (e) {
+    if (e.name !== 'AbortError') showShopSnack('Purchase cancelled.');
+    return;
+  }
+
+  try {
+    const { purchaseToken } = paymentResponse.details;
+    const res = await fetch(_SUPABASE_URL + '/functions/v1/verify-play-purchase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
+      body: JSON.stringify({ device_id: getDeviceId(), product_id: productId, purchase_token: purchaseToken }),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    await paymentResponse.complete('success');
+    applyPurchaseReward(productId, data.reward);
+  } catch (e) {
+    try { await paymentResponse.complete('fail'); } catch {}
+    showShopSnack('⚠️ ' + (e.message || 'Purchase verification failed.'));
+  }
+}
+
 async function initPremiumShop() {
+  // Try Google Play Billing first (Android TWA)
+  if (_playBillingService === undefined) await _initPlayBilling();
+
+  if (_playBillingService) {
+    for (const product of PREMIUM_PRODUCTS) {
+      const el = document.getElementById('paypal-btn-' + product.id);
+      if (!el || el.dataset.rendered) continue;
+      el.dataset.rendered = '1';
+      const btn = document.createElement('button');
+      btn.className = 'play-buy-btn';
+      btn.textContent = 'Buy — ' + product.price;
+      btn.onclick = () => purchaseWithPlayBilling(product.id);
+      el.appendChild(btn);
+    }
+    return;
+  }
+
+  // Fall back to PayPal (web / iOS)
   try {
     await loadPayPalSDK();
   } catch (e) {
