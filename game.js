@@ -2570,7 +2570,7 @@ function toggleCloudAutoSave(checked) {
 }
 
 function linkGoogleAccount() {
-  if (!_sbClient) return;
+  if (!_sbClient) { showShopSnack('⚠️ Cloud not initialised'); return; }
   if (_cloudUser) {
     // overlay-confirm has z-index:950, overlay-cloudsave has z-index:900 —
     // confirm appears on top without closing the cloud modal first.
@@ -2591,12 +2591,15 @@ function linkGoogleAccount() {
     }, 'Unlink');
     return;
   }
+  showShopSnack('Connecting to Google...');
   _sbClient.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true },
   }).then(({ data, error }) => {
-    if (error) { showShopSnack('⚠️ ' + error.message); return; }
-    if (data?.url) window.location.href = data.url;
+    if (error) { showShopSnack('⚠️ Auth error: ' + error.message); return; }
+    if (!data?.url) { showShopSnack('⚠️ No auth URL returned'); return; }
+    showShopSnack('Opening Google sign-in...');
+    window.location.href = data.url;
   }).catch(e => showShopSnack('⚠️ ' + e.message));
 }
 
