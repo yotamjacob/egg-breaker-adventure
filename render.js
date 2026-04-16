@@ -137,20 +137,30 @@ function renderEggTray() {
   const jitterY = Math.max(0, (cellH - eH) / 2);
 
   const positions = [];
-  for (let i = 0; i < count; i++) {
-    const col = i % cols;
-    const row = Math.floor(i / cols);
-    const baseX = padX + col * cellW + (cellW - eW) / 2;
-    const baseY = padTop + row * cellH + (cellH - eH) / 2;
-    positions.push({
-      x: baseX + (Math.random() * 2 - 1) * jitterX,
-      y: baseY + (Math.random() * 2 - 1) * jitterY,
+  // Reuse stored positions if available — prevents wiggle when returning to play tab
+  if (G.roundEggs[0] && G.roundEggs[0]._pos !== undefined) {
+    G.roundEggs.forEach((egg, i) => positions.push(egg._pos || { x: padX, y: padTop }));
+  } else {
+    const rawPos = [];
+    for (let i = 0; i < count; i++) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const baseX = padX + col * cellW + (cellW - eW) / 2;
+      const baseY = padTop + row * cellH + (cellH - eH) / 2;
+      rawPos.push({
+        x: baseX + (Math.random() * 2 - 1) * jitterX,
+        y: baseY + (Math.random() * 2 - 1) * jitterY,
+      });
+    }
+    // Shuffle positions so egg types aren't always in grid order
+    for (let i = rawPos.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = rawPos[i]; rawPos[i] = rawPos[j]; rawPos[j] = t;
+    }
+    rawPos.forEach((pos, i) => {
+      positions.push(pos);
+      G.roundEggs[i]._pos = pos;  // store for stable re-renders
     });
-  }
-  // Shuffle positions so egg types aren't always in grid order
-  for (let i = positions.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const t = positions[i]; positions[i] = positions[j]; positions[j] = t;
   }
 
   const runnySlots = [];
@@ -814,10 +824,17 @@ function formatPlayTime(s) {
   return d + 'd ' + rh + 'h';
 }
 
+function formatDate(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 function renderStats() {
-  const sessionSecs = Math.floor((Date.now() - _sessionStart) / 1000);
+  const total = Math.max(G.totalEggs, 1);
+  const per100 = (n) => ((n || 0) / total * 100).toFixed(1);
   $id('life-stats').innerHTML = [
-    ['Time playing', formatPlayTime((G.totalPlayTime || 0) + sessionSecs)],
+    ['Game started', formatDate(G.firstPlayDate || 0)],
     ['Eggs smashed', G.totalEggs],
     ['Empties', G.totalEmpties || 0],
     ['Gold earned', formatNum(G.totalGold)],
@@ -837,6 +854,13 @@ function renderStats() {
     ['Hexes hit', G.hexesHit || 0],
     ['Balloons', G.balloonPopped || 0],
     ['Longest streak', G.longestStreak || 0],
+    ['— per 100 eggs —', ''],
+    ['Silver / 100', per100(G.silverSmashed)],
+    ['Gold / 100', per100(G.goldSmashed)],
+    ['Crystal / 100', per100(G.crystalSmashed)],
+    ['Ruby / 100', per100(G.rubySmashed)],
+    ['Black / 100', per100(G.blackSmashed)],
+    ['Century / 100', per100(G.centurySmashed)],
   ].map(([k, v]) => '<span>' + k + '</span><strong>' + v + '</strong>').join('');
 }
 

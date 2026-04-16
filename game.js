@@ -31,7 +31,7 @@ const DEFAULT_STATE = {
   totalItems: 0, biggestWin: 0, highestMult: 1,
   starfallsUsed: 0, collectionsCompleted: 0, stagesCompleted: 0,
   roundClears: 0, feathersBought: 0, maxMultUsed: 0, runnySmashed: 0, blackSmashed: 0, timerSmashed: 0, timerMissed: 0, timerCloseCall: 0,
-  totalPlayTime: 0,
+  totalPlayTime: 0, firstPlayDate: 0,
   achieved: [],
   discoveredEggs: ['normal','silver','gold'], // egg types the player has seen
   soundOn: true,
@@ -377,12 +377,12 @@ function newRound() {
     // Egg effects unlock progressively through Mr. Monkey stages
     const mrStage = G.monkeys && G.monkeys[0] ? (G.monkeys[0].stage || 0) : 0;
     let effects = [];
-    if (mrStage >= 3 && Math.random() < 0.03) {
-      effects = ['balloon'];  // exclusive — no other effects (unlocks Stage 4)
+    if (mrStage >= 5 && Math.random() < 0.015) {
+      effects = ['balloon'];  // exclusive — no other effects (unlocks Stage 6)
     } else {
       if (mrStage >= 1 && Math.random() < 0.05) effects.push('runny');  // Stage 2
       if (mrStage >= 2 && Math.random() < 0.05 && ['normal','silver','gold','crystal'].includes(type)) effects.push('timer'); // Stage 3
-      if (mrStage >= 3 && Math.random() < 0.03 && type !== 'ruby' && type !== 'black' && type !== 'crystal') effects.push('hex');  // Stage 4+ (ruby/black/crystal immune)
+      if (mrStage >= 3 && Math.random() < 0.03 && type !== 'ruby' && type !== 'black' && type !== 'crystal' && type !== 'century') effects.push('hex');  // Stage 4+ (ruby/black/crystal/century immune)
     }
     eggs.push({ type, hp, maxHp: hp, broken: false, effects, timer: effects.includes('timer') ? 3.0 : 0 });
     // Discover new egg type
@@ -954,7 +954,11 @@ function applyPrize(prize, cx, cy) {
     G.biggestWin = Math.max(G.biggestWin, prize.value);
     const cls = prize.value >= 500 ? 'mega' : prize.value >= 200 ? 'big' : '';
     if (prize.balloonMult || prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'gold', prize.balloonMult, prize.popPrefix);
+      // Compute displayBase so equation is always correct: totalMult × displayBase = prize.value
+      const _chipTot = prize.usedMult ? prize.usedMult.reduce((a, b) => a + b, 0) : 1;
+      const _totMult = _chipTot * (prize.balloonMult || 1);
+      const displayBase = Math.round(prize.value / _totMult);
+      const eq = multEquation(displayBase, prize.usedMult, prize.value, 'gold', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#d97706', cls || 'big', cx, cy);
       msg(eq, 'prizes');
     } else {
@@ -2228,6 +2232,7 @@ $id('tour-skip').addEventListener('click', () => {
 
 // ==================== INIT ====================
 loadGame();
+if (!G.firstPlayDate) { G.firstPlayDate = Date.now(); }
 
 // Offline hammer regen — apply hammers earned while the app was closed
 if (G._savedAt > 0 && G.hammers < G.maxH) {

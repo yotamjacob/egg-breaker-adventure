@@ -198,7 +198,7 @@
 @keyframes balloon-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .chicken-run{
   position:absolute;bottom:20px;left:-40px;font-size:28px;
-  animation:chicken-dash 2.5s linear forwards;pointer-events:none;z-index:40;
+  animation:chicken-dash 2.5s linear forwards;cursor:pointer;z-index:40;
 }
 @keyframes chicken-dash{0%{left:-40px;transform:scaleX(1)}100%{left:110%;transform:scaleX(1)}}
 .egg-slot.smashing{animation:egg-smash-retro .35s steps(6)}
