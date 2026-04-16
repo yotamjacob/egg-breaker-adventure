@@ -31,6 +31,16 @@ const DEFAULT_STATE = {
   totalItems: 0, biggestWin: 0, highestMult: 1,
   starfallsUsed: 0, collectionsCompleted: 0, stagesCompleted: 0,
   roundClears: 0, feathersBought: 0, maxMultUsed: 0, runnySmashed: 0, blackSmashed: 0, timerSmashed: 0, timerMissed: 0, timerCloseCall: 0,
+  // Hammer economy
+  hammersDepleted: 0,   // times hit 0 hammers
+  shopHammers5: 0,      // times bought +5 from shop
+  shopHammers20: 0,     // times bought +20 from shop
+  tierHammerRefills: 0, // hammers received from tier-up rewards
+  dailyHammerTotal: 0,  // hammers received from daily login
+  // Multiplier economy
+  multDropped: 0,       // multipliers dropped from eggs
+  multUsed: 0,          // multipliers consumed (fired)
+  shopMult5: 0,         // times bought x5 mult from shop
   totalPlayTime: 0, firstPlayDate: 0,
   achieved: [],
   discoveredEggs: ['normal','silver','gold'], // egg types the player has seen
@@ -211,7 +221,7 @@ function claimDaily() {
   // Apply reward (Double Daily doubles the value)
   const dv = G['owned_doubledaily'] ? reward.val * 2 : reward.val;
   if (reward.type === 'gold')     { G.gold += dv; G.totalGold += dv; }
-  if (reward.type === 'hammers')  { G.hammers = Math.min(G.maxH, G.hammers + dv); }
+  if (reward.type === 'hammers')  { G.hammers = Math.min(G.maxH, G.hammers + dv); G.dailyHammerTotal = (G.dailyHammerTotal || 0) + dv; }
   if (reward.type === 'maxH')     { G.maxH += dv; G.hammers = Math.min(G.maxH, G.hammers + dv); }
   if (reward.type === 'feathers') { G.feathers += dv; G.totalFeathers += dv; }
   if (reward.type === 'banana')   { G.crystalBananas += dv; }
@@ -630,7 +640,7 @@ function startBalloonInflate(index, slot) {
   if (_balloonHold) return;
   const egg = G.roundEggs[index];
   if (!egg || egg.broken || egg.expired) return;
-  if (G.hammers < 1) { msg(noHammerMsg(), 'noHammers'); SFX.play('err'); return; }
+  if (G.hammers < 1) { G.hammersDepleted = (G.hammersDepleted || 0) + 1; msg(noHammerMsg(), 'noHammers'); SFX.play('err'); return; }
 
   let scale = 1;
   const maxScale = 1.8;
@@ -748,6 +758,7 @@ function smashEgg(index) {
 
   // Each hit costs 1 hammer
   if (G.hammers < 1) {
+    G.hammersDepleted = (G.hammersDepleted || 0) + 1;
     egg._smashing = false;
     msg(noHammerMsg(), 'noHammers');
     SFX.play('err');
@@ -990,7 +1001,7 @@ function applyPrize(prize, cx, cy) {
   if (prize.type === 'mult') {
     const multCount = prize.count || 1;
     let added = 0;
-    for (let i = 0; i < multCount && G.multQueue.length < 50; i++) { G.multQueue.push(prize.value); added++; }
+    for (let i = 0; i < multCount && G.multQueue.length < 50; i++) { G.multQueue.push(prize.value); added++; G.multDropped = (G.multDropped || 0) + 1; }
     G.highestMult = Math.max(G.highestMult, prize.value);
     const displayLabel = (prize.popPrefix || '') + (added > 1 ? added + '× x' + prize.value + ' mult!' : 'x' + prize.value + ' multiplier!');
     spawnFloat(zone, displayLabel, '#7c3aed', 'big', cx, cy);
@@ -1250,6 +1261,7 @@ function checkCollectionComplete(suppressFlash) {
       const reward = CONFIG.tierRewards.gold;
       G.maxH += reward.maxHammers;
       G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
+      G.tierHammerRefills = (G.tierHammerRefills || 0) + reward.hammerRefill;
       // Unlock next stage if this is the highest
       if (si >= prog.stage && si < curMonkey().stages.length - 1) {
         prog.stage = si + 1;
@@ -1359,6 +1371,7 @@ function getSelectedMultValues() {
 function consumeMultiplier() {
   if (G.activeMult > 1 && G._selectedCounts) {
     G.maxMultUsed = Math.max(G.maxMultUsed || 0, G.activeMult);
+    G.multUsed = (G.multUsed || 0) + getSelectedMultValues().length;
     const selected = getSelectedMultValues();
     G._lastMultCount = selected.length;
     // Remove consumed multipliers from queue
@@ -1499,6 +1512,18 @@ function copyStatsToClipboard() {
     row('Balloons',       String(G.balloonPopped || 0)),
     row('Longest streak', String(G.longestStreak || 0)),
     '',
+    '── Hammers ' + '─'.repeat(25),
+    row('Hit wall (0 left)', String(G.hammersDepleted || 0)),
+    row('Bought +5 hammers', String(G.shopHammers5 || 0)),
+    row('Bought +20 hammers', String(G.shopHammers20 || 0)),
+    row('Tier refills',      String(G.tierHammerRefills || 0)),
+    row('Daily hammers',     String(G.dailyHammerTotal || 0)),
+    '',
+    '── Multipliers ' + '─'.repeat(21),
+    row('Mults dropped',   String(G.multDropped || 0)),
+    row('Mults used',      String(G.multUsed || 0)),
+    row('x5 mults bought', String(G.shopMult5 || 0)),
+    '',
     '── Per 100 eggs ' + '─'.repeat(20),
     row('Silver',   per100(G.silverSmashed)),
     row('Gold',     per100(G.goldSmashed)),
@@ -1627,10 +1652,10 @@ function doBuyShopItem(category, id) {
     G.purchases = (G.purchases || 0) + 1;
     track('shop-purchase', { item: item.name, category: item.type });
 
-    if (id === 'hammers5') { G.hammers = Math.min(G.maxH, G.hammers + 5); showShopSnack('+5 hammers purchased!'); }
-    if (id === 'hammers20') { G.hammers = Math.min(G.maxH, G.hammers + 20); showShopSnack('+20 hammers purchased!'); }
+    if (id === 'hammers5') { G.hammers = Math.min(G.maxH, G.hammers + 5); G.shopHammers5 = (G.shopHammers5 || 0) + 1; showShopSnack('+5 hammers purchased!'); }
+    if (id === 'hammers20') { G.hammers = Math.min(G.maxH, G.hammers + 20); G.shopHammers20 = (G.shopHammers20 || 0) + 1; showShopSnack('+20 hammers purchased!'); }
     if (id === 'star1') { G.starPieces++; G.totalStarPieces++; updateStarBtn(); showShopSnack('+1 star piece purchased!'); }
-    if (id === 'mult5') { if (G.multQueue.length < 50) G.multQueue.push(5); renderMultQueue(); showShopSnack('x5 multiplier purchased!'); }
+    if (id === 'mult5') { if (G.multQueue.length < 50) { G.multQueue.push(5); G.shopMult5 = (G.shopMult5 || 0) + 1; } renderMultQueue(); showShopSnack('x5 multiplier purchased!'); }
     if (id === 'maxhammers') { G.maxH += 5; showShopSnack('+5 max hammers!'); }
     if (id === 'fastregen') { G.fastRegen = true; showShopSnack('Fast Regen unlocked!'); }
     if (id === 'spyglass') { G['owned_spyglass'] = true; renderEggTray(); showShopSnack('Spyglass unlocked!'); }
