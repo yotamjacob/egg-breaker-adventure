@@ -60,6 +60,7 @@ let regenInt = null;
 let _sessionStart = Date.now();
 let _sbClient = null;
 let _cloudUser = null;
+let _cloudSession = null;     // full session object — cached by onAuthStateChange, never stale
 let _cloudSyncTimer = null;
 let _cloudUnlinking = false;  // guard against SIGNED_IN re-firing after signOut
 
@@ -2331,12 +2332,16 @@ function initCloudSave() {
     // fires (can happen if Supabase auto-refreshes the token immediately after signOut).
     if (_cloudUnlinking && event === 'SIGNED_IN') return;
     if (event === 'SIGNED_OUT') _cloudUnlinking = false;
+    // Cache the full session — gives us a fresh access_token without any network calls.
+    // onAuthStateChange fires on TOKEN_REFRESHED too, so _cloudSession stays current.
+    _cloudSession = session || null;
     _cloudUser = session ? session.user : null;
     _renderCloudModal();
     if (event === 'SIGNED_IN') await _onCloudSignIn();
   });
   // Restore session on page load (handles OAuth redirect-back)
   _sbClient.auth.getSession().then(({ data }) => {
+    _cloudSession = data.session || null;
     _cloudUser = data.session ? data.session.user : null;
     _renderCloudModal();
   });
@@ -2518,11 +2523,10 @@ function cloudLoadManual() {
     showShopSnack('☁️ Loading...', 12000);
     const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
     const _load = (async function() {
-      const { data: { session } } = await _sbClient.auth.getSession();
-      if (!session) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
+      if (!_cloudSession) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
       const resp = await fetch(
         _SUPABASE_URL + '/rest/v1/game_saves?select=save_data&user_id=eq.' + _cloudUser.id,
-        { headers: { 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + session.access_token, 'Accept': 'application/json' } }
+        { headers: { 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _cloudSession.access_token, 'Accept': 'application/json' } }
       );
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const rows = await resp.json();
@@ -2555,16 +2559,15 @@ async function _syncToCloud() {
   const hammersFullAt = secsToFull > 0
     ? new Date(Date.now() + secsToFull * 1000).toISOString()
     : null;
-  // Get session token directly (reads from cache, no network call) — avoids Supabase
-  // client auto-refresh machinery which can hang indefinitely on a stale token.
-  const { data: { session } } = await _sbClient.auth.getSession();
-  if (!session) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
-  // Raw fetch to PostgREST bypasses the Supabase client auth interceptor entirely.
+  // Use the session token cached by onAuthStateChange — completely synchronous,
+  // no network call at all. Supabase fires TOKEN_REFRESHED → onAuthStateChange
+  // automatically, so _cloudSession always has a current access_token.
+  if (!_cloudSession) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
   const resp = await fetch(_SUPABASE_URL + '/rest/v1/game_saves', {
     method: 'POST',
     headers: {
       'apikey':        _SUPABASE_ANON,
-      'Authorization': 'Bearer ' + session.access_token,
+      'Authorization': 'Bearer ' + _cloudSession.access_token,
       'Content-Type':  'application/json',
       'Prefer':        'resolution=merge-duplicates,return=minimal',
     },
