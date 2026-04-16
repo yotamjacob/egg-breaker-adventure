@@ -175,6 +175,7 @@ body{
   border:1px solid var(--gold3);
   color:var(--gold);
 }
+.nav-tab[data-tab="premium"].active{color:var(--dark)}
 @keyframes shop-nudge{
   0%,100%{background:transparent;color:inherit}
   50%{background:var(--gold3);color:#000}
