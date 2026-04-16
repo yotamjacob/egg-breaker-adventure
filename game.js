@@ -2046,6 +2046,12 @@ async function initPremiumShop() {
   // Try Google Play Billing first (Android TWA)
   if (_playBillingService === undefined) await _initPlayBilling();
 
+  // TEMP DEBUG — remove after diagnosing Play Billing
+  alert('PlayBilling debug:\ngetDigitalGoodsService=' + (typeof window.getDigitalGoodsService) +
+        '\nservice=' + (!!_playBillingService) +
+        '\nAndroidBridge=' + (typeof window.AndroidBridge) +
+        '\nlogs=' + (localStorage.getItem('_oauthDbg') || '').slice(-300));
+
   if (_playBillingService) {
     for (const product of PREMIUM_PRODUCTS) {
       const el = document.getElementById('paypal-btn-' + product.id);
