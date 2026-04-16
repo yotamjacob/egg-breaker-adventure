@@ -2447,7 +2447,11 @@ async function _onCloudSignIn() {
   track('cloud-save', { action: 'link' });
   _startCloudAutoSave();
   _renderCloudModal();
-  showShopSnack('☁️ Google account linked!');
+  // Only show "linked" on a real OAuth redirect — SIGNED_IN also fires on session
+  // restore after page refresh, so we gate on auth params being present in the URL.
+  const _isOAuthRedirect = window.location.hash.includes('access_token') ||
+                           window.location.search.includes('code=');
+  if (_isOAuthRedirect) showShopSnack('☁️ Google account linked!');
 
   // Smart load: compare cloud vs local timestamps and act accordingly
   try {
