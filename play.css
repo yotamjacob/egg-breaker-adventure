@@ -305,7 +305,7 @@
 @keyframes toast-out { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-16px)} }
 .item-toast{
   position:absolute;top:8px;left:8px;right:8px;
-  display:flex;align-items:center;gap:10px;
+  display:flex;align-items:flex-start;gap:10px;
   background:rgba(60,35,10,.72);border:1px solid var(--gold3);border-radius:3px;backdrop-filter:blur(4px);
   padding:8px 12px;z-index:50;pointer-events:none;
   animation:toast-in .3s ease forwards;
@@ -322,4 +322,4 @@
 @media(max-width:420px){
   .mult-bar{padding:9px 8px}
 }
-.item-toast-quote{font-size:9px;color:var(--gray);font-style:italic;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-toast-quote{font-size:9px;color:var(--gray);font-style:italic;margin-top:2px;line-height:1.4}
