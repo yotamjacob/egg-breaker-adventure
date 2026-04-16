@@ -67,7 +67,7 @@
 .mult-bar{
   flex-shrink:0;
   display:flex;align-items:center;gap:6px;
-  padding:8px 10px;background:var(--bg);border:2px solid var(--purple);
+  padding:12px 10px;background:var(--bg);border:2px solid var(--purple);
   border-radius:2px;margin-top:4px;margin-bottom:6px;font-size:10px;
   box-shadow: inset 1px 1px 0 var(--raised), 2px 2px 0 var(--dark);
 }
@@ -108,7 +108,7 @@
   box-shadow:1px 1px 0 var(--dark);
   display:flex;align-items:center;justify-content:center;
   white-space:nowrap;text-align:center;overflow:hidden;
-  height:32px;
+  height:40px;
 }
 .mult-chip:hover:not(.muted){background:var(--panel2);transform:translate(-1px,-1px)}
 .mult-chip.active{
