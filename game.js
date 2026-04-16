@@ -2597,11 +2597,11 @@ function linkGoogleAccount() {
     provider: 'google',
     options: { redirectTo: window.location.origin + '/', skipBrowserRedirect: true },
   }).then(({ data, error }) => {
-    if (error) { showShopSnack('⚠️ Auth error: ' + error.message); return; }
-    if (!data?.url) { showShopSnack('⚠️ No auth URL returned'); return; }
-    showShopSnack('Opening Google sign-in...');
+    if (error) { alert('DEBUG error: ' + error.message); return; }
+    if (!data?.url) { alert('DEBUG: no URL, data=' + JSON.stringify(data)); return; }
+    alert('DEBUG: got URL, navigating to: ' + data.url.substring(0, 120));
     window.location.href = data.url;
-  }).catch(e => showShopSnack('⚠️ ' + e.message));
+  }).catch(e => alert('DEBUG catch: ' + e.message));
 }
 
 async function deleteCloudData() {
