@@ -1979,6 +1979,13 @@ let _paypalReady = false;
 let _paypalLoading = false;
 let _playBillingService; // undefined=unchecked, false=unavailable, object=ready
 
+// Cached Google Pay state (reused across tab navigations)
+let _gpReady = false;
+let _gpClient = null;
+let _gpConfig = null;
+let _googlepay = null;
+let _gpaySDKReady = false;
+
 function loadPayPalSDK() {
   return new Promise((resolve, reject) => {
     if (_paypalReady) { resolve(); return; }
@@ -1987,12 +1994,49 @@ function loadPayPalSDK() {
       return;
     }
     _paypalLoading = true;
+    // Try with Google Pay component; fall back without it if merchant isn't enrolled
+    const load = (withGPay) => {
+      const s = document.createElement('script');
+      s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD' +
+              (withGPay ? '&components=googlepay' : '');
+      s.onload  = () => { _paypalReady = true; _paypalLoading = false; resolve(); };
+      s.onerror = () => {
+        if (withGPay) { load(false); } // retry without googlepay
+        else { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); }
+      };
+      document.head.appendChild(s);
+    };
+    load(true);
+  });
+}
+
+function loadGooglePaySDK() {
+  return new Promise((resolve, reject) => {
+    if (_gpaySDKReady) { resolve(); return; }
+    if (window.google && window.google.payments) { _gpaySDKReady = true; resolve(); return; }
     const s = document.createElement('script');
-    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD';
-    s.onload  = () => { _paypalReady = true; _paypalLoading = false; resolve(); };
-    s.onerror = () => { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); };
+    s.src = 'https://pay.google.com/gp/p/js/pay.js';
+    s.onload  = () => { _gpaySDKReady = true; resolve(); };
+    s.onerror = () => reject(new Error('Google Pay SDK failed to load'));
     document.head.appendChild(s);
   });
+}
+
+async function _initGooglePay() {
+  if (_gpReady !== false) return; // already checked (true or initialised)
+  if (!window.paypal || !paypal.Googlepay) { _gpReady = false; return; }
+  try {
+    await loadGooglePaySDK();
+    _googlepay = paypal.Googlepay();
+    _gpConfig  = await _googlepay.config();
+    _gpClient  = new google.payments.api.PaymentsClient({ environment: 'PRODUCTION' });
+    const { result } = await _gpClient.isReadyToPay({
+      apiVersion: _gpConfig.apiVersion,
+      apiVersionMinor: _gpConfig.apiVersionMinor,
+      allowedPaymentMethods: _gpConfig.allowedPaymentMethods,
+    });
+    _gpReady = result;
+  } catch { _gpReady = false; }
 }
 
 // ── Google Play Billing (Android TWA) ─────────────────────────────────────
@@ -2055,47 +2099,103 @@ async function initPremiumShop() {
     return;
   }
 
-  // Fall back to PayPal (web / iOS)
+  // Web: PayPal + Google Pay
   try {
     await loadPayPalSDK();
   } catch (e) {
     msg('Could not load payment system. Check your connection.');
     return;
   }
+
+  // Non-blocking — if Google Pay isn't available we just skip it
+  await _initGooglePay();
+
   const deviceId = getDeviceId();
+
   for (const product of PREMIUM_PRODUCTS) {
     const el = document.getElementById('paypal-btn-' + product.id);
     if (!el || el.dataset.rendered) continue;
     el.dataset.rendered = '1';
-    const pid = product.id;
+    const pid   = product.id;
+    const price = product.price.replace('$', '');
 
-    const orderHandlers = {
-      createOrder: async () => {
-        const res = await fetch(_SUPABASE_URL + '/functions/v1/create-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
-          body: JSON.stringify({ device_id: deviceId, product_id: pid }),
-        });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        return data.paypal_order_id;
-      },
-      onApprove: async (data) => {
-        const res = await fetch(_SUPABASE_URL + '/functions/v1/capture-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
-          body: JSON.stringify({ device_id: deviceId, paypal_order_id: data.orderID, product_id: pid }),
-        });
-        const result = await res.json();
-        if (result.error) { msg('Payment error: ' + result.error); return; }
-        applyPurchaseReward(pid, result.reward);
-      },
-      onError: () => msg('Payment failed. Please try again.'),
+    const createOrder = async () => {
+      const res = await fetch(_SUPABASE_URL + '/functions/v1/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
+        body: JSON.stringify({ device_id: deviceId, product_id: pid }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      return data.paypal_order_id;
     };
 
+    const captureOrder = async (orderId) => {
+      const res = await fetch(_SUPABASE_URL + '/functions/v1/capture-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON },
+        body: JSON.stringify({ device_id: deviceId, paypal_order_id: orderId, product_id: pid }),
+      });
+      const result = await res.json();
+      if (result.error) throw new Error(result.error);
+      return result;
+    };
+
+    // ── Google Pay (main button, shown first) ──────────────────
+    if (_gpReady) {
+      const gpBtn = _gpClient.createButton({
+        buttonType: 'buy',
+        buttonSizeMode: 'fill',
+        onClick: async () => {
+          try {
+            const orderId = await createOrder();
+            const paymentData = await _gpClient.loadPaymentData({
+              apiVersion: _gpConfig.apiVersion,
+              apiVersionMinor: _gpConfig.apiVersionMinor,
+              allowedPaymentMethods: _gpConfig.allowedPaymentMethods,
+              merchantInfo: _gpConfig.merchantInfo,
+              transactionInfo: {
+                totalPriceStatus: 'FINAL',
+                totalPrice: price,
+                currencyCode: 'USD',
+                countryCode: 'US',
+              },
+            });
+            const { status } = await _googlepay.confirmOrder({
+              orderId,
+              paymentMethodData: paymentData.paymentMethodData,
+            });
+            if (status === 'APPROVED') {
+              const result = await captureOrder(orderId);
+              applyPurchaseReward(pid, result.reward);
+            } else {
+              msg('Payment not completed. Please try again.');
+            }
+          } catch (e) {
+            if (e && e.statusCode !== 'CANCELED') msg('Payment failed. Please try again.');
+          }
+        },
+      });
+      gpBtn.style.cssText = 'width:100%;margin-top:6px;display:block;border-radius:4px;overflow:hidden';
+      el.appendChild(gpBtn);
+
+      const orDiv = document.createElement('div');
+      orDiv.className = 'pay-or';
+      orDiv.textContent = '— or —';
+      el.appendChild(orDiv);
+    }
+
+    // ── PayPal (secondary) ─────────────────────────────────────
     paypal.Buttons({
-      ...orderHandlers,
       style: { layout: 'horizontal', color: 'blue', shape: 'rect', label: 'pay', height: 35, tagline: false },
+      createOrder,
+      onApprove: async (data) => {
+        try {
+          const result = await captureOrder(data.orderID);
+          applyPurchaseReward(pid, result.reward);
+        } catch (e) { msg('Payment error: ' + e.message); }
+      },
+      onError: () => msg('Payment failed. Please try again.'),
     }).render('#paypal-btn-' + pid);
   }
 }
