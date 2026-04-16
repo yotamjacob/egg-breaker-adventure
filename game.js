@@ -1977,7 +1977,6 @@ function getDeviceId() {
 
 let _paypalReady = false;
 let _paypalLoading = false;
-let _playBillingService; // undefined=unchecked, false=unavailable, object=ready
 
 function loadPayPalSDK() {
   return new Promise((resolve, reject) => {
@@ -1995,38 +1994,15 @@ function loadPayPalSDK() {
   });
 }
 
-// ── Google Play Billing (Android TWA) ─────────────────────────────────────
-async function _initPlayBilling() {
-  _oauthLog('PlayBilling: getDigitalGoodsService=' + (typeof window.getDigitalGoodsService));
-  if (!window.getDigitalGoodsService) { _playBillingService = false; return; }
-  try {
-    _playBillingService = await window.getDigitalGoodsService('https://play.google.com/billing') || false;
-    _oauthLog('PlayBilling: service=' + (!!_playBillingService));
-  } catch (e) {
-    _oauthLog('PlayBilling: catch=' + e.message);
-    _playBillingService = false;
-  }
-}
-
-async function purchaseWithPlayBilling(productId) {
-  const product = PREMIUM_PRODUCTS.find(p => p.id === productId);
-  if (!product || !_playBillingService) return;
-
-  const request = new PaymentRequest(
-    [{ supportedMethods: 'https://play.google.com/billing', data: { sku: productId } }],
-    { total: { label: product.name, amount: { currency: 'USD', value: product.price.replace('$', '') } } },
-  );
-
-  let paymentResponse;
-  try {
-    paymentResponse = await request.show();
-  } catch (e) {
-    if (e.name !== 'AbortError') showShopSnack('Purchase cancelled.');
+// ── Google Play Billing (Android TWA via AndroidBridge) ───────────────────
+// Android calls window.onPlayPurchaseResult(productId, token, success, errorMsg)
+// after the native billing sheet completes.
+window.onPlayPurchaseResult = async function(productId, purchaseToken, success, error) {
+  if (!success || !purchaseToken) {
+    if (error) showShopSnack('⚠️ ' + error);
     return;
   }
-
   try {
-    const { purchaseToken } = paymentResponse.details;
     const res = await fetch(_SUPABASE_URL + '/functions/v1/verify-play-purchase', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
@@ -2034,25 +2010,20 @@ async function purchaseWithPlayBilling(productId) {
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    await paymentResponse.complete('success');
     applyPurchaseReward(productId, data.reward);
   } catch (e) {
-    try { await paymentResponse.complete('fail'); } catch {}
     showShopSnack('⚠️ ' + (e.message || 'Purchase verification failed.'));
   }
+};
+
+function _isAndroidBilling() {
+  return typeof window.AndroidBridge !== 'undefined' &&
+         typeof window.AndroidBridge.purchaseProduct === 'function';
 }
 
 async function initPremiumShop() {
-  // Try Google Play Billing first (Android TWA)
-  if (_playBillingService === undefined) await _initPlayBilling();
-
-  // TEMP DEBUG — remove after diagnosing Play Billing
-  alert('PlayBilling debug:\ngetDigitalGoodsService=' + (typeof window.getDigitalGoodsService) +
-        '\nservice=' + (!!_playBillingService) +
-        '\nAndroidBridge=' + (typeof window.AndroidBridge) +
-        '\nlogs=' + (localStorage.getItem('_oauthDbg') || '').slice(-300));
-
-  if (_playBillingService) {
+  // Android TWA: use native Play Billing via AndroidBridge
+  if (_isAndroidBilling()) {
     for (const product of PREMIUM_PRODUCTS) {
       const el = document.getElementById('paypal-btn-' + product.id);
       if (!el || el.dataset.rendered) continue;
@@ -2060,7 +2031,7 @@ async function initPremiumShop() {
       const btn = document.createElement('button');
       btn.className = 'play-buy-btn';
       btn.textContent = 'Buy — ' + product.price;
-      btn.onclick = () => purchaseWithPlayBilling(product.id);
+      btn.onclick = () => window.AndroidBridge.purchaseProduct(product.id);
       el.appendChild(btn);
     }
     return;

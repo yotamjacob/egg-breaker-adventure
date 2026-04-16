@@ -15,9 +15,21 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingClientStateListener;
+import com.android.billingclient.api.BillingFlowParams;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ProductDetails;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.QueryProductDetailsParams;
+
+import java.util.Collections;
+import java.util.List;
+
 public class MainActivity extends Activity {
 
     private WebView webView;
+    private BillingClient billingClient;
     private static final String GAME_URL = "https://egg-breaker-adventures.vercel.app/";
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -25,11 +37,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Keep screen on while playing
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         webView = new WebView(this);
-        // Match game background — no white flash while loading
         webView.setBackgroundColor(0xFF1A1A2E);
         setContentView(webView);
 
@@ -37,9 +47,9 @@ public class MainActivity extends Activity {
 
         WebSettings s = webView.getSettings();
         s.setJavaScriptEnabled(true);
-        s.setDomStorageEnabled(true);       // localStorage for game saves
+        s.setDomStorageEnabled(true);
         s.setDatabaseEnabled(true);
-        s.setMediaPlaybackRequiresUserGesture(false); // allow autoplay music
+        s.setMediaPlaybackRequiresUserGesture(false);
         s.setSupportZoom(false);
         s.setBuiltInZoomControls(false);
         s.setDisplayZoomControls(false);
@@ -50,23 +60,66 @@ public class MainActivity extends Activity {
         s.setAllowContentAccess(false);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 
-        // Exposes window.AndroidBridge to JS so the game can detect it's inside
-        // the Android app (e.g. to use a custom OAuth redirect scheme).
+        // Set up Play Billing client
+        billingClient = BillingClient.newBuilder(this)
+            .setListener(this::onPurchasesUpdated)
+            .enablePendingPurchases()
+            .build();
+        connectBilling();
+
+        // AndroidBridge exposes native functionality to JavaScript
         webView.addJavascriptInterface(new Object() {
+
             @JavascriptInterface
             public boolean isAndroidApp() { return true; }
+
+            // Called from JS: window.AndroidBridge.purchaseProduct('gold_s')
+            // Queries Play Billing for the product then launches the purchase sheet.
+            // Result fires window.onPlayPurchaseResult(productId, token, success, errorMsg)
+            @JavascriptInterface
+            public void purchaseProduct(final String productId) {
+                if (billingClient == null || !billingClient.isReady()) {
+                    callJsPurchaseResult(productId, null, false, "Billing not ready");
+                    return;
+                }
+                QueryProductDetailsParams params = QueryProductDetailsParams.newBuilder()
+                    .setProductList(Collections.singletonList(
+                        QueryProductDetailsParams.Product.newBuilder()
+                            .setProductId(productId)
+                            .setProductType(BillingClient.ProductType.INAPP)
+                            .build()
+                    ))
+                    .build();
+
+                billingClient.queryProductDetailsAsync(params, (billingResult, productDetailsList) -> {
+                    if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK
+                            || productDetailsList == null || productDetailsList.isEmpty()) {
+                        callJsPurchaseResult(productId, null, false,
+                            "Product not found (code " + billingResult.getResponseCode() + ")");
+                        return;
+                    }
+                    ProductDetails details = productDetailsList.get(0);
+                    BillingFlowParams flowParams = BillingFlowParams.newBuilder()
+                        .setProductDetailsParamsList(Collections.singletonList(
+                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(details)
+                                .build()
+                        ))
+                        .build();
+                    // launchBillingFlow must run on the UI thread
+                    runOnUiThread(() -> billingClient.launchBillingFlow(MainActivity.this, flowParams));
+                });
+            }
+
         }, "AndroidBridge");
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 String url = request.getUrl().toString();
-                // Google OAuth blocks WebView requests (Error 403: disallowed_useragent).
-                // Open the Supabase/Google auth URL in the device's default browser via a
-                // plain ACTION_VIEW intent (not a Custom Tab). Custom Tabs can suppress
-                // the custom-scheme intent that fires on the OAuth redirect, so a real
-                // browser window gives more reliable onNewIntent() routing for the
-                // eggbreakeradventures:// callback.
+                // Google OAuth blocks WebView (Error 403: disallowed_useragent).
+                // Open auth URLs in the device's default browser; the custom-scheme
+                // redirect (eggbreakeradventures://) is caught by onNewIntent().
                 if (url.contains("supabase.co/auth") || url.contains("accounts.google.com")) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                     browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -78,20 +131,56 @@ public class MainActivity extends Activity {
         });
         webView.setWebChromeClient(new WebChromeClient());
 
-        // If launched from a shortcut or App Link (OAuth callback), use that URL
         Uri intentData = getIntent().getData();
         String url = (intentData != null) ? intentData.toString() : GAME_URL;
         webView.loadUrl(url);
     }
 
-    // Called when the OAuth redirect returns to this already-running activity.
-    // singleTask launch mode ensures we land here rather than a new instance.
+    // ── Play Billing ─────────────────────────────────────────────────────────
+
+    private void connectBilling() {
+        billingClient.startConnection(new BillingClientStateListener() {
+            @Override
+            public void onBillingSetupFinished(BillingResult result) {
+                jsLog("Billing setup: " + result.getResponseCode());
+            }
+            @Override
+            public void onBillingServiceDisconnected() {
+                jsLog("Billing disconnected — reconnecting");
+                connectBilling();
+            }
+        });
+    }
+
+    private void onPurchasesUpdated(BillingResult result, List<Purchase> purchases) {
+        if (result.getResponseCode() == BillingClient.BillingResponseCode.OK && purchases != null) {
+            for (Purchase purchase : purchases) {
+                String productId = purchase.getProducts().get(0);
+                callJsPurchaseResult(productId, purchase.getPurchaseToken(), true, null);
+            }
+        } else if (result.getResponseCode() != BillingClient.BillingResponseCode.USER_CANCELED) {
+            callJsPurchaseResult(null, null, false, "Code " + result.getResponseCode());
+        }
+        // USER_CANCELED: silently ignore — user dismissed the sheet
+    }
+
+    /** Fires window.onPlayPurchaseResult(productId, token, success, errorMsg) in the WebView. */
+    private void callJsPurchaseResult(String productId, String token, boolean ok, String error) {
+        String pid = productId != null ? "'" + productId.replace("'", "\\'") + "'" : "null";
+        String tok = token     != null ? "'" + token.replace("'", "\\'")     + "'" : "null";
+        String err = error     != null ? "'" + error.replace("'", "\\'")     + "'" : "null";
+        String js  = "if(typeof window.onPlayPurchaseResult==='function')" +
+                     "window.onPlayPurchaseResult(" + pid + "," + tok + "," + ok + "," + err + ");";
+        if (webView != null) webView.post(() -> webView.evaluateJavascript(js, null));
+    }
+
+    // ── OAuth ────────────────────────────────────────────────────────────────
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Uri data = intent.getData();
 
-        // Log into the JS debug log so we can see this from the in-app debug button.
         final String dataStr = (data != null) ? data.toString() : "null";
         jsLog("onNewIntent data=" + dataStr.substring(0, Math.min(dataStr.length(), 120)));
 
@@ -99,31 +188,28 @@ public class MainActivity extends Activity {
 
         String scheme = data.getScheme();
         if ("eggbreakeradventures".equals(scheme)) {
-            String fragment = data.getFragment(); // implicit: access_token=...&refresh_token=...
-            String query    = data.getQuery();    // PKCE:     code=XXXX
+            String fragment = data.getFragment();
+            String query    = data.getQuery();
 
             if (fragment != null) {
-                // Implicit flow: webView.loadUrl() with a hash is a same-page navigation —
-                // the page doesn't reload so Supabase never scans the URL. Instead, call
-                // handleAndroidOAuthCallback() via JS to pass the tokens to setSession().
                 jsLog("onNewIntent: implicit, injecting via JS");
                 final String escaped = fragment.replace("\\", "\\\\").replace("'", "\\'");
                 webView.post(() -> webView.evaluateJavascript(
                     "if(typeof handleAndroidOAuthCallback==='function')" +
                     "handleAndroidOAuthCallback('" + escaped + "')", null));
             } else if (query != null) {
-                // PKCE flow: full page reload with ?code=... so Supabase can exchange it.
                 String gameUrl = GAME_URL + "?" + query;
-                jsLog("onNewIntent: PKCE, reloading gameUrl=" + gameUrl.substring(0, Math.min(gameUrl.length(), 100)));
+                jsLog("onNewIntent: PKCE, reloading=" + gameUrl.substring(0, Math.min(gameUrl.length(), 100)));
                 webView.loadUrl(gameUrl);
             }
         } else {
-            // Fallback: HTTPS App Link or shortcut launch.
             webView.loadUrl(data.toString());
         }
     }
 
-    /** Injects a _oauthLog() call into the WebView — visible via the in-app debug button. */
+    // ── Utilities ────────────────────────────────────────────────────────────
+
+    /** Injects _oauthLog() into the WebView for in-app debugging. */
     private void jsLog(final String msg) {
         if (webView == null) return;
         final String escaped = msg.replace("\\", "\\\\").replace("'", "\\'");
@@ -183,10 +269,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        if (webView != null) {
-            webView.destroy();
-            webView = null;
-        }
+        if (billingClient != null) { billingClient.endConnection(); billingClient = null; }
+        if (webView != null) { webView.destroy(); webView = null; }
         super.onDestroy();
     }
 }
