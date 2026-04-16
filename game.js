@@ -1459,12 +1459,12 @@ function showMultInfo() {
   );
 }
 
-function showShopSnack(text) {
+function showShopSnack(text, duration) {
   const el = $id('shop-snack');
   el.textContent = text;
   el.classList.add('show');
   clearTimeout(_snackTimeout);
-  _snackTimeout = setTimeout(() => el.classList.remove('show'), 1800);
+  _snackTimeout = setTimeout(() => el.classList.remove('show'), duration || 1800);
 }
 
 function showAlert(icon, text) {
@@ -2503,15 +2503,11 @@ function cloudSaveManual() {
   if (!_sbClient || !_cloudUser) return;
   showConfirm('☁️', 'Save to cloud?', 'This will overwrite your current cloud save.', function() {
     closeOverlay('overlay-cloudsave');
-    (async function() {
-      try {
-        await _syncToCloud();
-        showShopSnack('☁️ Saved to cloud!');
-      } catch (e) {
-        showShopSnack('⚠️ Save failed.');
-        console.warn('[cloud] save error:', e);
-      }
-    })();
+    showShopSnack('☁️ Saving...', 12000);
+    const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
+    Promise.race([_syncToCloud(), _timeout])
+      .then(() => showShopSnack('☁️ Saved to cloud!'))
+      .catch(e => { showShopSnack('⚠️ Save failed.'); console.warn('[cloud] save error:', e); });
   }, 'Save');
 }
 
@@ -2519,19 +2515,22 @@ function cloudLoadManual() {
   if (!_sbClient || !_cloudUser) return;
   showConfirm('📥', 'Load from cloud?', 'This will overwrite your current game progress.', function() {
     closeOverlay('overlay-cloudsave');
-    (async function() {
-      try {
-        const { data } = await _sbClient
-          .from('game_saves').select('save_data').eq('user_id', _cloudUser.id).maybeSingle();
-        if (!data) { showShopSnack('No cloud save found.'); return; }
-        _applyCloudSave(data.save_data);
-        track('cloud-save', { action: 'load' });
-        showShopSnack('☁️ Cloud save loaded!');
-      } catch (e) {
+    showShopSnack('☁️ Loading...', 12000);
+    const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
+    const _load = (async function() {
+      const { data } = await _sbClient
+        .from('game_saves').select('save_data').eq('user_id', _cloudUser.id).maybeSingle();
+      if (!data) throw new Error('no data');
+      _applyCloudSave(data.save_data);
+      track('cloud-save', { action: 'load' });
+    })();
+    Promise.race([_load, _timeout])
+      .then(() => showShopSnack('☁️ Cloud save loaded!'))
+      .catch(e => {
+        if (e.message === 'no data') { showShopSnack('No cloud save found.'); return; }
         showShopSnack('⚠️ Load failed.');
         console.warn('[cloud] load error:', e);
-      }
-    })();
+      });
   }, 'Load');
 }
 
