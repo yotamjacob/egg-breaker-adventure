@@ -481,7 +481,7 @@ function updateStageBar() {
     // Stage complete — suggest next stage
     const nextIdx = si + 1;
     if (nextIdx <= prog.stage && nextIdx < curMonkey().stages.length) {
-      $id('stage-detail').textContent = 'next stage ->';
+      $id('stage-detail').textContent = 'next stage ▶';
     } else {
       $id('stage-detail').textContent = found + '/' + total + ' items';
     }
