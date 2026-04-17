@@ -275,6 +275,7 @@ function renderLog() {
       else if (l.cat === 'discovery') cls += ' log-purple';
       else if (l.cat === 'cucumber') cls += ' log-cucumber';
       else if (l.cat === 'mjolnir') cls += ' log-mjolnir';
+      else if (l.cat === 'freehit') cls += ' log-freehit';
       return '<div class="' + cls + '">' + l.text + '</div>';
     }).join('');
 }
@@ -284,7 +285,7 @@ let _logFilter = '';
 function renderFullLog() {
   const el = $id('full-log-list');
   if (!el) return;
-  const _SPECIALS_CATS = new Set(['specials', 'cucumber', 'mjolnir']);
+  const _SPECIALS_CATS = new Set(['specials', 'cucumber', 'mjolnir', 'freehit']);
   const entries = _logFilter
     ? _fullLog.filter(e => _logFilter === 'specials' ? _SPECIALS_CATS.has(e.cat) : e.cat === _logFilter)
     : _fullLog;
@@ -308,6 +309,7 @@ function renderFullLog() {
               : e.cat === 'noHammers'                        ? 'log-err'
               : e.cat === 'cucumber'                         ? 'log-cucumber'
               : e.cat === 'mjolnir'                          ? 'log-mjolnir'
+              : e.cat === 'freehit'                          ? 'log-freehit'
               : '';
     return `<div class="flog-row ${cls}"><span class="flog-time">${time}</span><span class="flog-text">${e.text}</span></div>`;
   }).join('');
@@ -832,7 +834,7 @@ function smashEgg(index) {
 
   if (hasBonus('freeEgg') && Math.random() < 0.03) {
     G.hammers = Math.min(G.maxH, G.hammers + 1);
-    msg('Free hit! (Chef\'s Hat)', 'empty');
+    msg('Free hit! (Chef\'s Hat)', 'freehit');
   }
 
   if (!regenInt && G.hammers < G.maxH) startRegen();

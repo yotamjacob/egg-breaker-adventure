@@ -26,33 +26,52 @@ function makeHammerSVG(hammerId) {
       <rect x="18" y="90" width="5" height="3" rx="1" fill="#A04818"/>
     </svg>`;
 
-    // ---- BAT: Sleek dark batmobile-inspired weapon ----
+    // ---- BAT: Actual bat creature on a dark handle — hardcore & scary ----
     case 'bat': return `<svg width="40" height="90" viewBox="0 0 44 100" ${S}>
-      <defs><linearGradient id="bat-g" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#606075"/><stop offset="100%" stop-color="#303048"/>
-      </linearGradient></defs>
-      <!-- Carbon fiber handle -->
-      <rect x="19" y="0" width="6" height="60" fill="#3a3a55" stroke="#2a2a40" stroke-width="1"/>
-      <rect x="20" y="5" width="1" height="50" fill="#5a5a78" opacity=".5"/>
-      <rect x="23" y="5" width="1" height="50" fill="#5a5a78" opacity=".3"/>
-      <!-- Grip rings -->
-      <rect x="17" y="10" width="10" height="2" fill="#606075"/>
-      <rect x="17" y="16" width="10" height="2" fill="#606075"/>
-      <rect x="17" y="22" width="10" height="2" fill="#606075"/>
-      <!-- Bat wing head -->
-      <polygon points="22,58 0,72 4,82 14,78 22,92 30,78 40,82 44,72 22,58" fill="url(#bat-g)" stroke="#2a2a40" stroke-width="1.5"/>
-      <!-- Wing membrane lines -->
-      <line x1="22" y1="62" x2="6" y2="74" stroke="#505068" stroke-width="1"/>
-      <line x1="22" y1="62" x2="38" y2="74" stroke="#505068" stroke-width="1"/>
-      <line x1="22" y1="62" x2="14" y2="78" stroke="#404058" stroke-width="1"/>
-      <line x1="22" y1="62" x2="30" y2="78" stroke="#404058" stroke-width="1"/>
-      <!-- Eyes -->
-      <ellipse cx="16" cy="72" rx="3" ry="2" fill="#ff3030"/>
-      <ellipse cx="28" cy="72" rx="3" ry="2" fill="#ff3030"/>
-      <ellipse cx="16" cy="72" rx="1.5" ry="1" fill="#ff8080"/>
-      <ellipse cx="28" cy="72" rx="1.5" ry="1" fill="#ff8080"/>
-      <!-- Glow -->
-      <ellipse cx="22" cy="75" rx="10" ry="8" fill="#ff3030" opacity=".08"/>
+      <!-- Dark leather-wrapped handle -->
+      <rect x="19" y="0" width="6" height="50" rx="1" fill="#1a0f0f" stroke="#0a0808" stroke-width="1"/>
+      <rect x="17" y="6"  width="10" height="2" fill="#2a1818"/>
+      <rect x="17" y="12" width="10" height="2" fill="#120c0c"/>
+      <rect x="17" y="18" width="10" height="2" fill="#2a1818"/>
+      <rect x="17" y="24" width="10" height="2" fill="#120c0c"/>
+      <rect x="17" y="30" width="10" height="2" fill="#2a1818"/>
+      <rect x="17" y="36" width="10" height="2" fill="#120c0c"/>
+      <rect x="17" y="42" width="10" height="2" fill="#2a1818"/>
+      <!-- Metal pommel band -->
+      <rect x="15" y="47" width="14" height="5" rx="1" fill="#2a1a2a" stroke="#1a0a1a" stroke-width="1"/>
+      <!-- BAT WINGS — jagged membrane fingers -->
+      <polygon points="22,56 2,62 0,71 5,68 2,79 8,73 6,85 13,77 14,91 20,81 22,70" fill="#130b18" stroke="#0a0510" stroke-width="1"/>
+      <polygon points="22,56 42,62 44,71 39,68 42,79 36,73 38,85 31,77 30,91 24,81 22,70" fill="#130b18" stroke="#0a0510" stroke-width="1"/>
+      <!-- Wing vein lines -->
+      <line x1="22" y1="57" x2="3"  y2="67" stroke="#1e1228" stroke-width="1" opacity=".7"/>
+      <line x1="22" y1="59" x2="7"  y2="76" stroke="#1e1228" stroke-width="1" opacity=".6"/>
+      <line x1="22" y1="61" x2="13" y2="84" stroke="#1e1228" stroke-width="1" opacity=".5"/>
+      <line x1="22" y1="57" x2="41" y2="67" stroke="#1e1228" stroke-width="1" opacity=".7"/>
+      <line x1="22" y1="59" x2="37" y2="76" stroke="#1e1228" stroke-width="1" opacity=".6"/>
+      <line x1="22" y1="61" x2="31" y2="84" stroke="#1e1228" stroke-width="1" opacity=".5"/>
+      <!-- Bat body -->
+      <ellipse cx="22" cy="72" rx="7" ry="9" fill="#100a14" stroke="#0a0510" stroke-width="1"/>
+      <!-- Bat head -->
+      <ellipse cx="22" cy="56" rx="7" ry="6" fill="#100a14" stroke="#0a0510" stroke-width="1"/>
+      <!-- Pointy ears -->
+      <polygon points="15,52 12,42 19,53" fill="#100a14" stroke="#0a0510" stroke-width="1"/>
+      <polygon points="29,52 32,42 25,53" fill="#100a14" stroke="#0a0510" stroke-width="1"/>
+      <polygon points="16,51 14,45 18,52" fill="#4a1a2a" opacity=".7"/>
+      <polygon points="28,51 30,45 26,52" fill="#4a1a2a" opacity=".7"/>
+      <!-- Red glowing eyes -->
+      <ellipse cx="18" cy="56" rx="3"   ry="2.5" fill="#cc0000"/>
+      <ellipse cx="26" cy="56" rx="3"   ry="2.5" fill="#cc0000"/>
+      <ellipse cx="18" cy="56" rx="1.5" ry="1.2" fill="#ff6060"/>
+      <ellipse cx="26" cy="56" rx="1.5" ry="1.2" fill="#ff6060"/>
+      <ellipse cx="18" cy="56" rx="5"   ry="4"   fill="#ff0000" opacity=".25"/>
+      <ellipse cx="26" cy="56" rx="5"   ry="4"   fill="#ff0000" opacity=".25"/>
+      <!-- Nose -->
+      <ellipse cx="22" cy="59" rx="2" ry="1" fill="#1a0a1a"/>
+      <!-- Fangs -->
+      <polygon points="20,62 19,68 21.5,62" fill="#eeeeee"/>
+      <polygon points="24,62 25,68 22.5,62" fill="#eeeeee"/>
+      <!-- Red glow emanation -->
+      <ellipse cx="22" cy="60" rx="16" ry="14" fill="#ff0000" opacity=".06"/>
     </svg>`;
 
     // ---- CRYSTAL: Magical floating crystal mace ----
@@ -83,35 +102,61 @@ function makeHammerSVG(hammerId) {
       <ellipse cx="22" cy="76" rx="14" ry="18" fill="#9B7ED8" opacity=".1"/>
     </svg>`;
 
-    // ---- GOLDEN: Royal scepter with golden orb ----
+    // ---- GOLDEN: Ornate royal hammer — gold version of the default hammer ----
     case 'golden': return `<svg width="40" height="90" viewBox="0 0 44 100" ${S}>
-      <defs><radialGradient id="gold-orb">
-        <stop offset="0%" stop-color="#FFE44D"/><stop offset="60%" stop-color="#FFD700"/><stop offset="100%" stop-color="#B8860B"/>
-      </radialGradient></defs>
-      <!-- Royal staff -->
-      <rect x="19" y="0" width="6" height="56" fill="#DAA520" stroke="#8B6508" stroke-width="1"/>
-      <!-- Gold filigree -->
-      <rect x="17" y="6" width="10" height="3" rx="1" fill="#FFD700"/>
-      <rect x="17" y="14" width="10" height="3" rx="1" fill="#FFD700"/>
-      <rect x="16" y="22" width="12" height="3" rx="1" fill="#FFD700"/>
-      <!-- Crown base -->
-      <polygon points="10,56 22,48 34,56 32,62 12,62" fill="#DAA520" stroke="#8B6508" stroke-width="1"/>
-      <!-- Crown prongs -->
-      <rect x="12" y="50" width="3" height="8" fill="#FFD700"/>
-      <rect x="20" y="46" width="4" height="10" fill="#FFD700"/>
-      <rect x="29" y="50" width="3" height="8" fill="#FFD700"/>
-      <!-- Jewels on crown -->
-      <circle cx="13" cy="51" r="2" fill="#ff3030"/>
-      <circle cx="22" cy="47" r="2.5" fill="#60a5fa"/>
-      <circle cx="31" cy="51" r="2" fill="#4ade80"/>
-      <!-- Golden orb -->
-      <circle cx="22" cy="78" r="18" fill="url(#gold-orb)" stroke="#8B6508" stroke-width="1.5"/>
-      <ellipse cx="18" cy="72" rx="5" ry="6" fill="#FFE44D" opacity=".35"/>
-      <!-- Cross on top of orb -->
-      <rect x="20" y="62" width="4" height="12" fill="#B8860B"/>
-      <rect x="16" y="66" width="12" height="3" fill="#B8860B"/>
-      <!-- Shine -->
-      <circle cx="16" cy="70" r="2" fill="#fff" opacity=".3"/>
+      <defs>
+        <linearGradient id="gh" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#8B6508"/><stop offset="35%" stop-color="#FFD700"/>
+          <stop offset="65%" stop-color="#FFD700"/><stop offset="100%" stop-color="#8B6508"/>
+        </linearGradient>
+        <linearGradient id="gh-head" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#FFE44D"/><stop offset="50%" stop-color="#FFD700"/><stop offset="100%" stop-color="#A67C00"/>
+        </linearGradient>
+      </defs>
+      <!-- Ornate gold handle -->
+      <rect x="19" y="0" width="6" height="64" rx="1" fill="url(#gh)" stroke="#7A5806" stroke-width="1"/>
+      <!-- Filigree bands -->
+      <rect x="18" y="8"  width="8" height="1.5" rx=".5" fill="#FFE890"/>
+      <rect x="18" y="16" width="8" height="1.5" rx=".5" fill="#FFE890"/>
+      <rect x="18" y="24" width="8" height="1.5" rx=".5" fill="#FFE890"/>
+      <rect x="18" y="32" width="8" height="1.5" rx=".5" fill="#FFE890"/>
+      <rect x="18" y="40" width="8" height="1.5" rx=".5" fill="#FFE890"/>
+      <rect x="18" y="48" width="8" height="1.5" rx=".5" fill="#FFE890"/>
+      <rect x="18" y="56" width="8" height="1.5" rx=".5" fill="#FFE890"/>
+      <!-- Diamond ornaments on handle -->
+      <rect x="21" y="12" width="2.5" height="2.5" fill="#FFE890" transform="rotate(45 22 13)"/>
+      <rect x="21" y="28" width="2.5" height="2.5" fill="#FFE890" transform="rotate(45 22 29)"/>
+      <rect x="21" y="44" width="2.5" height="2.5" fill="#FFE890" transform="rotate(45 22 45)"/>
+      <!-- Crown-like collar -->
+      <polygon points="12,64 15,57 18,64 22,55 26,64 29,57 32,64" fill="#FFD700" stroke="#8B6508" stroke-width=".5"/>
+      <rect x="12" y="62" width="20" height="8" rx="1" fill="#DAA520" stroke="#8B6508" stroke-width="1"/>
+      <circle cx="16" cy="66" r="2" fill="#ff4444"/>
+      <circle cx="22" cy="66" r="2" fill="#60a5fa"/>
+      <circle cx="28" cy="66" r="2" fill="#4ade80"/>
+      <rect x="13" y="63" width="18" height="1" fill="#FFE44D" opacity=".5"/>
+      <!-- GOLDEN HAMMER HEAD -->
+      <rect x="2"  y="68" width="40" height="24" rx="2" fill="url(#gh-head)" stroke="#7A5806" stroke-width="1.5"/>
+      <!-- Top bevel -->
+      <rect x="2"  y="68" width="40" height="7"  rx="2" fill="#FFE44D"/>
+      <rect x="4"  y="70" width="36" height="2"       fill="#FFF4A0" opacity=".6"/>
+      <!-- Side shading -->
+      <rect x="2"  y="68" width="5"  height="24" fill="#DAA520" opacity=".5"/>
+      <rect x="37" y="68" width="5"  height="24" fill="#8B6508" opacity=".6"/>
+      <!-- Engraved cross on face -->
+      <rect x="20" y="72" width="4"  height="16" fill="#8B6508" opacity=".28"/>
+      <rect x="12" y="77" width="20" height="4"  fill="#8B6508" opacity=".28"/>
+      <!-- Bottom striking face -->
+      <rect x="2"  y="86" width="40" height="6"  rx="1" fill="#A67C00" stroke="#7A5806" stroke-width=".5"/>
+      <rect x="4"  y="87" width="36" height="2"       fill="#D4A017" opacity=".4"/>
+      <!-- Corner gold rivets -->
+      <circle cx="8"  cy="72" r="3" fill="#FFE44D" stroke="#8B6508" stroke-width="1"/>
+      <circle cx="36" cy="72" r="3" fill="#FFE44D" stroke="#8B6508" stroke-width="1"/>
+      <circle cx="8"  cy="85" r="3" fill="#FFE44D" stroke="#8B6508" stroke-width="1"/>
+      <circle cx="36" cy="85" r="3" fill="#FFE44D" stroke="#8B6508" stroke-width="1"/>
+      <circle cx="7"  cy="71" r="1" fill="#fff" opacity=".5"/>
+      <circle cx="35" cy="71" r="1" fill="#fff" opacity=".5"/>
+      <!-- Golden aura -->
+      <ellipse cx="22" cy="80" rx="20" ry="14" fill="#FFD700" opacity=".06"/>
     </svg>`;
 
     // ---- RAINBOW: Prismatic warhammer with swirling colors ----
@@ -156,30 +201,43 @@ function makeHammerSVG(hammerId) {
       <ellipse cx="22" cy="76" rx="18" ry="14" fill="#ffd700" opacity=".06"/>
     </svg>`;
 
-    // ---- CUCUMBER: A mighty cucumber ----
+    // ---- CUCUMBER: A cucumber on a stick ----
     case 'cucumber': return `<svg width="40" height="90" viewBox="0 0 44 100" ${S}>
-      <!-- Stem handle -->
-      <rect x="19" y="0" width="6" height="50" rx="2" fill="#2E7D32" stroke="#1B5E20" stroke-width="1"/>
-      <rect x="20" y="5" width="1" height="40" fill="#43A047" opacity=".4"/>
-      <rect x="23" y="8" width="1" height="35" fill="#388E3C" opacity=".3"/>
-      <!-- Leaf at grip -->
-      <ellipse cx="16" cy="12" rx="6" ry="3" fill="#4CAF50" stroke="#2E7D32" stroke-width=".5" transform="rotate(-20 16 12)"/>
-      <ellipse cx="28" cy="18" rx="5" ry="3" fill="#4CAF50" stroke="#2E7D32" stroke-width=".5" transform="rotate(15 28 18)"/>
-      <!-- Cucumber body (head) -->
-      <rect x="4" y="48" width="36" height="44" rx="16" fill="#4CAF50" stroke="#2E7D32" stroke-width="1.5"/>
-      <!-- Lighter belly -->
-      <rect x="10" y="52" width="24" height="36" rx="12" fill="#66BB6A" opacity=".6"/>
-      <!-- Bumps/texture -->
-      <circle cx="12" cy="58" r="2" fill="#388E3C" opacity=".5"/>
-      <circle cx="30" cy="62" r="2" fill="#388E3C" opacity=".5"/>
-      <circle cx="16" cy="72" r="2" fill="#388E3C" opacity=".5"/>
-      <circle cx="28" cy="78" r="2" fill="#388E3C" opacity=".5"/>
-      <circle cx="20" cy="84" r="1.5" fill="#388E3C" opacity=".4"/>
-      <!-- Highlight -->
-      <rect x="14" y="54" width="3" height="14" rx="1" fill="#81C784" opacity=".5"/>
-      <!-- Sparkle (it's special!) -->
-      <rect x="32" cy="55" width="2" height="2" fill="#fff" opacity=".6"/>
-      <rect x="10" cy="80" width="2" height="2" fill="#fff" opacity=".5"/>
+      <defs>
+        <linearGradient id="cuke-g" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#3A8018"/><stop offset="30%" stop-color="#5AAA30"/>
+          <stop offset="65%" stop-color="#6ABB40"/><stop offset="100%" stop-color="#3A8018"/>
+        </linearGradient>
+      </defs>
+      <!-- Wooden stick handle -->
+      <rect x="19" y="0" width="6" height="54" rx="1" fill="#7B4C14" stroke="#5A3610" stroke-width="1"/>
+      <line x1="21" y1="4" x2="21" y2="48" stroke="#6B3C10" stroke-width=".5" opacity=".5"/>
+      <line x1="23" y1="8" x2="23" y2="46" stroke="#8B5C20" stroke-width=".5" opacity=".3"/>
+      <!-- Knot marks -->
+      <rect x="18" y="16" width="8" height="2" rx="1" fill="#5A3610"/>
+      <rect x="18" y="34" width="8" height="2" rx="1" fill="#5A3610"/>
+      <!-- Collar -->
+      <rect x="15" y="52" width="14" height="6" rx="1" fill="#4A7A20" stroke="#2E5A10" stroke-width="1"/>
+      <rect x="16" y="53" width="12" height="2" fill="#6AAA30" opacity=".5"/>
+      <!-- Stem nub -->
+      <ellipse cx="22" cy="60" rx="5" ry="2.5" fill="#2E6010" stroke="#1E4010" stroke-width=".5"/>
+      <!-- CUCUMBER BODY -->
+      <ellipse cx="22" cy="79" rx="13" ry="20" fill="url(#cuke-g)" stroke="#2E6010" stroke-width="1.5"/>
+      <!-- Belly highlight -->
+      <ellipse cx="16" cy="76" rx="6" ry="13" fill="#80CC50" opacity=".35"/>
+      <!-- Blossom tip -->
+      <ellipse cx="22" cy="97" rx="6"  ry="3"  fill="#2E6010"/>
+      <ellipse cx="22" cy="96" rx="4"  ry="2"  fill="#3A7020" opacity=".7"/>
+      <!-- Characteristic bumps -->
+      <circle cx="13" cy="68" r="2"   fill="#2E6010" opacity=".6"/>
+      <circle cx="31" cy="65" r="2"   fill="#2E6010" opacity=".5"/>
+      <circle cx="10" cy="80" r="2"   fill="#2E6010" opacity=".5"/>
+      <circle cx="34" cy="77" r="2"   fill="#2E6010" opacity=".5"/>
+      <circle cx="12" cy="91" r="1.5" fill="#2E6010" opacity=".45"/>
+      <circle cx="32" cy="88" r="1.5" fill="#2E6010" opacity=".4"/>
+      <circle cx="22" cy="72" r="1.5" fill="#2E6010" opacity=".4"/>
+      <!-- Highlight stripe -->
+      <ellipse cx="15" cy="75" rx="3" ry="11" fill="#90D060" opacity=".4"/>
     </svg>`;
 
     // ---- MJǪLLNIR: The Asgardian warhammer ----

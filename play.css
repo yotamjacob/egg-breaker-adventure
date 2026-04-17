@@ -98,7 +98,7 @@
 }
 .starfall-box:disabled{cursor:default}
 .starfall-icon{font-size:22px;text-align:center;margin-top:1px;margin-bottom:-1px}
-.starfall-count{font-size:10px;text-align:center}
+.starfall-count{font-size:8px;text-align:center}
 .starfall-hint{font-size:9px;color:#3a2a00;text-align:center;line-height:1.4}
 @keyframes pulse-star{0%,100%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark)}50%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark),0 0 10px rgba(245,197,66,.5)}}
 .mult-chip{
@@ -229,6 +229,7 @@
 .reward-log .log-line.log-purple{color:#c084fc}
 .reward-log .log-line.log-cucumber{color:#4ade80;text-shadow:0 0 6px #16a34a,1px 1px 0 #000}
 .reward-log .log-line.log-mjolnir{color:#ffe033;text-shadow:0 0 8px #fbbf24,0 0 14px #f59e0b,1px 1px 0 #000}
+.reward-log .log-line.log-freehit{color:#b0bec5;text-shadow:1px 1px 0 #000,-1px -1px 0 #000}
 .reward-log .log-line:nth-child(3){opacity:.8}
 .reward-log .log-line:nth-child(4){opacity:.55}
 .reward-log .log-line:nth-child(5){opacity:.25}
