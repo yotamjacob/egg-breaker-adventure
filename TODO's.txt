@@ -10,11 +10,6 @@ item Combos - dark egg and bat give bonus? odin + muijlnir?
 [ ] apply for production access → go live
 
 --bugs--
-clicking on banans move to monkeys menu
-To have less words on the screen
-[16:27, 17/04/2026] Yotam Jaco: Mr monkey should be easier and have more hammers
-[16:29, 17/04/2026] Yotam Jaco: At least 30 mins non stop
 [16:33, 17/04/2026] Yotam Jaco: Test the pop notification when hammers are full
 [16:44, 17/04/2026] Yotam Jaco: Hammers should regen on minimize
 [16:46, 17/04/2026] Yotam Jaco: Intro unskippable, shorter, use shadows
-[17:20, 17/04/2026] Yotam Jaco: Make mult info more friendly

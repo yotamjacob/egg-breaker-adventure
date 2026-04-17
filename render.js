@@ -795,6 +795,7 @@ function renderShop() {
   uGrid.innerHTML = '';
   SHOP_SUPPLIES.forEach(s => {
     const isOwned = s.unique && (s.id === 'fastregen' ? G.fastRegen : G['owned_' + s.id]);
+    const isFree = s.id === 'hammers20' && !G.shopHammers20;
     const card = document.createElement('div');
     card.className = 'shop-card' + (isOwned ? ' owned' : '');
     card.dataset.id = s.id;
@@ -804,7 +805,9 @@ function renderShop() {
       (s.desc ? '<span class="s-desc">' + s.desc + '</span>' : '') +
       (isOwned
         ? '<span class="s-status">OWNED</span>'
-        : '<span class="s-cost">' + formatNum(s.cost) + ' 🪙</span>');
+        : isFree
+          ? '<span class="s-cost" style="color:var(--green)">Free!</span>'
+          : '<span class="s-cost">' + formatNum(s.cost) + ' 🪙</span>');
     if (!isOwned) card.addEventListener('click', () => buyShopItem('supply', s.id));
     (s.unique ? uGrid : cGrid).appendChild(card);
   });

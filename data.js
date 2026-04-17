@@ -10,6 +10,7 @@ const MONKEY_DATA = [
     id: 'mr_monkey', name: 'Mr. Monkey', emoji: '🐵', img: 'img/mrmonkey_nohat.jpeg',
     hatImgs: { chef:'img/mrmonkey_chef.jpeg', crown:'img/mrmonkey_crown.jpeg', wizard:'img/mrmonkey_wizard.jpeg', tophat:'img/mrmonkey_tophat.jpeg', pirate:'img/mrmonkey_pirate.jpeg' },
     cost: 0,
+    tierHammerMult: 2,
     perk: 'none', perkDesc: 'The original egg breaker!',
     stages: [
       { name: 'Tropical Paradise', eggs: 3, collection: { name: 'Tropical Fruits', items: [

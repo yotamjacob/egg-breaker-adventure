@@ -1336,40 +1336,43 @@ function checkCollectionComplete(suppressFlash) {
     const newTier = prog.tiers[si];
     SFX.play('tier');
 
+    const _tHMult = curMonkey().tierHammerMult || 1;
+
     if (newTier === 1) {
       // Bronze → Silver: +5 hammers
-      const refill = CONFIG.tierRewards.silver.hammerRefill;
+      const refill = Math.round(CONFIG.tierRewards.silver.hammerRefill * _tHMult);
       G.hammers = Math.min(G.maxH, G.hammers + refill);
       G.tierHammerRefills = (G.tierHammerRefills || 0) + refill;
       msg('⬆️ Silver Tier! ' + stage.name + ' +' + refill + ' 🔨', 'tiers');
 
     } else if (newTier === 2) {
-      // Silver → Gold: max hammers + +7 hammers + unlock next stage
+      // Silver → Gold: max hammers + hammers + unlock next stage
       const reward = CONFIG.tierRewards.gold;
+      const refill2 = Math.round(reward.hammerRefill * _tHMult);
       G.maxH += reward.maxHammers;
-      G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
-      G.tierHammerRefills = (G.tierHammerRefills || 0) + reward.hammerRefill;
+      G.hammers = Math.min(G.maxH, G.hammers + refill2);
+      G.tierHammerRefills = (G.tierHammerRefills || 0) + refill2;
       // Unlock next stage if this is the highest
       if (si >= prog.stage && si < curMonkey().stages.length - 1) {
         prog.stage = si + 1;
       }
       const nextName = si < curMonkey().stages.length - 1
         ? curMonkey().stages[si + 1].name : null;
-      msg('🥇 Gold Tier! ' + stage.name + ' +' + reward.hammerRefill + ' 🔨' + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
+      msg('🥇 Gold Tier! ' + stage.name + ' +' + refill2 + ' 🔨' + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
 
     } else if (newTier >= 3) {
-      // Gold → Complete: banana reward + +10 hammers
+      // Gold → Complete: banana reward + hammers
       track('stage-complete', { monkey: curMonkey().name, stage: stage.name });
       G.stagesCompleted++;
       G.crystalBananas += CONFIG.crystalBananasPerStage;
-      const refill = CONFIG.tierRewards.complete.hammerRefill;
-      G.hammers = Math.min(G.maxH, G.hammers + refill);
-      G.tierHammerRefills = (G.tierHammerRefills || 0) + refill;
+      const refill3 = Math.round(CONFIG.tierRewards.complete.hammerRefill * _tHMult);
+      G.hammers = Math.min(G.maxH, G.hammers + refill3);
+      G.tierHammerRefills = (G.tierHammerRefills || 0) + refill3;
       // Also unlock next stage if not already
       if (si >= prog.stage && si < curMonkey().stages.length - 1) {
         prog.stage = si + 1;
       }
-      msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌 +' + refill + ' 🔨', 'tiers');
+      msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌 +' + refill3 + ' 🔨', 'tiers');
       // Check if ALL stages are complete
       if (prog.tiers.every(t => t >= 3)) {
         prog.completed = true;
@@ -1589,7 +1592,7 @@ function toggleAutoBuy() {
 
 let _snackTimeout = null;
 function showMultInfo() {
-  showConfirm('✖️', 'How Multipliers Work',
+  showConfirm('💡', 'How Multipliers Work',
     'Tap a chip to select it. Selected mults ADD together — x2 + x3 = x5. Applies to gold, stars, feathers and hammers.\n\nDoes NOT apply to: starfall, hexed eggs, or collection items (those give bonus gold instead).\n\nTip: save big mults for gold or crystal eggs!',
     null, 'Got it'
   );
@@ -1769,8 +1772,9 @@ function doBuyShopItem(category, id) {
     if (item.unique && id !== 'fastregen' && G['owned_' + id]) { showShopSnack('Already purchased!'); return; }
     // Block purchases that have no room
     if ((id === 'hammers5' || id === 'hammers20') && G.hammers >= G.maxH) { showShopSnack('Hammers already full!'); SFX.play('err'); return; }
-    if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
-    G.gold -= item.cost;
+    const isFreeHammers20 = id === 'hammers20' && !G.shopHammers20;
+    if (!isFreeHammers20 && G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
+    if (!isFreeHammers20) G.gold -= item.cost;
     G.purchases = (G.purchases || 0) + 1;
     track('shop-purchase', { item: item.name, category: item.type });
 
@@ -2691,6 +2695,10 @@ if (!G._tourDone && G.totalEggs === 0) {
 }
 
 // Feathers click → Album items
+$id('res-b-wrap').addEventListener('click', () => {
+  document.querySelector('.nav-tab[data-tab="monkeys"]').click();
+});
+
 $id('res-f-wrap').addEventListener('click', () => {
   document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
