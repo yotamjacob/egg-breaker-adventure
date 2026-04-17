@@ -307,7 +307,10 @@
       <div class="popup pop-submodal" style="max-width:320px">
         <div class="submodal-header">
           <span class="submodal-title">Cloud Save</span>
-          <button class="submodal-close" onclick="closeOverlay('overlay-cloudsave');openSettings()">✕</button>
+          <div style="display:flex;gap:6px">
+            <button class="submodal-close" onclick="showOauthDebugLog()" title="OAuth Debug Log">📋</button>
+            <button class="submodal-close" onclick="closeOverlay('overlay-cloudsave');openSettings()">✕</button>
+          </div>
         </div>
         <div class="submodal-body">
           <div class="cloud-save-box">

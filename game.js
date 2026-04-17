@@ -2903,7 +2903,9 @@ function toggleCloudAutoSave(checked) {
 }
 
 function linkGoogleAccount() {
-  _oauthLog('LINK called user=' + (_cloudUser ? _cloudUser.email : 'null') + ' sbClient=' + !!_sbClient);
+  _oauthLog('LINK called user=' + (_cloudUser ? _cloudUser.email : 'null') +
+            ' _cloudUnlinking=' + _cloudUnlinking + ' sbClient=' + !!_sbClient);
+  _cloudUnlinking = false; // defensive reset — clears any race condition from a prior unlink
   if (!_sbClient) { showShopSnack('⚠️ Service not connected — reload the app'); return; }
   if (_cloudUser) {
     // overlay-confirm has z-index:950, overlay-cloudsave has z-index:900 —
@@ -2947,7 +2949,11 @@ function linkGoogleAccount() {
     }
     _oauthLog('OAUTH url=' + (data?.url?.substring(0, 100) || 'null'));
     if (!data?.url) { showShopSnack('⚠️ No auth URL'); return; }
-    showShopSnack('Opening Google sign-in...');
+    // Mark OAuth as in-flight in sessionStorage — survives page reload (PKCE web flow)
+    // and same-page injection (Android implicit flow). _onCloudSignIn reads this flag
+    // to show the success snack and reopen the cloud modal after the redirect returns.
+    try { sessionStorage.setItem('_oauthPending', '1'); } catch (e) {}
+    _oauthLog('OAUTH navigating to auth URL');
     window.location.href = data.url;
   }).catch(e => { _oauthLog('OAUTH catch=' + e.message); showShopSnack('⚠️ ' + e.message); });
 }
@@ -2976,11 +2982,18 @@ async function _onCloudSignIn() {
   track('cloud-save', { action: 'link' });
   _startCloudAutoSave();
   _renderCloudModal();
-  // Only show "linked" on a real OAuth redirect — SIGNED_IN also fires on session
-  // restore after page refresh, so we gate on auth params being present in the URL.
-  const _isOAuthRedirect = window.location.hash.includes('access_token') ||
-                           window.location.search.includes('code=');
-  if (_isOAuthRedirect) showShopSnack('☁️ Google account linked!');
+  // Use sessionStorage flag set by linkGoogleAccount() to detect a real OAuth link.
+  // URL-based check (_isOAuthRedirect) was unreliable: Supabase cleans ?code= from
+  // the URL before onAuthStateChange fires, so the flag was always false on web.
+  const _isOAuthPending = (() => { try { return sessionStorage.getItem('_oauthPending') === '1'; } catch(e) { return false; } })();
+  if (_isOAuthPending) {
+    try { sessionStorage.removeItem('_oauthPending'); } catch (e) {}
+    _oauthLog('SIGNED_IN: OAuth pending flag found — showing linked notification');
+    setTimeout(() => {
+      showShopSnack('☁️ Google account linked!');
+      openCloudSaveModal(); // reopen modal (was closed by page reload on web)
+    }, 400);
+  }
 
   // Smart load: compare cloud vs local timestamps and act accordingly
   try {
