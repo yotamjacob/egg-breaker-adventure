@@ -841,7 +841,7 @@ function smashEgg(index) {
   // Cucumber double hit: 5% chance for a bonus hit
   if (hasBonus('doubleHit') && Math.random() < 0.05 && egg.hp > 0) {
     egg.hp -= 1;
-    msg('🥒 Cucumbah!', 'cucumber');
+    msg('🥒 Cucumbah! Double hit!', 'cucumber');
   }
 
   // Mjǫllnir: 3% chance to grant +7 star pieces
