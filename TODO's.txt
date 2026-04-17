@@ -8,3 +8,5 @@ item Combos - dark egg and bat give bonus? odin + muijlnir?
 ## android (play store)
 [ ] recruit 12 closed testers + run 14-day closed test (required before production access)
 [ ] apply for production access → go live
+
+--bugs--
