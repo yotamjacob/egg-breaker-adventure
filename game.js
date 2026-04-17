@@ -2933,15 +2933,13 @@ function linkGoogleAccount() {
     }, 'Unlink');
     return;
   }
-  // On Android the WebView is not Chrome — Custom Tabs cannot route an HTTPS
-  // redirect_to back into the WebView (the session lands in Chrome's storage,
-  // not ours). A custom URI scheme bypasses Chrome entirely: Android always
-  // sends it straight to onNewIntent(), which reloads the game URL with the
-  // auth code so Supabase JS can complete the PKCE exchange in our WebView.
+  // Use the HTTPS game URL for all platforms — custom scheme (eggbreakeradventures://)
+  // caused Chrome to hang when the fragment was stripped from the intent on some
+  // Android versions. With assetlinks.json verified (SHA256 matches signing cert),
+  // Android App Links route https://egg-breaker-adventures.vercel.app/ back to
+  // onNewIntent() in the WebView, same as the custom scheme but without the hang.
   const isAndroidApp = typeof window.AndroidBridge !== 'undefined';
-  const redirectTo = isAndroidApp
-    ? 'eggbreakeradventures://oauth/callback'
-    : window.location.origin + '/';
+  const redirectTo = window.location.origin + '/';
   _oauthLog('LINK isAndroid=' + isAndroidApp + ' redirectTo=' + redirectTo);
   showShopSnack('Connecting to Google...');
   _sbClient.auth.signInWithOAuth({
