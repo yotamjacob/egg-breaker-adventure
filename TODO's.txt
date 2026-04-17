@@ -10,8 +10,3 @@ item Combos - dark egg and bat give bonus? odin + muijlnir?
 [ ] apply for production access → go live
 
 --bugs--
-[16:44, 17/04/2026] Yotam Jaco: Hammers should regen on minimize
-[16:46, 17/04/2026] Yotam Jaco: Intro unskippable, shorter, use shadows
-make egg tray backgrounds a bit more bright
-new item found - only toast banner, no float - that's too much stuff happening on the screen
-make eggs wiggle randomly every few seconds if not being tapped
