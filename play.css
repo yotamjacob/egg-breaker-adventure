@@ -241,8 +241,8 @@
   text-shadow:1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 6px rgba(0,0,0,.8);
   animation:float-up-retro 2s steps(20) forwards;
 }
-.prize-float.big{font-size:12px;animation:float-up-retro-big 2.5s steps(24) forwards}
-.prize-float.mega{font-size:13px;animation:float-up-retro-mega 3s steps(28) forwards}
+.prize-float.big{font-size:12px;animation:float-up-retro-big 2.5s steps(24) forwards;white-space:normal;max-width:140px;word-break:break-word;line-height:1.4}
+.prize-float.mega{font-size:13px;animation:float-up-retro-mega 3s steps(28) forwards;white-space:normal;max-width:150px;word-break:break-word;line-height:1.4}
 
 /* ---------- Screen shake ---------- */
 .shake-sm{animation:shake-sm .2s steps(4)}

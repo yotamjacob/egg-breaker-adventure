@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.98';
+const VERSION = '1.8.99';
 
 const CONFIG = {
 
@@ -64,11 +64,11 @@ const CONFIG = {
     {
       id: 'black', name: 'Black', emoji: '🖤',
       hp: 20, spawnWeight: 0.7, unlockStage: 8,
-      goldMult: 4, featherMult: 3, starPieces: 5,
+      goldMult: 5, featherMult: 4, starPieces: 6,
       colors: { f:'#1a1a1a', s:'#000000', h:'#3a3a3a', sh:'#0a0a0a' },
       particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:48, star:12, mult:8, feather:8, item:8, hammers:8, maxHammers:1 },
-      desc: 'Stage 9. 20 hits, 4x gold, best rewards in the game',
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:58, star:16, mult:12, feather:10, item:10, hammers:10, maxHammers:2, banana:2 },
+      desc: 'Stage 9. 20 hits, 5x gold, best rewards in the game',
     },
     {
       id: 'century', name: 'Century', emoji: '🌀',

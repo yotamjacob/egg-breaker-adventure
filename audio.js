@@ -72,7 +72,7 @@ const MUSIC = (() => {
   };
 
   // Per-track volume overrides (multiplier relative to VOLUME)
-  const TRACK_VOL = { space: 0.650 };  // Space Cadet is louder — reduce ~35% total
+  const TRACK_VOL = { space: 0.45 };   // Space Cadet is louder — reduce ~55% total
 
   // Tracks with abrupt loop points — use crossfade instead of audio.loop
   const CROSSFADE_TRACKS = new Set(['steampunk']);
