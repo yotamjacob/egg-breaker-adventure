@@ -531,7 +531,7 @@ function resolvePrize(type, eggType) {
     const baseVal = Math.round(base);   // round once
     const val = baseVal * G.activeMult; // exact — no rounding drift
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
-    return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' gold', color: '#d97706' };
+    return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' 🪙', color: '#d97706' };
   }
 
   if (type === 'feather') {
@@ -539,7 +539,7 @@ function resolvePrize(type, eggType) {
     const baseVal = Math.ceil((fRange[0] + Math.random() * (fRange[1] - fRange[0])) * featherMult);
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
-    return { type: 'feather', value: val, baseVal, usedMult, label: '+' + val + ' feather' + (val > 1 ? 's' : ''), color: '#059669' };
+    return { type: 'feather', value: val, baseVal, usedMult, label: '+' + val + ' 🪶', color: '#059669' };
   }
 
   if (type === 'hammers') {
@@ -619,7 +619,7 @@ function rollCollectionItem(eggType) {
     }
   }
   // Fallback: give gold instead
-  return { type: 'gold', value: 50, label: '+50 gold', color: '#d97706' };
+  return { type: 'gold', value: 50, label: '+50 🪙', color: '#d97706' };
 }
 
 // All owned hammers/hats/monkeys give permanent bonuses (accumulative)
@@ -782,7 +782,7 @@ function popBalloonEgg(index, slot) {
       prize.balloonMult = 10;
     }
     // Update label for prize types that use it directly (banana, maxHammers)
-    if (prize.type === 'banana')     prize.label = '+' + prize.value + ' Crystal Banana' + (prize.value !== 1 ? 's' : '') + '!';
+    if (prize.type === 'banana')     prize.label = '+' + prize.value + ' 🍌!';
     if (prize.type === 'maxHammers') prize.label = '+' + prize.value + ' max hammers!';
   }
   prize.popPrefix = '🎈 POP! ';
@@ -901,7 +901,7 @@ function smashEgg(index) {
       const rect = slot.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
-      spawnFloat($id('egg-tray-wrap'), '+10 💰', '#d97706', '', cx, cy);
+      spawnFloat($id('egg-tray-wrap'), '+10 🪙', '#d97706', '', cx, cy);
       SFX.play('coin');
     }
     const damage = egg.maxHp - egg.hp;
@@ -945,8 +945,8 @@ function smashEgg(index) {
       if (prize.value) prize.value = Math.round(prize.value * (3 + chipTotal) / chipTotal);
       prize.usedMult = null; // suppress chips equation; combined value shown in label
       const v = prize.value;
-      if (prize.type === 'gold')    prize.label = 'x3 +' + v + ' gold';
-      else if (prize.type === 'feather') prize.label = 'x3 +' + v + (v !== 1 ? ' feathers' : ' feather');
+      if (prize.type === 'gold')    prize.label = 'x3 +' + v + ' 🪙';
+      else if (prize.type === 'feather') prize.label = 'x3 +' + v + ' 🪶';
       else if (prize.type === 'hammers') prize.label = 'x3 +' + v + ' hammers!';
       else if (prize.type === 'star')    prize.label = 'x3 +' + v + ' star piece' + (v !== 1 ? 's' : '');
       else prize.label = 'x3 ' + prize.label;
@@ -974,9 +974,9 @@ function smashEgg(index) {
       if (_ab.goldPct > 0) gVal = Math.round(gVal * (1 + _ab.goldPct / 100));
       if (G.stagesCompleted > 0) gVal = Math.round(gVal * (1 + Math.min(G.stagesCompleted * 0.02, 0.30)));
       if (G['owned_goldmagnet']) gVal = Math.round(gVal * 1.2);
-      applyPrize({ type: 'gold',    value: gVal,     label: '🌀 Century! +' + gVal + ' gold',    color: '#d97706' }, cx, cy);
+      applyPrize({ type: 'gold',    value: gVal,     label: '🌀 Century! +' + gVal + ' 🪙',      color: '#d97706' }, cx, cy);
       const fVal = Math.round(50 * mult);
-      applyPrize({ type: 'feather', value: fVal,     label: '🌀 +' + fVal + ' feathers!',        color: '#059669' }, cx, cy);
+      applyPrize({ type: 'feather', value: fVal,     label: '🌀 +' + fVal + ' 🪶!',              color: '#059669' }, cx, cy);
       const sVal = Math.round(50 * mult);
       applyPrize({ type: 'star',    value: sVal,     label: '🌀 +' + sVal + ' star pieces!',     color: '#f59e0b' }, cx, cy);
       if (Math.random() < 0.25) applyPrize(resolvePrize('item', 'century'), cx, cy);
@@ -1075,8 +1075,8 @@ function applyPrize(prize, cx, cy) {
     if (prize.bonusGold) {
       G.gold += prize.bonusGold;
       G.totalGold += prize.bonusGold;
-      spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706', '', cx, cy - 20);
-      msg('+' + prize.bonusGold + ' gold (mult bonus)', 'prizes');
+      spawnFloat(zone, '+' + prize.bonusGold + ' 🪙 (mult bonus)', '#d97706', '', cx, cy - 20);
+      msg('+' + prize.bonusGold + ' 🪙 (mult bonus)', 'prizes');
     }
   }
 
@@ -1116,8 +1116,8 @@ function applyPrize(prize, cx, cy) {
     Particles.sparkle(cx, cy, 20, '#F59E0B');
     if (prize.bonusGold) {
       G.gold += prize.bonusGold; G.totalGold += prize.bonusGold;
-      spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706', '', cx, cy - 20);
-      msg('+' + prize.bonusGold + ' gold (mult bonus)', 'prizes');
+      spawnFloat(zone, '+' + prize.bonusGold + ' 🪙 (mult bonus)', '#d97706', '', cx, cy - 20);
+      msg('+' + prize.bonusGold + ' 🪙 (mult bonus)', 'prizes');
     }
   }
 
@@ -1131,8 +1131,8 @@ function applyPrize(prize, cx, cy) {
     Particles.sparkle(cx, cy, 20, '#b45309');
     if (prize.bonusGold) {
       G.gold += prize.bonusGold; G.totalGold += prize.bonusGold;
-      spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706', '', cx, cy - 20);
-      msg('+' + prize.bonusGold + ' gold (mult bonus)', 'prizes');
+      spawnFloat(zone, '+' + prize.bonusGold + ' 🪙 (mult bonus)', '#d97706', '', cx, cy - 20);
+      msg('+' + prize.bonusGold + ' 🪙 (mult bonus)', 'prizes');
     }
   }
 
