@@ -1144,7 +1144,7 @@ function applyPrize(prize, cx, cy) {
       prog.collections[si][prize.index] = true;
       G.totalItems++;
     }
-    spawnFloat(zone, prize.label, prize.color, wasNew ? 'big' : '', cx, cy);
+    if (!wasNew) spawnFloat(zone, prize.label, prize.color, '', cx, cy);
     if (wasNew) {
       SFX.play('item');
       Particles.sparkle(cx, cy, 15, '#F59E0B');

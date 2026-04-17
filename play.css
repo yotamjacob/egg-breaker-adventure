@@ -125,7 +125,7 @@
 .egg-tray-wrap{
   position:relative;z-index:2;width:100%;height:100%;
   border-radius:2px;
-  background:var(--bg2);
+  background:#1f3060;
   border:3px solid var(--gold3);
   box-shadow: inset 3px 3px 0 var(--inset), 4px 4px 0 var(--dark);
   touch-action:none;overscroll-behavior:none;
@@ -136,7 +136,7 @@
   content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
   background-image:var(--monkey-bg,none);
   background-size:cover;background-position:center;
-  opacity:0.18;
+  opacity:0.28;
   transition:opacity 0.6s ease;
 }
 
@@ -187,6 +187,8 @@
 .egg-slot.egg-century.broken{filter:grayscale(.4);animation:none}
 @keyframes century-glow{0%,100%{filter:drop-shadow(0 0 8px rgba(255,215,0,.4))}50%{filter:drop-shadow(0 0 16px rgba(255,215,0,.8))}}
 @keyframes timer-pulse{0%,100%{opacity:1}50%{opacity:.7}}
+@keyframes egg-idle-wiggle{0%{transform:rotate(0deg)}20%{transform:rotate(-7deg)}40%{transform:rotate(7deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(3deg)}100%{transform:rotate(0deg)}}
+.egg-slot.idle-wiggle{animation:egg-idle-wiggle 0.5s ease-in-out forwards}
 .egg-timer{
   font-size:10px;font-family:var(--px);color:#ffa500;
   text-shadow:0 0 3px #000, 1px 1px 0 #000, -1px -1px 0 #000;

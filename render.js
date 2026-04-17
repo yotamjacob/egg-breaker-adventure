@@ -86,6 +86,35 @@ function eggLabel(type, hp, maxHp, broken) {
 
 let _trayNeedsRender = false;
 
+// ── Idle egg wiggle ─────────────────────────────────────────
+const _wiggleTimers = {};
+function _scheduleWiggle(slot, idx) {
+  _wiggleTimers[idx] = setTimeout(() => {
+    delete _wiggleTimers[idx];
+    if (!slot.isConnected) return;
+    const skip = slot.classList.contains('broken') || slot.classList.contains('smashing') ||
+                 slot.classList.contains('runny')   || slot.classList.contains('timed')    ||
+                 slot.classList.contains('balloon') || slot.classList.contains('idle-wiggle');
+    if (!skip) {
+      slot.classList.add('idle-wiggle');
+      slot.addEventListener('animationend', function onEnd() {
+        slot.removeEventListener('animationend', onEnd);
+        slot.classList.remove('idle-wiggle');
+        if (slot.isConnected) _scheduleWiggle(slot, idx);
+      }, { once: true });
+    } else if (slot.isConnected && !slot.classList.contains('broken')) {
+      _scheduleWiggle(slot, idx);
+    }
+  }, 2000 + Math.random() * 5000);
+}
+function initEggWiggles() {
+  Object.values(_wiggleTimers).forEach(clearTimeout);
+  Object.keys(_wiggleTimers).forEach(k => delete _wiggleTimers[k]);
+  document.querySelectorAll('#egg-tray .egg-slot:not(.broken)').forEach((slot, i) => {
+    _scheduleWiggle(slot, i);
+  });
+}
+
 function renderEggTray() {
   const tray = $id('egg-tray');
   if (!G.roundEggs || G.roundEggs.length === 0) {
@@ -215,6 +244,8 @@ function renderEggTray() {
   startRunnyDrift(runnySlots, tW, tH);
   // Start timer countdowns
   startTimerCountdown(timerSlots);
+  // Kick off idle wiggles
+  initEggWiggles();
 }
 
 // ==================== RUNNY EGG DRIFT ====================
