@@ -162,10 +162,17 @@ function loadGame() {
 }
 
 function resetGame() {
-  showConfirm('⚠️', 'Reset ALL progress?', 'Including trophies and album. This cannot be undone!', function() {
+  showConfirm('⚠️', 'Reset ALL progress?', 'Trophies, album and gold will be wiped. Premium purchases are kept.', function() {
+    // Preserve real-money premium purchases before wipe
+    const premiumKeys = ['premium_starter_pack','premiumPurchases',
+      'owned_luckycharm','owned_goldmagnet','owned_eggradar','owned_doubledaily','owned_starsaver'];
+    const preserved = {};
+    for (const k of premiumKeys) preserved[k] = G[k];
+
     localStorage.removeItem(SAVE_KEY);
     G = {
       ...DEFAULT_STATE,
+      ...preserved,
       achieved: [],
       discoveredEggs: ['normal','silver','gold'],
       multQueue: [],
@@ -1093,6 +1100,7 @@ function applyPrize(prize, cx, cy) {
 
   if (prize.type === 'maxHammers') {
     G.maxH += prize.value;
+    G.hammers = Math.min(G.maxH, G.hammers + prize.value);
     const mhLabel = (prize.popPrefix || '') + prize.label;
     spawnFloat(zone, mhLabel, prize.color, 'mega', cx, cy);
     msg(mhLabel, 'prizes');
@@ -1747,7 +1755,7 @@ function doBuyShopItem(category, id) {
     if (id === 'hammers20') { G.hammers = Math.min(G.maxH, G.hammers + 20); G.shopHammers20 = (G.shopHammers20 || 0) + 1; showShopSnack('+20 hammers purchased!'); }
     if (id === 'star1') { G.starPieces++; G.totalStarPieces++; updateStarBtn(); showShopSnack('+1 star piece purchased!'); }
     if (id === 'mult5') { if (G.multQueue.length < 50) { G.multQueue.push(5); G.shopMult5 = (G.shopMult5 || 0) + 1; } renderMultQueue(); showShopSnack('x5 multiplier purchased!'); }
-    if (id === 'maxhammers') { G.maxH += 5; showShopSnack('+5 max hammers!'); }
+    if (id === 'maxhammers') { G.maxH += 5; G.hammers = Math.min(G.maxH, G.hammers + 5); showShopSnack('+5 max hammers + 5 hammers!'); }
     if (id === 'fastregen') { G.fastRegen = true; showShopSnack('Fast Regen unlocked!'); }
     if (id === 'spyglass') { G['owned_spyglass'] = true; renderEggTray(); showShopSnack('Spyglass unlocked!'); }
 

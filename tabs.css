@@ -173,6 +173,7 @@
 .m-prog-fill.done{
   background:repeating-linear-gradient(90deg,var(--green),var(--green) 3px,var(--green2) 3px,var(--green2) 6px);
 }
+.m-monkey-note{display:block;font-size:7px;color:var(--gray);text-align:center;margin-top:5px;line-height:1.4;opacity:.8}
 .monkey-unlock-btn{
   margin-top:4px;background:var(--gold);color:var(--dark);border:2px solid var(--gold2);
   border-radius:2px;padding:4px 12px;font-size:10px;font-family:var(--px);

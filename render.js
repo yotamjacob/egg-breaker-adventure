@@ -704,6 +704,7 @@ function renderMonkeys() {
       inner += '<span class="m-progress' + (isDone ? ' done' : '') + '">' +
         (isDone ? '✅ ' : '') + 'Stage ' + stageNum + '/' + m.stages.length + ' — ' + pct + '%</span>';
       inner += '<div class="m-prog-track"><div class="m-prog-fill' + (isDone ? ' done' : '') + '" style="width:' + pct + '%"></div></div>';
+      if (i === 0) inner += '<span class="m-monkey-note">Some features only unlock after completing Mr. Monkey</span>';
     } else {
       inner += '<span class="m-cost">' + m.cost + ' 🍌 Crystal Bananas</span>';
       inner += '<button class="monkey-unlock-btn" data-unlock="' + i + '">Unlock</button>';
