@@ -371,6 +371,9 @@
 .paypal-btn-wrap{width:100%;min-height:40px;margin-top:6px}
 .play-buy-btn{width:100%;margin-top:6px;padding:8px 4px;background:var(--gold);color:#000;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.5px}
 .play-buy-btn:active{opacity:.8}
+.premium-info{display:flex;align-items:flex-start;gap:6px;margin:4px 12px 8px;padding:8px 10px;background:rgba(245,197,66,.08);border:1px solid rgba(245,197,66,.2);border-radius:8px;font-size:9.5px;color:var(--gray);line-height:1.5}
+.premium-info-icon{color:var(--gold);font-size:13px;flex-shrink:0;margin-top:1px}
+.premium-info strong{color:#ccc;font-weight:600}
 .premium-restore{text-align:center;padding:8px 0 16px}
 .restore-btn{background:none;border:none;color:var(--gray);font-size:10px;cursor:pointer;text-decoration:underline;letter-spacing:.5px}
 .restore-btn:active{opacity:.6}

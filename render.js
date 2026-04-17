@@ -894,6 +894,11 @@ function renderPremiumShop() {
       );
     }).join('') +
     '</div>' +
+    '<div class="premium-info">' +
+      '<span class="premium-info-icon">ⓘ</span>' +
+      '<span>Purchases sync across devices when linked to Google. ' +
+      'Resetting your progress or unlinking your account will <strong>not</strong> remove your premium items.</span>' +
+    '</div>' +
     '<div class="premium-restore">' +
       '<button class="restore-btn" onclick="restorePurchases()">Restore Purchases</button>' +
       '<button class="restore-btn pay-debug-btn" onclick="showPayLog()">Debug Log</button>' +
