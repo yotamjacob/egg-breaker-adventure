@@ -2552,7 +2552,7 @@ function buildTourSteps() {
     { icon: '📚', title: 'Collections', body: 'Each stage has themed items to collect.\nReach ' + Math.round(C.tierThresholds.bronze * 100) + '% for Silver, ' + Math.round(C.tierThresholds.silver * 100) + '% for Gold (unlocks next stage), and 100% for a Crystal Banana!' },
     { icon: '🐵', title: 'Monkeys', body: 'You start with Mr. Monkey.\nEarn Crystal Bananas by completing stages, then unlock new monkeys with unique perks.' },
     { icon: '🛒', title: 'Shop', body: 'Spend gold on hammers, hats, and upgrades.\nEvery purchase gives permanent bonuses that stack.' },
-    { icon: '💾', title: 'Save & Load', body: 'Progress auto-saves to your browser.\n\nTo back up or transfer your save, go to Stats → Export Save. It generates a shareable code.\n\nPaste it into Stats → Load Save on any device to restore.' },
+    { icon: '💾', title: 'Save & Sync', body: 'Progress auto-saves locally.\n\nFor cloud backup across devices, tap the profile icon and sign in with your Google account — your save syncs automatically.\n\nYou can also export/import manually via Stats → Export Save.' },
     { icon: '💡', title: 'Tips', body: 'Save multipliers for rare eggs — they multiply gold, stars, feathers, and hammers.\n\nWatch for glowing eggs — runny ones move and timed ones expire!\n\nGood luck and happy smashing!' },
   ];
 }
