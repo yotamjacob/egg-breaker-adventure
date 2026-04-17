@@ -66,8 +66,10 @@ Edit `prizes:` inside the relevant egg type in `CONFIG.eggTypes`. Weights are re
 1. PayPal SDK loaded with `components=googlepay` (auto-retries without if merchant not enrolled)
 2. Google Pay JS loaded from `pay.google.com`
 3. If eligible: Google Pay button (main) + "— or —" + PayPal button (secondary)
-4. Both flows: `create-order` edge fn → PayPal order ID → confirm payment → `capture-order` edge fn
+4. Both flows: `create-order` edge fn → PayPal order ID → confirm payment → `/api/capture-order` (Vercel proxy) → `capture-order` edge fn
 5. Android TWA: Google Play Billing via `window.getDigitalGoodsService` (bypasses PayPal entirely)
+6. "Restore Purchases" button → `/api/restore-purchases` (Vercel proxy) → `restore-purchases` edge fn (captures pending PayPal orders too)
+- Payment capture uses same-origin Vercel proxy (`api/capture-order.js`, `api/restore-purchases.js`) to avoid cross-origin CORS failures from within PayPal's `onApprove` callback
 
 ## Supabase
 - Project: `hhpikvqeopscjdzuhbfk` (EU West)
@@ -76,6 +78,9 @@ Edit `prizes:` inside the relevant egg type in `CONFIG.eggTypes`. Weights are re
 
 ## CSS variables (style.css)
 `--gold:#f5c542` `--gold2:#d4a017` `--gold3:#a67c00` `--green:#2ecc71` `--panel:#0f3460` `--dark:#0a0a18` `--bg:#1a1a2e` `--bg2:#16213e` `--amber:#e88d2a` `--gray:#7f8c8d`
+
+## Response format
+Always end every response to the user with the current version: **"Current version: X.Y.Z"**
 
 ## Common pitfalls
 - `renderEggTray` must run inside `requestAnimationFrame` when switching to play tab (needs laid-out dimensions)
