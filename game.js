@@ -2712,6 +2712,14 @@ if (window.AndroidBridge && typeof window.AndroidBridge.jsReady === 'function') 
   window.AndroidBridge.jsReady();
 }
 
+// Splash screen — fade out 2s after the game has initialised
+setTimeout(() => {
+  const splash = document.getElementById('splash-screen');
+  if (!splash) return;
+  splash.classList.add('fade-out');
+  setTimeout(() => splash.remove(), 650);
+}, 2000);
+
 
 
 // Hammer follows mouse (desktop) or flashes on tap (mobile)
