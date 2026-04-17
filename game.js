@@ -213,6 +213,7 @@ function resetGame() {
     invalidateAchieveCache();
     newRound();
     renderAll();
+    renderPremiumShop();
     MUSIC.play(curMonkey().id);
     msg('All progress reset!');
   }, 'Reset');
