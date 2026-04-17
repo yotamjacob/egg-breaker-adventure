@@ -372,3 +372,4 @@
 .premium-restore{text-align:center;padding:8px 0 16px}
 .restore-btn{background:none;border:none;color:var(--gray);font-size:10px;cursor:pointer;text-decoration:underline;letter-spacing:.5px}
 .restore-btn:active{opacity:.6}
+.pay-debug-btn{margin-left:12px;opacity:.45}

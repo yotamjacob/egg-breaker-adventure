@@ -2148,14 +2148,33 @@ async function initPremiumShop() {
     };
 
     const captureOrder = async (orderId) => {
-      // Use same-origin Vercel proxy to avoid any cross-origin fetch issues
-      const res = await fetch('/api/capture-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ device_id: deviceId, paypal_order_id: orderId, product_id: pid }),
-      });
-      const result = await res.json();
-      if (result.error) throw new Error(result.error);
+      _payLog('capture START pid=' + pid + ' orderId=' + orderId + ' device=' + deviceId.slice(0,8));
+      let res;
+      try {
+        res = await fetch('/api/capture-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ device_id: deviceId, paypal_order_id: orderId, product_id: pid }),
+        });
+      } catch (fetchErr) {
+        _payLog('capture FETCH_THROW: ' + fetchErr.message);
+        throw fetchErr;
+      }
+      _payLog('capture HTTP=' + res.status + ' ok=' + res.ok);
+      const text = await res.text();
+      _payLog('capture BODY=' + text.slice(0, 300));
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (parseErr) {
+        _payLog('capture JSON_FAIL: ' + parseErr.message);
+        throw new Error('Response parse error (HTTP ' + res.status + '): ' + text.slice(0, 80));
+      }
+      if (result.error) {
+        _payLog('capture APP_ERROR: ' + result.error);
+        throw new Error(result.error);
+      }
+      _payLog('capture OK reward=' + JSON.stringify(result.reward || {}));
       return result;
     };
 
@@ -2167,11 +2186,11 @@ async function initPremiumShop() {
           const result = await captureOrder(data.orderID);
           applyPurchaseReward(pid, result.reward);
         } catch (e) {
-          showShopSnack('⚠️ Delivery failed — tap Restore Purchases below.');
+          showShopSnack('⚠️ Error: ' + e.message.slice(0, 60) + ' — see Debug Log');
           msg('Payment error: ' + e.message);
         }
       },
-      onError: () => msg('Payment failed. Please try again.'),
+      onError: (err) => { _payLog('onError: ' + (err?.message || JSON.stringify(err))); msg('Payment failed. Please try again.'); },
     }).render('#paypal-btn-' + pid);
   }
 }
@@ -2573,6 +2592,28 @@ let _isDesktop = !('ontouchstart' in window) && navigator.maxTouchPoints === 0;
 })();
 
 // ==================== CLOUD SAVE ====================
+
+// ── Payment debug logger ─────────────────────────────────────────────────────
+// Persists via localStorage — survives page reloads / tab switches.
+// Read with the "Debug Log" link in the Premium shop.
+function _payLog(msg) {
+  try {
+    const ts = new Date().toISOString().substring(11, 19);
+    const logs = JSON.parse(localStorage.getItem('_payDbg') || '[]');
+    logs.push('[' + ts + '] ' + msg);
+    if (logs.length > 60) logs.splice(0, logs.length - 60);
+    localStorage.setItem('_payDbg', JSON.stringify(logs));
+  } catch (e) { /* storage full or private mode */ }
+}
+function showPayLog() {
+  const logs = JSON.parse(localStorage.getItem('_payDbg') || '[]');
+  alert(logs.length ? logs.join('\n') : '(payment log is empty — make a purchase attempt first)');
+}
+function clearPayLog() {
+  localStorage.removeItem('_payDbg');
+  showShopSnack('Payment debug log cleared.');
+}
+// ────────────────────────────────────────────────────────────────────────────
 
 // ── OAuth debug logger ───────────────────────────────────────────────────────
 // Persists across page reloads (survives the OAuth redirect) via localStorage.
