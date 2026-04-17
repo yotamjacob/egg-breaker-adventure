@@ -19,65 +19,79 @@ async function sendPush(subscription: object, payload: object): Promise<boolean>
     await webpush.sendNotification(subscription, JSON.stringify(payload))
     return true
   } catch (e: any) {
-    // 410 Gone = subscription expired, remove it
-    if (e.statusCode === 410) return false
+    if (e.statusCode === 410) return false  // expired — remove it
     console.warn('[push] send failed', e.statusCode, e.body)
-    return true // keep subscription, may be temporary
+    return true  // keep subscription, may be a temporary error
   }
 }
 
-serve(async (req) => {
-  // Allow manual trigger via POST or scheduled invocation
-  const now = new Date()
+serve(async () => {
+  const now     = new Date()
+  const cutoff  = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString()
 
-  // 1. Daily reward notification — send to all subscribers not seen in last 20 hours
-  const { data: dailySubs } = await supabase
+  // Fetch all push subscriptions
+  const { data: subs } = await supabase
     .from('push_subscriptions')
-    .select('device_id, subscription')
-    .lt('updated_at', new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString())
+    .select('device_id, subscription, user_id, updated_at')
+
+  if (!subs?.length) return new Response(JSON.stringify({ ok: true, sent: 0 }), { headers: { 'Content-Type': 'application/json' } })
+
+  // Fetch game_saves for authenticated users so we can use last_seen_at / hammers_full_at
+  const userIds = subs.filter(s => s.user_id).map(s => s.user_id as string)
+  const { data: saves } = userIds.length > 0
+    ? await supabase.from('game_saves').select('user_id, last_seen_at, hammers_full_at').in('user_id', userIds)
+    : { data: [] as any[] }
+
+  const savesMap = new Map((saves ?? []).map((s: any) => [s.user_id, s]))
 
   const expiredDevices: string[] = []
+  let sent = 0
 
-  for (const row of dailySubs ?? []) {
-    const ok = await sendPush(row.subscription, {
-      title: 'Egg Breaker Adventure Revival',
-      body: 'Your daily reward is ready. Come claim it.',
-      tag: 'daily-reward',
-      url: '/?tab=daily',
-    })
-    if (!ok) expiredDevices.push(row.device_id)
+  for (const sub of subs) {
+    const save      = sub.user_id ? savesMap.get(sub.user_id) : null
+    // lastSeen: prefer game_saves.last_seen_at (updated on every save), fall back to subscription timestamp
+    const lastSeen  = save?.last_seen_at ?? sub.updated_at
+    const inactive  = new Date(lastSeen) < new Date(cutoff)
+
+    // Hammers-full check (authenticated users only — requires game_saves)
+    let sentHammersFull = false
+    if (save?.hammers_full_at) {
+      const fullAt       = new Date(save.hammers_full_at)
+      const seenAfterFull = save.last_seen_at && new Date(save.last_seen_at) >= fullAt
+      if (fullAt < now && !seenAfterFull) {
+        const ok = await sendPush(sub.subscription, {
+          title: 'Egg Breaker Adventure Revival',
+          body:  'Your hammers are full — come break some eggs!',
+          tag:   'hammers-full',
+          url:   '/',
+        })
+        if (!ok) expiredDevices.push(sub.device_id)
+        else {
+          sentHammersFull = true
+          sent++
+          await supabase.from('game_saves').update({ hammers_full_at: null }).eq('user_id', sub.user_id)
+        }
+      }
+    }
+
+    // Daily reward — skip if we just sent a hammers-full (avoid double-notifying)
+    if (inactive && !sentHammersFull) {
+      const ok = await sendPush(sub.subscription, {
+        title: 'Egg Breaker Adventure Revival',
+        body:  'Your daily reward is ready. Come claim it!',
+        tag:   'daily-reward',
+        url:   '/?tab=daily',
+      })
+      if (!ok) expiredDevices.push(sub.device_id)
+      else sent++
+    }
   }
 
-  // 2. Hammers full notification
-  const { data: hammerSubs } = await supabase
-    .from('game_saves')
-    .select('device_id, hammers_full_at, last_seen_at, push_subscriptions(subscription)')
-    .not('hammers_full_at', 'is', null)
-    .lt('hammers_full_at', now.toISOString())
-    // only if user hasn't opened the app since hammers filled
-    .lt('last_seen_at', supabase.rpc ? 'hammers_full_at' : now.toISOString())
-
-  for (const row of hammerSubs ?? []) {
-    if (!row.last_seen_at || new Date(row.last_seen_at) >= new Date(row.hammers_full_at)) continue
-    const sub = (row as any).push_subscriptions?.[0]?.subscription
-    if (!sub) continue
-    const ok = await sendPush(sub, {
-      title: 'Egg Breaker Adventure Revival',
-      body: 'Your hammers are full.',
-      tag: 'hammers-full',
-      url: '/',
-    })
-    if (!ok && row.device_id) expiredDevices.push(row.device_id)
-    // Clear hammers_full_at so we don't re-notify
-    await supabase.from('game_saves').update({ hammers_full_at: null }).eq('device_id', row.device_id)
-  }
-
-  // Remove expired subscriptions
   if (expiredDevices.length) {
     await supabase.from('push_subscriptions').delete().in('device_id', expiredDevices)
   }
 
-  return new Response(JSON.stringify({ ok: true, sent: (dailySubs?.length ?? 0) }), {
+  return new Response(JSON.stringify({ ok: true, sent }), {
     headers: { 'Content-Type': 'application/json' },
   })
 })
