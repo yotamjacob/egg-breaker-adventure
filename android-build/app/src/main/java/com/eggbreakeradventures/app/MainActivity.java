@@ -22,6 +22,7 @@ import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.ProductDetails;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.QueryProductDetailsParams;
+import com.android.billingclient.api.QueryPurchasesParams;
 
 import java.util.Collections;
 import java.util.List;
@@ -143,11 +144,36 @@ public class MainActivity extends Activity {
             @Override
             public void onBillingSetupFinished(BillingResult result) {
                 jsLog("Billing setup: " + result.getResponseCode());
+                if (result.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                    queryOwnedPurchases();
+                }
             }
             @Override
             public void onBillingServiceDisconnected() {
                 jsLog("Billing disconnected — reconnecting");
                 connectBilling();
+            }
+        });
+    }
+
+    /** Queries all owned in-app products and pipes each through onPlayPurchaseResult.
+     *  Called on billing setup so owned items (e.g. from a previous install) are
+     *  automatically verified and applied without requiring a manual restore. */
+    private void queryOwnedPurchases() {
+        if (billingClient == null || !billingClient.isReady()) return;
+        QueryPurchasesParams params = QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.INAPP)
+            .build();
+        billingClient.queryPurchasesAsync(params, (billingResult, purchases) -> {
+            int count = purchases != null ? purchases.size() : 0;
+            jsLog("queryOwned code=" + billingResult.getResponseCode() + " count=" + count);
+            if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || purchases == null) return;
+            for (Purchase purchase : purchases) {
+                if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED
+                        && !purchase.getProducts().isEmpty()) {
+                    String productId = purchase.getProducts().get(0);
+                    callJsPurchaseResult(productId, purchase.getPurchaseToken(), true, null);
+                }
             }
         });
     }

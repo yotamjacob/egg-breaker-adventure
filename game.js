@@ -2145,11 +2145,18 @@ window.onPlayPurchaseResult = async function(productId, purchaseToken, success, 
   if (!success || !purchaseToken) {
     // code 7 = ITEM_ALREADY_OWNED — silently restore rather than showing an error
     if (error && String(error).includes('7')) {
-      _payLog('ITEM_ALREADY_OWNED — triggering silent restore');
+      _payLog('ITEM_ALREADY_OWNED — triggering restore');
       restorePurchases();
       return;
     }
     if (error) showShopSnack('⚠️ ' + error);
+    return;
+  }
+  // If called from queryOwnedPurchases on startup and this non-consumable is already
+  // applied in game state, skip the verify network call (idempotent — already owned).
+  const _prod = PREMIUM_PRODUCTS.find(p => p.id === productId);
+  if (_prod && _prod.boughtKey && G[_prod.boughtKey]) {
+    _payLog('onPlayPurchaseResult: ' + productId + ' already owned in game state — skip verify');
     return;
   }
   try {
@@ -2298,15 +2305,21 @@ async function initPremiumShop() {
 async function restorePurchases(opts = {}) {
   const silent = opts.silent || false;
   if (!silent) showShopSnack('Checking purchases...');
+  const deviceId = getDeviceId();
+  const userId   = _cloudUser ? _cloudUser.id : null;
+  _payLog('restore START silent=' + silent + ' device=' + deviceId.slice(0, 8) + ' user=' + (userId ? userId.slice(0, 8) : 'null'));
   try {
     const res = await fetch('/api/restore-purchases', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ device_id: getDeviceId(), user_id: _cloudUser ? _cloudUser.id : null }),
+      body: JSON.stringify({ device_id: deviceId, user_id: userId }),
     });
+    _payLog('restore HTTP=' + res.status);
     const data = await res.json();
+    _payLog('restore BODY=' + JSON.stringify(data).slice(0, 300));
     if (data.error) throw new Error(data.error);
     const purchases = data.purchases || [];
+    _payLog('restore found=' + purchases.length + ' items=[' + purchases.map(p => p.product_id).join(',') + ']');
     if (purchases.length === 0) {
       if (!silent) showShopSnack('No purchases found to restore.');
       return;
@@ -2316,7 +2329,7 @@ async function restorePurchases(opts = {}) {
       let changed = false;
       purchases.forEach(p => {
         const prod = PREMIUM_PRODUCTS.find(x => x.id === p.product_id);
-        if (prod && prod.boughtKey && !G[prod.boughtKey]) { G[prod.boughtKey] = true; changed = true; }
+        if (prod && prod.boughtKey && !G[prod.boughtKey]) { G[prod.boughtKey] = true; changed = true; _payLog('restore silent applied ' + p.product_id); }
         if (p.product_id === 'starter_pack' && !G.premium_starter_pack) { G.premium_starter_pack = true; changed = true; }
       });
       if (changed) { saveGame(); savePremium(); renderPremiumShop(); }
@@ -2325,6 +2338,7 @@ async function restorePurchases(opts = {}) {
     purchases.forEach(p => applyPurchaseReward(p.product_id, p.reward));
     showShopSnack(purchases.length + ' purchase' + (purchases.length > 1 ? 's' : '') + ' restored!');
   } catch (e) {
+    _payLog('restore ERROR=' + (e.message || 'unknown'));
     if (!silent) showShopSnack('Restore failed: ' + (e.message || 'Check connection'));
   }
 }
@@ -2733,9 +2747,16 @@ function _payLog(msg) {
   try { localStorage.setItem('_payDbg', JSON.stringify(_payLogs)); } catch (e) { /* ignore */ }
 }
 function showPayLog() {
-  // Prefer in-memory (same page load); fall back to localStorage (after reload)
+  // Snapshot current premium state at copy time for easy diagnosis
+  const premState = PREMIUM_PRODUCTS.filter(p => p.boughtKey).map(p => p.id + '=' + (G[p.boughtKey] ? '✓' : '✗')).join(' ');
+  const deviceId  = (() => { try { return getDeviceId().slice(0, 12); } catch(e) { return '?'; } })();
+  const userId    = _cloudUser ? _cloudUser.id.slice(0, 12) : 'not linked';
+  const header    = '[STATE] device=' + deviceId + ' user=' + userId + '\n[STATE] ' + premState;
   const lines = _payLogs.length ? _payLogs : (() => { try { return JSON.parse(localStorage.getItem('_payDbg') || '[]'); } catch(e) { return []; } })();
-  alert(lines.length ? lines.join('\n') : '(payment log is empty — make a purchase attempt first)');
+  const text  = header + '\n' + (lines.length ? lines.join('\n') : '(log empty — attempt a purchase or restore first)');
+  navigator.clipboard.writeText(text)
+    .then(() => showShopSnack('📋 Payment log copied! Paste it in chat.'))
+    .catch(() => { alert(text); });
 }
 function clearPayLog() {
   _payLogs.length = 0;
