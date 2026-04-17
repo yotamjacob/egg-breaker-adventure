@@ -74,6 +74,7 @@ let _cloudUser = null;
 let _cloudSession = null;     // full session object — cached by onAuthStateChange, never stale
 let _cloudSyncTimer = null;
 let _cloudUnlinking = false;  // guard against SIGNED_IN re-firing after signOut
+let _premiumSilentRestoreDone = false;
 
 function initMonkeys() {
   return MONKEY_DATA.map((m, i) => ({
@@ -2196,7 +2197,7 @@ async function initPremiumShop() {
       btn.textContent = 'Buy — ' + product.price;
       btn.onclick = () => {
         if (!_cloudUser) {
-          showConfirm('🔐', 'Sign in required', 'Link your Google account before purchasing — this protects your purchase if you reinstall or reset.', () => openSettings(), 'Sign In');
+          showConfirm('🔐', 'Sign in required', 'Link your Google account before purchasing — this protects your purchase if you reinstall or reset.', () => openCloudSaveModal(), 'Sign In');
           return;
         }
         window.AndroidBridge.purchaseProduct(product.id);
@@ -2294,8 +2295,9 @@ async function initPremiumShop() {
   }
 }
 
-async function restorePurchases() {
-  showShopSnack('Checking purchases...');
+async function restorePurchases(opts = {}) {
+  const silent = opts.silent || false;
+  if (!silent) showShopSnack('Checking purchases...');
   try {
     const res = await fetch('/api/restore-purchases', {
       method: 'POST',
@@ -2306,13 +2308,24 @@ async function restorePurchases() {
     if (data.error) throw new Error(data.error);
     const purchases = data.purchases || [];
     if (purchases.length === 0) {
-      showShopSnack('No purchases found to restore.');
+      if (!silent) showShopSnack('No purchases found to restore.');
+      return;
+    }
+    if (silent) {
+      // Silent restore: only apply non-consumable upgrades to avoid re-granting gold/hammers
+      let changed = false;
+      purchases.forEach(p => {
+        const prod = PREMIUM_PRODUCTS.find(x => x.id === p.product_id);
+        if (prod && prod.boughtKey && !G[prod.boughtKey]) { G[prod.boughtKey] = true; changed = true; }
+        if (p.product_id === 'starter_pack' && !G.premium_starter_pack) { G.premium_starter_pack = true; changed = true; }
+      });
+      if (changed) { saveGame(); savePremium(); renderPremiumShop(); }
       return;
     }
     purchases.forEach(p => applyPurchaseReward(p.product_id, p.reward));
     showShopSnack(purchases.length + ' purchase' + (purchases.length > 1 ? 's' : '') + ' restored!');
   } catch (e) {
-    showShopSnack('Restore failed: ' + (e.message || 'Check connection'));
+    if (!silent) showShopSnack('Restore failed: ' + (e.message || 'Check connection'));
   }
 }
 
@@ -2371,7 +2384,13 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (name === 'lexicon') renderLexicon();
   if (name === 'daily') renderDailyCalendar();
   if (name === 'achieve') renderAchievements();
-  if (name === 'premium') renderPremiumShop();
+  if (name === 'premium') {
+    renderPremiumShop();
+    if (_isAndroidBilling() && _cloudUser && !_premiumSilentRestoreDone) {
+      _premiumSilentRestoreDone = true;
+      restorePurchases({ silent: true });
+    }
+  }
   if (name === 'log') renderFullLog();
 });
 
@@ -2884,7 +2903,8 @@ function toggleCloudAutoSave(checked) {
 }
 
 function linkGoogleAccount() {
-  if (!_sbClient) return;
+  _oauthLog('LINK called user=' + (_cloudUser ? _cloudUser.email : 'null') + ' sbClient=' + !!_sbClient);
+  if (!_sbClient) { showShopSnack('⚠️ Service not connected — reload the app'); return; }
   if (_cloudUser) {
     // overlay-confirm has z-index:950, overlay-cloudsave has z-index:900 —
     // confirm appears on top without closing the cloud modal first.
