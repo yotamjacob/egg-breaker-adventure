@@ -305,6 +305,7 @@ function renderFullLog() {
               : e.cat === 'items'                            ? 'log-blue'
               : e.cat === 'discovery'                        ? 'log-purple'
               : e.cat === 'empty'                            ? 'log-gray'
+              : e.cat === 'noHammers'                        ? 'log-err'
               : e.cat === 'cucumber'                         ? 'log-cucumber'
               : e.cat === 'mjolnir'                          ? 'log-mjolnir'
               : '';

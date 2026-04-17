@@ -235,10 +235,13 @@ body{
 .flog-row{display:flex;gap:8px;align-items:baseline;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .flog-time{flex-shrink:0;font-size:9px;color:var(--gray);min-width:52px;text-align:right}
 .flog-text{color:var(--gold);word-break:break-word}
-.flog-row.log-green .flog-text{color:#86efac}
-.flog-row.log-blue  .flog-text{color:#93c5fd}
-.flog-row.log-gray  .flog-text{color:var(--gray)}
-.flog-row.log-purple .flog-text{color:#c084fc}
+.flog-row.log-green   .flog-text{color:#86efac}
+.flog-row.log-blue    .flog-text{color:#93c5fd}
+.flog-row.log-gray    .flog-text{color:var(--gray)}
+.flog-row.log-purple  .flog-text{color:#c084fc}
+.flog-row.log-err     .flog-text{color:var(--red)}
+.flog-row.log-cucumber .flog-text{color:#4ade80;text-shadow:0 0 6px #16a34a}
+.flog-row.log-mjolnir  .flog-text{color:#ffe033;text-shadow:0 0 8px #fbbf24,0 0 14px #f59e0b}
 
 /* ---------- Very small screens ---------- */
 @media(max-width:340px){
