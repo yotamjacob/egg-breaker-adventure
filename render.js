@@ -1093,7 +1093,7 @@ ${rows}
 <p><strong>Late game:</strong> Gold eggs + saved multipliers = massive rewards. Starfall on a late-stage round is the ultimate move.</p>
 <p><strong>Save x${bigMult} multipliers</strong> for Gold egg large-gold rolls (${C.goldValues.gold_l[0]}–${C.goldValues.gold_l[1]} base). One lucky hit can net huge gold.</p>
 <p><strong>Best builds:</strong> Princess + Golden Hammer + Crown for gold farming. Space Cadette + Rainbow + Pirate for fast collection completion.</p>
-<p><strong>Mjǫllnir</strong> (500k gold) has a 3% chance per hit to call a free Starfall — save it for rounds with many unbroken eggs.</p>
+<p><strong>Mjǫllnir</strong> (500k gold) has a 3% chance per hit to grant +7 star pieces — great for charging up Starfall quickly.</p>
 <p><strong>Hidden warriors:</strong> some monkeys only reveal themselves once you've acquired special items. Keep collecting.</p>
 `;
     }
