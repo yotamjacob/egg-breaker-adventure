@@ -273,6 +273,8 @@ function renderLog() {
       else if (l.cat === 'items') cls += ' log-blue';
       else if (l.cat === 'empty') cls += ' log-gray';
       else if (l.cat === 'discovery') cls += ' log-purple';
+      else if (l.cat === 'cucumber') cls += ' log-cucumber';
+      else if (l.cat === 'mjolnir') cls += ' log-mjolnir';
       return '<div class="' + cls + '">' + l.text + '</div>';
     }).join('');
 }
@@ -837,13 +839,19 @@ function smashEgg(index) {
   // Cucumber double hit: 5% chance for a bonus hit
   if (hasBonus('doubleHit') && Math.random() < 0.05 && egg.hp > 0) {
     egg.hp -= 1;
-    msg('Cucumbah!', 'specials');
+    msg('🥒 Cucumbah!', 'cucumber');
   }
 
-  // Mjǫllnir: 3% chance to call a free Starfall
+  // Mjǫllnir: 3% chance to call a free Starfall + 7 star pieces
+  // Only fire when other eggs remain after this hit — otherwise the 350ms delay would
+  // let the last egg finish breaking first, leaving nothing for the starfall to smash.
+  const _mjOtherEggs = G.roundEggs && G.roundEggs.filter(e => e !== egg && !e.broken && !e.expired);
   if (hasBonus('mjolnirStarfall') && Math.random() < 0.03 && !_starfallActive &&
-      G.roundEggs && G.roundEggs.some(e => !e.broken && !e.expired)) {
-    setTimeout(() => _doStarfall('⚡ Mjǫllnir calls the storm!', 'specials'), 350);
+      _mjOtherEggs && _mjOtherEggs.length > 0) {
+    G.starPieces += 7;
+    G.totalStarPieces += 7;
+    updateStarBtn();
+    setTimeout(() => _doStarfall('⚡ Mjǫllnir calls the storm!', 'mjolnir'), 350);
   }
 
   const particleCount = 4 + (egg.maxHp - egg.hp) * 3;

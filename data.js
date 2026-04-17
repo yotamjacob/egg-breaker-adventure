@@ -437,7 +437,7 @@ const SHOP_HAMMERS = [
   { id: 'golden',     name: 'Golden Hammer',     emoji: '⭐', desc: '2x gold from eggs',           cost: 120000, currency: 'gold', bonus: 'moreGold' },
   { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% collection items',       cost: 220000, currency: 'gold', bonus: 'moreItems' },
   { id: 'cucumber',   name: 'Cucumber Hammer',   emoji: '🥒', desc: '5% double hit chance',        cost: 300000, currency: 'gold', bonus: 'doubleHit' },
-  { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% chance to summon Starfall', cost: 420000, currency: 'gold', bonus: 'mjolnirStarfall' },
+  { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% chance: full Starfall + 7 star pieces', cost: 420000, currency: 'gold', bonus: 'mjolnirStarfall' },
 ];
 
 const SHOP_HATS = [
