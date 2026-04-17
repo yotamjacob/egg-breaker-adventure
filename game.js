@@ -299,7 +299,7 @@ function renderLog() {
   el.innerHTML = '<div class="rlog-title">Log</div>' +
     _logLines.map(function(l) {
       var cls = 'log-line';
-      if (l.cat === 'noHammers') cls += ' log-err';
+      if (l.cat === 'noHammers' || l.cat === 'hex') cls += ' log-err';
       else if (l.cat === 'trophies' || l.cat === 'tiers') cls += ' log-green';
       else if (l.cat === 'items') cls += ' log-blue';
       else if (l.cat === 'empty') cls += ' log-gray';
@@ -337,7 +337,7 @@ function renderFullLog() {
               : e.cat === 'items'                            ? 'log-blue'
               : e.cat === 'discovery'                        ? 'log-purple'
               : e.cat === 'empty'                            ? 'log-gray'
-              : e.cat === 'noHammers'                        ? 'log-err'
+              : e.cat === 'noHammers' || e.cat === 'hex'      ? 'log-err'
               : e.cat === 'cucumber'                         ? 'log-cucumber'
               : e.cat === 'mjolnir'                          ? 'log-mjolnir'
               : e.cat === 'freehit'                          ? 'log-freehit'
@@ -1210,7 +1210,7 @@ function applyHex(cx, cy) {
   const text = hex.apply();
   G.hexesHit = (G.hexesHit || 0) + 1;
   spawnFloat(zone, text, '#ff4444', 'big', cx, cy - 30);
-  msg(text, 'prizes');
+  msg(text, 'hex');
   SFX.play('err');
   checkAchievements();
   updateResources();
