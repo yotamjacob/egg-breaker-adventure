@@ -8,16 +8,3 @@ item Combos - dark egg and bat give bonus? odin + muijlnir?
 ## android (play store)
 [ ] recruit 12 closed testers + run 14-day closed test (required before production access)
 [ ] apply for production access → go live
-
--bugs and changes-
-Moving stages will not respawn eggs
-Starfall needs better wrap
-Starting hammers- 85 but max is 60
-Premium items - failed to fetch snackbar appears
-Starfall glitter animation is missing
-Achievement will swipe sideways
-Mult chips need better wrap - amount used on bottom and mult size on top
-Got this weird log from a crystal egg
-Anothe crystal weird log where
-Better rewards in black
-Space cadet music a bit lower
