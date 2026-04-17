@@ -167,7 +167,7 @@
 .submodal-body.flush{padding:0}
 
 /* Auto-width variant: shrinks to content (used for lifetime stats) */
-.pop-submodal-fit{width:max-content;max-width:calc(100vw - 32px)}
+.pop-submodal-fit{width:max-content;min-width:300px;max-width:min(480px, calc(100vw - 20px))}
 
 /* Confirm overlay always on top (e.g. reset confirmation over settings) */
 #overlay-confirm{z-index:950}

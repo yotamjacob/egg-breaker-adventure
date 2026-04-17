@@ -18,7 +18,7 @@ const ITEM_QUOTES = {
     'Parrot':             '"Norwegian Blue. Beautiful plumage."',
     'Tree Snake':         '"Why did it have to be snakes?"',
     'Gecko':              '"15 minutes could save you 15%."',
-    'Leopard':            '"Why did it came out of an egg?"',
+    'Leopard':            '"Why did it come out of an egg?"',
     'Poison Frog':        '"No touchy."',
     'Morpho Butterfly':   '"Float like a butterfly."',
     // Stage 3 – Ocean Depths
@@ -33,7 +33,7 @@ const ITEM_QUOTES = {
     'Mountain Goat':      '"The GOAT."',
     'Bear':               '"Bearly enough hammer left right?"',
     'Ancient Pickaxe':    '"And my axe."',
-    'Snowy Owl':          '"Hedwig Who? not familiar."',
+    'Snowy Owl':          '"Hedwig? Not familiar."',
     'Peak Diamond':       '"Diamonds are forever."',
     'Crystal Summit':     '"Only downhill from here."',
     // Stage 5 – Desert Oasis
@@ -54,10 +54,10 @@ const ITEM_QUOTES = {
     'Northern Star':      '"Second star to the right and straight on till morning."',
     // Stage 7 – Volcano Island
     'Lava Rock':          '"The floor is lava."',
-    'Fire Opal':          '"Tssss, hot"',
+    'Fire Opal':          '"Tssss, hot."',
     'Secret Hot Springs':   '"Hot tub time machine? Close enough."',
-    'Obsidian':           '"Apache tears"',
-    'Alchemist Stone':    '"Equivalent exchange"',
+    'Obsidian':           '"Apache tears."',
+    'Alchemist Stone':    '"Equivalent exchange."',
     'Lava Bubble':        '"It\'s getting hot in here."',
     'Fire Diamond':       '"Burn, baby, burn."',
     // Stage 8 – Enchanted Forest
@@ -161,7 +161,7 @@ const ITEM_QUOTES = {
     // Stage 2 – Grand Ballroom
     'Dance Shoes':        '"Dancing is like dreaming with your feet!"',
     'Music Box':          '"Wind it up."',
-    'Royal Fan':          '"Just a big fan"',
+    'Royal Fan':          '"Just a big fan."',
     'Masquerade Mask':    '"Everyone loves a good disguise."',
     'Crystal Ball':       '"Disco never died."',
     'Grand Chandelier':   '"The music of the night."',
@@ -203,11 +203,11 @@ const ITEM_QUOTES = {
     'Swan':               '"Act II begins."',
     'Water Spirit':       '"Water is the softest thing, yet it can penetrate mountains."',
     'Lake Trident':       '"Poseidon wants this back probably."',
-    'Tear of the Lake':   '"Its.. wet."',
+    'Tear of the Lake':   '"It\'s... wet."',
     // Stage 8 – Fairy Court
     'Fairy Queen':        '"Clap if you believe."',
     'Fairy Dust':         '"Faith, trust, and pixie dust."',
-    'Magic Iris':         '" I just want you to know who I am."',
+    'Magic Iris':         '"I just want you to know who I am."',
     'Rainbow Butterfly':  '"Chaos."',
     'Leaf Crown':         '"Very high fashion."',
     'Moon Tiara':         '"In the name of the Moon!"',
@@ -238,7 +238,7 @@ const ITEM_QUOTES = {
     'Solar Panel':        '"Go green."',
     'Service Bot':        '"I\'m sorry, Dave."',
     // Stage 3 – Moon Base
-    'Moon Rock':          '"It\'s basically cheese"',
+    'Moon Rock':          '"It\'s basically cheese."',
     'Regolith':           '"Fancy space dirt."',
     'Moon Crystal':       '"By the power of the moon!"',
     'Flag':               '"We come in peace."',
@@ -259,7 +259,7 @@ const ITEM_QUOTES = {
     'Mars Crystal':       '"Ancient Martian tech."',
     'Ancient Marker':     '"They were here."',
     'Alien Fossil':       '"The truth is out there."',
-    'Valles Find':        '"I Believe."',
+    'Valles Find':        '"I believe."',
     // Stage 6 – Jupiter Station
     'Storm Eye':          '"I am the storm."',
     'Ring Fragment':      '"Put a ring on it."',
@@ -274,7 +274,7 @@ const ITEM_QUOTES = {
     'Baby Star':          '"Twinkle, twinkle."',
     'Red Giant Core':     '"Confused by all these space terms."',
     'White Dwarf':        '"Small but mighty."',
-    'Neutron Star':       '"The densest thing in the universe. i think."',
+    'Neutron Star':       '"The densest thing in the universe. I think."',
     'Pulsar Beacon':      '"716 times per second."',
     // Stage 8 – Black Hole Edge
     'Dark Particle':      '"Come to the dark side."',

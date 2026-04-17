@@ -423,6 +423,7 @@ function updateResources() {
 
   updateStarBtn();
   updateOverallProgress();
+  if (typeof checkSpyglassHint === 'function') checkSpyglassHint();
 }
 
 function updateOverallProgress() {

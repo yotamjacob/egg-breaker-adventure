@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.92';
+const VERSION = '1.8.93';
 
 const CONFIG = {
 
@@ -158,10 +158,11 @@ const CONFIG = {
     gold:   1.00,   // 100% of items → complete (banana reward)
   },
 
-  // Rewards for tier-ups (max hammer increases)
+  // Rewards for tier-ups (hammer increases; refills only awarded for egg-broken tier-ups, not feather purchases)
   tierRewards: {
-    silver: { maxHammers: 2,  hammerRefill: 10 },
-    gold:   { maxHammers: 3, hammerRefill: 10 },
+    silver:   { maxHammers: 2, hammerRefill: 5  },  // Bronze→Silver: +5 hammers
+    gold:     { maxHammers: 3, hammerRefill: 7  },  // Silver→Gold:   +7 hammers + unlock next stage
+    complete: {                hammerRefill: 10 },  // Gold→Complete: +10 hammers + banana
   },
 
   // ----------------------------------------------------------
