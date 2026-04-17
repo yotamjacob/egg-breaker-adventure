@@ -2258,8 +2258,10 @@ function applyPurchaseReward(productId, reward) {
   // Premium upgrades: set owned flag by boughtKey
   const prod = PREMIUM_PRODUCTS.find(p => p.id === productId);
   if (prod && prod.boughtKey) G[prod.boughtKey] = true;
-  G.premiumPurchases = (G.premiumPurchases || 0) + 1;
-  track('premium-purchase', { product: productId });
+  // Batch products declare quantity > 1 — count each unit as a separate purchase
+  const qty = (prod && prod.quantity) || 1;
+  G.premiumPurchases = (G.premiumPurchases || 0) + qty;
+  track('premium-purchase', { product: productId, quantity: qty });
   checkAchievements();
   saveGame();
   updateResources();
@@ -2268,10 +2270,13 @@ function applyPurchaseReward(productId, reward) {
   if (reward.gold)    parts.push(reward.gold.toLocaleString() + ' gold');
   if (reward.hammers) parts.push(reward.hammers + ' hammers');
   if (reward.bananas) parts.push(reward.bananas + ' Crystal Bananas');
+  const label = prod ? (qty > 1 ? qty + '× ' + prod.name : prod.name) : 'Upgrade';
   if (parts.length > 0) {
+    showShopSnack('🎉 ' + label + '!');
     msg('🎉 ' + parts.join(' + ') + ' added to your account!');
   } else {
-    msg('🎉 ' + (prod ? prod.name : 'Upgrade') + ' unlocked!');
+    showShopSnack('🎉 ' + label + ' unlocked!');
+    msg('🎉 ' + label + ' unlocked!');
   }
   SFX.play('buy');
 }
