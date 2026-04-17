@@ -472,16 +472,20 @@ function resolvePrize(type, eggType) {
 
   if (type.startsWith('gold_')) {
     const range = GOLD_VALUES[type];
-    const baseVal = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
-    let val = Math.round(baseVal * G.activeMult * goldMult);
-    if (hasBonus('moreGold'))  val = Math.round(val * 1.2);
-    if (hasBonus('goldBoost')) val = Math.round(val * 1.1);
-    if (hasBonus('allfather')) val = Math.round(val * 1.1);
+    const rawBase = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
+    // Apply all bonuses to the per-unit base BEFORE multiplying by activeMult so the
+    // equation label is always exact (base × mult = total, no rounding drift).
+    let base = rawBase * goldMult;
+    if (hasBonus('moreGold'))  base *= 1.2;
+    if (hasBonus('goldBoost')) base *= 1.1;
+    if (hasBonus('allfather')) base *= 1.1;
     const ab = getAchievementBonuses();
-    if (ab.goldPct > 0) val = Math.round(val * (1 + ab.goldPct / 100));
+    if (ab.goldPct > 0) base *= (1 + ab.goldPct / 100);
     // Progressive gold: +2% per completed stage, capped at +30%
-    if (G.stagesCompleted > 0) val = Math.round(val * (1 + Math.min(G.stagesCompleted * 0.02, 0.30)));
-    if (G['owned_goldmagnet']) val = Math.round(val * 1.2);
+    if (G.stagesCompleted > 0) base *= (1 + Math.min(G.stagesCompleted * 0.02, 0.30));
+    if (G['owned_goldmagnet']) base *= 1.2;
+    const baseVal = Math.round(base);   // round once
+    const val = baseVal * G.activeMult; // exact — no rounding drift
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' gold', color: '#d97706' };
   }
@@ -990,11 +994,9 @@ function applyPrize(prize, cx, cy) {
     G.biggestWin = Math.max(G.biggestWin, prize.value);
     const cls = prize.value >= 500 ? 'mega' : prize.value >= 200 ? 'big' : '';
     if (prize.balloonMult || prize.usedMult) {
-      // Compute displayBase so equation is always correct: totalMult × displayBase = prize.value
-      const _chipTot = prize.usedMult ? prize.usedMult.reduce((a, b) => a + b, 0) : 1;
-      const _totMult = _chipTot * (prize.balloonMult || 1);
-      const displayBase = Math.round(prize.value / _totMult);
-      const eq = multEquation(displayBase, prize.usedMult, prize.value, 'gold', prize.balloonMult, prize.popPrefix);
+      // prize.baseVal already has all bonuses baked in at the per-unit level, so the
+      // equation label is always exact: totalMult × baseVal = prize.value (no rounding drift).
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'gold', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#d97706', cls || 'big', cx, cy);
       msg(eq, 'prizes');
     } else {
@@ -1035,6 +1037,7 @@ function applyPrize(prize, cx, cy) {
       G.gold += prize.bonusGold;
       G.totalGold += prize.bonusGold;
       spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706', '', cx, cy - 20);
+      msg('+' + prize.bonusGold + ' gold (mult bonus)', 'prizes');
     }
   }
 
@@ -1075,6 +1078,7 @@ function applyPrize(prize, cx, cy) {
     if (prize.bonusGold) {
       G.gold += prize.bonusGold; G.totalGold += prize.bonusGold;
       spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706', '', cx, cy - 20);
+      msg('+' + prize.bonusGold + ' gold (mult bonus)', 'prizes');
     }
   }
 
@@ -1088,6 +1092,7 @@ function applyPrize(prize, cx, cy) {
     if (prize.bonusGold) {
       G.gold += prize.bonusGold; G.totalGold += prize.bonusGold;
       spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706', '', cx, cy - 20);
+      msg('+' + prize.bonusGold + ' gold (mult bonus)', 'prizes');
     }
   }
 
@@ -1121,6 +1126,7 @@ function applyPrize(prize, cx, cy) {
       G.gold += prize.bonusGold;
       G.totalGold += prize.bonusGold;
       spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706');
+      msg('+' + prize.bonusGold + ' gold (mult bonus)', 'prizes');
     }
   }
 
@@ -1915,23 +1921,23 @@ function _initToastSwipe() {
   _toastSwipeReady = true;
   const t = $id('toast-achieve');
   if (!t) return;
-  let startY = 0, dragging = false;
+  let startX = 0, dragging = false;
   t.addEventListener('touchstart', e => {
-    startY = e.touches[0].clientY;
+    startX = e.touches[0].clientX;
     dragging = true;
     t.style.transition = 'none';
   }, { passive: true });
   t.addEventListener('touchmove', e => {
     if (!dragging) return;
-    const dy = e.touches[0].clientY - startY;
-    if (dy < 0) t.style.transform = 'translateY(' + dy + 'px)';
+    const dx = e.touches[0].clientX - startX;
+    if (dx > 0) t.style.transform = 'translateX(' + dx + 'px)';
   }, { passive: true });
   t.addEventListener('touchend', e => {
     if (!dragging) return;
     dragging = false;
-    const dy = e.changedTouches[0].clientY - startY;
+    const dx = e.changedTouches[0].clientX - startX;
     t.style.transition = '';
-    if (dy < -40) {
+    if (dx > 60) {
       clearTimeout(toastTimeout);
       t.style.transform = '';
       t.classList.remove('show');

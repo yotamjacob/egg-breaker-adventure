@@ -45,15 +45,15 @@
 
 /* Toast */
 .toast{
-  position:fixed;top:8px;left:8px;right:8px;
-  transform:translateY(-120px);
+  position:fixed;top:8px;right:8px;left:8px;
+  transform:translateX(110%);
   background:var(--panel);border:3px solid var(--gold);border-radius:2px;
   padding:8px 12px;display:flex;align-items:center;gap:8px;
   z-index:1000;box-shadow:4px 4px 0 var(--dark);
   transition:transform .2s steps(5);font-size:11px;
   max-width:500px;margin:0 auto;
 }
-.toast.show{transform:translateY(0)}
+.toast.show{transform:translateX(0)}
 .toast.hidden{display:none}
 .toast span:first-child{font-size:18px;flex-shrink:0}
 .toast strong{color:var(--gold)}

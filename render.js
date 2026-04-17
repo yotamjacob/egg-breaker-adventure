@@ -360,12 +360,18 @@ function renderMultQueue() {
     const selected = G._selectedCounts[val] || 0;
     const badge = document.createElement('span');
     badge.className = 'mult-chip' + (selected > 0 ? ' active' : '') + ((owned === 0 || locked123) ? ' muted' : '');
-    let label;
-    if (locked123) { label = '?'; }
-    else if (owned === 0) { label = 'x' + val; }
-    else if (selected > 0) { label = 'x' + val + ' [' + selected + '/' + owned + ']'; }
-    else { label = 'x' + val + ' (' + owned + ')'; }
-    badge.textContent = label;
+    let topLabel, bottomLabel;
+    if (locked123) {
+      topLabel = '?'; bottomLabel = '';
+    } else if (owned === 0) {
+      topLabel = 'x' + val; bottomLabel = '';
+    } else if (selected > 0) {
+      topLabel = 'x' + val; bottomLabel = selected + '/' + owned;
+    } else {
+      topLabel = 'x' + val; bottomLabel = '×' + owned;
+    }
+    badge.innerHTML = '<span class="mc-val">' + topLabel + '</span>' +
+      (bottomLabel ? '<span class="mc-count">' + bottomLabel + '</span>' : '');
     if (owned > 0) {
       badge.addEventListener('click', () => {
         if (!G._selectedCounts[val]) G._selectedCounts[val] = 0;
