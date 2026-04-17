@@ -2705,6 +2705,13 @@ $id('stage-bar').addEventListener('click', () => {
 // Auto-save
 setInterval(saveGame, 15000);
 
+// Notify Android that JS is ready — triggers queryOwnedPurchases() on the Java side,
+// which is gated on both billing-ready AND js-ready to avoid a race condition where
+// billing connects before the page has loaded and purchase results are silently dropped.
+if (window.AndroidBridge && typeof window.AndroidBridge.jsReady === 'function') {
+  window.AndroidBridge.jsReady();
+}
+
 
 
 // Hammer follows mouse (desktop) or flashes on tap (mobile)

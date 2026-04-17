@@ -31,6 +31,8 @@ public class MainActivity extends Activity {
 
     private WebView webView;
     private BillingClient billingClient;
+    private volatile boolean _billingReady = false;
+    private volatile boolean _jsReady      = false;
     private static final String GAME_URL = "https://egg-breaker-adventures.vercel.app/";
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -73,6 +75,14 @@ public class MainActivity extends Activity {
 
             @JavascriptInterface
             public boolean isAndroidApp() { return true; }
+
+            // Called from JS once the game is fully initialised.
+            // Fires queryOwnedPurchases() only when BOTH billing and JS are ready.
+            @JavascriptInterface
+            public void jsReady() {
+                _jsReady = true;
+                if (_billingReady) queryOwnedPurchases();
+            }
 
             // Called from JS: window.AndroidBridge.purchaseProduct('gold_s')
             // Queries Play Billing for the product then launches the purchase sheet.
@@ -145,7 +155,8 @@ public class MainActivity extends Activity {
             public void onBillingSetupFinished(BillingResult result) {
                 jsLog("Billing setup: " + result.getResponseCode());
                 if (result.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                    queryOwnedPurchases();
+                    _billingReady = true;
+                    if (_jsReady) queryOwnedPurchases();
                 }
             }
             @Override
@@ -164,14 +175,17 @@ public class MainActivity extends Activity {
         QueryPurchasesParams params = QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.INAPP)
             .build();
+        payLog("queryOwned: querying Play Billing");
         billingClient.queryPurchasesAsync(params, (billingResult, purchases) -> {
             int count = purchases != null ? purchases.size() : 0;
+            payLog("queryOwned code=" + billingResult.getResponseCode() + " count=" + count);
             jsLog("queryOwned code=" + billingResult.getResponseCode() + " count=" + count);
             if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK || purchases == null) return;
             for (Purchase purchase : purchases) {
                 if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED
                         && !purchase.getProducts().isEmpty()) {
                     String productId = purchase.getProducts().get(0);
+                    payLog("queryOwned found=" + productId + " state=" + purchase.getPurchaseState());
                     callJsPurchaseResult(productId, purchase.getPurchaseToken(), true, null);
                 }
             }
@@ -246,6 +260,14 @@ public class MainActivity extends Activity {
         final String escaped = msg.replace("\\", "\\\\").replace("'", "\\'");
         webView.post(() -> webView.evaluateJavascript(
             "if(typeof _oauthLog==='function')_oauthLog('" + escaped + "')", null));
+    }
+
+    /** Injects _payLog() into the WebView so billing events appear in the payment debug log. */
+    private void payLog(final String msg) {
+        if (webView == null) return;
+        final String escaped = msg.replace("\\", "\\\\").replace("'", "\\'");
+        webView.post(() -> webView.evaluateJavascript(
+            "if(typeof _payLog==='function')_payLog('" + escaped + "')", null));
     }
 
     private void applyImmersiveMode() {
