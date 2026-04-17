@@ -2349,7 +2349,7 @@ async function restorePurchases(opts = {}) {
 
 function applyPurchaseReward(productId, reward) {
   if (reward.gold)    { G.gold += reward.gold; G.totalGold += reward.gold; }
-  if (reward.hammers) { G.hammers = Math.min(G.maxH, G.hammers + reward.hammers); }
+  if (reward.hammers) { G.hammers += reward.hammers; }
   if (reward.bananas) { G.crystalBananas += reward.bananas; }
   if (productId === 'starter_pack') G.premium_starter_pack = true;
   // Premium upgrades: set owned flag by boughtKey
