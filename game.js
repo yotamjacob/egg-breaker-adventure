@@ -679,14 +679,10 @@ const NO_HAMMER_MSGS = [
 ];
 let _shopNudgeDone = false;
 function noHammerMsg() {
+  const shopTab = document.querySelector('.nav-tab[data-tab="shop"]');
+  if (shopTab) shopTab.classList.add('shop-nudge');
   if (!_shopNudgeDone) {
     _shopNudgeDone = true;
-    // Pulse the Shop tab to guide the player
-    const shopTab = document.querySelector('.nav-tab[data-tab="shop"]');
-    if (shopTab) {
-      shopTab.classList.add('shop-nudge');
-      shopTab.addEventListener('animationend', () => shopTab.classList.remove('shop-nudge'), { once: true });
-    }
     return 'Out of hammers — buy more in the Shop!';
   }
   return NO_HAMMER_MSGS[Math.floor(Math.random() * NO_HAMMER_MSGS.length)];
@@ -697,10 +693,7 @@ function checkSpyglassHint() {
     G._spyglassHintShown = true;
     msg('💰 You have 5,000 gold! Buy the Spyglass 🔍 in the Shop to reveal egg names.', 'discovery');
     const shopTab = document.querySelector('.nav-tab[data-tab="shop"]');
-    if (shopTab) {
-      shopTab.classList.add('shop-nudge');
-      shopTab.addEventListener('animationend', () => shopTab.classList.remove('shop-nudge'), { once: true });
-    }
+    if (shopTab) shopTab.classList.add('shop-nudge');
     saveGame();
   }
 }
@@ -2397,7 +2390,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   }
   if (name === 'album') renderAlbum();
   if (name === 'monkeys') renderMonkeys();
-  if (name === 'shop') { renderShop(); updateAutoBuyBtn(); }
+  if (name === 'shop') { tab.classList.remove('shop-nudge'); renderShop(); updateAutoBuyBtn(); }
   if (name === 'stats') renderStats();
   if (name === 'lexicon') renderLexicon();
   if (name === 'daily') renderDailyCalendar();
@@ -2696,6 +2689,16 @@ if (G.hammers < G.maxH && !regenInt) startRegen();
 if (!G._tourDone && G.totalEggs === 0) {
   setTimeout(startTour, 500);
 }
+
+// Feathers click → Album items
+$id('res-f-wrap').addEventListener('click', () => {
+  document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('.nav-tab[data-tab="album"]').classList.add('active');
+  $id('panel-album').classList.add('active');
+  renderAlbum();
+  requestAnimationFrame(() => $id('album-items').scrollIntoView({ behavior: 'smooth', block: 'start' }));
+});
 
 // Stage bar click → Album tab
 $id('stage-bar').addEventListener('click', () => {

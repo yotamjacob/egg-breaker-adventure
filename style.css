@@ -196,7 +196,7 @@ body{
   0%,100%{background:transparent;color:inherit}
   50%{background:var(--gold3);color:#000}
 }
-.nav-tab.shop-nudge{animation:shop-nudge .5s ease-in-out 3}
+.nav-tab.shop-nudge{animation:shop-nudge .8s ease-in-out infinite}
 
 /* ---------- Tab panels ---------- */
 /* Use visibility+flex:0 instead of display:none so CSS animations in the play
