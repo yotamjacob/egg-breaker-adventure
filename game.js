@@ -2238,7 +2238,7 @@ async function initPremiumShop() {
         res = await fetch(_SUPABASE_URL + '/functions/v1/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
-          body: JSON.stringify({ device_id: deviceId, product_id: pid }),
+          body: JSON.stringify({ device_id: deviceId, product_id: pid, user_id: _cloudUser ? _cloudUser.id : null }),
         });
       } catch (fetchErr) {
         _payLog('createOrder FETCH_THROW: ' + fetchErr.message);

@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: hdrs })
 
   try {
-    const { device_id, product_id } = await req.json()
+    const { device_id, product_id, user_id } = await req.json()
     if (!device_id || !product_id) throw new Error('Missing device_id or product_id')
 
     const product = PRODUCTS[product_id]
@@ -66,16 +66,26 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    // Block re-purchase of one-time products
+    // Block re-purchase of one-time products (check by device AND by user account)
     if (product.oneTime) {
-      const { data: existing } = await supabase
+      const deviceCheck = supabase
         .from('purchases')
         .select('id')
         .eq('device_id', device_id)
         .eq('product_id', product_id)
         .eq('status', 'completed')
         .maybeSingle()
-      if (existing) throw new Error('Already purchased')
+      const userCheck = user_id
+        ? supabase
+            .from('purchases')
+            .select('id')
+            .eq('user_id', user_id)
+            .eq('product_id', product_id)
+            .eq('status', 'completed')
+            .maybeSingle()
+        : Promise.resolve({ data: null })
+      const [{ data: byDevice }, { data: byUser }] = await Promise.all([deviceCheck, userCheck])
+      if (byDevice || byUser) throw new Error('Already purchased')
     }
 
     const token = await getPayPalToken(
@@ -102,13 +112,14 @@ Deno.serve(async (req) => {
     const order = await orderRes.json()
     if (!order.id) throw new Error('Failed to create PayPal order')
 
-    // Store pending purchase record
+    // Store pending purchase record (include user_id for cross-device restore)
     await supabase.from('purchases').insert({
       device_id,
       product_id,
       paypal_order_id: order.id,
       amount: parseFloat(product.price),
       status: 'pending',
+      user_id: user_id ?? null,
     })
 
     return new Response(JSON.stringify({ paypal_order_id: order.id }), {
