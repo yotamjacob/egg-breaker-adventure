@@ -217,6 +217,10 @@ function resetGame() {
     renderPremiumShop();
     MUSIC.play(curMonkey().id);
     msg('All progress reset!');
+    // Re-sync premium items from the server — PREMIUM_KEY may be stale or empty,
+    // and _premiumSilentRestoreDone must be cleared so the Premium tab re-checks too.
+    _premiumSilentRestoreDone = false;
+    restorePurchases({ silent: true });
   }, 'Reset');
 }
 
