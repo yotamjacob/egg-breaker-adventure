@@ -82,6 +82,34 @@ Edit `prizes:` inside the relevant egg type in `CONFIG.eggTypes`. Weights are re
 ## Response format
 Always end every response to the user with the current version: **"Current version: X.Y.Z"**
 
+## Google OAuth / Cloud Save flow
+
+### How linking works (Android)
+1. `linkGoogleAccount()` sets `sessionStorage._oauthPending = '1'` and `localStorage._cloudLinkPref = 'linked'`, then navigates to the Supabase auth URL.
+2. `shouldOverrideUrlLoading` intercepts `supabase.co/auth` and `accounts.google.com` URLs → opens in external Chrome. WebView stays on game page; sessionStorage survives.
+3. Supabase redirects to `https://egg-breaker-adventures.vercel.app/#access_token=…` → Android App Links routes this to `onNewIntent()`.
+4. `onNewIntent` detects `access_token` in the fragment → calls `handleAndroidOAuthCallback(fragment)` via `evaluateJavascript` (no page reload). **Do NOT use `webView.loadUrl()` for this — it reloads the page, clearing sessionStorage.**
+5. `handleAndroidOAuthCallback` calls `_sbClient.auth.setSession()` → fires `onAuthStateChange(SIGNED_IN)`.
+6. `_onCloudSignIn` reads `sessionStorage._oauthPending` → shows "linked!" snack and reopens cloud modal.
+
+### How unlinking works
+- `linkGoogleAccount()` (when already linked) → confirm → sets `_cloudUnlinking = true` and `localStorage._cloudLinkPref = 'unlinked'` → calls `signOut()`.
+- `_cloudUnlinking` prevents a racing `SIGNED_IN` event (token refresh) from re-linking mid-unlink.
+
+### Invariants — never break these
+| Invariant | Why |
+|-----------|-----|
+| `_cloudLinkPref` lives in its own `localStorage` key, **never inside `SAVE_KEY`** | `resetGame()` only removes `SAVE_KEY` — the pref must survive a hard reset |
+| `onAuthStateChange(SIGNED_IN)` checks `_cloudLinkPref === 'unlinked'` first and signs out if true | Prevents Supabase from silently re-linking after a reset |
+| `redirectTo` is always `window.location.origin + '/'` for all platforms | Custom URI scheme (`eggbreakeradventures://`) caused Chrome to strip the `#fragment` on Android |
+| `onNewIntent` handles HTTPS App Link callbacks with `access_token` via JS injection, not `webView.loadUrl()` | `webView.loadUrl()` reloads the page → clears sessionStorage → `_oauthPending` flag lost |
+| Never call `_sbClient.auth.getSession()` before a fetch — use cached `_cloudSession` | `getSession()` can hang on Android during token refresh |
+| `shouldOverrideUrlLoading` must intercept `supabase.co/auth` and `accounts.google.com` | Google OAuth blocks WebView with 403 disallowed_useragent |
+
+### localStorage keys used by cloud save (never clear these in resetGame)
+- `sb-hhpikvqeopscjdzuhbfk.supabase.co-auth-token` — Supabase session (managed by SDK)
+- `_cloudLinkPref` — `'linked'` | `'unlinked'` — explicit user preference
+
 ## Common pitfalls
 - `renderEggTray` must run inside `requestAnimationFrame` when switching to play tab (needs laid-out dimensions)
 - Tab panels use `visibility:hidden + flex:0 0 0` (not `display:none`) to keep animations alive
