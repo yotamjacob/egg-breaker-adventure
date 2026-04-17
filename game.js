@@ -306,7 +306,8 @@ function renderLog() {
     _logLines.map(function(l) {
       var cls = 'log-line';
       if (l.cat === 'noHammers' || l.cat === 'hex') cls += ' log-err';
-      else if (l.cat === 'trophies' || l.cat === 'tiers') cls += ' log-green';
+      else if (l.cat === 'trophies') cls += ' log-trophy';
+      else if (l.cat === 'tiers') cls += ' log-green';
       else if (l.cat === 'items') cls += ' log-blue';
       else if (l.cat === 'empty') cls += ' log-gray';
       else if (l.cat === 'discovery') cls += ' log-purple';
@@ -339,7 +340,8 @@ function renderFullLog() {
                : mins < 60 ? mins + 'm ago'
                : hrs  < 24 ? hrs + 'h ' + (mins % 60) + 'm ago'
                : Math.floor(hrs / 24) + 'd ago';
-    const cls = e.cat === 'trophies' || e.cat === 'tiers'  ? 'log-green'
+    const cls = e.cat === 'trophies'                        ? 'log-trophy'
+              : e.cat === 'tiers'                            ? 'log-green'
               : e.cat === 'items'                            ? 'log-blue'
               : e.cat === 'discovery'                        ? 'log-purple'
               : e.cat === 'empty'                            ? 'log-gray'
@@ -2003,62 +2005,11 @@ function checkAchievements() {
       G.achieved.push(a.id);
       invalidateAchieveCache();
       grantAchievementReward(a);
-      showAchieveToast(a);
       const isSecret = SECRET_ACHIEVEMENTS.some(s => s.id === a.id);
       msg((isSecret ? '🔮 Secret: ' : '🏆 Trophy: ') + a.name + (a.reward ? ' — ' + a.reward.label : ''), 'trophies');
       SFX.play('achieve');
     }
   }
-}
-
-let _toastSwipeReady = false;
-function _initToastSwipe() {
-  if (_toastSwipeReady) return;
-  _toastSwipeReady = true;
-  const t = $id('toast-achieve');
-  if (!t) return;
-  let startX = 0, dragging = false;
-  t.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX;
-    dragging = true;
-    t.style.transition = 'none';
-  }, { passive: true });
-  t.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    const dx = e.touches[0].clientX - startX;
-    if (dx > 0) t.style.transform = 'translateX(' + dx + 'px)';
-  }, { passive: true });
-  t.addEventListener('touchend', e => {
-    if (!dragging) return;
-    dragging = false;
-    const dx = e.changedTouches[0].clientX - startX;
-    t.style.transition = '';
-    if (dx > 60) {
-      clearTimeout(toastTimeout);
-      t.style.transform = '';
-      t.classList.remove('show');
-      setTimeout(() => t.classList.add('hidden'), 400);
-    } else {
-      t.style.transform = '';
-    }
-  }, { passive: true });
-}
-
-function showAchieveToast(a) {
-  _initToastSwipe();
-  const t = $id('toast-achieve');
-  $id('toast-icon').textContent = a.icon;
-  $id('toast-name').textContent = a.name;
-  $id('toast-desc').textContent = a.desc + (a.reward ? ' — ' + a.reward.label : '');
-  t.classList.remove('hidden');
-  // Force reflow
-  void t.offsetWidth;
-  t.classList.add('show');
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => {
-    t.classList.remove('show');
-    setTimeout(() => t.classList.add('hidden'), 400);
-  }, 4000);
 }
 
 // ==================== SOUND ====================

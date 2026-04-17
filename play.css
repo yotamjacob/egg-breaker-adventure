@@ -232,6 +232,8 @@
 .reward-log .log-line.log-cucumber{color:#4ade80;text-shadow:0 0 6px #16a34a,1px 1px 0 #000}
 .reward-log .log-line.log-mjolnir{color:#ffe033;text-shadow:0 0 8px #fbbf24,0 0 14px #f59e0b,1px 1px 0 #000}
 .reward-log .log-line.log-freehit{color:#b0bec5;text-shadow:1px 1px 0 #000,-1px -1px 0 #000}
+.reward-log .log-line.log-trophy{color:#fde68a;text-shadow:0 0 6px #fbbf24,0 0 12px #f59e0b,1px 1px 0 #000;animation:log-trophy-flash .6s ease-out}
+@keyframes log-trophy-flash{0%{color:#fff;text-shadow:0 0 14px #fff,0 0 20px #fbbf24}100%{color:#fde68a;text-shadow:0 0 6px #fbbf24,0 0 12px #f59e0b,1px 1px 0 #000}}
 .reward-log .log-line:nth-child(3){opacity:.8}
 .reward-log .log-line:nth-child(4){opacity:.55}
 .reward-log .log-line:nth-child(5){opacity:.25}

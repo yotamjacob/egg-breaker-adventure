@@ -259,6 +259,7 @@ body{
 .flog-row.log-cucumber .flog-text{color:#4ade80;text-shadow:0 0 6px #16a34a}
 .flog-row.log-mjolnir  .flog-text{color:#ffe033;text-shadow:0 0 8px #fbbf24,0 0 14px #f59e0b}
 .flog-row.log-freehit  .flog-text{color:#b0bec5}
+.flog-row.log-trophy   .flog-text{color:#fde68a;text-shadow:0 0 6px #fbbf24,0 0 12px #f59e0b}
 
 /* ---------- Very small screens ---------- */
 @media(max-width:340px){
