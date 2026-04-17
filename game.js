@@ -2790,6 +2790,19 @@ function initCloudSave() {
     // fires (can happen if Supabase auto-refreshes the token immediately after signOut).
     if (_cloudUnlinking && event === 'SIGNED_IN') return;
     if (event === 'SIGNED_OUT') _cloudUnlinking = false;
+    // Enforce the persisted link preference — survives game resets since it lives
+    // outside SAVE_KEY. If the user explicitly unlinked, auto-sign-out any session
+    // that Supabase restores on app restart or hard reset.
+    if (event === 'SIGNED_IN') {
+      try {
+        if (localStorage.getItem('_cloudLinkPref') === 'unlinked') {
+          _oauthLog('AUTH: SIGNED_IN but pref=unlinked — enforcing signOut');
+          _cloudSession = null; _cloudUser = null; _renderCloudModal();
+          _sbClient.auth.signOut().catch(() => {});
+          return;
+        }
+      } catch (e) {}
+    }
     // Cache the full session — gives us a fresh access_token without any network calls.
     // onAuthStateChange fires on TOKEN_REFRESHED too, so _cloudSession stays current.
     _cloudSession = session || null;
@@ -2921,6 +2934,7 @@ function linkGoogleAccount() {
       // _cloudUnlinking prevents onAuthStateChange(SIGNED_IN) from restoring the user
       // if Supabase fires a token refresh right after signOut.
       _cloudUnlinking = true;
+      try { localStorage.setItem('_cloudLinkPref', 'unlinked'); } catch (e) {}
       _cloudUser = null;
       _stopCloudAutoSave();
       closeOverlay('overlay-cloudsave');
@@ -2957,6 +2971,7 @@ function linkGoogleAccount() {
     // and same-page injection (Android implicit flow). _onCloudSignIn reads this flag
     // to show the success snack and reopen the cloud modal after the redirect returns.
     try { sessionStorage.setItem('_oauthPending', '1'); } catch (e) {}
+    try { localStorage.setItem('_cloudLinkPref', 'linked'); } catch (e) {}
     _oauthLog('OAUTH navigating to auth URL');
     window.location.href = data.url;
   }).catch(e => { _oauthLog('OAUTH catch=' + e.message); showShopSnack('⚠️ ' + e.message); });
