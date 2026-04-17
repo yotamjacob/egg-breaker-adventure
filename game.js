@@ -2142,6 +2142,12 @@ function loadPayPalSDK() {
 window.onPlayPurchaseResult = async function(productId, purchaseToken, success, error) {
   _payLog('onPlayPurchaseResult pid=' + productId + ' success=' + success + ' error=' + (error || 'none'));
   if (!success || !purchaseToken) {
+    // code 7 = ITEM_ALREADY_OWNED — silently restore rather than showing an error
+    if (error && String(error).includes('7')) {
+      _payLog('ITEM_ALREADY_OWNED — triggering silent restore');
+      restorePurchases();
+      return;
+    }
     if (error) showShopSnack('⚠️ ' + error);
     return;
   }
