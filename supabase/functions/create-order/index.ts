@@ -66,26 +66,21 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    // Block re-purchase of one-time products (check by device AND by user account)
+    // Block re-purchase of one-time products — check PayPal AND Play Billing tables,
+    // by device_id and by user_id, so buying on one platform blocks the other.
     if (product.oneTime) {
-      const deviceCheck = supabase
-        .from('purchases')
-        .select('id')
-        .eq('device_id', device_id)
-        .eq('product_id', product_id)
-        .eq('status', 'completed')
-        .maybeSingle()
-      const userCheck = user_id
-        ? supabase
-            .from('purchases')
-            .select('id')
-            .eq('user_id', user_id)
-            .eq('product_id', product_id)
-            .eq('status', 'completed')
-            .maybeSingle()
-        : Promise.resolve({ data: null })
-      const [{ data: byDevice }, { data: byUser }] = await Promise.all([deviceCheck, userCheck])
-      if (byDevice || byUser) throw new Error('Already purchased')
+      const checks = [
+        supabase.from('purchases').select('id').eq('device_id', device_id).eq('product_id', product_id).eq('status', 'completed').maybeSingle(),
+        supabase.from('play_purchases').select('id').eq('device_id', device_id).eq('product_id', product_id).eq('status', 'completed').maybeSingle(),
+      ]
+      if (user_id) {
+        checks.push(
+          supabase.from('purchases').select('id').eq('user_id', user_id).eq('product_id', product_id).eq('status', 'completed').maybeSingle(),
+          supabase.from('play_purchases').select('id').eq('user_id', user_id).eq('product_id', product_id).eq('status', 'completed').maybeSingle(),
+        )
+      }
+      const results = await Promise.all(checks)
+      if (results.some(r => r.data)) throw new Error('Already purchased')
     }
 
     const token = await getPayPalToken(

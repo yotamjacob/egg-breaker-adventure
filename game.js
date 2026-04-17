@@ -2400,7 +2400,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (name === 'achieve') renderAchievements();
   if (name === 'premium') {
     renderPremiumShop();
-    if (_isAndroidBilling() && _cloudUser && !_premiumSilentRestoreDone) {
+    if (_cloudUser && !_premiumSilentRestoreDone) {
       _premiumSilentRestoreDone = true;
       restorePurchases({ silent: true });
     }
@@ -3187,6 +3187,9 @@ function _applyCloudSave(saveData) {
     saveGame();
     renderAll();
     MUSIC.play(curMonkey().id);
+    // Premium items are stored separately from game progress — re-apply after
+    // loading cloud save so items bought on any platform are restored automatically.
+    if (_cloudUser) restorePurchases({ silent: true });
   } catch (e) {
     console.warn('[cloud] restore failed:', e);
   }
