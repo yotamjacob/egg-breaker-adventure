@@ -3,7 +3,7 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '1.0.6';
+const CACHE_VERSION = '1.0.7';
 const CACHE_NAME    = 'eba-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/bundle.min.css',
   '/bundle.min.js',
+  '/favicon.ico',
   '/icon-192.png',
   '/icon-192-maskable.png',
   '/icon-512.png',
