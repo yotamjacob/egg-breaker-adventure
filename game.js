@@ -679,10 +679,10 @@ const NO_HAMMER_MSGS = [
 ];
 let _shopNudgeDone = false;
 function noHammerMsg() {
-  const shopTab = document.querySelector('.nav-tab[data-tab="shop"]');
-  if (shopTab) shopTab.classList.add('shop-nudge');
   if (!_shopNudgeDone) {
     _shopNudgeDone = true;
+    const shopTab = document.querySelector('.nav-tab[data-tab="shop"]');
+    if (shopTab) shopTab.classList.add('shop-nudge');
     return 'Out of hammers — buy more in the Shop!';
   }
   return NO_HAMMER_MSGS[Math.floor(Math.random() * NO_HAMMER_MSGS.length)];
