@@ -1221,7 +1221,12 @@ function _doStarfall(message, cat) {
 
   // Break all unbroken eggs in sequence — century eggs are immune
   const unbroken = [];
-  G.roundEggs.forEach((e, i) => { if (!e.broken && !e.expired && e.type !== 'century') unbroken.push(i); });
+  let immuneCount = 0;
+  G.roundEggs.forEach((e, i) => {
+    if (!e.broken && !e.expired && e.type !== 'century') unbroken.push(i);
+    else if (!e.broken && !e.expired && e.type === 'century') immuneCount++;
+  });
+  if (immuneCount > 0) msg('🌀 Century egg' + (immuneCount > 1 ? 's are' : ' is') + ' immune to Starfall!', 'specials');
 
   unbroken.forEach((idx, i) => {
     setTimeout(() => {

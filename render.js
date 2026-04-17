@@ -368,7 +368,7 @@ function renderMultQueue() {
     } else if (selected > 0) {
       topLabel = 'x' + val; bottomLabel = selected + '/' + owned;
     } else {
-      topLabel = 'x' + val; bottomLabel = '×' + owned;
+      topLabel = 'x' + val; bottomLabel = String(owned);
     }
     badge.innerHTML = '<span class="mc-val">' + topLabel + '</span>' +
       (bottomLabel ? '<span class="mc-count">' + bottomLabel + '</span>' : '');

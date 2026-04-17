@@ -120,6 +120,8 @@ Deno.serve(async (req) => {
     if (!verifyRes.ok)         throw new Error('Play API error: ' + (purchase.error?.message ?? verifyRes.status))
     if (purchase.purchaseState !== 0) throw new Error('Purchase not completed (state: ' + purchase.purchaseState + ')')
 
+    const quantity = (purchase.quantity && purchase.quantity > 1) ? purchase.quantity : 1
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
@@ -158,8 +160,13 @@ Deno.serve(async (req) => {
       status:   'completed',
     })
 
+    const baseReward = REWARDS[product_id] || {}
+    const reward = Object.fromEntries(
+      Object.entries(baseReward).map(([k, v]) => [k, typeof v === 'number' ? v * quantity : v])
+    )
+
     return new Response(
-      JSON.stringify({ success: true, reward: REWARDS[product_id] }),
+      JSON.stringify({ success: true, reward, quantity }),
       { headers: { ...hdrs, 'Content-Type': 'application/json' } },
     )
   } catch (err) {
