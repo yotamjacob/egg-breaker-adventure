@@ -1473,10 +1473,24 @@ function consumeMultiplier() {
 }
 
 // ==================== HAMMER REGEN ====================
-function startRegen() {
+function applyOfflineRegen(elapsedSec) {
+  if (G.hammers >= G.maxH || elapsedSec <= 0) return;
+  const interval = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  if (elapsedSec >= G.regenCD) {
+    const remaining = elapsedSec - G.regenCD;
+    const earned    = 1 + Math.floor(remaining / interval);
+    G.hammers  = Math.min(G.maxH, G.hammers + earned);
+    G.regenCD  = interval - (remaining % interval);
+    if (G.regenCD <= 0) G.regenCD = interval;
+  } else {
+    G.regenCD -= elapsedSec;
+  }
+}
+
+function startRegen(preserveCD = false) {
   // Only regen when below max — overflow hammers are preserved
   if (G.hammers >= G.maxH) { clearInterval(regenInt); regenInt = null; return; }
-  G.regenCD = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  if (!preserveCD) G.regenCD = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
   regenInt = setInterval(() => {
     if (G.hammers >= G.maxH) {
       clearInterval(regenInt); regenInt = null;
@@ -2678,13 +2692,7 @@ if (!G.firstPlayDate) { G.firstPlayDate = Date.now(); }
 // Offline hammer regen — apply hammers earned while the app was closed
 if (G._savedAt > 0 && G.hammers < G.maxH) {
   const elapsed = Math.floor((Date.now() - G._savedAt) / 1000);
-  if (elapsed > 0) {
-    const interval = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
-    if (elapsed >= G.regenCD) {
-      const earned = 1 + Math.floor((elapsed - G.regenCD) / interval);
-      G.hammers = Math.min(G.maxH, G.hammers + earned);
-    }
-  }
+  applyOfflineRegen(elapsed);
 }
 
 if (G.soundOn === false && SFX.isOn()) SFX.toggle();
@@ -2719,6 +2727,23 @@ if (G.hammers < G.maxH && !regenInt) startRegen();
 if (!G._tourDone && G.totalEggs === 0) {
   setTimeout(startTour, 500);
 }
+
+// Hammer regen catch-up when app is minimized / backgrounded
+let _hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    _hiddenAt = Date.now();
+  } else if (_hiddenAt > 0) {
+    const elapsed = Math.floor((Date.now() - _hiddenAt) / 1000);
+    if (elapsed > 0 && G.hammers < G.maxH) {
+      applyOfflineRegen(elapsed);
+      if (regenInt) { clearInterval(regenInt); regenInt = null; }
+      if (G.hammers < G.maxH) startRegen(true);
+      updateResources();
+    }
+    _hiddenAt = 0;
+  }
+});
 
 // Feathers click → Album items
 $id('res-b-wrap').addEventListener('click', () => {
