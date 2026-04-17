@@ -55,7 +55,6 @@ const DEFAULT_STATE = {
   // Shop upgrades (unique one-time purchases)
   owned_spyglass: false, owned_luckycharm: false, owned_goldmagnet: false,
   owned_eggradar: false, owned_doubledaily: false, owned_starsaver: false,
-  // One-time hints
   _spyglassHintShown: false,
   // Secrets
   _secretFlip: false, _secretOuch: false, _secretChicken: false, _secretStrikes: false,
@@ -1251,7 +1250,7 @@ function _doStarfall(message, cat) {
 
 
 // ==================== COLLECTION / STAGE ====================
-function checkCollectionComplete(suppressFlash, viaFeathers) {
+function checkCollectionComplete(suppressFlash) {
   const prog = curProgress();
   const si = curActiveStage();
   const stage = curStage();
@@ -1276,47 +1275,39 @@ function checkCollectionComplete(suppressFlash, viaFeathers) {
     SFX.play('tier');
 
     if (newTier === 1) {
-      // Bronze → Silver: +5 hammers (egg-earned only)
-      if (!viaFeathers) {
-        const refill = CONFIG.tierRewards.silver.hammerRefill;
-        G.hammers = Math.min(G.maxH, G.hammers + refill);
-        G.tierHammerRefills = (G.tierHammerRefills || 0) + refill;
-        msg('⬆️ Silver Tier! ' + stage.name + ' +' + refill + ' 🔨', 'tiers');
-      } else {
-        msg('⬆️ Silver Tier! ' + stage.name, 'tiers');
-      }
+      // Bronze → Silver: +5 hammers
+      const refill = CONFIG.tierRewards.silver.hammerRefill;
+      G.hammers = Math.min(G.maxH, G.hammers + refill);
+      G.tierHammerRefills = (G.tierHammerRefills || 0) + refill;
+      msg('⬆️ Silver Tier! ' + stage.name + ' +' + refill + ' 🔨', 'tiers');
 
     } else if (newTier === 2) {
-      // Silver → Gold: max hammers + +7 hammers (egg-earned only) + unlock next stage
+      // Silver → Gold: max hammers + +7 hammers + unlock next stage
       const reward = CONFIG.tierRewards.gold;
       G.maxH += reward.maxHammers;
-      if (!viaFeathers) {
-        G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
-        G.tierHammerRefills = (G.tierHammerRefills || 0) + reward.hammerRefill;
-      }
+      G.hammers = Math.min(G.maxH, G.hammers + reward.hammerRefill);
+      G.tierHammerRefills = (G.tierHammerRefills || 0) + reward.hammerRefill;
       // Unlock next stage if this is the highest
       if (si >= prog.stage && si < curMonkey().stages.length - 1) {
         prog.stage = si + 1;
       }
       const nextName = si < curMonkey().stages.length - 1
         ? curMonkey().stages[si + 1].name : null;
-      msg('🥇 Gold Tier! ' + stage.name + (!viaFeathers ? ' +' + reward.hammerRefill + ' 🔨' : '') + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
+      msg('🥇 Gold Tier! ' + stage.name + ' +' + reward.hammerRefill + ' 🔨' + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
 
     } else if (newTier >= 3) {
-      // Gold → Complete: banana reward + +10 hammers (egg-earned only)
+      // Gold → Complete: banana reward + +10 hammers
       track('stage-complete', { monkey: curMonkey().name, stage: stage.name });
       G.stagesCompleted++;
       G.crystalBananas += CONFIG.crystalBananasPerStage;
-      if (!viaFeathers) {
-        const refill = CONFIG.tierRewards.complete.hammerRefill;
-        G.hammers = Math.min(G.maxH, G.hammers + refill);
-        G.tierHammerRefills = (G.tierHammerRefills || 0) + refill;
-      }
+      const refill = CONFIG.tierRewards.complete.hammerRefill;
+      G.hammers = Math.min(G.maxH, G.hammers + refill);
+      G.tierHammerRefills = (G.tierHammerRefills || 0) + refill;
       // Also unlock next stage if not already
       if (si >= prog.stage && si < curMonkey().stages.length - 1) {
         prog.stage = si + 1;
       }
-      msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌' + (!viaFeathers ? ' +' + CONFIG.tierRewards.complete.hammerRefill + ' 🔨' : ''), 'tiers');
+      msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌 +' + refill + ' 🔨', 'tiers');
       // Check if ALL stages are complete
       if (prog.tiers.every(t => t >= 3)) {
         prog.completed = true;
@@ -1992,7 +1983,7 @@ function buyAlbumItem(stageIdx, itemIdx, cost) {
   const item = monkey.stages[stageIdx].collection.items[itemIdx];
   msg('Bought ' + item[0] + ' ' + item[1] + '!', 'shop');
 
-  checkCollectionComplete(true, true);
+  checkCollectionComplete(true);
   checkAchievements();
   updateResources();
   updateStageBar();
