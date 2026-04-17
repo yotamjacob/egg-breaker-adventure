@@ -832,7 +832,7 @@ function smashEgg(index) {
 
   if (hasBonus('freeEgg') && Math.random() < 0.03) {
     G.hammers = Math.min(G.maxH, G.hammers + 1);
-    msg('Free hit! (Chef\'s Hat)', 'specials');
+    msg('Free hit! (Chef\'s Hat)', 'empty');
   }
 
   if (!regenInt && G.hammers < G.maxH) startRegen();
