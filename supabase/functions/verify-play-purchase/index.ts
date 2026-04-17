@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: hdrs })
 
   try {
-    const { device_id, product_id, purchase_token } = await req.json()
+    const { device_id, product_id, purchase_token, user_id } = await req.json()
     if (!device_id || !product_id || !purchase_token) throw new Error('Missing fields')
     if (!REWARDS[product_id]) throw new Error('Unknown product')
 
@@ -159,6 +159,7 @@ Deno.serve(async (req) => {
       product_id,
       purchase_token,
       order_id: purchase.orderId ?? null,
+      user_id:  user_id ?? null,
       status:   'completed',
     })
 

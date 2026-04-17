@@ -92,7 +92,7 @@ const PREMIUM_KEY = 'eba_premium';
 // Fields that must survive resets and save corruption — written on every purchase,
 // merged back on every load (premium store always wins over main save).
 const PREMIUM_FIELDS = [
-  'premium_starter_pack', 'premiumPurchases',
+  'premium_starter_pack', 'premiumPurchases', 'deviceId',
   'owned_luckycharm', 'owned_goldmagnet', 'owned_eggradar',
   'owned_doubledaily', 'owned_starsaver',
 ];
@@ -2159,7 +2159,7 @@ window.onPlayPurchaseResult = async function(productId, purchaseToken, success, 
       res = await fetch('/api/verify-play-purchase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ device_id: getDeviceId(), product_id: productId, purchase_token: purchaseToken }),
+        body: JSON.stringify({ device_id: getDeviceId(), product_id: productId, purchase_token: purchaseToken, user_id: _cloudUser ? _cloudUser.id : null }),
       });
     } catch (fetchErr) {
       _payLog('verify FETCH_THROW: ' + fetchErr.message);
@@ -2294,7 +2294,7 @@ async function restorePurchases() {
     const res = await fetch('/api/restore-purchases', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ device_id: getDeviceId() }),
+      body: JSON.stringify({ device_id: getDeviceId(), user_id: _cloudUser ? _cloudUser.id : null }),
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);

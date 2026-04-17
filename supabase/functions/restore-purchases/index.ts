@@ -47,13 +47,22 @@ async function getPayPalToken(clientId: string, secret: string): Promise<string>
   return data.access_token
 }
 
+function addUnique(
+  purchases: { product_id: string; reward: object }[],
+  product_id: string
+) {
+  if (!purchases.find(p => p.product_id === product_id)) {
+    purchases.push({ product_id, reward: REWARDS[product_id] ?? {} })
+  }
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin')
   const hdrs = corsHeaders(origin)
   if (req.method === 'OPTIONS') return new Response('ok', { headers: hdrs })
 
   try {
-    const { device_id } = await req.json()
+    const { device_id, user_id } = await req.json()
     if (!device_id) throw new Error('Missing device_id')
 
     const supabase = createClient(
@@ -63,34 +72,43 @@ Deno.serve(async (req) => {
 
     const purchases: { product_id: string; reward: object }[] = []
 
-    // ── 1. PayPal completed purchases ──────────────────────────────────────
-    const { data: completedRows, error: err1 } = await supabase
+    // ── 1. PayPal completed — by device_id ────────────────────────────────
+    const { data: paypalByDevice } = await supabase
       .from('purchases')
       .select('product_id')
       .eq('device_id', device_id)
       .eq('status', 'completed')
-    if (err1) throw new Error(err1.message)
+    for (const row of (paypalByDevice || [])) addUnique(purchases, row.product_id)
 
-    for (const row of (completedRows || [])) {
-      purchases.push({ product_id: row.product_id, reward: REWARDS[row.product_id] ?? {} })
+    // ── 2. PayPal completed — by user_id (fallback for device_id changes) ─
+    if (user_id) {
+      const { data: paypalByUser } = await supabase
+        .from('purchases')
+        .select('product_id')
+        .eq('user_id', user_id)
+        .eq('status', 'completed')
+      for (const row of (paypalByUser || [])) addUnique(purchases, row.product_id)
     }
 
-    // ── 2. Google Play purchases ───────────────────────────────────────────
-    const { data: playRows, error: err2 } = await supabase
+    // ── 3. Google Play completed — by device_id ───────────────────────────
+    const { data: playByDevice } = await supabase
       .from('play_purchases')
       .select('product_id')
       .eq('device_id', device_id)
       .eq('status', 'completed')
-    if (err2) throw new Error(err2.message)
+    for (const row of (playByDevice || [])) addUnique(purchases, row.product_id)
 
-    for (const row of (playRows || [])) {
-      // Avoid duplicates if same product somehow appears in both tables
-      if (!purchases.find(p => p.product_id === row.product_id)) {
-        purchases.push({ product_id: row.product_id, reward: REWARDS[row.product_id] ?? {} })
-      }
+    // ── 4. Google Play completed — by user_id ────────────────────────────
+    if (user_id) {
+      const { data: playByUser } = await supabase
+        .from('play_purchases')
+        .select('product_id')
+        .eq('user_id', user_id)
+        .eq('status', 'completed')
+      for (const row of (playByUser || [])) addUnique(purchases, row.product_id)
     }
 
-    // ── 3. Pending PayPal purchases — try to capture ───────────────────────
+    // ── 5. Pending PayPal — try to capture ───────────────────────────────
     const { data: pendingRows } = await supabase
       .from('purchases')
       .select('product_id, paypal_order_id')
@@ -104,7 +122,7 @@ Deno.serve(async (req) => {
           Deno.env.get('PAYPAL_CLIENT_ID')!,
           Deno.env.get('PAYPAL_SECRET')!
         )
-      } catch (_) { /* skip if token fetch fails */ }
+      } catch (_) {}
 
       if (paypalToken) {
         for (const p of pendingRows) {
@@ -126,11 +144,9 @@ Deno.serve(async (req) => {
                 .from('purchases')
                 .update({ status: 'completed' })
                 .eq('paypal_order_id', p.paypal_order_id)
-              if (!purchases.find(x => x.product_id === p.product_id)) {
-                purchases.push({ product_id: p.product_id, reward: REWARDS[p.product_id] ?? {} })
-              }
+              addUnique(purchases, p.product_id)
             }
-          } catch (_) { /* skip individual capture failures */ }
+          } catch (_) {}
         }
       }
     }
