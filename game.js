@@ -1593,8 +1593,12 @@ function toggleAutoBuy() {
 let _snackTimeout = null;
 function showMultInfo() {
   showConfirm('💡', 'How Multipliers Work',
-    'Tap a chip to select it. Selected mults ADD together — x2 + x3 = x5. Applies to gold, stars, feathers and hammers.\n\nDoes NOT apply to: starfall, hexed eggs, or collection items (those give bonus gold instead).\n\nTip: save big mults for gold or crystal eggs!',
-    null, 'Got it'
+    '1. Tap a chip to activate it<br>' +
+    '2. Chips ADD: x2 + x3 = x5<br>' +
+    '3. Boosts gold, stars, feathers & hammers<br>' +
+    '4. Skips starfall, hex & collection items<br>' +
+    '5. Save big mults for Gold &amp; Crystal eggs!',
+    null, 'Got it!'
   );
 }
 
@@ -1673,17 +1677,19 @@ function showAlert(icon, text) {
 function showConfirm(icon, title, detail, onYes, yesText) {
   const yesBtn = $id('confirm-yes');
   const noBtn  = $id('overlay-confirm').querySelector('.confirm-no');
-  $id('confirm-icon').textContent  = icon;
+  $id('confirm-icon').textContent = icon;
   $id('confirm-title').textContent = title;
-  $id('confirm-detail').textContent = detail;
+  $id('confirm-detail').innerHTML = detail;
   if (onYes) {
     yesBtn.style.display = '';
     yesBtn.textContent   = yesText || 'Buy';
     yesBtn.onclick       = function() { closeOverlay('overlay-confirm'); onYes(); };
-    if (noBtn) noBtn.textContent = 'Cancel';
+    if (noBtn) { noBtn.style.display = ''; noBtn.textContent = 'Cancel'; }
   } else {
-    yesBtn.style.display = 'none';
-    if (noBtn) noBtn.textContent = yesText || 'Got it';
+    if (noBtn) noBtn.style.display = 'none';
+    yesBtn.style.display = '';
+    yesBtn.textContent   = yesText || 'Got it';
+    yesBtn.onclick       = function() { closeOverlay('overlay-confirm'); };
   }
   $id('overlay-confirm').classList.remove('hidden');
 }
