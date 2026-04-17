@@ -187,17 +187,22 @@ public class MainActivity extends Activity {
         if (data == null || webView == null) return;
 
         String scheme = data.getScheme();
-        if ("eggbreakeradventures".equals(scheme)) {
-            String fragment = data.getFragment();
-            String query    = data.getQuery();
+        String fragment = data.getFragment();
+        String query    = data.getQuery();
 
-            if (fragment != null) {
+        boolean isAppLink = "https".equals(scheme) &&
+                            "egg-breaker-adventures.vercel.app".equals(data.getHost());
+
+        if ("eggbreakeradventures".equals(scheme) || isAppLink) {
+            if (fragment != null && fragment.contains("access_token")) {
+                // Implicit flow — inject token via JS so the page doesn't reload
+                // and sessionStorage (_oauthPending flag) stays intact.
                 jsLog("onNewIntent: implicit, injecting via JS");
                 final String escaped = fragment.replace("\\", "\\\\").replace("'", "\\'");
                 webView.post(() -> webView.evaluateJavascript(
                     "if(typeof handleAndroidOAuthCallback==='function')" +
                     "handleAndroidOAuthCallback('" + escaped + "')", null));
-            } else if (query != null) {
+            } else if (query != null && query.contains("code=")) {
                 String gameUrl = GAME_URL + "?" + query;
                 jsLog("onNewIntent: PKCE, reloading=" + gameUrl.substring(0, Math.min(gameUrl.length(), 100)));
                 webView.loadUrl(gameUrl);
