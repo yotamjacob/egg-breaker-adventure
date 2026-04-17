@@ -31,7 +31,7 @@ const ITEM_QUOTES = {
     // Stage 4 – Mountain Peak
     'Eagle':              '"The eagles are coming!"',
     'Mountain Goat':      '"The GOAT."',
-    'Bear':               '"Bearly enough hammer left right?"',
+    'Bear':               '"Bearly enough hammers left right?"',
     'Ancient Pickaxe':    '"And my axe."',
     'Snowy Owl':          '"Hedwig? Not familiar."',
     'Peak Diamond':       '"Diamonds are forever."',

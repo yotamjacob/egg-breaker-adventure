@@ -1,18 +1,23 @@
----design---
-go over quotes and improve them manually
-[ ] (premium) exclusive cosmetic(s) — premium-only items never available through gold grind: e.g. special monkey skin variant, animated egg trail, limited-edition hat design. purely cosmetic, no gameplay advantage.
-
----features and playability---
+(premium) exclusive cosmetic(s) — premium-only items never available through gold grind: e.g. special monkey skin variant, animated egg trail, limited-edition hat design. purely cosmetic, no gameplay advantage.
 gavel - judge hammer
 stop hammer time?
 famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 Prestige?
-2. item Combos - dark egg and bat give bonus? odin + muijlnir?
+item Combos - dark egg and bat give bonus? odin + muijlnir?
 
----bugs and tech debt---
-
----solo dev / scale readiness---
 ## android (play store)
 [ ] recruit 12 closed testers + run 14-day closed test (required before production access)
 [ ] apply for production access → go live
-[ ] add google pay
+
+-bugs and changes-
+Moving stages will not respawn eggs
+Starfall needs better wrap
+Starting hammers- 85 but max is 60
+Premium items - failed to fetch snackbar appears
+Starfall glitter animation is missing
+Achievement will swipe sideways
+Mult chips need better wrap - amount used on bottom and mult size on top
+Got this weird log from a crystal egg
+Anothe crystal weird log where
+Better rewards in black
+Space cadet music a bit lower

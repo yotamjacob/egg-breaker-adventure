@@ -886,6 +886,9 @@ function renderPremiumShop() {
         '</div>'
       );
     }).join('') +
+    '</div>' +
+    '<div class="premium-restore">' +
+      '<button class="restore-btn" onclick="restorePurchases()">Restore Purchases</button>' +
     '</div>';
   setTimeout(initPremiumShop, 50);
 }

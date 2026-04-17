@@ -1194,6 +1194,16 @@ function _doStarfall(message, cat) {
   wrap.style.animation = 'starfall-glow 1s ease';
   setTimeout(() => wrap.style.animation = '', 1000);
 
+  // Scatter gold sparkles across the tray on activation
+  const wRect = wrap.getBoundingClientRect();
+  for (let i = 0; i < 10; i++) {
+    Particles.sparkle(
+      Math.random() * wRect.width,
+      Math.random() * wRect.height * 0.75,
+      14, '#FFD700'
+    );
+  }
+
   // Break all unbroken eggs in sequence — century eggs are immune
   const unbroken = [];
   G.roundEggs.forEach((e, i) => { if (!e.broken && !e.expired && e.type !== 'century') unbroken.push(i); });
@@ -1440,6 +1450,10 @@ function switchStage(stageIdx) {
   newRound();
   updateStageBar();
   saveGame();
+  // Clear stale eggs so the tray re-renders with new stage's eggs
+  const tray = $id('egg-tray');
+  if (tray) tray.innerHTML = '';
+  requestAnimationFrame(renderEggTray);
 }
 
 function switchMonkey(index) {
@@ -2114,15 +2128,24 @@ async function initPremiumShop() {
       return data.paypal_order_id;
     };
 
-    const captureOrder = async (orderId) => {
-      const res = await fetch(_SUPABASE_URL + '/functions/v1/capture-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
-        body: JSON.stringify({ device_id: deviceId, paypal_order_id: orderId, product_id: pid }),
-      });
-      const result = await res.json();
-      if (result.error) throw new Error(result.error);
-      return result;
+    const captureOrder = async (orderId, attempt) => {
+      attempt = attempt || 0;
+      try {
+        const res = await fetch(_SUPABASE_URL + '/functions/v1/capture-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
+          body: JSON.stringify({ device_id: deviceId, paypal_order_id: orderId, product_id: pid }),
+        });
+        const result = await res.json();
+        if (result.error) throw new Error(result.error);
+        return result;
+      } catch (e) {
+        if (attempt < 2) {
+          await new Promise(r => setTimeout(r, 1500));
+          return captureOrder(orderId, attempt + 1);
+        }
+        throw e;
+      }
     };
 
     paypal.Buttons({
@@ -2132,10 +2155,35 @@ async function initPremiumShop() {
         try {
           const result = await captureOrder(data.orderID);
           applyPurchaseReward(pid, result.reward);
-        } catch (e) { msg('Payment error: ' + e.message); }
+        } catch (e) {
+          showShopSnack('⚠️ Delivery failed — tap Restore Purchases below.');
+          msg('Payment error: ' + e.message);
+        }
       },
       onError: () => msg('Payment failed. Please try again.'),
     }).render('#paypal-btn-' + pid);
+  }
+}
+
+async function restorePurchases() {
+  showShopSnack('Checking purchases...');
+  try {
+    const res = await fetch(_SUPABASE_URL + '/functions/v1/restore-purchases', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
+      body: JSON.stringify({ device_id: getDeviceId() }),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const purchases = data.purchases || [];
+    if (purchases.length === 0) {
+      showShopSnack('No purchases found to restore.');
+      return;
+    }
+    purchases.forEach(p => applyPurchaseReward(p.product_id, p.reward));
+    showShopSnack(purchases.length + ' purchase' + (purchases.length > 1 ? 's' : '') + ' restored!');
+  } catch (e) {
+    showShopSnack('Restore failed: ' + (e.message || 'Check connection'));
   }
 }
 

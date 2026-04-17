@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.8.93';
+const VERSION = '1.8.94';
 
 const CONFIG = {
 
@@ -188,8 +188,8 @@ const CONFIG = {
   // ----------------------------------------------------------
   // 14. STARTING RESOURCES
   // ----------------------------------------------------------
-  startingHammers:     60,
-  startingMaxHammers:  60,
+  startingHammers:     75,
+  startingMaxHammers:  75,
   startingGold:        1000,
 
   // ----------------------------------------------------------

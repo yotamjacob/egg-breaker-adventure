@@ -369,3 +369,6 @@
 .paypal-btn-wrap{width:100%;min-height:40px;margin-top:6px}
 .play-buy-btn{width:100%;margin-top:6px;padding:8px 4px;background:var(--gold);color:#000;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.5px}
 .play-buy-btn:active{opacity:.8}
+.premium-restore{text-align:center;padding:8px 0 16px}
+.restore-btn{background:none;border:none;color:var(--gray);font-size:10px;cursor:pointer;text-decoration:underline;letter-spacing:.5px}
+.restore-btn:active{opacity:.6}
