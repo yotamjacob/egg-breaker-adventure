@@ -87,7 +87,33 @@ function initMonkeys() {
 }
 
 // ==================== SAVE / LOAD ====================
-const SAVE_KEY = 'eggBreaker_v2';
+const SAVE_KEY    = 'eggBreaker_v2';
+const PREMIUM_KEY = 'eba_premium';
+// Fields that must survive resets and save corruption — written on every purchase,
+// merged back on every load (premium store always wins over main save).
+const PREMIUM_FIELDS = [
+  'premium_starter_pack', 'premiumPurchases',
+  'owned_luckycharm', 'owned_goldmagnet', 'owned_eggradar',
+  'owned_doubledaily', 'owned_starsaver',
+];
+
+function savePremium() {
+  const data = {};
+  for (const k of PREMIUM_FIELDS) data[k] = G[k];
+  try { localStorage.setItem(PREMIUM_KEY, JSON.stringify(data)); } catch (_) {}
+}
+
+function loadPremium() {
+  try {
+    const raw = localStorage.getItem(PREMIUM_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    for (const k of PREMIUM_FIELDS) {
+      // Only apply truthy values — never downgrade a field back to false/0
+      if (data[k]) G[k] = data[k];
+    }
+  } catch (_) {}
+}
 
 function saveGame() {
   const now = Date.now();
@@ -159,20 +185,14 @@ function loadGame() {
     }
   } catch (_) {}
   migrateSave(G);
+  loadPremium(); // premium store always wins — survives save corruption or wipes
 }
 
 function resetGame() {
   showConfirm('⚠️', 'Reset ALL progress?', 'Trophies, album and gold will be wiped. Premium purchases are kept.', function() {
-    // Preserve real-money premium purchases before wipe
-    const premiumKeys = ['premium_starter_pack','premiumPurchases',
-      'owned_luckycharm','owned_goldmagnet','owned_eggradar','owned_doubledaily','owned_starsaver'];
-    const preserved = {};
-    for (const k of premiumKeys) preserved[k] = G[k];
-
     localStorage.removeItem(SAVE_KEY);
     G = {
       ...DEFAULT_STATE,
-      ...preserved,
       achieved: [],
       discoveredEggs: ['normal','silver','gold'],
       multQueue: [],
@@ -184,6 +204,7 @@ function resetGame() {
       monkeys: initMonkeys(),
       roundEggs: null,
     };
+    loadPremium(); // restore premium on top of fresh state
     if (regenInt) { clearInterval(regenInt); regenInt = null; }
     invalidateBonusCache();
     invalidateAchieveCache();
@@ -2293,6 +2314,7 @@ function applyPurchaseReward(productId, reward) {
   track('premium-purchase', { product: productId, quantity: qty });
   checkAchievements();
   saveGame();
+  savePremium(); // write to isolated premium store — survives resets and save wipes
   updateResources();
   renderPremiumShop();
   const parts = [];
