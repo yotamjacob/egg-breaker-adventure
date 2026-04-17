@@ -357,6 +357,7 @@ function curStage() { return curMonkey().stages[curActiveStage()]; }
 let _roundPending  = false;
 let _spawningRound = false;
 let _centuryCooldown = 0; // rounds remaining before century can spawn again
+const _stageEggsCache = {}; // session-level per-stage egg snapshots: key = `${monkeyIdx}_${stageIdx}`
 
 function newRound() {
   _roundPending  = false;
@@ -1445,12 +1446,30 @@ function startRegen() {
 function switchStage(stageIdx) {
   const prog = curProgress();
   if (stageIdx > prog.stage) return;
+
+  // Save the current stage's eggs into the session cache
+  const fromStage = curActiveStage();
+  const keyFrom = G.activeMonkey + '_' + fromStage;
+  const keyTo   = G.activeMonkey + '_' + stageIdx;
+  if (G.roundEggs) {
+    _stageEggsCache[keyFrom] = G.roundEggs.map(egg => {
+      const { _smashing, _pos, ...clean } = egg;
+      return clean;
+    });
+  }
+
   prog.activeStage = stageIdx;
-  G.roundEggs = null;
-  newRound();
+
+  // Restore that stage's eggs if we've visited it this session, else spawn fresh
+  if (_stageEggsCache[keyTo]) {
+    G.roundEggs = _stageEggsCache[keyTo];
+  } else {
+    G.roundEggs = null;
+    newRound();
+  }
+
   updateStageBar();
   saveGame();
-  // Clear stale eggs so the tray re-renders with new stage's eggs
   const tray = $id('egg-tray');
   if (tray) tray.innerHTML = '';
   requestAnimationFrame(renderEggTray);
@@ -2128,24 +2147,16 @@ async function initPremiumShop() {
       return data.paypal_order_id;
     };
 
-    const captureOrder = async (orderId, attempt) => {
-      attempt = attempt || 0;
-      try {
-        const res = await fetch(_SUPABASE_URL + '/functions/v1/capture-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
-          body: JSON.stringify({ device_id: deviceId, paypal_order_id: orderId, product_id: pid }),
-        });
-        const result = await res.json();
-        if (result.error) throw new Error(result.error);
-        return result;
-      } catch (e) {
-        if (attempt < 2) {
-          await new Promise(r => setTimeout(r, 1500));
-          return captureOrder(orderId, attempt + 1);
-        }
-        throw e;
-      }
+    const captureOrder = async (orderId) => {
+      // Use same-origin Vercel proxy to avoid any cross-origin fetch issues
+      const res = await fetch('/api/capture-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ device_id: deviceId, paypal_order_id: orderId, product_id: pid }),
+      });
+      const result = await res.json();
+      if (result.error) throw new Error(result.error);
+      return result;
     };
 
     paypal.Buttons({
@@ -2168,9 +2179,9 @@ async function initPremiumShop() {
 async function restorePurchases() {
   showShopSnack('Checking purchases...');
   try {
-    const res = await fetch(_SUPABASE_URL + '/functions/v1/restore-purchases', {
+    const res = await fetch('/api/restore-purchases', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ device_id: getDeviceId() }),
     });
     const data = await res.json();
