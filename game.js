@@ -2104,6 +2104,7 @@ function _isAndroidBilling() {
 }
 
 async function initPremiumShop() {
+  _payLog('initPremiumShop android=' + _isAndroidBilling());
   // Android TWA: use native Play Billing via AndroidBridge
   if (_isAndroidBilling()) {
     for (const product of PREMIUM_PRODUCTS) {
@@ -2137,13 +2138,25 @@ async function initPremiumShop() {
     const price = product.price.replace('$', '');
 
     const createOrder = async () => {
-      const res = await fetch(_SUPABASE_URL + '/functions/v1/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
-        body: JSON.stringify({ device_id: deviceId, product_id: pid }),
-      });
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
+      _payLog('createOrder START pid=' + pid);
+      let res;
+      try {
+        res = await fetch(_SUPABASE_URL + '/functions/v1/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
+          body: JSON.stringify({ device_id: deviceId, product_id: pid }),
+        });
+      } catch (fetchErr) {
+        _payLog('createOrder FETCH_THROW: ' + fetchErr.message);
+        throw fetchErr;
+      }
+      _payLog('createOrder HTTP=' + res.status);
+      const text = await res.text();
+      _payLog('createOrder BODY=' + text.slice(0, 200));
+      let data;
+      try { data = JSON.parse(text); } catch (e) { throw new Error('createOrder parse error: ' + text.slice(0,80)); }
+      if (data.error) { _payLog('createOrder APP_ERROR: ' + data.error); throw new Error(data.error); }
+      _payLog('createOrder OK orderId=' + data.paypal_order_id);
       return data.paypal_order_id;
     };
 
@@ -2594,23 +2607,24 @@ let _isDesktop = !('ontouchstart' in window) && navigator.maxTouchPoints === 0;
 // ==================== CLOUD SAVE ====================
 
 // ── Payment debug logger ─────────────────────────────────────────────────────
-// Persists via localStorage — survives page reloads / tab switches.
-// Read with the "Debug Log" link in the Premium shop.
+// In-memory primary (works even when localStorage is blocked / private mode).
+// Also mirrors to localStorage so logs survive a page reload.
+const _payLogs = [];
 function _payLog(msg) {
-  try {
-    const ts = new Date().toISOString().substring(11, 19);
-    const logs = JSON.parse(localStorage.getItem('_payDbg') || '[]');
-    logs.push('[' + ts + '] ' + msg);
-    if (logs.length > 60) logs.splice(0, logs.length - 60);
-    localStorage.setItem('_payDbg', JSON.stringify(logs));
-  } catch (e) { /* storage full or private mode */ }
+  const ts = new Date().toISOString().substring(11, 19);
+  const entry = '[' + ts + '] ' + msg;
+  _payLogs.push(entry);
+  if (_payLogs.length > 60) _payLogs.shift();
+  try { localStorage.setItem('_payDbg', JSON.stringify(_payLogs)); } catch (e) { /* ignore */ }
 }
 function showPayLog() {
-  const logs = JSON.parse(localStorage.getItem('_payDbg') || '[]');
-  alert(logs.length ? logs.join('\n') : '(payment log is empty — make a purchase attempt first)');
+  // Prefer in-memory (same page load); fall back to localStorage (after reload)
+  const lines = _payLogs.length ? _payLogs : (() => { try { return JSON.parse(localStorage.getItem('_payDbg') || '[]'); } catch(e) { return []; } })();
+  alert(lines.length ? lines.join('\n') : '(payment log is empty — make a purchase attempt first)');
 }
 function clearPayLog() {
-  localStorage.removeItem('_payDbg');
+  _payLogs.length = 0;
+  try { localStorage.removeItem('_payDbg'); } catch (e) { /* ignore */ }
   showShopSnack('Payment debug log cleared.');
 }
 // ────────────────────────────────────────────────────────────────────────────
