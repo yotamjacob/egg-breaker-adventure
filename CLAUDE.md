@@ -110,6 +110,42 @@ Always end every response to the user with the current version: **"Current versi
 - `sb-hhpikvqeopscjdzuhbfk.supabase.co-auth-token` — Supabase session (managed by SDK)
 - `_cloudLinkPref` — `'linked'` | `'unlinked'` — explicit user preference
 
+## Purchase persistence — critical invariants
+
+Users must never lose paid purchases. The system has three layers of protection:
+
+### Layer 1 — client-side state (`PREMIUM_KEY` in localStorage)
+- Premium items are stored in their own `localStorage` key (`PREMIUM_KEY`), separate from game save (`SAVE_KEY`).
+- `resetGame()` removes `SAVE_KEY` only — premium state survives a hard reset.
+- `loadPremium()` / `savePremium()` manage this key. Never fold premium fields into `SAVE_KEY`.
+
+### Layer 2 — Supabase database (`play_purchases` table)
+- Every verified Play Billing purchase is recorded in `play_purchases` with `device_id`, `user_id`, `purchase_token`, and `status='completed'`.
+- `restore-purchases` edge fn queries by **both** `device_id` AND `user_id` (when logged in) — so purchases survive reinstalls as long as the user is signed in.
+- `verify-play-purchase` is idempotent: returns `already_processed:true` if the token is already recorded (safe to call multiple times).
+- RLS prevents the anon key from reading `play_purchases` directly — this is intentional. Query via the `restore-purchases` edge fn instead.
+
+### Layer 3 — Play Billing ownership sync on startup
+- `MainActivity.java`: `queryOwnedPurchases()` fires via `AndroidBridge.jsReady()` — called from game.js after init.
+- **Race condition**: billing setup completes asynchronously. `jsReady()` ensures `queryOwnedPurchases()` only fires once BOTH `_billingReady` AND `_jsReady` are true. **Never call `queryOwnedPurchases()` directly from `onBillingSetupFinished` without checking `_jsReady`** — the WebView may not have loaded yet, silently dropping results.
+- Each owned token is piped through `verify-play-purchase` → `applyPurchaseReward`, which sets `G[boughtKey]` and saves.
+
+### Invariants — never break these
+| Invariant | Why |
+|-----------|-----|
+| `PREMIUM_KEY` is never cleared in `resetGame()` | Paid items must survive a hard reset |
+| `queryOwnedPurchases()` is gated on `_jsReady && _billingReady` | Billing setup fires before WebView loads — results would be silently dropped otherwise |
+| `verify-play-purchase` must remain idempotent (check existing token before insert) | `queryOwnedPurchases` fires on every cold start — without this, duplicate records or errors on re-verify |
+| `applyPurchaseReward` only runs on `data.success === true` with no `data.error` | Never grant items without server confirmation |
+| `restore-purchases` queries by both `device_id` and `user_id` | `device_id` alone breaks after reinstall; `user_id` alone breaks without cloud save linked |
+| `payLog()` helper in Java must call `_payLog` (not `_oauthLog`) | Purchase events must appear in the payment debug log, not just the OAuth log |
+
+### Adding a new premium product
+1. Add to `PREMIUM_PRODUCTS` array in `game.js` with `id`, `boughtKey`, and display fields.
+2. Add `id: {}` (or reward shape) to `REWARDS` in both `verify-play-purchase/index.ts` and `restore-purchases/index.ts`.
+3. Add the product in Google Play Console as a non-consumable in-app product.
+4. Test: buy → check debug log for `queryOwned found=<id>` + `verify OK` → confirm `G[boughtKey]` is `true`.
+
 ## Common pitfalls
 - `renderEggTray` must run inside `requestAnimationFrame` when switching to play tab (needs laid-out dimensions)
 - Tab panels use `visibility:hidden + flex:0 0 0` (not `display:none`) to keep animations alive
