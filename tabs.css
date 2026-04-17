@@ -355,7 +355,8 @@
   box-shadow:0 0 8px rgba(245,197,66,.3),inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark);
 }
 .premium-card.featured:hover:not(.bought){box-shadow:0 0 12px rgba(245,197,66,.4),inset 2px 2px 0 var(--raised),4px 4px 0 var(--dark)}
-.premium-card.bought{opacity:.5;pointer-events:none}
+.premium-card.bought{opacity:.75;pointer-events:none}
+.premium-active-desc{font-size:8px;color:var(--green);opacity:.8;line-height:1.4;margin-top:2px}
 .premium-emoji{font-size:32px;line-height:1}
 .premium-name{font-size:11px;color:var(--white);text-shadow:1px 1px 0 var(--dark);margin-top:4px}
 .premium-card.featured .premium-name{font-size:12px;color:var(--gold)}
