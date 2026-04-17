@@ -15,6 +15,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.browser.customtabs.CustomTabsIntent;
+
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
@@ -129,12 +131,12 @@ public class MainActivity extends Activity {
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 String url = request.getUrl().toString();
                 // Google OAuth blocks WebView (Error 403: disallowed_useragent).
-                // Open auth URLs in the device's default browser; the custom-scheme
-                // redirect (eggbreakeradventures://) is caught by onNewIntent().
+                // Open auth URLs in a Chrome Custom Tab (same task as this activity).
+                // Because MainActivity is singleTask, the App Link OAuth callback pops
+                // the Custom Tab automatically when onNewIntent() fires — no manual close needed.
                 if (url.contains("supabase.co/auth") || url.contains("accounts.google.com")) {
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(browserIntent);
+                    new CustomTabsIntent.Builder().build()
+                        .launchUrl(MainActivity.this, Uri.parse(url));
                     return true;
                 }
                 return false;
