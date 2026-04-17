@@ -1021,7 +1021,7 @@ function buildLexicon() {
     html: () => `
 <p>Smash eggs, win prizes, complete collections. Each round gives you 3–7 eggs — click one to break it with a hammer. Collect themed items to clear stages, earn Crystal Bananas, and unlock new monkeys.</p>
 <p><strong>Keys:</strong> Space/Enter = smash, Ctrl+S = starfall.</p>
-<p>Progress auto-saves to your browser. Use Stats → Export Save to back up or transfer your save.</p>
+<p>Progress auto-saves to your browser. Sign in with your Google account (profile icon) to sync your save across devices.</p>
 `
   },
   {
