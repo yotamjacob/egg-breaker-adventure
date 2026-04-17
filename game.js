@@ -205,6 +205,9 @@ function resetGame() {
       roundEggs: null,
     };
     loadPremium(); // restore premium on top of fresh state
+    _logLines.length = 0;
+    _fullLog.length  = 0;
+    renderLog();
     if (regenInt) { clearInterval(regenInt); regenInt = null; }
     invalidateBonusCache();
     invalidateAchieveCache();
