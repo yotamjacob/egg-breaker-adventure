@@ -284,8 +284,9 @@ let _logFilter = '';
 function renderFullLog() {
   const el = $id('full-log-list');
   if (!el) return;
+  const _SPECIALS_CATS = new Set(['specials', 'cucumber', 'mjolnir']);
   const entries = _logFilter
-    ? _fullLog.filter(e => e.cat === _logFilter)
+    ? _fullLog.filter(e => _logFilter === 'specials' ? _SPECIALS_CATS.has(e.cat) : e.cat === _logFilter)
     : _fullLog;
   if (!entries.length) {
     el.innerHTML = '<div class="flog-empty">No activity recorded yet.</div>';
@@ -304,7 +305,8 @@ function renderFullLog() {
               : e.cat === 'items'                            ? 'log-blue'
               : e.cat === 'discovery'                        ? 'log-purple'
               : e.cat === 'empty'                            ? 'log-gray'
-              : e.cat === 'prizes'                           ? ''
+              : e.cat === 'cucumber'                         ? 'log-cucumber'
+              : e.cat === 'mjolnir'                          ? 'log-mjolnir'
               : '';
     return `<div class="flog-row ${cls}"><span class="flog-time">${time}</span><span class="flog-text">${e.text}</span></div>`;
   }).join('');
@@ -842,16 +844,12 @@ function smashEgg(index) {
     msg('🥒 Cucumbah!', 'cucumber');
   }
 
-  // Mjǫllnir: 3% chance to call a free Starfall + 7 star pieces
-  // Only fire when other eggs remain after this hit — otherwise the 350ms delay would
-  // let the last egg finish breaking first, leaving nothing for the starfall to smash.
-  const _mjOtherEggs = G.roundEggs && G.roundEggs.filter(e => e !== egg && !e.broken && !e.expired);
-  if (hasBonus('mjolnirStarfall') && Math.random() < 0.03 && !_starfallActive &&
-      _mjOtherEggs && _mjOtherEggs.length > 0) {
+  // Mjǫllnir: 3% chance to grant +7 star pieces
+  if (hasBonus('mjolnirStarfall') && Math.random() < 0.03) {
     G.starPieces += 7;
     G.totalStarPieces += 7;
     updateStarBtn();
-    setTimeout(() => _doStarfall('⚡ Mjǫllnir calls the storm!', 'mjolnir'), 350);
+    msg('⚡ Mjǫllnir strikes! +7 star pieces', 'mjolnir');
   }
 
   const particleCount = 4 + (egg.maxHp - egg.hp) * 3;
@@ -1521,21 +1519,28 @@ function unlockMonkey(index) {
       return;
     }
   }
-  if (G.crystalBananas < MONKEY_DATA[index].cost) {
-    showAlert('🍌', 'Need ' + MONKEY_DATA[index].cost + ' Crystal Bananas! (have ' + G.crystalBananas + ')');
+  const cost = MONKEY_DATA[index].cost;
+  if (G.crystalBananas < cost) {
+    showAlert('🍌', 'Need ' + cost + ' Crystal Bananas! (have ' + G.crystalBananas + ')');
     SFX.play('err');
     return;
   }
-  G.crystalBananas -= MONKEY_DATA[index].cost;
-  G.monkeys[index].unlocked = true;
-  invalidateBonusCache();
-  track('monkey-unlock', { monkey: MONKEY_DATA[index].name });
-  SFX.play('levelup');
-  msg(MONKEY_DATA[index].name + ' unlocked!', 'discovery');
-  checkAchievements();
-  renderMonkeys();
-  updateResources();
-  saveGame();
+  showConfirm('🍌', 'Unlock ' + MONKEY_DATA[index].name + '?',
+    'Spend ' + cost + ' Crystal Banana' + (cost !== 1 ? 's' : '') + ' to unlock this warrior.',
+    function() {
+      G.crystalBananas -= cost;
+      G.monkeys[index].unlocked = true;
+      invalidateBonusCache();
+      track('monkey-unlock', { monkey: MONKEY_DATA[index].name });
+      SFX.play('levelup');
+      msg(MONKEY_DATA[index].name + ' unlocked!', 'discovery');
+      checkAchievements();
+      renderMonkeys();
+      updateResources();
+      saveGame();
+    },
+    'Unlock'
+  );
 }
 
 // ==================== SHOP ====================
