@@ -2194,7 +2194,13 @@ async function initPremiumShop() {
       const btn = document.createElement('button');
       btn.className = 'play-buy-btn';
       btn.textContent = 'Buy — ' + product.price;
-      btn.onclick = () => window.AndroidBridge.purchaseProduct(product.id);
+      btn.onclick = () => {
+        if (!_cloudUser) {
+          showConfirm('🔐', 'Sign in required', 'Link your Google account before purchasing — this protects your purchase if you reinstall or reset.', () => openSettings(), 'Sign In');
+          return;
+        }
+        window.AndroidBridge.purchaseProduct(product.id);
+      };
       el.appendChild(btn);
     }
     return;

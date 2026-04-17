@@ -10,3 +10,4 @@ item Combos - dark egg and bat give bonus? odin + muijlnir?
 [ ] apply for production access → go live
 
 --bugs--
+buying hammers will extend it over the max, both normal and premium shop
