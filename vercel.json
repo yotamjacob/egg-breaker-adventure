@@ -3,7 +3,8 @@
   "outputDirectory": ".",
   "functions": {
     "api/capture-order.js": { "maxDuration": 30 },
-    "api/restore-purchases.js": { "maxDuration": 30 }
+    "api/restore-purchases.js": { "maxDuration": 30 },
+    "api/verify-play-purchase.js": { "maxDuration": 30 }
   },
   "cleanUrls": true,
   "headers": [

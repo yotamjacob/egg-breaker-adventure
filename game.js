@@ -2080,18 +2080,32 @@ function loadPayPalSDK() {
 // Android calls window.onPlayPurchaseResult(productId, token, success, errorMsg)
 // after the native billing sheet completes.
 window.onPlayPurchaseResult = async function(productId, purchaseToken, success, error) {
+  _payLog('onPlayPurchaseResult pid=' + productId + ' success=' + success + ' error=' + (error || 'none'));
   if (!success || !purchaseToken) {
     if (error) showShopSnack('⚠️ ' + error);
     return;
   }
   try {
-    const res = await fetch(_SUPABASE_URL + '/functions/v1/verify-play-purchase', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
-      body: JSON.stringify({ device_id: getDeviceId(), product_id: productId, purchase_token: purchaseToken }),
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
+    // Use same-origin Vercel proxy to avoid CORS failures from the Android WebView
+    _payLog('verify START token=' + purchaseToken.slice(0, 20));
+    let res;
+    try {
+      res = await fetch('/api/verify-play-purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ device_id: getDeviceId(), product_id: productId, purchase_token: purchaseToken }),
+      });
+    } catch (fetchErr) {
+      _payLog('verify FETCH_THROW: ' + fetchErr.message);
+      throw fetchErr;
+    }
+    _payLog('verify HTTP=' + res.status);
+    const text = await res.text();
+    _payLog('verify BODY=' + text.slice(0, 300));
+    let data;
+    try { data = JSON.parse(text); } catch (e) { throw new Error('verify parse error (HTTP ' + res.status + '): ' + text.slice(0, 80)); }
+    if (data.error) { _payLog('verify APP_ERROR: ' + data.error); throw new Error(data.error); }
+    _payLog('verify OK reward=' + JSON.stringify(data.reward || {}));
     applyPurchaseReward(productId, data.reward);
   } catch (e) {
     showShopSnack('⚠️ ' + (e.message || 'Purchase verification failed.'));
