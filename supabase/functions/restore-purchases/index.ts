@@ -61,7 +61,9 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    // 1. Collect all completed purchases for this device
+    const purchases: { product_id: string; reward: object }[] = []
+
+    // ── 1. PayPal completed purchases ──────────────────────────────────────
     const { data: completedRows, error: err1 } = await supabase
       .from('purchases')
       .select('product_id')
@@ -69,12 +71,26 @@ Deno.serve(async (req) => {
       .eq('status', 'completed')
     if (err1) throw new Error(err1.message)
 
-    const purchases: { product_id: string; reward: object }[] = (completedRows || []).map(row => ({
-      product_id: row.product_id,
-      reward: REWARDS[row.product_id] ?? {},
-    }))
+    for (const row of (completedRows || [])) {
+      purchases.push({ product_id: row.product_id, reward: REWARDS[row.product_id] ?? {} })
+    }
 
-    // 2. Find pending purchases and try to capture them with PayPal
+    // ── 2. Google Play purchases ───────────────────────────────────────────
+    const { data: playRows, error: err2 } = await supabase
+      .from('play_purchases')
+      .select('product_id')
+      .eq('device_id', device_id)
+      .eq('status', 'completed')
+    if (err2) throw new Error(err2.message)
+
+    for (const row of (playRows || [])) {
+      // Avoid duplicates if same product somehow appears in both tables
+      if (!purchases.find(p => p.product_id === row.product_id)) {
+        purchases.push({ product_id: row.product_id, reward: REWARDS[row.product_id] ?? {} })
+      }
+    }
+
+    // ── 3. Pending PayPal purchases — try to capture ───────────────────────
     const { data: pendingRows } = await supabase
       .from('purchases')
       .select('product_id, paypal_order_id')
@@ -88,7 +104,7 @@ Deno.serve(async (req) => {
           Deno.env.get('PAYPAL_CLIENT_ID')!,
           Deno.env.get('PAYPAL_SECRET')!
         )
-      } catch (_) { /* if we can't get a token, skip pending capture */ }
+      } catch (_) { /* skip if token fetch fails */ }
 
       if (paypalToken) {
         for (const p of pendingRows) {
@@ -104,14 +120,15 @@ Deno.serve(async (req) => {
               }
             )
             const capture = await captureRes.json()
-            // Accept COMPLETED, or ORDER_ALREADY_CAPTURED (capture happened but client never received reward)
             const alreadyCaptured = capture.details?.[0]?.issue === 'ORDER_ALREADY_CAPTURED'
             if (capture.status === 'COMPLETED' || alreadyCaptured) {
               await supabase
                 .from('purchases')
                 .update({ status: 'completed' })
                 .eq('paypal_order_id', p.paypal_order_id)
-              purchases.push({ product_id: p.product_id, reward: REWARDS[p.product_id] ?? {} })
+              if (!purchases.find(x => x.product_id === p.product_id)) {
+                purchases.push({ product_id: p.product_id, reward: REWARDS[p.product_id] ?? {} })
+              }
             }
           } catch (_) { /* skip individual capture failures */ }
         }
