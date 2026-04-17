@@ -2758,7 +2758,13 @@ function _oauthLog(msg) {
 }
 function showOauthDebugLog() {
   const logs = JSON.parse(localStorage.getItem('_oauthDbg') || '[]');
-  alert(logs.length ? logs.join('\n') : '(log is empty — tap Link Google Account first)');
+  const text = logs.length ? logs.join('\n') : '(log is empty — tap Link Google Account first)';
+  navigator.clipboard.writeText(text)
+    .then(() => showShopSnack('📋 OAuth log copied! Paste it in chat.'))
+    .catch(() => {
+      // Fallback: show in alert so the user can manually copy
+      alert(text);
+    });
 }
 function clearOauthDebugLog() {
   localStorage.removeItem('_oauthDbg');
