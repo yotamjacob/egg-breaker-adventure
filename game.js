@@ -1590,6 +1590,26 @@ function toggleAutoBuy() {
 }
 
 
+function showAlbumInfo() {
+  showConfirm('🪶', 'Album & Feathers',
+    '1. Collect items by smashing eggs<br>' +
+    '2. 🪶 Feathers buy missing items instantly<br>' +
+    '3. Complete a stage to earn 🍌 &amp; progress<br>' +
+    '4. Buy more feathers in the Premium shop',
+    null, 'Got it!'
+  );
+}
+
+function showMonkeysInfo() {
+  showConfirm('🍌', 'Crystal Bananas',
+    '1. 🍌 Bananas unlock new monkeys<br>' +
+    '2. Earn bananas by completing stages<br>' +
+    '3. Each monkey has unique stages &amp; items<br>' +
+    '4. Buy bananas in the Premium shop',
+    null, 'Got it!'
+  );
+}
+
 let _snackTimeout = null;
 function showMultInfo() {
   showConfirm('💡', 'How Multipliers Work',

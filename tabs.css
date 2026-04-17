@@ -3,6 +3,9 @@
    tabs.css  (album, monkeys, shop, stats, lexicon, daily, achievements)
    ============================================================ */
 
+/* ---------- Tab info row ---------- */
+.tab-info-row{display:flex;justify-content:flex-end;padding:4px 8px 0}
+
 /* ---------- Overall progress ---------- */
 .overall-prog{
   background:var(--panel);border:3px solid var(--gold3);
