@@ -1102,7 +1102,7 @@ function applyPrize(prize, cx, cy) {
   }
 
   if (prize.type === 'hammers') {
-    G.hammers += prize.value;
+    G.hammers = Math.min(G.maxH, G.hammers + prize.value);
     if (prize.balloonMult || prize.usedMult) {
       const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'hammers', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#b45309', 'big', cx, cy);
@@ -2349,7 +2349,7 @@ async function restorePurchases(opts = {}) {
 
 function applyPurchaseReward(productId, reward) {
   if (reward.gold)    { G.gold += reward.gold; G.totalGold += reward.gold; }
-  if (reward.hammers) { G.hammers += reward.hammers; }
+  if (reward.hammers) { G.hammers = Math.min(G.maxH, G.hammers + reward.hammers); }
   if (reward.bananas) { G.crystalBananas += reward.bananas; }
   if (productId === 'starter_pack') G.premium_starter_pack = true;
   // Premium upgrades: set owned flag by boughtKey
