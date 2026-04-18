@@ -3302,10 +3302,6 @@ function _initNotifBtn() {
   const btn   = $id('notif-toggle-btn');
   const label = $id('notif-toggle-label');
   if (!btn || !label) return;
-  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-    btn.style.display = 'none';
-    return;
-  }
   const hasSub = localStorage.getItem('eba_push_sub');
   if (hasSub && Notification.permission === 'granted') {
     label.textContent = 'ON';
