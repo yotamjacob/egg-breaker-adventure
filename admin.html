@@ -17,8 +17,13 @@
   .toolbar span { color: #7f8c8d; font-size: 0.85rem; }
   .btn { padding: 7px 14px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
   .btn-refresh { background: #2a2a4a; color: #e0e0e0; }
-  .btn-delete { background: #c0392b; color: #fff; }
-  .btn-delete:hover { background: #e74c3c; }
+  .btn-delete  { background: #c0392b; color: #fff; }
+  .btn-delete:hover  { background: #e74c3c; }
+  .btn-disable { background: #7f8c8d; color: #fff; }
+  .btn-disable:hover { background: #95a5a6; }
+  .btn-enable  { background: #27ae60; color: #fff; }
+  .btn-enable:hover  { background: #2ecc71; }
+  tr.disabled-row td { opacity: 0.45; }
   table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   th { background: #16213e; color: #f5c542; padding: 10px 12px; text-align: left; position: sticky; top: 0; }
   td { padding: 9px 12px; border-bottom: 1px solid #1a1a30; vertical-align: middle; }
@@ -109,7 +114,7 @@ function renderTable() {
     return
   }
   tbody.innerHTML = rows.map(r => `
-    <tr>
+    <tr class="${r.disabled ? 'disabled-row' : ''}">
       <td>${r.email ? `<strong>${esc(r.email)}</strong>` : '<span class="empty">—</span>'}</td>
       <td><strong>${esc(r.product_id)}</strong></td>
       <td><span class="tag tag-${r.source}">${esc(r.source)}</span></td>
@@ -117,9 +122,26 @@ function renderTable() {
       <td class="mono">${esc(r.device_id ?? '—')}</td>
       <td class="mono">${r.order_id ? esc(r.order_id.slice(0,20)) + '…' : '—'}</td>
       <td>${new Date(r.created_at).toLocaleDateString()}</td>
-      <td><button class="btn btn-delete" onclick="deletePurchase('${r.id}','${r.source}')">Delete</button></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn ${r.disabled ? 'btn-enable' : 'btn-disable'}" onclick="toggleDisabled('${r.id}','${r.source}',${!r.disabled})">${r.disabled ? 'Enable' : 'Disable'}</button>
+        <button class="btn btn-delete" onclick="deletePurchase('${r.id}','${r.source}')">Delete</button>
+      </td>
     </tr>
   `).join('')
+}
+
+async function toggleDisabled(id, source, disabled) {
+  const res = await fetch(SUPABASE_FN, {
+    method: 'PATCH',
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ id, source, disabled }),
+  })
+  const data = await res.json()
+  if (!data.ok) { alert('Error: ' + data.error); return }
+  const row = allRows.find(r => r.id === id)
+  if (row) row.disabled = disabled
+  renderTable()
+  toast(disabled ? 'Disabled' : 'Enabled')
 }
 
 async function deletePurchase(id, source) {

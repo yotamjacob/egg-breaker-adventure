@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-admin-secret',
-  'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, DELETE, PATCH, OPTIONS',
 }
 
 function unauthorized() {
@@ -26,14 +26,14 @@ serve(async (req) => {
   // GET — list all purchases (Play + PayPal) with user email
   if (req.method === 'GET') {
     const [{ data: playRows, error: e1 }, { data: paypalRows, error: e2 }] = await Promise.all([
-      supabase.from('play_purchases').select('id, device_id, user_id, product_id, order_id, status, created_at'),
-      supabase.from('purchases').select('id, device_id, user_id, product_id, paypal_order_id, status, created_at'),
+      supabase.from('play_purchases').select('id, device_id, user_id, product_id, order_id, status, disabled, created_at'),
+      supabase.from('purchases').select('id, device_id, user_id, product_id, paypal_order_id, status, disabled, created_at'),
     ])
     if (e1 || e2) return new Response(JSON.stringify({ error: (e1 ?? e2)!.message }), { status: 500, headers: corsHeaders })
 
     const allPurchases = [
-      ...(playRows ?? []).map(r => ({ ...r, source: 'play',   order_id: r.order_id ?? null })),
-      ...(paypalRows ?? []).map(r => ({ ...r, source: 'paypal', order_id: r.paypal_order_id ?? null })),
+      ...(playRows ?? []).map(r => ({ ...r, source: 'play',   order_id: r.order_id ?? null,       disabled: r.disabled ?? false })),
+      ...(paypalRows ?? []).map(r => ({ ...r, source: 'paypal', order_id: r.paypal_order_id ?? null, disabled: r.disabled ?? false })),
     ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
     // Build email map (paginated)
@@ -74,6 +74,18 @@ serve(async (req) => {
 
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders })
     return new Response(JSON.stringify({ ok: true, deleted: count }), { headers: corsHeaders })
+  }
+
+  // PATCH — toggle disabled flag
+  if (req.method === 'PATCH') {
+    const { id, source, disabled } = await req.json()
+    if (!id || !source || typeof disabled !== 'boolean') return new Response(JSON.stringify({ error: 'id, source, disabled required' }), { status: 400, headers: corsHeaders })
+
+    const table = source === 'paypal' ? 'purchases' : 'play_purchases'
+    const { error } = await supabase.from(table).update({ disabled }).eq('id', id)
+
+    if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders })
+    return new Response(JSON.stringify({ ok: true, disabled }), { headers: corsHeaders })
   }
 
   return new Response(JSON.stringify({ error: 'method not allowed' }), { status: 405, headers: corsHeaders })

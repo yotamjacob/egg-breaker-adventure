@@ -132,11 +132,17 @@ Deno.serve(async (req) => {
     // Idempotency — return success without re-granting if already processed
     const { data: existing } = await supabase
       .from('play_purchases')
-      .select('id')
+      .select('id, disabled')
       .eq('purchase_token', purchase_token)
       .maybeSingle()
 
     if (existing) {
+      if (existing.disabled) {
+        return new Response(
+          JSON.stringify({ success: false, disabled: true }),
+          { headers: { ...hdrs, 'Content-Type': 'application/json' } },
+        )
+      }
       return new Response(
         JSON.stringify({ success: true, reward: {}, already_processed: true }),
         { headers: { ...hdrs, 'Content-Type': 'application/json' } },

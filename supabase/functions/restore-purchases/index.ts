@@ -78,6 +78,7 @@ Deno.serve(async (req) => {
       .select('product_id')
       .eq('device_id', device_id)
       .eq('status', 'completed')
+      .eq('disabled', false)
     for (const row of (paypalByDevice || [])) addUnique(purchases, row.product_id)
     // Back-fill user_id on rows found by device_id
     if (user_id && paypalByDevice?.length) {
@@ -92,6 +93,7 @@ Deno.serve(async (req) => {
         .select('product_id')
         .eq('user_id', user_id)
         .eq('status', 'completed')
+        .eq('disabled', false)
       for (const row of (paypalByUser || [])) addUnique(purchases, row.product_id)
     }
 
@@ -101,6 +103,7 @@ Deno.serve(async (req) => {
       .select('product_id')
       .eq('device_id', device_id)
       .eq('status', 'completed')
+      .eq('disabled', false)
     for (const row of (playByDevice || [])) addUnique(purchases, row.product_id)
     // Back-fill user_id on rows found by device_id
     if (user_id && playByDevice?.length) {
@@ -115,6 +118,7 @@ Deno.serve(async (req) => {
         .select('product_id')
         .eq('user_id', user_id)
         .eq('status', 'completed')
+        .eq('disabled', false)
       for (const row of (playByUser || [])) addUnique(purchases, row.product_id)
     }
 
