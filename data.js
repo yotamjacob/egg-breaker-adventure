@@ -443,7 +443,7 @@ const SHOP_HAMMERS = [
 
 const SHOP_HATS = [
   { id: 'none',    name: 'No Hat',        emoji: '🐒', desc: '',                         cost: 0, bonus: null },
-  { id: 'chef',    name: 'Chef\'s Hat',   emoji: '👨‍🍳', desc: '3% chance egg was free',   cost: 15000, currency: 'gold', bonus: 'freeEgg' },
+  { id: 'chef',    name: 'Chef\'s Hat',   emoji: '👨‍🍳', desc: '3% chance hit was free',   cost: 15000, currency: 'gold', bonus: 'freeEgg' },
   { id: 'crown',   name: 'Crown',         emoji: '👑', desc: '+10% gold',                 cost: 30000, currency: 'gold', bonus: 'goldBoost' },
   { id: 'wizard',  name: 'Wizard Hat',    emoji: '🧙', desc: '+10% stars',                cost: 45000, currency: 'gold', bonus: 'starBoost' },
   { id: 'tophat',  name: 'Top Hat',       emoji: '🎩', desc: 'Unlocks x123 multiplier',   cost: 110000, currency: 'gold', bonus: 'unlock123' },

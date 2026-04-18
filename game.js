@@ -1097,7 +1097,7 @@ function applyPrize(prize, cx, cy) {
   }
 
   if (prize.type === 'hammers') {
-    G.hammers = Math.min(G.maxH, G.hammers + prize.value);
+    G.hammers = Math.max(G.hammers, Math.min(G.maxH, G.hammers + prize.value));
     if (prize.balloonMult || prize.usedMult) {
       const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'hammers', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#b45309', 'big', cx, cy);
@@ -1560,7 +1560,7 @@ function switchMonkey(index) {
 function unlockMonkey(index) {
   const req = MONKEY_DATA[index].unlockRequires;
   if (req && req.hammer && !G.ownedHammers.includes(req.hammer)) {
-    showAlert('⚡', req.hint || 'A special item is required to unlock this warrior.');
+    showAlert('⚡', req.hint || 'A special item is required to unlock this monkey.');
     SFX.play('err');
     return;
   }
@@ -1579,7 +1579,7 @@ function unlockMonkey(index) {
     return;
   }
   showConfirm('🍌', 'Unlock ' + MONKEY_DATA[index].name + '?',
-    'Spend ' + cost + ' Crystal Banana' + (cost !== 1 ? 's' : '') + ' to unlock this warrior.',
+    'Spend ' + cost + ' Crystal Banana' + (cost !== 1 ? 's' : '') + ' to unlock this monkey.',
     function() {
       G.crystalBananas -= cost;
       G.monkeys[index].unlocked = true;
@@ -2693,6 +2693,7 @@ document.addEventListener('visibilitychange', () => {
       updateResources();
     }
     _hiddenAt = 0;
+    Particles.resume();
   }
 });
 

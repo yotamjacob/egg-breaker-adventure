@@ -5,7 +5,7 @@
 
 const Particles = (() => {
   const MAX_PARTICLES = 300;
-  let canvas, ctx, ps = [], running = false;
+  let canvas, ctx, ps = [], running = false, _lastTick = 0;
   // Particle colors derived from egg registry
   const COLORS = {};
   CONFIG.eggTypes.forEach(function(def) { COLORS[def.id] = def.particles; });
@@ -34,7 +34,7 @@ const Particles = (() => {
         col: cols[Math.random() * cols.length | 0], sh: 'shell',
       });
     }
-    if (!running) loop();
+    _tryStart();
   }
   function sparkle(cx, cy, count, col) {
     const toAdd = Math.min(count, MAX_PARTICLES - ps.length);
@@ -46,10 +46,16 @@ const Particles = (() => {
         rot: 0, rv: 0, grav: .02, col: col || '#FFD700', sh: 'star',
       });
     }
-    if (!running) loop();
+    _tryStart();
+  }
+  function resume() { _tryStart(); }
+  function _tryStart() {
+    if (ps.length === 0 || document.hidden) return;
+    if (!running || performance.now() - _lastTick > 500) { running = false; loop(); }
   }
   function loop() {
     running = true;
+    _lastTick = performance.now();
     const w = canvas.width / (window.devicePixelRatio || 1);
     const h = canvas.height / (window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, w, h);
@@ -80,5 +86,5 @@ const Particles = (() => {
     }
     if (ps.length > 0) requestAnimationFrame(loop); else running = false;
   }
-  return { init, emit, sparkle, resize };
+  return { init, emit, sparkle, resize, resume };
 })();

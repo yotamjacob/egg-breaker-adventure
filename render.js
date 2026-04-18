@@ -666,9 +666,13 @@ function renderAlbumStage(stageIdx) {
       : (quote ? '??? — ' + quote : '???');
     const tipEsc = tipText.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;');
     html += '<div class="album-item ' + (found ? 'found' : 'locked') + '" data-tip="' + tipEsc + '">';
+    html += '<div class="album-item-row1">';
     html += '<span class="item-emoji">' + (found ? item[0] : '❓') + '</span>';
+    html += '<div class="album-item-name-wrap">';
     html += '<span class="item-name">' + (found ? item[1] : '???') + '</span>';
     html += '<span class="album-rarity ' + rarityClass + '">' + rarityLabel + '</span>';
+    html += '</div>';
+    html += '</div>';
     if (!found) {
       html += '<button class="feather-buy-btn" data-stage="' + stageIdx + '" data-idx2="' + i + '" data-cost="' + cost + '">' +
         '🪶 ' + cost + '</button>';
