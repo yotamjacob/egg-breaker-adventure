@@ -3248,11 +3248,6 @@ function _urlBase64ToUint8Array(b64) {
 async function toggleNotifications() {
   const label = $id('notif-toggle-label');
 
-  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-    msg('Push notifications are not supported on this browser.');
-    return;
-  }
-
   // Already subscribed — unsubscribe
   if (localStorage.getItem('eba_push_sub')) {
     try {
@@ -3266,14 +3261,14 @@ async function toggleNotifications() {
     return;
   }
 
-  // Request permission
-  const perm = await Notification.requestPermission();
-  if (perm !== 'granted') {
-    msg('Notification permission denied.');
-    return;
-  }
-
   try {
+    // Request OS permission
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      msg('Notification permission denied.');
+      return;
+    }
+
     const sw  = await navigator.serviceWorker.ready;
     const sub = await sw.pushManager.subscribe({
       userVisibleOnly:      true,
@@ -3294,7 +3289,7 @@ async function toggleNotifications() {
     label.classList.add('on');
   } catch (e) {
     console.warn('[push] subscribe failed', e);
-    msg('Could not enable notifications. Try again.');
+    msg('Notifications not supported on this device.');
   }
 }
 

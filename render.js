@@ -443,9 +443,9 @@ function updateResources() {
   $id('res-g').textContent = formatNum(G.gold);
   $id('res-b').textContent = G.crystalBananas;
   $id('res-f').textContent = G.feathers;
-  if (G.crystalBananas > 0) $id('res-b-wrap').style.display = '';
+  $id('res-b-wrap').style.display = G.crystalBananas > 0 ? '' : 'none';
   const _mrStage = G.monkeys?.[0]?.stage ?? -1;
-  if (G.totalFeathers > 0 || _mrStage >= 2) $id('res-f-wrap').style.display = '';
+  $id('res-f-wrap').style.display = (G.totalFeathers > 0 || _mrStage >= 2) ? '' : 'none';
 
   // Hammer row with color + timer
   const hRow = $id('hammer-row');
@@ -621,6 +621,11 @@ function renderAlbum() {
     btn.disabled = !unlocked;
     if (unlocked) {
       btn.addEventListener('click', () => {
+        if (i === curActiveStage() && btn.classList.contains('active')) {
+          // Tapping the already-selected stage navigates back to Play
+          document.querySelector('.nav-play').click();
+          return;
+        }
         switchStage(i);
         renderAlbumStage(i);
       });
@@ -660,7 +665,7 @@ function renderAlbumStage(stageIdx) {
     const rarityLabel = ['', 'Common', 'Uncommon', 'Rare'][item[2]];
     const cost = featherCost(item[2], stageIdx);
 
-    const quote = item[3] || '';
+    const quote = (item[3] || '').replace(/^"+|"+$/g, '');
     const tipText = found
       ? item[1] + (quote ? ' — ' + quote : '')
       : (quote ? '??? — ' + quote : '???');
