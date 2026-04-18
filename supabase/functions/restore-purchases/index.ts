@@ -79,6 +79,11 @@ Deno.serve(async (req) => {
       .eq('device_id', device_id)
       .eq('status', 'completed')
     for (const row of (paypalByDevice || [])) addUnique(purchases, row.product_id)
+    // Back-fill user_id on rows found by device_id
+    if (user_id && paypalByDevice?.length) {
+      await supabase.from('purchases').update({ user_id })
+        .eq('device_id', device_id).eq('status', 'completed').is('user_id', null)
+    }
 
     // ── 2. PayPal completed — by user_id (fallback for device_id changes) ─
     if (user_id) {
@@ -97,6 +102,11 @@ Deno.serve(async (req) => {
       .eq('device_id', device_id)
       .eq('status', 'completed')
     for (const row of (playByDevice || [])) addUnique(purchases, row.product_id)
+    // Back-fill user_id on rows found by device_id
+    if (user_id && playByDevice?.length) {
+      await supabase.from('play_purchases').update({ user_id })
+        .eq('device_id', device_id).eq('status', 'completed').is('user_id', null)
+    }
 
     // ── 4. Google Play completed — by user_id ────────────────────────────
     if (user_id) {
