@@ -152,7 +152,7 @@ body{
   flex:2;display:grid;grid-template-columns:1fr 1fr;gap:2px;
 }
 .nav-play{
-  flex:2;border:none;
+  flex:1;border:none;
   background:var(--panel);border-radius:1px;
   cursor:pointer;font-size:14px;font-family:var(--px);
   color:var(--gray);transition:all .08s;
