@@ -66,8 +66,13 @@
 
 <script>
 const SUPABASE_FN = 'https://hhpikvqeopscjdzuhbfk.supabase.co/functions/v1/admin-purchases'
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhocGlrdnFlb3BzY2pkenVoYmZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMzA2NDUsImV4cCI6MjA5MTcwNjY0NX0.-iYI6Wf8eREEBKFxfty7ot1Ke8AqjC73xlT7KCTZaqc'
 let secret = ''
 let allRows = []
+
+function authHeaders(extra) {
+  return { Authorization: `Bearer ${ANON_KEY}`, apikey: ANON_KEY, 'x-admin-secret': secret, ...extra }
+}
 
 function doLogin() {
   secret = document.getElementById('secret-input').value.trim()
@@ -79,7 +84,7 @@ function doLogin() {
 }
 
 async function load() {
-  const res = await fetch(SUPABASE_FN, { headers: { Authorization: `Bearer ${secret}` } })
+  const res = await fetch(SUPABASE_FN, { headers: authHeaders() })
   if (res.status === 401) { sessionStorage.removeItem('eba_admin_secret'); alert('Wrong secret'); return }
   allRows = await res.json()
   renderTable()
@@ -117,7 +122,7 @@ async function deletePurchase(id) {
   if (!confirm('Delete this purchase? The user will lose the item on their next restore.')) return
   const res = await fetch(SUPABASE_FN, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ id }),
   })
   const data = await res.json()

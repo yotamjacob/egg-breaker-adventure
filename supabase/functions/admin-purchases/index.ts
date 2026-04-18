@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, content-type',
+  'Access-Control-Allow-Headers': 'authorization, content-type, x-admin-secret',
   'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS',
 }
 
@@ -15,8 +15,8 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   const adminSecret = Deno.env.get('ADMIN_SECRET')
-  const auth = req.headers.get('authorization') ?? ''
-  if (!adminSecret || auth !== `Bearer ${adminSecret}`) return unauthorized()
+  const provided = req.headers.get('x-admin-secret') ?? ''
+  if (!adminSecret || provided !== adminSecret) return unauthorized()
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
