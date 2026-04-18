@@ -3249,8 +3249,10 @@ function _urlBase64ToUint8Array(b64) {
 // Called by MainActivity.sendFcmTokenToJs() after AndroidBridge.requestFcmToken()
 let _fcmSubscribeResolve = null;
 let _fcmSubscribeReject  = null;
+let _fcmToken = null;  // cached so visibilitychange can re-sync without re-requesting
 
 window.onFcmToken = async function(token) {
+  _fcmToken = token;
   if (_fcmSubscribeResolve) {
     // User just tapped enable — resolve the pending promise
     const resolve = _fcmSubscribeResolve;
@@ -3258,10 +3260,17 @@ window.onFcmToken = async function(token) {
     _fcmSubscribeReject  = null;
     resolve(token);
   } else if (localStorage.getItem('eba_push_sub')) {
-    // Startup token refresh — silently re-register
+    // Startup token refresh — silently re-register with current hammers state
     _sendFcmSubscription(token).catch(() => {});
   }
 };
+
+// Re-sync hammers_full_at whenever the user backgrounds the app
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && _fcmToken && localStorage.getItem('eba_push_sub')) {
+    _sendFcmSubscription(_fcmToken).catch(() => {});
+  }
+});
 
 async function _sendFcmSubscription(token) {
   const regenSec     = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
