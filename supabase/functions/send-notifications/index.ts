@@ -61,10 +61,10 @@ async function getFcmAccessToken(): Promise<string> {
   return _fcmAccessToken!
 }
 
-async function sendFcm(fcmToken: string, payload: { title: string; body: string; tag: string; url: string }): Promise<boolean> {
+async function sendFcm(fcmToken: string, payload: { title: string; body: string; tag: string; url: string }, logs: string[]): Promise<boolean> {
   try {
-    const sa         = JSON.parse(Deno.env.get('FIREBASE_SERVICE_ACCOUNT')!)
-    const projectId  = sa.project_id
+    const sa          = JSON.parse(Deno.env.get('FIREBASE_SERVICE_ACCOUNT')!)
+    const projectId   = sa.project_id
     const accessToken = await getFcmAccessToken()
 
     const resp = await fetch(
@@ -82,10 +82,18 @@ async function sendFcm(fcmToken: string, payload: { title: string; body: string;
         }),
       }
     )
-    if (resp.status === 404 || resp.status === 410) return false  // token expired
-    return resp.ok
-  } catch (e) {
-    console.warn('[fcm] send failed', e)
+    if (!resp.ok) {
+      const body = await resp.text()
+      logs.push(`[fcm] status=${resp.status} body=${body}`)
+      console.warn('[fcm] send failed', resp.status, body)
+      if (resp.status === 404 || resp.status === 410) return false  // token invalid/expired — delete subscription
+      return true  // other errors are transient — keep subscription
+    }
+    logs.push(`[fcm] sent OK`)
+    return true
+  } catch (e: any) {
+    logs.push(`[fcm] exception: ${e?.message}`)
+    console.warn('[fcm] send failed (exception)', e)
     return true  // keep subscription, transient error
   }
 }
@@ -142,6 +150,7 @@ serve(async (req) => {
 
   const expiredDevices: string[]  = []
   const notifiedDevices: string[] = []
+  const debugLogs: string[] = []
   let sent = 0
 
   for (const sub of subs) {
@@ -152,19 +161,22 @@ serve(async (req) => {
     const lastSeen = save?.last_seen_at ?? sub.updated_at
     const inactive = new Date(lastSeen) < new Date(inactiveCutoff)
 
+    debugLogs.push(`device=${sub.device_id} fcm=${!!sub.fcm_token} user=${sub.user_id ?? 'none'} save=${!!save} hammers_full_at=${save?.hammers_full_at ?? 'none'} inactive=${inactive}`)
+
     // Choose delivery method
     const sendPush = sub.fcm_token
-      ? (p: any) => sendFcm(sub.fcm_token, p)
+      ? (p: any) => sendFcm(sub.fcm_token, p, debugLogs)
       : sub.subscription
         ? (p: any) => sendWebPush(sub.subscription, p)
         : null
-    if (!sendPush) continue
+    if (!sendPush) { debugLogs.push('skip: no delivery method'); continue }
 
     // Hammers-full (auth users only)
     let sentHammersFull = false
     if (save?.hammers_full_at) {
       const fullAt        = new Date(save.hammers_full_at)
       const seenAfterFull = save.last_seen_at && new Date(save.last_seen_at) >= fullAt
+      debugLogs.push(`hammers_full_at check: fullAt=${fullAt.toISOString()} seenAfterFull=${seenAfterFull} isTest=${isTest}`)
       if ((fullAt < now && !seenAfterFull) || isTest) {
         const ok = await sendPush({ title: 'Egg Breaker Adventures', body: 'Your hammers are full — come break some eggs!', tag: 'hammers-full', url: '/' })
         if (!ok) expiredDevices.push(sub.device_id)
@@ -179,6 +191,7 @@ serve(async (req) => {
 
     // Daily reward
     const recentlyNotified = sub.last_notified_at && new Date(sub.last_notified_at) > new Date(dedupeCutoff)
+    debugLogs.push(`daily check: inactive=${inactive} sentHammersFull=${sentHammersFull} recentlyNotified=${recentlyNotified}`)
     if ((inactive || isTest) && !sentHammersFull && !recentlyNotified) {
       const ok = await sendPush({ title: 'Egg Breaker Adventures', body: 'Your daily reward is ready. Come claim it!', tag: 'daily-reward', url: '/?tab=daily' })
       if (!ok) expiredDevices.push(sub.device_id)
@@ -193,7 +206,7 @@ serve(async (req) => {
     await supabase.from('push_subscriptions').delete().in('device_id', expiredDevices)
   }
 
-  return new Response(JSON.stringify({ ok: true, sent, test: !!testDevice }), {
+  return new Response(JSON.stringify({ ok: true, sent, test: !!testDevice, ...(testDevice ? { logs: debugLogs } : {}) }), {
     headers: { 'Content-Type': 'application/json' },
   })
 })
