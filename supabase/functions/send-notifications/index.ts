@@ -129,8 +129,9 @@ serve(async (req) => {
   const url        = new URL(req.url)
   const testDevice = url.searchParams.get('test_device')
   const now        = new Date()
-  const inactiveCutoff = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString()
-  const dedupeCutoff   = new Date(now.getTime() - 22 * 60 * 60 * 1000).toISOString()
+  const inactiveCutoff    = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString()
+  const dedupeCutoff      = new Date(now.getTime() - 22 * 60 * 60 * 1000).toISOString()
+  const hammersDedupCutoff = new Date(now.getTime() - 10 * 60 * 1000).toISOString()
 
   let query = supabase
     .from('push_subscriptions')
@@ -149,8 +150,9 @@ serve(async (req) => {
     : { data: [] as any[] }
   const savesMap = new Map((saves ?? []).map((s: any) => [s.user_id, s]))
 
-  const expiredDevices: string[]  = []
-  const notifiedDevices: string[] = []
+  const expiredDevices: string[]      = []
+  const notifiedDevices: string[]     = []
+  const hammersFullDevices: string[]  = []
   const debugLogs: string[] = []
   let sent = 0
 
@@ -176,16 +178,16 @@ serve(async (req) => {
     let sentHammersFull = false
     if (sub.hammers_full_at) {
       const fullAt = new Date(sub.hammers_full_at)
-      debugLogs.push(`hammers_full_at check: fullAt=${fullAt.toISOString()} past=${fullAt < now} isTest=${isTest}`)
-      if (fullAt < now || isTest) {
-        const ok = await sendPush({ title: 'Egg Breaker Adventures', body: 'Your hammers are full — come break some eggs!', tag: 'hammers-full', url: '/' })
+      const recentlyHammersNotified = sub.last_notified_at && new Date(sub.last_notified_at) > new Date(hammersDedupCutoff)
+      debugLogs.push(`hammers_full_at check: fullAt=${fullAt.toISOString()} past=${fullAt < now} recentlyHammersNotified=${recentlyHammersNotified} isTest=${isTest}`)
+      if ((fullAt < now || isTest) && (!recentlyHammersNotified || isTest)) {
+        const ok = await sendPush({ title: 'Egg Breaker Adventures', body: 'Your hammers are full, get smashin\u0027!', tag: 'hammers-full', url: '/' })
         if (!ok) expiredDevices.push(sub.device_id)
         else {
           sentHammersFull = true
           sent++
           notifiedDevices.push(sub.device_id)
-          // Clear so we don't re-notify; game will re-set it next time hammers drain
-          if (!isTest) await supabase.from('push_subscriptions').update({ hammers_full_at: null }).eq('device_id', sub.device_id)
+          hammersFullDevices.push(sub.device_id)
         }
       }
     }
@@ -202,6 +204,9 @@ serve(async (req) => {
 
   if (notifiedDevices.length) {
     await supabase.from('push_subscriptions').update({ last_notified_at: now.toISOString() }).in('device_id', notifiedDevices)
+  }
+  if (hammersFullDevices.length) {
+    await supabase.from('push_subscriptions').update({ hammers_full_at: null }).in('device_id', hammersFullDevices)
   }
   if (expiredDevices.length) {
     await supabase.from('push_subscriptions').delete().in('device_id', expiredDevices)
