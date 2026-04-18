@@ -3,12 +3,14 @@ package com.eggbreakeradventures.app;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -142,7 +144,23 @@ public class MainActivity extends Activity {
                 return false;
             }
         });
-        webView.setWebChromeClient(new WebChromeClient());
+        // Grant web permission requests (Notification API, Push Manager) from our controlled origin.
+        // Without this override the bare WebChromeClient silently denies all requests.
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onPermissionRequest(PermissionRequest request) {
+                request.grant(request.getResources());
+            }
+        });
+
+        // Android 13+ requires POST_NOTIFICATIONS runtime permission even if declared in manifest.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                    new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1001);
+            }
+        }
 
         Uri intentData = getIntent().getData();
         String url = (intentData != null) ? intentData.toString() : GAME_URL;

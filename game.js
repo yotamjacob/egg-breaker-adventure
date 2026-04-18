@@ -3289,7 +3289,7 @@ async function toggleNotifications() {
     label.classList.add('on');
   } catch (e) {
     console.warn('[push] subscribe failed', e);
-    msg('Notifications not supported on this device.');
+    msg('Could not enable notifications: ' + (e.message || String(e)));
   }
 }
 
