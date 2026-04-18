@@ -5,6 +5,7 @@ const ALLOWED_ORIGINS = new Set([
   'http://localhost',
   'http://localhost:3000',
   'http://127.0.0.1',
+  'https://egg-breaker-adventures.vercel.app',
   ...(Deno.env.get('ALLOWED_ORIGIN') ? [Deno.env.get('ALLOWED_ORIGIN')!] : []),
 ])
 

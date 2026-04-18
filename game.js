@@ -1583,6 +1583,7 @@ function unlockMonkey(index) {
     function() {
       G.crystalBananas -= cost;
       G.monkeys[index].unlocked = true;
+      G.activeMonkey = index;
       invalidateBonusCache();
       track('monkey-unlock', { monkey: MONKEY_DATA[index].name });
       SFX.play('levelup');
