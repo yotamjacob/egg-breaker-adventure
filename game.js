@@ -614,7 +614,7 @@ function rollCollectionItem(eggType) {
       const isNew = !collected[i];
       return {
         type: 'item', index: i, isNew,
-        emoji: item[0], name: item[1], rarity: item[2], quote: item[3] || '',
+        emoji: item[0], name: item[1], rarity: item[2], quote: (item[3] || '').replace(/^"+|"+$/g, ''),
         label: item[0] + ' ' + item[1] + (isNew ? ' (NEW!)' : ''),
         color: isNew ? '#b45309' : '#78716c',
       };
