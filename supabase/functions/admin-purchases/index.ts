@@ -32,15 +32,33 @@ serve(async (req) => {
 
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders })
 
-    // Attach emails for rows that have a user_id
-    const userIds = [...new Set(purchases.filter(p => p.user_id).map(p => p.user_id))]
+    // Build email map from auth users (paginate to get all)
     let emailMap: Record<string, string> = {}
-    if (userIds.length) {
-      const { data: users } = await supabase.auth.admin.listUsers()
-      emailMap = Object.fromEntries((users?.users ?? []).map(u => [u.id, u.email ?? '']))
+    let page = 1
+    while (true) {
+      const { data } = await supabase.auth.admin.listUsers({ page, perPage: 1000 })
+      const users = data?.users ?? []
+      for (const u of users) if (u.email) emailMap[u.id] = u.email
+      if (users.length < 1000) break
+      page++
     }
 
-    const rows = purchases.map(p => ({ ...p, email: emailMap[p.user_id] ?? null }))
+    // For purchases with no user_id, try resolving via push_subscriptions device
+    const nullUserDevices = purchases.filter(p => !p.user_id && p.device_id).map(p => p.device_id)
+    let deviceUserMap: Record<string, string> = {}
+    if (nullUserDevices.length) {
+      const { data: subs } = await supabase
+        .from('push_subscriptions')
+        .select('device_id, user_id')
+        .in('device_id', nullUserDevices)
+        .not('user_id', 'is', null)
+      for (const s of subs ?? []) deviceUserMap[s.device_id] = emailMap[s.user_id] ?? s.user_id
+    }
+
+    const rows = purchases.map(p => ({
+      ...p,
+      email: p.user_id ? (emailMap[p.user_id] ?? null) : (deviceUserMap[p.device_id] ?? null),
+    }))
     return new Response(JSON.stringify(rows), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 
