@@ -143,7 +143,7 @@
 .rarity-3{background:#4a2800;color:var(--gold);border-color:var(--gold3)}
 
 /* ---------- Monkey tab ---------- */
-.monkey-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;overflow:hidden;width:100%}
+.monkey-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
 .monkey-card{
   background:var(--panel);border:3px solid var(--gray);border-radius:2px;
   padding:12px 8px 22px;text-align:center;cursor:pointer;
@@ -165,7 +165,7 @@
 .monkey-card .m-progress{font-size:10px;color:var(--gold);margin-top:6px;width:100%}
 .monkey-card .m-progress.done{color:var(--green)}
 .m-prog-track{
-  width:100%;height:6px;background:var(--dark);border:1px solid var(--dark);
+  width:100%;height:8px;background:#0d1f3c;border:1px solid #2a3f6a;
   border-radius:1px;margin-top:3px;overflow:hidden;pointer-events:none;
 }
 .m-prog-fill{

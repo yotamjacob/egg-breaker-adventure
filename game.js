@@ -1707,7 +1707,7 @@ function showAlert(icon, text) {
   showConfirm(icon, text, '', null);
   $id('confirm-yes').style.display = 'none';
   const noBtn = $id('overlay-confirm').querySelector('.confirm-no');
-  if (noBtn) noBtn.textContent = 'OK';
+  if (noBtn) { noBtn.style.display = ''; noBtn.textContent = 'OK'; }
 }
 
 function showConfirm(icon, title, detail, onYes, yesText) {
@@ -2695,6 +2695,9 @@ document.addEventListener('visibilitychange', () => {
     _hiddenAt = 0;
   }
 });
+
+// Save _savedAt when app is fully closed so offline regen is accurate on next open
+window.addEventListener('pagehide', () => { saveGame(); });
 
 // Feathers click → Album items
 $id('res-b-wrap').addEventListener('click', () => {

@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '1.4.5';
+const VERSION = '1.4.6';
 
 const CONFIG = {
 
@@ -46,7 +46,7 @@ const CONFIG = {
     {
       id: 'crystal', name: 'Crystal', emoji: '🔮',
       hp: 4, spawnWeight: 2, unlockStage: 2,
-      goldMult: 2, featherMult: 1, starPieces: 3,
+      goldMult: 3, featherMult: 2, starPieces: 4,
       colors: { f:'#E0D0FF', s:'#8B5CF6', h:'#F0E8FF', sh:'#6D28D9' },
       particles: ['#E0D0FF','#C4B5FD','#A78BFA','#8B5CF6'],
       prizes: { empty:0, gold_s:0, gold_m:0, gold_l:42, star:11, mult:6, feather:8, item:14, hammers:8 },
@@ -55,7 +55,7 @@ const CONFIG = {
     {
       id: 'ruby', name: 'Ruby', emoji: '💎',
       hp: 9, spawnWeight: 1, unlockStage: 4,
-      goldMult: 3, featherMult: 2, starPieces: 4,
+      goldMult: 5, featherMult: 3, starPieces: 5,
       colors: { f:'#E8143C', s:'#8B0020', h:'#FF6B7A', sh:'#5C0015' },
       particles: ['#FF2D55','#E8143C','#C70039','#8B0020'],
       prizes: { empty:0, gold_s:0, gold_m:0, gold_l:40, star:10, mult:6, feather:7, item:10, hammers:8, banana:0 },
@@ -64,7 +64,7 @@ const CONFIG = {
     {
       id: 'black', name: 'Black', emoji: '🖤',
       hp: 20, spawnWeight: 0.7, unlockStage: 8,
-      goldMult: 5, featherMult: 4, starPieces: 6,
+      goldMult: 8, featherMult: 5, starPieces: 7,
       colors: { f:'#1a1a1a', s:'#000000', h:'#3a3a3a', sh:'#0a0a0a' },
       particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
       prizes: { empty:0, gold_s:0, gold_m:0, gold_l:58, star:16, mult:12, feather:10, item:10, hammers:10, maxHammers:2, banana:2 },
@@ -107,8 +107,8 @@ const CONFIG = {
   //    array make that value more common.
   //    e.g. two 2's and two 3's = 25% each, one 50 = 12.5%
   // ----------------------------------------------------------
-  // x2: ~35%, x3: ~25%, x5: ~17%, x10: ~10%, x50: ~8%, x123: ~4%
-  multiplierValues: [2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 5, 5, 5, 10, 10, 50, 50, 123],
+  // x2: ~43%, x3: ~35%, x5: ~9%, x10: ~4%, x50: ~4%, x123: ~4%
+  multiplierValues: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 10, 50, 123],
 
   // ----------------------------------------------------------
   // 7. HAMMER PRIZES (from silver eggs only)
