@@ -234,9 +234,10 @@
 .reward-log .log-line.log-freehit{color:#b0bec5;text-shadow:1px 1px 0 #000,-1px -1px 0 #000}
 .reward-log .log-line.log-trophy{color:#fde68a;text-shadow:0 0 6px #fbbf24,0 0 12px #f59e0b,1px 1px 0 #000;animation:log-trophy-flash .6s ease-out}
 @keyframes log-trophy-flash{0%{color:#fff;text-shadow:0 0 14px #fff,0 0 20px #fbbf24}100%{color:#fde68a;text-shadow:0 0 6px #fbbf24,0 0 12px #f59e0b,1px 1px 0 #000}}
-.reward-log .log-line:nth-child(3){opacity:.8}
-.reward-log .log-line:nth-child(4){opacity:.55}
-.reward-log .log-line:nth-child(5){opacity:.25}
+.reward-log .log-line:nth-child(3){opacity:.75}
+.reward-log .log-line:nth-child(4){opacity:.5}
+.reward-log .log-line:nth-child(5){opacity:.3}
+.reward-log .log-line:nth-child(6){opacity:.15}
 
 
 /* ---------- Prize floats ---------- */
@@ -248,8 +249,8 @@
   text-shadow:2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 8px rgba(0,0,0,1);
   animation:float-up-retro 2s steps(20) forwards;
 }
-.prize-float.big{font-size:15px;animation:float-up-retro-big 2.5s steps(24) forwards;white-space:normal;max-width:160px;word-break:break-word;line-height:1.4}
-.prize-float.mega{font-size:16px;animation:float-up-retro-mega 3s steps(28) forwards;white-space:normal;max-width:170px;word-break:break-word;line-height:1.4}
+.prize-float.big{font-size:13px;animation:float-up-retro-big 2.5s steps(24) forwards;white-space:normal;max-width:160px;word-break:normal;overflow-wrap:break-word;line-height:1.4}
+.prize-float.mega{font-size:14px;animation:float-up-retro-mega 3s steps(28) forwards;white-space:normal;max-width:170px;word-break:normal;overflow-wrap:break-word;line-height:1.4}
 
 /* ---------- Screen shake ---------- */
 .shake-sm{animation:shake-sm .2s steps(4)}

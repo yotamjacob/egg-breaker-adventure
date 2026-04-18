@@ -229,6 +229,7 @@
   100%{transform:scale(1)}
 }
 .shop-card.owned{background:#143d2b;border-color:var(--green)}
+.shop-card.can-afford{border-color:rgba(46,204,113,.45)}
 .shop-card.equipped{border-color:var(--gold);box-shadow:0 0 8px rgba(245,197,66,.3),3px 3px 0 var(--dark)}
 .shop-card .s-emoji{font-size:24px}
 .shop-card .s-name{font-size:11px;color:var(--white);text-shadow:1px 1px 0 var(--dark)}

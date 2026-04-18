@@ -291,7 +291,7 @@ function msg(text, cat) {
   const show = CONFIG.logShow || {};
   if (cat && show[cat] === false) return;
   _logLines.unshift({ text: text, cat: cat || '' });
-  if (_logLines.length > 4) _logLines.length = 4;
+  if (_logLines.length > 5) _logLines.length = 5;
   renderLog();
   // Full log — skip noisy no-hammer noise, keep everything else
   if (cat !== 'noHammers') {

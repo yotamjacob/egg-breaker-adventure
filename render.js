@@ -444,7 +444,8 @@ function updateResources() {
   $id('res-b').textContent = G.crystalBananas;
   $id('res-f').textContent = G.feathers;
   if (G.crystalBananas > 0) $id('res-b-wrap').style.display = '';
-  if (G.totalFeathers > 0)  $id('res-f-wrap').style.display = '';
+  const _mrStage = G.monkeys?.[0]?.stage ?? -1;
+  if (G.totalFeathers > 0 || _mrStage >= 2) $id('res-f-wrap').style.display = '';
 
   // Hammer row with color + timer
   const hRow = $id('hammer-row');
@@ -783,7 +784,7 @@ function renderShop() {
     const owned = G.ownedHammers.includes(h.id);
     const isCursor = G.hammer === h.id;
     const card = document.createElement('div');
-    card.className = 'shop-card' + (owned ? ' owned' : '') + (isCursor ? ' equipped' : '');
+    card.className = 'shop-card' + (owned ? ' owned' : '') + (isCursor ? ' equipped' : '') + (!owned && G.gold >= h.cost ? ' can-afford' : '');
     card.dataset.id = h.id;
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
@@ -804,7 +805,7 @@ function renderShop() {
     const owned      = G.ownedHats.includes(h.id);
     const isEquipped = G.hat === h.id;
     const card = document.createElement('div');
-    card.className = 'shop-card' + (owned ? ' owned' : '') + (isEquipped ? ' equipped' : '');
+    card.className = 'shop-card' + (owned ? ' owned' : '') + (isEquipped ? ' equipped' : '') + (!owned && G.gold >= h.cost ? ' can-afford' : '');
     card.dataset.id = h.id;
     card.innerHTML =
       '<span class="s-emoji">' + h.emoji + '</span>' +
@@ -828,7 +829,7 @@ function renderShop() {
     const isOwned = s.unique && (s.id === 'fastregen' ? G.fastRegen : G['owned_' + s.id]);
     const isFree = s.id === 'hammers20' && !G.shopHammers20;
     const card = document.createElement('div');
-    card.className = 'shop-card' + (isOwned ? ' owned' : '');
+    card.className = 'shop-card' + (isOwned ? ' owned' : '') + (!isOwned && (isFree || G.gold >= s.cost) ? ' can-afford' : '');
     card.dataset.id = s.id;
     card.innerHTML =
       '<span class="s-emoji">' + s.emoji + '</span>' +
