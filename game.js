@@ -3282,7 +3282,12 @@ async function toggleNotifications() {
     await fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
-      body:    JSON.stringify({ device_id: getDeviceId(), subscription: sub.toJSON(), user_id: _cloudUser?.id ?? null }),
+      body:    JSON.stringify({
+        device_id:    getDeviceId(),
+        subscription: sub.toJSON(),
+        user_id:      _cloudUser?.id ?? null,
+        timezone:     Intl.DateTimeFormat().resolvedOptions().timeZone,
+      }),
     });
     localStorage.setItem('eba_push_sub', '1');
     label.textContent = 'ON';
