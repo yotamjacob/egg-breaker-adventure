@@ -2314,7 +2314,10 @@ async function restorePurchases(opts = {}) {
     if (data.reset_premium) {
       _payLog('restore: admin reset_premium — clearing PREMIUM_KEY');
       localStorage.removeItem(PREMIUM_KEY);
-      loadPremium();
+      for (const k of PREMIUM_FIELDS) {
+        if (k === 'deviceId') continue;
+        G[k] = typeof G[k] === 'number' ? 0 : false;
+      }
     }
     const purchases = data.purchases || [];
     _payLog('restore found=' + purchases.length + ' items=[' + purchases.map(p => p.product_id).join(',') + ']');
