@@ -56,6 +56,7 @@ async function getFcmAccessToken(): Promise<string> {
     body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
   })
   const data = await resp.json()
+  if (!data.access_token) throw new Error(`FCM OAuth failed: ${JSON.stringify(data)}`)
   _fcmAccessToken = data.access_token
   _fcmTokenExpiry = Date.now() + (data.expires_in ?? 3600) * 1000
   return _fcmAccessToken!
@@ -105,7 +106,7 @@ async function sendWebPush(subscription: object, payload: object): Promise<boole
     await webpush.sendNotification(subscription, JSON.stringify(payload))
     return true
   } catch (e: any) {
-    if (e.statusCode === 410) return false
+    if (e.statusCode === 410 || e.statusCode === 404) return false
     console.warn('[webpush] send failed', e.statusCode, e.body)
     return true
   }
@@ -203,14 +204,19 @@ serve(async (req) => {
   }
 
   if (notifiedDevices.length) {
-    await supabase.from('push_subscriptions').update({ last_notified_at: now.toISOString() }).in('device_id', notifiedDevices)
+    const { error: e1 } = await supabase.from('push_subscriptions').update({ last_notified_at: now.toISOString() }).in('device_id', notifiedDevices)
+    if (e1) console.error('[send-notif] last_notified_at update failed', e1)
   }
   if (hammersFullDevices.length) {
-    await supabase.from('push_subscriptions').update({ hammers_full_at: null }).in('device_id', hammersFullDevices)
+    const { error: e2 } = await supabase.from('push_subscriptions').update({ hammers_full_at: null }).in('device_id', hammersFullDevices)
+    if (e2) console.error('[send-notif] hammers_full_at clear failed', e2)
   }
   if (expiredDevices.length) {
-    await supabase.from('push_subscriptions').delete().in('device_id', expiredDevices)
+    const { error: e3 } = await supabase.from('push_subscriptions').delete().in('device_id', expiredDevices)
+    if (e3) console.error('[send-notif] expired delete failed', e3)
   }
+
+  console.log(`[send-notif] done — sent=${sent} expired=${expiredDevices.length} subs=${subs.length}`)
 
   return new Response(JSON.stringify({ ok: true, sent, test: !!testDevice, ...(testDevice ? { logs: debugLogs } : {}) }), {
     headers: { 'Content-Type': 'application/json' },
