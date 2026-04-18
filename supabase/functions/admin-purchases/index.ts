@@ -23,16 +23,20 @@ serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
 
-  // GET — list all purchases with user email
+  // GET — list all purchases (Play + PayPal) with user email
   if (req.method === 'GET') {
-    const { data: purchases, error } = await supabase
-      .from('play_purchases')
-      .select('id, device_id, user_id, product_id, order_id, status, created_at')
-      .order('created_at', { ascending: false })
+    const [{ data: playRows, error: e1 }, { data: paypalRows, error: e2 }] = await Promise.all([
+      supabase.from('play_purchases').select('id, device_id, user_id, product_id, order_id, status, created_at'),
+      supabase.from('purchases').select('id, device_id, user_id, product_id, paypal_order_id, status, created_at'),
+    ])
+    if (e1 || e2) return new Response(JSON.stringify({ error: (e1 ?? e2)!.message }), { status: 500, headers: corsHeaders })
 
-    if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders })
+    const allPurchases = [
+      ...(playRows ?? []).map(r => ({ ...r, source: 'play',   order_id: r.order_id ?? null })),
+      ...(paypalRows ?? []).map(r => ({ ...r, source: 'paypal', order_id: r.paypal_order_id ?? null })),
+    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-    // Build email map from auth users (paginate to get all)
+    // Build email map (paginated)
     let emailMap: Record<string, string> = {}
     let page = 1
     while (true) {
@@ -43,33 +47,30 @@ serve(async (req) => {
       page++
     }
 
-    // For purchases with no user_id, try resolving via push_subscriptions device
-    const nullUserDevices = purchases.filter(p => !p.user_id && p.device_id).map(p => p.device_id)
+    // For null user_id rows, fall back to push_subscriptions device lookup
+    const nullUserDevices = allPurchases.filter(p => !p.user_id && p.device_id).map(p => p.device_id)
     let deviceUserMap: Record<string, string> = {}
     if (nullUserDevices.length) {
       const { data: subs } = await supabase
-        .from('push_subscriptions')
-        .select('device_id, user_id')
-        .in('device_id', nullUserDevices)
-        .not('user_id', 'is', null)
+        .from('push_subscriptions').select('device_id, user_id')
+        .in('device_id', nullUserDevices).not('user_id', 'is', null)
       for (const s of subs ?? []) deviceUserMap[s.device_id] = emailMap[s.user_id] ?? s.user_id
     }
 
-    const rows = purchases.map(p => ({
+    const rows = allPurchases.map(p => ({
       ...p,
       email: p.user_id ? (emailMap[p.user_id] ?? null) : (deviceUserMap[p.device_id] ?? null),
     }))
     return new Response(JSON.stringify(rows), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 
-  // DELETE — remove a purchase by id or device_id
+  // DELETE — remove a purchase by id from the correct table
   if (req.method === 'DELETE') {
-    const { id, device_id } = await req.json()
-    if (!id && !device_id) return new Response(JSON.stringify({ error: 'id or device_id required' }), { status: 400, headers: corsHeaders })
+    const { id, source } = await req.json()
+    if (!id || !source) return new Response(JSON.stringify({ error: 'id and source required' }), { status: 400, headers: corsHeaders })
 
-    let query = supabase.from('play_purchases').delete()
-    query = id ? query.eq('id', id) : query.eq('device_id', device_id)
-    const { error, count } = await query.select()
+    const table = source === 'paypal' ? 'purchases' : 'play_purchases'
+    const { error, count } = await supabase.from(table).delete().eq('id', id).select()
 
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders })
     return new Response(JSON.stringify({ ok: true, deleted: count }), { headers: corsHeaders })

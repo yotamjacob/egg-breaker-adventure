@@ -26,6 +26,8 @@
   .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
   .tag-completed { background: #1a4a2a; color: #2ecc71; }
   .tag-pending { background: #4a3a1a; color: #f5c542; }
+  .tag-play { background: #1a3a4a; color: #3498db; }
+  .tag-paypal { background: #2a1a4a; color: #9b59b6; }
   .mono { font-family: monospace; font-size: 0.8rem; color: #aaa; }
   .empty { color: #555; font-style: italic; }
   #toast { position: fixed; bottom: 24px; right: 24px; background: #2ecc71; color: #0a0a18; padding: 10px 18px; border-radius: 8px; font-weight: 600; display: none; }
@@ -51,6 +53,7 @@
       <tr>
         <th>Email</th>
         <th>Product</th>
+        <th>Source</th>
         <th>Status</th>
         <th>Device ID</th>
         <th>Order ID</th>
@@ -109,21 +112,22 @@ function renderTable() {
     <tr>
       <td>${r.email ? `<strong>${esc(r.email)}</strong>` : '<span class="empty">—</span>'}</td>
       <td><strong>${esc(r.product_id)}</strong></td>
+      <td><span class="tag tag-${r.source}">${esc(r.source)}</span></td>
       <td><span class="tag tag-${r.status}">${esc(r.status)}</span></td>
       <td class="mono">${esc(r.device_id ?? '—')}</td>
       <td class="mono">${r.order_id ? esc(r.order_id.slice(0,20)) + '…' : '—'}</td>
       <td>${new Date(r.created_at).toLocaleDateString()}</td>
-      <td><button class="btn btn-delete" onclick="deletePurchase('${r.id}')">Delete</button></td>
+      <td><button class="btn btn-delete" onclick="deletePurchase('${r.id}','${r.source}')">Delete</button></td>
     </tr>
   `).join('')
 }
 
-async function deletePurchase(id) {
+async function deletePurchase(id, source) {
   if (!confirm('Delete this purchase? The user will lose the item on their next restore.')) return
   const res = await fetch(SUPABASE_FN, {
     method: 'DELETE',
     headers: authHeaders({ 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ id }),
+    body: JSON.stringify({ id, source }),
   })
   const data = await res.json()
   if (!data.ok) { alert('Error: ' + data.error); return }
