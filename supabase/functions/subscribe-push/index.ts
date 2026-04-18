@@ -23,7 +23,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: hdrs })
 
   try {
-    const { device_id, subscription, fcm_token, user_id, timezone } = await req.json()
+    const { device_id, subscription, fcm_token, user_id, timezone, hammers_full_at } = await req.json()
     if (!device_id || (!subscription && !fcm_token)) {
       return new Response(JSON.stringify({ error: 'missing fields' }), { status: 400, headers: hdrs })
     }
@@ -38,11 +38,12 @@ serve(async (req) => {
       .upsert(
         {
           device_id,
-          subscription:   subscription   || null,
-          fcm_token:      fcm_token      || null,
-          user_id:        user_id        || null,
-          timezone:       timezone       || null,
-          updated_at:     new Date().toISOString(),
+          subscription:     subscription     || null,
+          fcm_token:        fcm_token        || null,
+          user_id:          user_id          || null,
+          timezone:         timezone         || null,
+          hammers_full_at:  hammers_full_at  || null,
+          updated_at:       new Date().toISOString(),
         },
         { onConflict: 'device_id' }
       )

@@ -3264,14 +3264,18 @@ window.onFcmToken = async function(token) {
 };
 
 async function _sendFcmSubscription(token) {
+  const regenSec     = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  const secsToFull   = G.hammers < G.maxH ? (G.maxH - G.hammers) * regenSec : 0;
+  const hammersFullAt = secsToFull > 0 ? new Date(Date.now() + secsToFull * 1000).toISOString() : null;
   await fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
     body:    JSON.stringify({
-      device_id: getDeviceId(),
-      fcm_token: token,
-      user_id:   _cloudUser?.id ?? null,
-      timezone:  Intl.DateTimeFormat().resolvedOptions().timeZone,
+      device_id:       getDeviceId(),
+      fcm_token:       token,
+      user_id:         _cloudUser?.id ?? null,
+      timezone:        Intl.DateTimeFormat().resolvedOptions().timeZone,
+      hammers_full_at: hammersFullAt,
     }),
   });
 }

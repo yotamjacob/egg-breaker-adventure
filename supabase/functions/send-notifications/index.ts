@@ -134,7 +134,7 @@ serve(async (req) => {
 
   let query = supabase
     .from('push_subscriptions')
-    .select('device_id, subscription, fcm_token, user_id, updated_at, last_notified_at, timezone')
+    .select('device_id, subscription, fcm_token, user_id, updated_at, last_notified_at, timezone, hammers_full_at')
   if (testDevice) query = query.eq('device_id', testDevice)
   const { data: subs } = await query
 
@@ -142,9 +142,10 @@ serve(async (req) => {
     headers: { 'Content-Type': 'application/json' },
   })
 
+  // game_saves used only for last_seen_at (daily reward inactive check)
   const userIds = subs.filter(s => s.user_id).map(s => s.user_id as string)
   const { data: saves } = userIds.length > 0
-    ? await supabase.from('game_saves').select('user_id, last_seen_at, hammers_full_at').in('user_id', userIds)
+    ? await supabase.from('game_saves').select('user_id, last_seen_at').in('user_id', userIds)
     : { data: [] as any[] }
   const savesMap = new Map((saves ?? []).map((s: any) => [s.user_id, s]))
 
@@ -161,7 +162,7 @@ serve(async (req) => {
     const lastSeen = save?.last_seen_at ?? sub.updated_at
     const inactive = new Date(lastSeen) < new Date(inactiveCutoff)
 
-    debugLogs.push(`device=${sub.device_id} fcm=${!!sub.fcm_token} user=${sub.user_id ?? 'none'} save=${!!save} hammers_full_at=${save?.hammers_full_at ?? 'none'} inactive=${inactive}`)
+    debugLogs.push(`device=${sub.device_id} fcm=${!!sub.fcm_token} hammers_full_at=${sub.hammers_full_at ?? 'none'} inactive=${inactive}`)
 
     // Choose delivery method
     const sendPush = sub.fcm_token
@@ -171,20 +172,20 @@ serve(async (req) => {
         : null
     if (!sendPush) { debugLogs.push('skip: no delivery method'); continue }
 
-    // Hammers-full (auth users only)
+    // Hammers-full — works for all users (hammers_full_at stored in push_subscriptions on each startup)
     let sentHammersFull = false
-    if (save?.hammers_full_at) {
-      const fullAt        = new Date(save.hammers_full_at)
-      const seenAfterFull = save.last_seen_at && new Date(save.last_seen_at) >= fullAt
-      debugLogs.push(`hammers_full_at check: fullAt=${fullAt.toISOString()} seenAfterFull=${seenAfterFull} isTest=${isTest}`)
-      if ((fullAt < now && !seenAfterFull) || isTest) {
+    if (sub.hammers_full_at) {
+      const fullAt = new Date(sub.hammers_full_at)
+      debugLogs.push(`hammers_full_at check: fullAt=${fullAt.toISOString()} past=${fullAt < now} isTest=${isTest}`)
+      if (fullAt < now || isTest) {
         const ok = await sendPush({ title: 'Egg Breaker Adventures', body: 'Your hammers are full — come break some eggs!', tag: 'hammers-full', url: '/' })
         if (!ok) expiredDevices.push(sub.device_id)
         else {
           sentHammersFull = true
           sent++
           notifiedDevices.push(sub.device_id)
-          if (!isTest) await supabase.from('game_saves').update({ hammers_full_at: null }).eq('user_id', sub.user_id)
+          // Clear so we don't re-notify; game will re-set it next time hammers drain
+          if (!isTest) await supabase.from('push_subscriptions').update({ hammers_full_at: null }).eq('device_id', sub.device_id)
         }
       }
     }
