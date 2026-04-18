@@ -3245,31 +3245,82 @@ function _urlBase64ToUint8Array(b64) {
   return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
+// ── Android FCM token delivery ─────────────────────────────────────────────────
+// Called by MainActivity.sendFcmTokenToJs() after AndroidBridge.requestFcmToken()
+let _fcmSubscribeResolve = null;
+let _fcmSubscribeReject  = null;
+
+window.onFcmToken = async function(token) {
+  if (_fcmSubscribeResolve) {
+    // User just tapped enable — resolve the pending promise
+    const resolve = _fcmSubscribeResolve;
+    _fcmSubscribeResolve = null;
+    _fcmSubscribeReject  = null;
+    resolve(token);
+  } else if (localStorage.getItem('eba_push_sub')) {
+    // Startup token refresh — silently re-register
+    _sendFcmSubscription(token).catch(() => {});
+  }
+};
+
+async function _sendFcmSubscription(token) {
+  await fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
+    body:    JSON.stringify({
+      device_id: getDeviceId(),
+      fcm_token: token,
+      user_id:   _cloudUser?.id ?? null,
+      timezone:  Intl.DateTimeFormat().resolvedOptions().timeZone,
+    }),
+  });
+}
+
 async function toggleNotifications() {
   const label = $id('notif-toggle-label');
 
   // Already subscribed — unsubscribe
   if (localStorage.getItem('eba_push_sub')) {
-    try {
-      const sw  = await navigator.serviceWorker.ready;
-      const sub = await sw.pushManager.getSubscription();
-      if (sub) await sub.unsubscribe();
-    } catch (_) {}
+    if (!window.AndroidBridge) {
+      try {
+        const sw  = await navigator.serviceWorker.ready;
+        const sub = await sw.pushManager.getSubscription();
+        if (sub) await sub.unsubscribe();
+      } catch (_) {}
+    }
     localStorage.removeItem('eba_push_sub');
     label.textContent = 'OFF';
     label.classList.remove('on');
     return;
   }
 
-  // Android WebView does not implement the Web Notification/Push API.
-  // Full Android push support requires FCM — coming in a future update.
-  if (window.AndroidBridge && typeof Notification === 'undefined') {
-    msg('Push notifications on Android are coming soon.');
+  // Android: request FCM token via native bridge
+  if (window.AndroidBridge && typeof window.AndroidBridge.requestFcmToken === 'function') {
+    try {
+      const token = await new Promise((resolve, reject) => {
+        _fcmSubscribeResolve = resolve;
+        _fcmSubscribeReject  = reject;
+        setTimeout(() => {
+          if (_fcmSubscribeReject === reject) {
+            _fcmSubscribeResolve = null;
+            _fcmSubscribeReject  = null;
+            reject(new Error('Token request timed out'));
+          }
+        }, 10000);
+        window.AndroidBridge.requestFcmToken();
+      });
+      await _sendFcmSubscription(token);
+      localStorage.setItem('eba_push_sub', '1');
+      label.textContent = 'ON';
+      label.classList.add('on');
+    } catch (e) {
+      msg('Could not enable notifications: ' + (e.message || String(e)));
+    }
     return;
   }
 
+  // Web push (browser)
   try {
-    // Request OS permission
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') {
       msg('Notification permission denied.');
@@ -3304,12 +3355,20 @@ function _initNotifBtn() {
   const btn   = $id('notif-toggle-btn');
   const label = $id('notif-toggle-label');
   if (!btn || !label) return;
-  const hasSub = localStorage.getItem('eba_push_sub');
-  if (hasSub && Notification.permission === 'granted') {
+  const hasSub    = localStorage.getItem('eba_push_sub');
+  // On Android trust the stored flag; on browser verify the OS permission
+  const isGranted = window.AndroidBridge
+    ? true
+    : (typeof Notification !== 'undefined' && Notification.permission === 'granted');
+  if (hasSub && isGranted) {
     label.textContent = 'ON';
     label.classList.add('on');
+    // Silently refresh FCM token on every startup so the server always has the latest
+    if (window.AndroidBridge && window.AndroidBridge.requestFcmToken) {
+      window.AndroidBridge.requestFcmToken();
+    }
   } else {
-    if (hasSub) localStorage.removeItem('eba_push_sub'); // permission was revoked
+    if (hasSub) localStorage.removeItem('eba_push_sub');
     label.textContent = 'OFF';
     label.classList.remove('on');
   }

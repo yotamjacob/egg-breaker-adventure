@@ -14,7 +14,97 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 )
 
-// Returns true if it's quiet hours (9pm–8am) in the user's local timezone
+// ── FCM helpers ────────────────────────────────────────────────────────────────
+
+let _fcmAccessToken: string | null = null
+let _fcmTokenExpiry = 0
+
+async function getFcmAccessToken(): Promise<string> {
+  if (_fcmAccessToken && Date.now() < _fcmTokenExpiry - 60_000) return _fcmAccessToken
+
+  const sa = JSON.parse(Deno.env.get('FIREBASE_SERVICE_ACCOUNT')!)
+
+  // Build JWT assertion for Google OAuth2
+  const now   = Math.floor(Date.now() / 1000)
+  const claim = {
+    iss:   sa.client_email,
+    scope: 'https://www.googleapis.com/auth/firebase.messaging',
+    aud:   'https://oauth2.googleapis.com/token',
+    iat:   now,
+    exp:   now + 3600,
+  }
+
+  const header  = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')
+  const payload = btoa(JSON.stringify(claim)).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')
+  const toSign  = header + '.' + payload
+
+  // Import the RSA private key and sign
+  const pemBody    = sa.private_key.replace(/-----[^-]+-----/g, '').replace(/\s/g, '')
+  const keyBuffer  = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0))
+  const cryptoKey  = await crypto.subtle.importKey(
+    'pkcs8', keyBuffer,
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false, ['sign']
+  )
+  const sigBuffer  = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', cryptoKey, new TextEncoder().encode(toSign))
+  const sig        = btoa(String.fromCharCode(...new Uint8Array(sigBuffer))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')
+  const jwt        = toSign + '.' + sig
+
+  const resp = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+  })
+  const data = await resp.json()
+  _fcmAccessToken = data.access_token
+  _fcmTokenExpiry = Date.now() + (data.expires_in ?? 3600) * 1000
+  return _fcmAccessToken!
+}
+
+async function sendFcm(fcmToken: string, payload: { title: string; body: string; tag: string; url: string }): Promise<boolean> {
+  try {
+    const sa         = JSON.parse(Deno.env.get('FIREBASE_SERVICE_ACCOUNT')!)
+    const projectId  = sa.project_id
+    const accessToken = await getFcmAccessToken()
+
+    const resp = await fetch(
+      `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
+      {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({
+          message: {
+            token: fcmToken,
+            notification: { title: payload.title, body: payload.body },
+            data:          { url: payload.url, tag: payload.tag },
+            android:       { priority: 'high' },
+          },
+        }),
+      }
+    )
+    if (resp.status === 404 || resp.status === 410) return false  // token expired
+    return resp.ok
+  } catch (e) {
+    console.warn('[fcm] send failed', e)
+    return true  // keep subscription, transient error
+  }
+}
+
+// ── Web Push helper ────────────────────────────────────────────────────────────
+
+async function sendWebPush(subscription: object, payload: object): Promise<boolean> {
+  try {
+    await webpush.sendNotification(subscription, JSON.stringify(payload))
+    return true
+  } catch (e: any) {
+    if (e.statusCode === 410) return false
+    console.warn('[webpush] send failed', e.statusCode, e.body)
+    return true
+  }
+}
+
+// ── Nighttime guard ────────────────────────────────────────────────────────────
+
 function isNighttime(tz: string | null): boolean {
   if (!tz) return false
   try {
@@ -25,28 +115,18 @@ function isNighttime(tz: string | null): boolean {
   } catch { return false }
 }
 
-async function sendPush(subscription: object, payload: object): Promise<boolean> {
-  try {
-    await webpush.sendNotification(subscription, JSON.stringify(payload))
-    return true
-  } catch (e: any) {
-    if (e.statusCode === 410) return false  // expired — remove it
-    console.warn('[push] send failed', e.statusCode, e.body)
-    return true  // keep subscription, may be a temporary error
-  }
-}
+// ── Main handler ───────────────────────────────────────────────────────────────
 
 serve(async (req) => {
   const url        = new URL(req.url)
-  const testDevice = url.searchParams.get('test_device')  // bypass all checks for this device_id
+  const testDevice = url.searchParams.get('test_device')
   const now        = new Date()
-  const inactiveCutoff  = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString()
-  const dedupeCutoff    = new Date(now.getTime() - 22 * 60 * 60 * 1000).toISOString()
+  const inactiveCutoff = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString()
+  const dedupeCutoff   = new Date(now.getTime() - 22 * 60 * 60 * 1000).toISOString()
 
-  // Fetch subscriptions — all, or just the test device
   let query = supabase
     .from('push_subscriptions')
-    .select('device_id, subscription, user_id, updated_at, last_notified_at, timezone')
+    .select('device_id, subscription, fcm_token, user_id, updated_at, last_notified_at, timezone')
   if (testDevice) query = query.eq('device_id', testDevice)
   const { data: subs } = await query
 
@@ -54,7 +134,6 @@ serve(async (req) => {
     headers: { 'Content-Type': 'application/json' },
   })
 
-  // Fetch game_saves for authenticated users (last_seen_at / hammers_full_at)
   const userIds = subs.filter(s => s.user_id).map(s => s.user_id as string)
   const { data: saves } = userIds.length > 0
     ? await supabase.from('game_saves').select('user_id, last_seen_at, hammers_full_at').in('user_id', userIds)
@@ -67,63 +146,49 @@ serve(async (req) => {
 
   for (const sub of subs) {
     const isTest = !!testDevice
-
-    // Skip nighttime unless this is a test ping
     if (!isTest && isNighttime(sub.timezone)) continue
 
     const save     = sub.user_id ? savesMap.get(sub.user_id) : null
     const lastSeen = save?.last_seen_at ?? sub.updated_at
     const inactive = new Date(lastSeen) < new Date(inactiveCutoff)
 
-    // --- Hammers-full notification (authenticated users only) ---
+    // Choose delivery method
+    const sendPush = sub.fcm_token
+      ? (p: any) => sendFcm(sub.fcm_token, p)
+      : sub.subscription
+        ? (p: any) => sendWebPush(sub.subscription, p)
+        : null
+    if (!sendPush) continue
+
+    // Hammers-full (auth users only)
     let sentHammersFull = false
     if (save?.hammers_full_at) {
       const fullAt        = new Date(save.hammers_full_at)
       const seenAfterFull = save.last_seen_at && new Date(save.last_seen_at) >= fullAt
       if ((fullAt < now && !seenAfterFull) || isTest) {
-        const ok = await sendPush(sub.subscription, {
-          title: 'Egg Breaker Adventures',
-          body:  'Your hammers are full — come break some eggs!',
-          tag:   'hammers-full',
-          url:   '/',
-        })
+        const ok = await sendPush({ title: 'Egg Breaker Adventures', body: 'Your hammers are full — come break some eggs!', tag: 'hammers-full', url: '/' })
         if (!ok) expiredDevices.push(sub.device_id)
         else {
           sentHammersFull = true
           sent++
           notifiedDevices.push(sub.device_id)
-          if (!isTest) {
-            await supabase.from('game_saves').update({ hammers_full_at: null }).eq('user_id', sub.user_id)
-          }
+          if (!isTest) await supabase.from('game_saves').update({ hammers_full_at: null }).eq('user_id', sub.user_id)
         }
       }
     }
 
-    // --- Daily-reward notification ---
-    // Skip if: recently notified (within 22h), or just sent hammers-full
+    // Daily reward
     const recentlyNotified = sub.last_notified_at && new Date(sub.last_notified_at) > new Date(dedupeCutoff)
     if ((inactive || isTest) && !sentHammersFull && !recentlyNotified) {
-      const ok = await sendPush(sub.subscription, {
-        title: 'Egg Breaker Adventures',
-        body:  'Your daily reward is ready. Come claim it!',
-        tag:   'daily-reward',
-        url:   '/?tab=daily',
-      })
+      const ok = await sendPush({ title: 'Egg Breaker Adventures', body: 'Your daily reward is ready. Come claim it!', tag: 'daily-reward', url: '/?tab=daily' })
       if (!ok) expiredDevices.push(sub.device_id)
-      else {
-        sent++
-        notifiedDevices.push(sub.device_id)
-      }
+      else { sent++; notifiedDevices.push(sub.device_id) }
     }
   }
 
-  // Stamp last_notified_at for all devices that received any notification
   if (notifiedDevices.length) {
-    await supabase.from('push_subscriptions')
-      .update({ last_notified_at: now.toISOString() })
-      .in('device_id', notifiedDevices)
+    await supabase.from('push_subscriptions').update({ last_notified_at: now.toISOString() }).in('device_id', notifiedDevices)
   }
-
   if (expiredDevices.length) {
     await supabase.from('push_subscriptions').delete().in('device_id', expiredDevices)
   }

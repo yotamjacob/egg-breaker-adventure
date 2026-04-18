@@ -69,6 +69,15 @@
             </intent-filter>
         </service>
 
+        <!-- ── FCM: receive tokens and background messages ────── -->
+        <service
+            android:name=".EbaFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <!-- ── Push notification delegation (optional) ────────── -->
         <service
             android:name=".DelegationService"

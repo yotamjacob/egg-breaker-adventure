@@ -28,6 +28,8 @@ import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.QueryProductDetailsParams;
 import com.android.billingclient.api.QueryPurchasesParams;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -39,10 +41,26 @@ public class MainActivity extends Activity {
     private volatile boolean _jsReady      = false;
     private static final String GAME_URL = "https://egg-breaker-adventures.vercel.app/";
 
+    // Static reference so EbaFirebaseMessagingService can deliver tokens
+    static MainActivity instance;
+
+    // Called from EbaFirebaseMessagingService when a new FCM token is issued
+    static void deliverFcmToken(String token) {
+        if (instance != null) instance.sendFcmTokenToJs(token);
+    }
+
+    private void sendFcmTokenToJs(String token) {
+        if (webView == null) return;
+        final String escaped = token.replace("\\", "\\\\").replace("'", "\\'");
+        webView.post(() -> webView.evaluateJavascript(
+            "if(typeof window.onFcmToken==='function')window.onFcmToken('" + escaped + "')", null));
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this;
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -124,6 +142,15 @@ public class MainActivity extends Activity {
                     // launchBillingFlow must run on the UI thread
                     runOnUiThread(() -> billingClient.launchBillingFlow(MainActivity.this, flowParams));
                 });
+            }
+
+            // Fetches the FCM registration token and delivers it to JS via window.onFcmToken(token).
+            // Called from JS when the user enables push notifications on Android.
+            @JavascriptInterface
+            public void requestFcmToken() {
+                FirebaseMessaging.getInstance().getToken()
+                    .addOnSuccessListener(token -> { if (token != null) sendFcmTokenToJs(token); })
+                    .addOnFailureListener(e -> payLog("FCM token failed: " + e.getMessage()));
             }
 
         }, "AndroidBridge");
@@ -342,6 +369,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (instance == this) instance = null;
         if (billingClient != null) { billingClient.endConnection(); billingClient = null; }
         if (webView != null) { webView.destroy(); webView = null; }
         super.onDestroy();
