@@ -1097,7 +1097,7 @@ function applyPrize(prize, cx, cy) {
   }
 
   if (prize.type === 'hammers') {
-    G.hammers = Math.max(G.hammers, Math.min(G.maxH, G.hammers + prize.value));
+    G.hammers += prize.value;
     if (prize.balloonMult || prize.usedMult) {
       const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'hammers', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#b45309', 'big', cx, cy);
