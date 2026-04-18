@@ -3261,7 +3261,8 @@ async function toggleNotifications() {
       if (sub) await sub.unsubscribe();
     } catch (_) {}
     localStorage.removeItem('eba_push_sub');
-    label.textContent = 'Notifications: Off';
+    label.textContent = 'OFF';
+    label.classList.remove('on');
     return;
   }
 
@@ -3284,7 +3285,8 @@ async function toggleNotifications() {
       body:    JSON.stringify({ device_id: getDeviceId(), subscription: sub.toJSON(), user_id: _cloudUser?.id ?? null }),
     });
     localStorage.setItem('eba_push_sub', '1');
-    label.textContent = 'Notifications: On';
+    label.textContent = 'ON';
+    label.classList.add('on');
   } catch (e) {
     console.warn('[push] subscribe failed', e);
     msg('Could not enable notifications. Try again.');
@@ -3301,9 +3303,11 @@ function _initNotifBtn() {
   }
   const hasSub = localStorage.getItem('eba_push_sub');
   if (hasSub && Notification.permission === 'granted') {
-    label.textContent = 'Notifications: On';
+    label.textContent = 'ON';
+    label.classList.add('on');
   } else {
     if (hasSub) localStorage.removeItem('eba_push_sub'); // permission was revoked
-    label.textContent = 'Notifications: Off';
+    label.textContent = 'OFF';
+    label.classList.remove('on');
   }
 }

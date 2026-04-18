@@ -259,9 +259,11 @@
           <button class="settings-menu-btn" onclick="openCloudSaveModal()">
             <span class="btn-label">☁️ Cloud Save</span>
           </button>
-          <button class="settings-menu-btn" id="notif-toggle-btn" onclick="toggleNotifications()">
-            <span class="btn-label" id="notif-toggle-label">Notifications: Off</span>
-          </button>
+          <div class="settings-menu-btn notif-row" id="notif-toggle-btn" onclick="toggleNotifications()">
+            <span class="notif-icon">🔔</span>
+            <span class="btn-label">Push Notifications</span>
+            <span class="notif-toggle-chip" id="notif-toggle-label">OFF</span>
+          </div>
           <button class="settings-menu-btn settings-danger-btn" onclick="resetGame()">
             <span class="btn-label">Reset All Progress</span>
           </button>

@@ -151,6 +151,14 @@
   box-shadow:2px 2px 0 var(--dark)!important;
 }
 .settings-danger-btn:hover{background:rgba(231,76,60,.12)!important;transform:translate(-1px,-1px);}
+.notif-row{gap:8px;cursor:pointer}
+.notif-icon{font-size:16px;flex-shrink:0}
+.notif-toggle-chip{
+  padding:3px 8px;border-radius:2px;font-size:9px;font-family:var(--px);
+  background:var(--panel);color:var(--gray);border:2px solid var(--gray);
+  flex-shrink:0;transition:all .1s;
+}
+.notif-toggle-chip.on{background:var(--green2);color:var(--white);border-color:var(--green)}
 
 /* Version footer */
 .settings-version{
