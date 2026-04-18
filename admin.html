@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EBA Admin — Purchases</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #0a0a18; color: #e0e0e0; padding: 24px; }
+  h1 { color: #f5c542; margin-bottom: 20px; font-size: 1.4rem; }
+  #login { max-width: 360px; margin: 80px auto; }
+  #login input { width: 100%; padding: 10px 14px; background: #16213e; border: 1px solid #2a2a4a; border-radius: 6px; color: #e0e0e0; font-size: 1rem; margin-bottom: 10px; }
+  #login button { width: 100%; padding: 10px; background: #f5c542; color: #0a0a18; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem; }
+  #panel { display: none; }
+  .toolbar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+  .toolbar input { padding: 8px 12px; background: #16213e; border: 1px solid #2a2a4a; border-radius: 6px; color: #e0e0e0; font-size: 0.9rem; width: 260px; }
+  .toolbar span { color: #7f8c8d; font-size: 0.85rem; }
+  .btn { padding: 7px 14px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn-refresh { background: #2a2a4a; color: #e0e0e0; }
+  .btn-delete { background: #c0392b; color: #fff; }
+  .btn-delete:hover { background: #e74c3c; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { background: #16213e; color: #f5c542; padding: 10px 12px; text-align: left; position: sticky; top: 0; }
+  td { padding: 9px 12px; border-bottom: 1px solid #1a1a30; vertical-align: middle; }
+  tr:hover td { background: #111128; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
+  .tag-completed { background: #1a4a2a; color: #2ecc71; }
+  .tag-pending { background: #4a3a1a; color: #f5c542; }
+  .mono { font-family: monospace; font-size: 0.8rem; color: #aaa; }
+  .empty { color: #555; font-style: italic; }
+  #toast { position: fixed; bottom: 24px; right: 24px; background: #2ecc71; color: #0a0a18; padding: 10px 18px; border-radius: 8px; font-weight: 600; display: none; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h1>EBA Admin</h1>
+  <input type="password" id="secret-input" placeholder="Admin secret" autofocus>
+  <button onclick="doLogin()">Sign in</button>
+</div>
+
+<div id="panel">
+  <h1>Purchases</h1>
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Search email, device, product…" oninput="renderTable()">
+    <button class="btn btn-refresh" onclick="load()">Refresh</button>
+    <span id="count"></span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Product</th>
+        <th>Status</th>
+        <th>Device ID</th>
+        <th>Order ID</th>
+        <th>Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_FN = 'https://hhpikvqeopscjdzuhbfk.supabase.co/functions/v1/admin-purchases'
+let secret = ''
+let allRows = []
+
+function doLogin() {
+  secret = document.getElementById('secret-input').value.trim()
+  if (!secret) return
+  sessionStorage.setItem('eba_admin_secret', secret)
+  document.getElementById('login').style.display = 'none'
+  document.getElementById('panel').style.display = 'block'
+  load()
+}
+
+async function load() {
+  const res = await fetch(SUPABASE_FN, { headers: { Authorization: `Bearer ${secret}` } })
+  if (res.status === 401) { alert('Wrong secret'); return }
+  allRows = await res.json()
+  renderTable()
+}
+
+function renderTable() {
+  const q = document.getElementById('search').value.toLowerCase()
+  const rows = allRows.filter(r =>
+    !q ||
+    (r.email ?? '').toLowerCase().includes(q) ||
+    (r.device_id ?? '').toLowerCase().includes(q) ||
+    (r.product_id ?? '').toLowerCase().includes(q) ||
+    (r.order_id ?? '').toLowerCase().includes(q)
+  )
+  document.getElementById('count').textContent = `${rows.length} of ${allRows.length} rows`
+  const tbody = document.getElementById('tbody')
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">No results</td></tr>'
+    return
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.email ? `<strong>${esc(r.email)}</strong>` : '<span class="empty">—</span>'}</td>
+      <td><strong>${esc(r.product_id)}</strong></td>
+      <td><span class="tag tag-${r.status}">${esc(r.status)}</span></td>
+      <td class="mono">${esc(r.device_id ?? '—')}</td>
+      <td class="mono">${r.order_id ? esc(r.order_id.slice(0,20)) + '…' : '—'}</td>
+      <td>${new Date(r.created_at).toLocaleDateString()}</td>
+      <td><button class="btn btn-delete" onclick="deletePurchase('${r.id}')">Delete</button></td>
+    </tr>
+  `).join('')
+}
+
+async function deletePurchase(id) {
+  if (!confirm('Delete this purchase? The user will lose the item on their next restore.')) return
+  const res = await fetch(SUPABASE_FN, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  })
+  const data = await res.json()
+  if (!data.ok) { alert('Error: ' + data.error); return }
+  allRows = allRows.filter(r => r.id !== id)
+  renderTable()
+  toast('Deleted')
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast')
+  el.textContent = msg
+  el.style.display = 'block'
+  setTimeout(() => el.style.display = 'none', 2000)
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+}
+
+// Restore session
+const saved = sessionStorage.getItem('eba_admin_secret')
+if (saved) { secret = saved; document.getElementById('secret-input').value = saved; doLogin() }
+else document.getElementById('secret-input').focus()
+
+document.getElementById('secret-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin() })
+</script>
+</body>
+</html>
