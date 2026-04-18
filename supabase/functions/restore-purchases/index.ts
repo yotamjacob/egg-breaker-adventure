@@ -72,6 +72,17 @@ Deno.serve(async (req) => {
 
     const purchases: { product_id: string; reward: object }[] = []
 
+    // Check if admin requested a premium cache reset for this user
+    let resetPremium = false
+    if (user_id) {
+      const { data: saveRow } = await supabase
+        .from('game_saves').select('premium_reset_requested').eq('user_id', user_id).maybeSingle()
+      if (saveRow?.premium_reset_requested) {
+        resetPremium = true
+        await supabase.from('game_saves').update({ premium_reset_requested: false }).eq('user_id', user_id)
+      }
+    }
+
     // ── 1. PayPal completed — by device_id ────────────────────────────────
     const { data: paypalByDevice } = await supabase
       .from('purchases')
@@ -166,7 +177,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ purchases }),
+      JSON.stringify({ purchases, ...(resetPremium ? { reset_premium: true } : {}) }),
       { headers: { ...hdrs, 'Content-Type': 'application/json' } }
     )
   } catch (err) {

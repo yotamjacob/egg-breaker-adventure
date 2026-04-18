@@ -2311,6 +2311,11 @@ async function restorePurchases(opts = {}) {
     const data = await res.json();
     _payLog('restore BODY=' + JSON.stringify(data).slice(0, 300));
     if (data.error) throw new Error(data.error);
+    if (data.reset_premium) {
+      _payLog('restore: admin reset_premium — clearing PREMIUM_KEY');
+      localStorage.removeItem(PREMIUM_KEY);
+      loadPremium();
+    }
     const purchases = data.purchases || [];
     _payLog('restore found=' + purchases.length + ' items=[' + purchases.map(p => p.product_id).join(',') + ']');
     if (purchases.length === 0) {

@@ -51,6 +51,7 @@
   <div class="toolbar">
     <input type="text" id="search" placeholder="Search email, device, product…" oninput="renderTable()" autocomplete="off">
     <button class="btn btn-refresh" onclick="load()">Refresh</button>
+    <button class="btn btn-disable" onclick="showResetMenu()" id="reset-btn">Reset Premium Cache…</button>
     <span id="count"></span>
   </div>
   <table>
@@ -128,6 +129,28 @@ function renderTable() {
       </td>
     </tr>
   `).join('')
+}
+
+function showResetMenu() {
+  const users = [...new Map(allRows.filter(r => r.user_id).map(r => [r.user_id, r.email ?? r.user_id])).entries()]
+  if (!users.length) { alert('No signed-in users found in the table.'); return }
+  const choice = users.length === 1
+    ? users[0]
+    : users[parseInt(prompt(users.map((u, i) => `${i}: ${u[1]}`).join('\n') + '\n\nEnter number:'), 10)]
+  if (!choice) return
+  if (!confirm(`Reset premium cache for ${choice[1]}?\nTheir device will clear PREMIUM_KEY on next app open.`)) return
+  resetPremiumCache(choice[0], choice[1])
+}
+
+async function resetPremiumCache(userId, label) {
+  const res = await fetch(SUPABASE_FN, {
+    method: 'POST',
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ user_id: userId }),
+  })
+  const data = await res.json()
+  if (!data.ok) { alert('Error: ' + data.error); return }
+  toast(`Reset queued for ${label}`)
 }
 
 async function toggleDisabled(id, source, disabled) {

@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-admin-secret',
-  'Access-Control-Allow-Methods': 'GET, DELETE, PATCH, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, DELETE, PATCH, POST, OPTIONS',
 }
 
 function unauthorized() {
@@ -86,6 +86,15 @@ serve(async (req) => {
 
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders })
     return new Response(JSON.stringify({ ok: true, disabled }), { headers: corsHeaders })
+  }
+
+  // POST — request premium cache reset for a user (picked up on next restore)
+  if (req.method === 'POST') {
+    const { user_id } = await req.json()
+    if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400, headers: corsHeaders })
+    const { error } = await supabase.from('game_saves').update({ premium_reset_requested: true }).eq('user_id', user_id)
+    if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders })
+    return new Response(JSON.stringify({ ok: true }), { headers: corsHeaders })
   }
 
   return new Response(JSON.stringify({ error: 'method not allowed' }), { status: 405, headers: corsHeaders })
