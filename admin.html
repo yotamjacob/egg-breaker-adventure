@@ -80,7 +80,7 @@ function doLogin() {
 
 async function load() {
   const res = await fetch(SUPABASE_FN, { headers: { Authorization: `Bearer ${secret}` } })
-  if (res.status === 401) { alert('Wrong secret'); return }
+  if (res.status === 401) { sessionStorage.removeItem('eba_admin_secret'); alert('Wrong secret'); return }
   allRows = await res.json()
   renderTable()
 }

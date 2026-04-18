@@ -1,11 +1,10 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const ADMIN_SECRET = Deno.env.get('ADMIN_SECRET')!
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, content-type',
+  'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS',
 }
 
 function unauthorized() {
@@ -15,8 +14,9 @@ function unauthorized() {
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
+  const adminSecret = Deno.env.get('ADMIN_SECRET')
   const auth = req.headers.get('authorization') ?? ''
-  if (auth !== `Bearer ${ADMIN_SECRET}`) return unauthorized()
+  if (!adminSecret || auth !== `Bearer ${adminSecret}`) return unauthorized()
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
