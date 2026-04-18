@@ -445,7 +445,7 @@ function updateResources() {
   $id('res-f').textContent = G.feathers;
   $id('res-b-wrap').style.display = G.crystalBananas > 0 ? '' : 'none';
   const _mrStage = G.monkeys?.[0]?.stage ?? -1;
-  $id('res-f-wrap').style.display = (G.totalFeathers > 0 || _mrStage >= 2) ? '' : 'none';
+  $id('res-f-wrap').style.display = (G.totalFeathers > 0 || _mrStage >= 1) ? '' : 'none';
 
   // Hammer row with color + timer
   const hRow = $id('hammer-row');
