@@ -3295,7 +3295,12 @@ async function toggleNotifications() {
   }
 
   // Android: request FCM token via native bridge
-  if (window.AndroidBridge && typeof window.AndroidBridge.requestFcmToken === 'function') {
+  if (window.AndroidBridge) {
+    _payLog('notif: AndroidBridge detected, requestFcmToken=' + typeof window.AndroidBridge.requestFcmToken);
+    if (typeof window.AndroidBridge.requestFcmToken !== 'function') {
+      msg('Please update the app to enable push notifications.');
+      return;
+    }
     try {
       const token = await new Promise((resolve, reject) => {
         _fcmSubscribeResolve = resolve;
@@ -3304,22 +3309,30 @@ async function toggleNotifications() {
           if (_fcmSubscribeReject === reject) {
             _fcmSubscribeResolve = null;
             _fcmSubscribeReject  = null;
-            reject(new Error('Token request timed out'));
+            reject(new Error('Token request timed out — check Firebase setup'));
           }
-        }, 10000);
+        }, 8000);
+        _payLog('notif: calling requestFcmToken');
         window.AndroidBridge.requestFcmToken();
       });
+      _payLog('notif: got token, subscribing');
       await _sendFcmSubscription(token);
       localStorage.setItem('eba_push_sub', '1');
       label.textContent = 'ON';
       label.classList.add('on');
+      _payLog('notif: subscribed OK');
     } catch (e) {
+      _payLog('notif: error ' + e.message);
       msg('Could not enable notifications: ' + (e.message || String(e)));
     }
     return;
   }
 
   // Web push (browser)
+  if (typeof Notification === 'undefined') {
+    msg('Push notifications are not supported in this browser.');
+    return;
+  }
   try {
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') {
