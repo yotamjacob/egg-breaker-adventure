@@ -1343,7 +1343,7 @@ function checkCollectionComplete(suppressFlash) {
     if (newTier === 1) {
       // Bronze → Silver: +5 hammers
       const refill = Math.round(CONFIG.tierRewards.silver.hammerRefill * _tHMult);
-      G.hammers = Math.min(G.maxH, G.hammers + refill);
+      G.hammers += refill;
       G.tierHammerRefills = (G.tierHammerRefills || 0) + refill;
       msg('⬆️ Silver Tier! ' + stage.name + ' +' + refill + ' 🔨', 'tiers');
 
@@ -1352,7 +1352,7 @@ function checkCollectionComplete(suppressFlash) {
       const reward = CONFIG.tierRewards.gold;
       const refill2 = Math.round(reward.hammerRefill * _tHMult);
       G.maxH += reward.maxHammers;
-      G.hammers = Math.min(G.maxH, G.hammers + refill2);
+      G.hammers += refill2;
       G.tierHammerRefills = (G.tierHammerRefills || 0) + refill2;
       // Unlock next stage if this is the highest
       if (si >= prog.stage && si < curMonkey().stages.length - 1) {
@@ -1368,7 +1368,7 @@ function checkCollectionComplete(suppressFlash) {
       G.stagesCompleted++;
       G.crystalBananas += CONFIG.crystalBananasPerStage;
       const refill3 = Math.round(CONFIG.tierRewards.complete.hammerRefill * _tHMult);
-      G.hammers = Math.min(G.maxH, G.hammers + refill3);
+      G.hammers += refill3;
       G.tierHammerRefills = (G.tierHammerRefills || 0) + refill3;
       // Also unlock next stage if not already
       if (si >= prog.stage && si < curMonkey().stages.length - 1) {
