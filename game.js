@@ -3261,6 +3261,13 @@ async function toggleNotifications() {
     return;
   }
 
+  // Android WebView does not implement the Web Notification/Push API.
+  // Full Android push support requires FCM — coming in a future update.
+  if (window.AndroidBridge && typeof Notification === 'undefined') {
+    msg('Push notifications on Android are coming soon.');
+    return;
+  }
+
   try {
     // Request OS permission
     const perm = await Notification.requestPermission();
