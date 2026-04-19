@@ -485,13 +485,24 @@ function updateOverallProgress() {
     });
   });
 
-  const pct = totalItems > 0 ? Math.round((foundItems / totalItems) * 100) : 0;
+  // One-time shop unlockables
+  const totalShop = SHOP_HAMMERS.filter(h => h.cost > 0).length
+    + SHOP_HATS.filter(h => h.cost > 0).length
+    + SHOP_SUPPLIES.filter(s => s.unique).length;
+  const ownedShop = (G.ownedHammers || []).filter(id => id !== 'default').length
+    + (G.ownedHats || []).filter(id => id !== 'none').length
+    + (G['owned_spyglass'] ? 1 : 0) + (G.fastRegen ? 1 : 0);
+
+  const grand = totalItems + totalShop;
+  const grandFound = foundItems + ownedShop;
+  const pct = grand > 0 ? Math.round((grandFound / grand) * 100) : 0;
   $id('overall-pct').textContent = pct + '%';
   $id('overall-fill').style.width = pct + '%';
   $id('overall-detail').innerHTML =
     '<span>Items: <strong>' + foundItems + '/' + totalItems + '</strong></span>' +
     '<span>Stages: <strong>' + doneStages + '/' + totalStages + '</strong></span>' +
-    '<span>Monkeys: <strong>' + unlockedMonkeys + '/' + MONKEY_DATA.length + '</strong></span>';
+    '<span>Monkeys: <strong>' + unlockedMonkeys + '/' + MONKEY_DATA.length + '</strong></span>' +
+    '<span>Shop: <strong>' + ownedShop + '/' + totalShop + '</strong></span>';
 }
 
 function updateStageBar() {
@@ -720,7 +731,7 @@ function renderMonkeys() {
       card.innerHTML =
         '<span class="m-emoji">❓</span>' +
         '<span class="m-name">???</span>' +
-        '<span class="m-perk mystery-hint">' + (req.hint || 'Hidden warrior') + '</span>';
+        '<span class="m-perk mystery-hint">' + (req.hint || 'Hidden monkey') + '</span>';
       grid.appendChild(card);
       return;
     }
@@ -1126,7 +1137,7 @@ ${C.eggTypes.map(d => isEggDiscovered(d.id)
       });
       return `
 <p>Each monkey is a separate adventure with its own stages and collection. Unlock new ones with Crystal Bananas (${C.crystalBananasPerStage} per completed stage). Perks stack with equipment and each other.</p>
-<p><strong>Note:</strong> Some warriors are hidden until you meet special conditions — keep exploring!</p>
+<p><strong>Note:</strong> Some monkeys are hidden until you meet special conditions — keep exploring!</p>
 <table class="lex-table">
 <tr><th>Monkey</th><th>Cost</th><th>Perk</th></tr>
 ${rows}
@@ -1145,7 +1156,7 @@ ${rows}
 <p><strong>Save x${bigMult} multipliers</strong> for Gold egg large-gold rolls (${C.goldValues.gold_l[0]}–${C.goldValues.gold_l[1]} base). One lucky hit can net huge gold.</p>
 <p><strong>Best builds:</strong> Princess + Golden Hammer + Crown for gold farming. Space Cadette + Rainbow + Pirate for fast collection completion.</p>
 <p><strong>Mjǫllnir</strong> (500k gold) has a 3% chance per hit to grant +7 star pieces — great for charging up Starfall quickly.</p>
-<p><strong>Hidden warriors:</strong> some monkeys only reveal themselves once you've acquired special items. Keep collecting.</p>
+<p><strong>Hidden monkeys:</strong> some monkeys only reveal themselves once you've met special conditions. Keep collecting.</p>
 `;
     }
   },
