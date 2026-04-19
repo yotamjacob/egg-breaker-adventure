@@ -18,6 +18,9 @@ const JS_FILES = [
   'hammers.js',
   'render.js',
   'game.js',
+  'smash.js',
+  'shop.js',
+  'achievements.js',
   'payments.js',
   'cloud.js',
 ];
