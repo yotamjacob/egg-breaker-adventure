@@ -2187,6 +2187,7 @@ window.onPlayPurchaseResult = async function(productId, purchaseToken, success, 
     let data;
     try { data = JSON.parse(text); } catch (e) { throw new Error('verify parse error (HTTP ' + res.status + '): ' + text.slice(0, 80)); }
     if (data.error) { _payLog('verify APP_ERROR: ' + data.error); throw new Error(data.error); }
+    if (!data.success) { _payLog('verify not success: ' + JSON.stringify(data)); return; }
     _payLog('verify OK reward=' + JSON.stringify(data.reward || {}));
     applyPurchaseReward(productId, data.reward);
   } catch (e) {
@@ -2359,7 +2360,7 @@ async function restorePurchases(opts = {}) {
   }
 }
 
-function applyPurchaseReward(productId, reward) {
+function applyPurchaseReward(productId, reward = {}) {
   if (reward.gold)    { G.gold += reward.gold; G.totalGold += reward.gold; }
   if (reward.hammers) { G.hammers += reward.hammers; }
   if (reward.bananas) { G.crystalBananas += reward.bananas; }
