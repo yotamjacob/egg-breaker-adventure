@@ -5,7 +5,13 @@
 
 // ── Analytics helper (Umami) ──────────────────────────────────
 function track(event, props) {
-  try { if (typeof umami !== 'undefined') umami.track(event, props); } catch(e) {}
+  try {
+    if (typeof umami !== 'undefined') {
+      const p = Object.assign({}, props)
+      if (typeof _cloudUser !== 'undefined' && _cloudUser?.email) p.user = _cloudUser.email
+      umami.track(event, p)
+    }
+  } catch(e) {}
 }
 
 
@@ -1568,7 +1574,7 @@ function unlockMonkey(index) {
   if (req && req.monkey) {
     const reqIdx = MONKEY_DATA.findIndex(m => m.id === req.monkey);
     if (reqIdx === -1 || !G.monkeys[reqIdx]?.unlocked) {
-      showAlert('🔒', req.hint || 'Unlock another warrior first.');
+      showAlert('🔒', req.hint || 'Unlock another monkey first.');
       SFX.play('err');
       return;
     }
@@ -1576,7 +1582,7 @@ function unlockMonkey(index) {
   if (req && req.monkeys) {
     const unmet = req.monkeys.find(id => { const ri = MONKEY_DATA.findIndex(m => m.id === id); return ri === -1 || !G.monkeys[ri]?.unlocked; });
     if (unmet) {
-      showAlert('🔒', req.hint || 'Unlock all warriors first.');
+      showAlert('🔒', req.hint || 'Unlock all monkeys first.');
       SFX.play('err');
       return;
     }

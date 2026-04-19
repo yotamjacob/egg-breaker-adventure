@@ -3,18 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EBA Admin — Purchases</title>
+<title>EBA Admin</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: system-ui, sans-serif; background: #0a0a18; color: #e0e0e0; padding: 24px; }
-  h1 { color: #f5c542; margin-bottom: 20px; font-size: 1.4rem; }
+  h1 { color: #f5c542; margin-bottom: 16px; font-size: 1.4rem; }
   #login { max-width: 360px; margin: 80px auto; }
   #login input { width: 100%; padding: 10px 14px; background: #16213e; border: 1px solid #2a2a4a; border-radius: 6px; color: #e0e0e0; font-size: 1rem; margin-bottom: 10px; }
   #login button { width: 100%; padding: 10px; background: #f5c542; color: #0a0a18; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem; }
   #panel { display: none; }
+
+  /* Tabs */
+  .tab-nav { display: flex; gap: 6px; margin-bottom: 20px; }
+  .tab-btn { padding: 8px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 600; background: #1a1a30; color: #7f8c8d; transition: background 0.15s; }
+  .tab-btn.active { background: #f5c542; color: #0a0a18; }
+  .tab-btn:hover:not(.active) { background: #2a2a4a; color: #e0e0e0; }
+
+  /* Toolbar */
   .toolbar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
   .toolbar input { padding: 8px 12px; background: #16213e; border: 1px solid #2a2a4a; border-radius: 6px; color: #e0e0e0; font-size: 0.9rem; width: 260px; }
   .toolbar span { color: #7f8c8d; font-size: 0.85rem; }
+
+  /* Buttons */
   .btn { padding: 7px 14px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
   .btn-refresh { background: #2a2a4a; color: #e0e0e0; }
   .btn-delete  { background: #c0392b; color: #fff; }
@@ -23,6 +33,8 @@
   .btn-disable:hover { background: #95a5a6; }
   .btn-enable  { background: #27ae60; color: #fff; }
   .btn-enable:hover  { background: #2ecc71; }
+
+  /* Purchases table */
   tr.disabled-row td { opacity: 0.45; }
   table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   th { background: #16213e; color: #f5c542; padding: 10px 12px; text-align: left; position: sticky; top: 0; }
@@ -35,6 +47,27 @@
   .tag-paypal { background: #2a1a4a; color: #9b59b6; }
   .mono { font-family: monospace; font-size: 0.8rem; color: #aaa; }
   .empty { color: #555; font-style: italic; }
+
+  /* Player cards */
+  .player-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+  .player-card { background: #16213e; border: 1px solid #2a2a4a; border-radius: 10px; padding: 16px; }
+  .player-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .player-email { color: #f5c542; font-weight: 700; font-size: 0.9rem; }
+  .player-seen { color: #7f8c8d; font-size: 0.78rem; white-space: nowrap; margin-left: 8px; }
+  .player-location { background: #0f1a30; border-radius: 6px; padding: 7px 10px; font-size: 0.82rem; color: #b0b0c0; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .player-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .pstat { background: #0f1a30; border-radius: 6px; padding: 7px 10px; }
+  .pstat-label { color: #7f8c8d; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
+  .pstat-val { color: #e0e0e0; font-size: 0.9rem; font-weight: 600; }
+  .pstat-sub { color: #7f8c8d; font-size: 0.75rem; font-weight: 400; }
+  .no-cloud { color: #555; font-style: italic; font-size: 0.85rem; padding: 6px 0; }
+  .tier-pill { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; }
+  .tier-0 { background: #3a2010; color: #d97706; }
+  .tier-1 { background: #1a2a3a; color: #94a3b8; }
+  .tier-2 { background: #2a2a10; color: #f5c542; }
+  .tier-3 { background: #102a18; color: #2ecc71; }
+
+  /* Toast & confirm */
   #toast { position: fixed; bottom: 24px; right: 24px; background: #2ecc71; color: #0a0a18; padding: 10px 18px; border-radius: 8px; font-weight: 600; display: none; }
   #confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
   #confirm-overlay.show { display: flex; }
@@ -54,28 +87,46 @@
 </div>
 
 <div id="panel">
-  <h1>Purchases</h1>
-  <div class="toolbar">
-    <input type="text" id="search" placeholder="Search email, device, product…" oninput="renderTable()" autocomplete="off">
-    <button class="btn btn-refresh" onclick="load()">Refresh</button>
-    <button class="btn btn-disable" onclick="showResetMenu()" id="reset-btn">Reset Premium Cache…</button>
-    <span id="count"></span>
+  <h1>EBA Admin</h1>
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="purchases" onclick="showTab('purchases')">💳 Purchases</button>
+    <button class="tab-btn" data-tab="players" onclick="showTab('players')">👥 Players</button>
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Email</th>
-        <th>Product</th>
-        <th>Source</th>
-        <th>Status</th>
-        <th>Device ID</th>
-        <th>Order ID</th>
-        <th>Date</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+
+  <!-- Purchases tab -->
+  <div id="tab-purchases">
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="Search email, device, product…" oninput="renderTable()" autocomplete="off">
+      <button class="btn btn-refresh" onclick="load()">Refresh</button>
+      <button class="btn btn-disable" onclick="showResetMenu()">Reset Premium Cache…</button>
+      <span id="count"></span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Product</th>
+          <th>Source</th>
+          <th>Status</th>
+          <th>Device ID</th>
+          <th>Order ID</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Players tab -->
+  <div id="tab-players" style="display:none">
+    <div class="toolbar">
+      <input type="text" id="player-search" placeholder="Search email…" oninput="renderPlayers()" autocomplete="off">
+      <button class="btn btn-refresh" onclick="loadPlayers()">Refresh</button>
+      <span id="player-count"></span>
+    </div>
+    <div id="players-grid" class="player-grid"></div>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -92,10 +143,12 @@
 </div>
 
 <script>
-const SUPABASE_FN = 'https://hhpikvqeopscjdzuhbfk.supabase.co/functions/v1/admin-purchases'
+const SUPABASE_FN         = 'https://hhpikvqeopscjdzuhbfk.supabase.co/functions/v1/admin-purchases'
+const ADMIN_PLAYERS_FN    = 'https://hhpikvqeopscjdzuhbfk.supabase.co/functions/v1/admin-players'
 const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhocGlrdnFlb3BzY2pkenVoYmZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMzA2NDUsImV4cCI6MjA5MTcwNjY0NX0.-iYI6Wf8eREEBKFxfty7ot1Ke8AqjC73xlT7KCTZaqc'
 let secret = ''
 let allRows = []
+let allPlayers = []
 
 function authHeaders(extra) {
   return { Authorization: `Bearer ${ANON_KEY}`, apikey: ANON_KEY, 'x-admin-secret': secret, ...extra }
@@ -107,9 +160,19 @@ function doLogin() {
   sessionStorage.setItem('eba_admin_secret', secret)
   document.getElementById('login').style.display = 'none'
   document.getElementById('panel').style.display = 'block'
+  showTab('purchases')
   load()
 }
 
+// ── Tab switching ────────────────────────────────────────────────────────────
+function showTab(name) {
+  document.getElementById('tab-purchases').style.display = name === 'purchases' ? '' : 'none'
+  document.getElementById('tab-players').style.display   = name === 'players'   ? '' : 'none'
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name))
+  if (name === 'players' && !allPlayers.length) loadPlayers()
+}
+
+// ── Purchases tab ────────────────────────────────────────────────────────────
 async function load() {
   const res = await fetch(SUPABASE_FN, { headers: authHeaders() })
   if (res.status === 401) { sessionStorage.removeItem('eba_admin_secret'); alert('Wrong secret'); return }
@@ -218,6 +281,128 @@ async function deletePurchase(id, source) {
   allRows = allRows.filter(r => r.id !== id)
   renderTable()
   toast('Deleted')
+}
+
+// ── Players tab ──────────────────────────────────────────────────────────────
+async function loadPlayers() {
+  document.getElementById('player-count').textContent = 'Loading…'
+  document.getElementById('players-grid').innerHTML = ''
+  const res = await fetch(ADMIN_PLAYERS_FN, { headers: authHeaders() })
+  if (res.status === 401) { alert('Wrong secret'); return }
+  allPlayers = await res.json()
+  renderPlayers()
+}
+
+function renderPlayers() {
+  const q = document.getElementById('player-search').value.toLowerCase()
+  const filtered = allPlayers.filter(p => !q || (p.email || '').toLowerCase().includes(q) || (p.user_id || '').toLowerCase().includes(q))
+  document.getElementById('player-count').textContent = filtered.length + ' of ' + allPlayers.length + ' players'
+  const grid = document.getElementById('players-grid')
+  if (!filtered.length) { grid.innerHTML = '<div class="empty" style="padding:20px">No players found</div>'; return }
+  grid.innerHTML = filtered.map(p => playerCard(p)).join('')
+}
+
+const TIER_NAMES  = ['Bronze', 'Silver', 'Gold', '✅ Done']
+const TIER_CLASSES = ['tier-0', 'tier-1', 'tier-2', 'tier-3']
+
+function playerCard(p) {
+  const emailLabel = p.email ? esc(p.email) : '<span style="color:#555">' + esc(p.user_id.slice(0, 12)) + '…</span>'
+  const seen = timeAgo(p.last_seen_at)
+
+  if (!p.stats) {
+    return `<div class="player-card">
+      <div class="player-header">
+        <span class="player-email">${emailLabel}</span>
+        <span class="player-seen">${seen}</span>
+      </div>
+      <div class="no-cloud">No cloud save data</div>
+    </div>`
+  }
+
+  const s = p.stats
+  const tier = Math.min(3, s.monkeyTier)
+  const shopLine = [
+    s.ownedHammers ? s.ownedHammers + ' 🔨' : '',
+    s.ownedHats    ? s.ownedHats    + ' 🎩' : '',
+    s.fastRegen    ? '⚡' : '',
+    s.owned_spyglass ? '🔍' : '',
+  ].filter(Boolean).join(' ') || '—'
+
+  const premiumLine = s.premium_starter_pack
+    ? (s.premiumPurchases > 0 ? s.premiumPurchases + ' + pack' : 'Starter Pack')
+    : s.premiumPurchases > 0 ? String(s.premiumPurchases) : '—'
+
+  return `<div class="player-card">
+    <div class="player-header">
+      <span class="player-email">${emailLabel}</span>
+      <span class="player-seen">${seen}</span>
+    </div>
+    <div class="player-location">
+      ${s.monkeyEmoji} ${esc(s.monkeyName)} · Stage ${s.monkeyStage}
+      <span class="tier-pill ${TIER_CLASSES[tier]}">${TIER_NAMES[tier]}</span>
+    </div>
+    <div class="player-stats">
+      <div class="pstat">
+        <div class="pstat-label">Eggs 🥚</div>
+        <div class="pstat-val">${fmt(s.totalEggs)}</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-label">Play Time ⏱️</div>
+        <div class="pstat-val">${fmtTime(s.totalPlayTime)}</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-label">Total Gold 🪙</div>
+        <div class="pstat-val">${fmt(s.totalGold)}</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-label">Streak 📅</div>
+        <div class="pstat-val">${s.consecutiveDays}d <span class="pstat-sub">(best ${s.longestStreak})</span></div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-label">Items found 📚</div>
+        <div class="pstat-val">${s.totalItems} <span class="pstat-sub">· ${s.stagesCompleted} stages done</span></div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-label">Monkeys 🐵</div>
+        <div class="pstat-val">${s.monkeysUnlocked}/${s.totalMonkeys} unlocked</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-label">Shop 🛒</div>
+        <div class="pstat-val">${shopLine}</div>
+      </div>
+      <div class="pstat">
+        <div class="pstat-label">Premium 💎</div>
+        <div class="pstat-val">${premiumLine}</div>
+      </div>
+    </div>
+  </div>`
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function timeAgo(ts) {
+  if (!ts) return '—'
+  const diff = (Date.now() - new Date(ts).getTime()) / 1000
+  if (diff < 60)     return 'just now'
+  if (diff < 3600)   return Math.floor(diff / 60)    + 'm ago'
+  if (diff < 86400)  return Math.floor(diff / 3600)  + 'h ago'
+  if (diff < 604800) return Math.floor(diff / 86400) + 'd ago'
+  return new Date(ts).toLocaleDateString()
+}
+
+function fmtTime(secs) {
+  if (!secs) return '—'
+  const h = Math.floor(secs / 3600)
+  const m = Math.floor((secs % 3600) / 60)
+  if (h > 0) return h + 'h ' + m + 'm'
+  if (m > 0) return m + 'm'
+  return secs + 's'
+}
+
+function fmt(n) {
+  if (!n) return '0'
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M'
+  if (n >= 1000)    return (n / 1000).toFixed(1).replace(/\.0$/, '')    + 'k'
+  return String(n)
 }
 
 function toast(msg) {
