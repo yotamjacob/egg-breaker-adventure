@@ -133,7 +133,28 @@ Deno.serve(async (req) => {
       for (const row of (playByUser || [])) addUnique(purchases, row.product_id)
     }
 
-    // ── 5. Pending PayPal — try to capture ───────────────────────────────
+    // ── 5. Disabled products — tell client to revoke them ────────────────
+    // Works regardless of login state; no flag required.
+    const revokeIds = new Set<string>()
+    const { data: disabledPaypalDevice } = await supabase.from('purchases')
+      .select('product_id').eq('device_id', device_id).eq('disabled', true)
+    for (const r of (disabledPaypalDevice || [])) revokeIds.add(r.product_id)
+    const { data: disabledPlayDevice } = await supabase.from('play_purchases')
+      .select('product_id').eq('device_id', device_id).eq('disabled', true)
+    for (const r of (disabledPlayDevice || [])) revokeIds.add(r.product_id)
+    if (user_id) {
+      const { data: disabledPaypalUser } = await supabase.from('purchases')
+        .select('product_id').eq('user_id', user_id).eq('disabled', true)
+      for (const r of (disabledPaypalUser || [])) revokeIds.add(r.product_id)
+      const { data: disabledPlayUser } = await supabase.from('play_purchases')
+        .select('product_id').eq('user_id', user_id).eq('disabled', true)
+      for (const r of (disabledPlayUser || [])) revokeIds.add(r.product_id)
+    }
+    // Don't revoke something that's also in the valid purchases list
+    for (const p of purchases) revokeIds.delete(p.product_id)
+    const revokeProducts = [...revokeIds]
+
+    // ── 6. Pending PayPal — try to capture ───────────────────────────────
     const { data: pendingRows } = await supabase
       .from('purchases')
       .select('product_id, paypal_order_id')
@@ -177,7 +198,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ purchases, ...(resetPremium ? { reset_premium: true } : {}) }),
+      JSON.stringify({ purchases, ...(revokeProducts.length ? { revoke_products: revokeProducts } : {}), ...(resetPremium ? { reset_premium: true } : {}) }),
       { headers: { ...hdrs, 'Content-Type': 'application/json' } }
     )
   } catch (err) {

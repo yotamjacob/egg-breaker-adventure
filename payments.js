@@ -239,8 +239,20 @@ async function restorePurchases(opts = {}) {
         if (k === 'deviceId') continue;
         G[k] = typeof G[k] === 'number' ? 0 : false;
       }
-      saveGame();          // persist cleared fields to SAVE_KEY so they survive a reload
+      saveGame();
       renderPremiumShop();
+    }
+    // Revoke individually disabled products (works without login or premium_reset_requested flag)
+    const revokeIds = data.revoke_products || [];
+    if (revokeIds.length > 0) {
+      _payLog('restore: revoking disabled products=[' + revokeIds.join(',') + ']');
+      let revokeChanged = false;
+      revokeIds.forEach(pid => {
+        const prod = PREMIUM_PRODUCTS.find(p => p.id === pid);
+        if (prod && prod.boughtKey && G[prod.boughtKey]) { G[prod.boughtKey] = false; revokeChanged = true; }
+        if (pid === 'starter_pack' && G.premium_starter_pack) { G.premium_starter_pack = false; revokeChanged = true; }
+      });
+      if (revokeChanged) { saveGame(); savePremium(); renderPremiumShop(); }
     }
     const purchases = data.purchases || [];
     _payLog('restore found=' + purchases.length + ' items=[' + purchases.map(p => p.product_id).join(',') + ']');
