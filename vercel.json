@@ -2,7 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".",
   "functions": {
-    "api/capture-order.js": { "maxDuration": 30 },
     "api/restore-purchases.js": { "maxDuration": 30 },
     "api/verify-play-purchase.js": { "maxDuration": 30 }
   },
@@ -15,7 +14,7 @@
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.paypal.com https://www.paypalobjects.com https://browser.sentry-cdn.com https://cloud.umami.is https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; connect-src 'self' https://hhpikvqeopscjdzuhbfk.supabase.co https://api-m.paypal.com https://www.paypal.com https://t.paypal.com https://app.glitchtip.com https://cloud.umami.is https://api-gateway.umami.dev https://browser.sentry-cdn.com; frame-src https://www.paypal.com; img-src 'self' data: https://www.paypal.com https://www.paypalobjects.com; media-src 'self'; worker-src 'self'; frame-ancestors 'none';" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://browser.sentry-cdn.com https://cloud.umami.is https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; connect-src 'self' https://hhpikvqeopscjdzuhbfk.supabase.co https://app.glitchtip.com https://cloud.umami.is https://api-gateway.umami.dev https://browser.sentry-cdn.com; img-src 'self' data:; media-src 'self'; worker-src 'self'; frame-ancestors 'none';" }
       ]
     },
     {

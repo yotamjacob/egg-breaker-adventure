@@ -16,7 +16,7 @@
 | `components.css` | Shared component styles — toast, snack, tooltips |
 | `sw.js` | Service worker — cache versioning, network-first fetch strategy |
 | `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css |
-| `supabase/functions/` | Edge Functions: create-order, capture-order, verify-play-purchase, subscribe-push, send-notifications |
+| `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications |
 
 ## Build & deploy
 ```bash
@@ -62,14 +62,11 @@ Edit `prizes:` inside the relevant egg type in `CONFIG.eggTypes`. Weights are re
 ### Starting resources
 `CONFIG.startingHammers`, `CONFIG.startingMaxHammers`, `CONFIG.startingGold` → applied in `DEFAULT_STATE`
 
-## Payment flow (web)
-1. PayPal SDK loaded with `components=googlepay` (auto-retries without if merchant not enrolled)
-2. Google Pay JS loaded from `pay.google.com`
-3. If eligible: Google Pay button (main) + "— or —" + PayPal button (secondary)
-4. Both flows: `create-order` edge fn → PayPal order ID → confirm payment → `/api/capture-order` (Vercel proxy) → `capture-order` edge fn
-5. Android TWA: Google Play Billing → `onPlayPurchaseResult` → `/api/verify-play-purchase` (Vercel proxy) → `verify-play-purchase` edge fn
-6. "Restore Purchases" button → `/api/restore-purchases` (Vercel proxy) → `restore-purchases` edge fn (captures pending PayPal orders too)
-- All payment calls use same-origin Vercel proxies (`api/capture-order.js`, `api/restore-purchases.js`, `api/verify-play-purchase.js`) to avoid CORS failures — the production origin was missing from `verify-play-purchase`'s ALLOWED_ORIGINS, causing `TypeError: Failed to fetch` in the Android WebView
+## Payment flow
+- **Web/desktop**: premium shop is visible but shows "📱 Available on Android" — no purchases on web.
+- **Android TWA**: Google Play Billing → `onPlayPurchaseResult` → `/api/verify-play-purchase` (Vercel proxy) → `verify-play-purchase` edge fn
+- **Restore Purchases**: `/api/restore-purchases` (Vercel proxy) → `restore-purchases` edge fn — queries `play_purchases` by `device_id` and `user_id`; also reads historical `purchases` table for legacy records.
+- All payment calls use same-origin Vercel proxies to avoid CORS failures in the Android WebView.
 
 ## Supabase
 - Project: `hhpikvqeopscjdzuhbfk` (EU West)
