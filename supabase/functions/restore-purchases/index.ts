@@ -1,7 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const PAYPAL_BASE = 'https://api-m.paypal.com'
-
 const REWARDS: Record<string, { gold?: number; hammers?: number; bananas?: number }> = {
   starter_pack: { gold: 25000, hammers: 50, bananas: 3 },
   gold_s:       { gold: 10000 },
@@ -31,20 +29,6 @@ function corsHeaders(origin: string | null) {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   }
-}
-
-async function getPayPalToken(clientId: string, secret: string): Promise<string> {
-  const res = await fetch(`${PAYPAL_BASE}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Basic ' + btoa(`${clientId}:${secret}`),
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  })
-  const data = await res.json()
-  if (!data.access_token) throw new Error('Failed to get PayPal token')
-  return data.access_token
 }
 
 function addUnique(
@@ -153,49 +137,6 @@ Deno.serve(async (req) => {
     // Don't revoke something that's also in the valid purchases list
     for (const p of purchases) revokeIds.delete(p.product_id)
     const revokeProducts = [...revokeIds]
-
-    // ── 6. Pending PayPal — try to capture ───────────────────────────────
-    const { data: pendingRows } = await supabase
-      .from('purchases')
-      .select('product_id, paypal_order_id')
-      .eq('device_id', device_id)
-      .eq('status', 'pending')
-
-    if (pendingRows && pendingRows.length > 0) {
-      let paypalToken: string | null = null
-      try {
-        paypalToken = await getPayPalToken(
-          Deno.env.get('PAYPAL_CLIENT_ID')!,
-          Deno.env.get('PAYPAL_SECRET')!
-        )
-      } catch (_) {}
-
-      if (paypalToken) {
-        for (const p of pendingRows) {
-          try {
-            const captureRes = await fetch(
-              `${PAYPAL_BASE}/v2/checkout/orders/${p.paypal_order_id}/capture`,
-              {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${paypalToken}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
-            const capture = await captureRes.json()
-            const alreadyCaptured = capture.details?.[0]?.issue === 'ORDER_ALREADY_CAPTURED'
-            if (capture.status === 'COMPLETED' || alreadyCaptured) {
-              await supabase
-                .from('purchases')
-                .update({ status: 'completed' })
-                .eq('paypal_order_id', p.paypal_order_id)
-              addUnique(purchases, p.product_id)
-            }
-          } catch (_) {}
-        }
-      }
-    }
 
     return new Response(
       JSON.stringify({ purchases, ...(revokeProducts.length ? { revoke_products: revokeProducts } : {}), ...(resetPremium ? { reset_premium: true } : {}) }),

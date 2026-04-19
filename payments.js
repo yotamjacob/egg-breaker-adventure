@@ -1,11 +1,11 @@
 // ============================================================
 //  Egg Smash Adventures – Payments
 //  payments.js  (requires game.js loaded first)
-//  Handles PayPal web payments, Google Play Billing (Android TWA),
-//  purchase verification, and restore-purchases flow.
+//  Handles Google Play Billing (Android TWA), purchase verification,
+//  and restore-purchases flow. Web/desktop: Android-only banner shown.
 // ============================================================
 
-// ==================== PREMIUM / PAYPAL ====================
+// ==================== PREMIUM SHOP ====================
 
 const PREMIUM_PRODUCTS = [
   // ── Packs ────────────────────────────────────────────────────────────────
@@ -29,25 +29,6 @@ function getDeviceId() {
     saveGame();
   }
   return G.deviceId;
-}
-
-let _paypalReady = false;
-let _paypalLoading = false;
-
-function loadPayPalSDK() {
-  return new Promise((resolve, reject) => {
-    if (_paypalReady) { resolve(); return; }
-    if (_paypalLoading) {
-      const wait = setInterval(() => { if (_paypalReady) { clearInterval(wait); resolve(); } }, 100);
-      return;
-    }
-    _paypalLoading = true;
-    const s = document.createElement('script');
-    s.src = 'https://www.paypal.com/sdk/js?client-id=' + _PAYPAL_CLIENT + '&currency=USD';
-    s.onload  = () => { _paypalReady = true; _paypalLoading = false; resolve(); };
-    s.onerror = () => { _paypalLoading = false; reject(new Error('PayPal SDK failed to load')); };
-    document.head.appendChild(s);
-  });
 }
 
 // ── Google Play Billing (Android TWA via AndroidBridge) ───────────────────
@@ -110,7 +91,7 @@ async function initPremiumShop() {
   // Android TWA: use native Play Billing via AndroidBridge
   if (_isAndroidBilling()) {
     for (const product of PREMIUM_PRODUCTS) {
-      const el = document.getElementById('paypal-btn-' + product.id);
+      const el = document.getElementById('buy-slot-' + product.id);
       if (!el || el.dataset.rendered) continue;
       el.dataset.rendered = '1';
       const btn = document.createElement('button');
@@ -128,91 +109,15 @@ async function initPremiumShop() {
     return;
   }
 
-  // Web: PayPal
-  try {
-    await loadPayPalSDK();
-  } catch (e) {
-    msg('Could not load payment system. Check your connection.');
-    return;
-  }
-
-  const deviceId = getDeviceId();
-
+  // Web/desktop: purchases only available on Android
   for (const product of PREMIUM_PRODUCTS) {
-    const el = document.getElementById('paypal-btn-' + product.id);
+    const el = document.getElementById('buy-slot-' + product.id);
     if (!el || el.dataset.rendered) continue;
     el.dataset.rendered = '1';
-    const pid   = product.id;
-    const price = product.price.replace('$', '');
-
-    const createOrder = async () => {
-      _payLog('createOrder START pid=' + pid);
-      let res;
-      try {
-        res = await fetch(_SUPABASE_URL + '/functions/v1/create-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
-          body: JSON.stringify({ device_id: deviceId, product_id: pid, user_id: _cloudUser ? _cloudUser.id : null }),
-        });
-      } catch (fetchErr) {
-        _payLog('createOrder FETCH_THROW: ' + fetchErr.message);
-        throw fetchErr;
-      }
-      _payLog('createOrder HTTP=' + res.status);
-      const text = await res.text();
-      _payLog('createOrder BODY=' + text.slice(0, 200));
-      let data;
-      try { data = JSON.parse(text); } catch (e) { throw new Error('createOrder parse error: ' + text.slice(0,80)); }
-      if (data.error) { _payLog('createOrder APP_ERROR: ' + data.error); throw new Error(data.error); }
-      _payLog('createOrder OK orderId=' + data.paypal_order_id);
-      return data.paypal_order_id;
-    };
-
-    const captureOrder = async (orderId) => {
-      _payLog('capture START pid=' + pid + ' orderId=' + orderId + ' device=' + deviceId.slice(0,8));
-      let res;
-      try {
-        res = await fetch('/api/capture-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ device_id: deviceId, paypal_order_id: orderId, product_id: pid }),
-        });
-      } catch (fetchErr) {
-        _payLog('capture FETCH_THROW: ' + fetchErr.message);
-        throw fetchErr;
-      }
-      _payLog('capture HTTP=' + res.status + ' ok=' + res.ok);
-      const text = await res.text();
-      _payLog('capture BODY=' + text.slice(0, 300));
-      let result;
-      try {
-        result = JSON.parse(text);
-      } catch (parseErr) {
-        _payLog('capture JSON_FAIL: ' + parseErr.message);
-        throw new Error('Response parse error (HTTP ' + res.status + '): ' + text.slice(0, 80));
-      }
-      if (result.error) {
-        _payLog('capture APP_ERROR: ' + result.error);
-        throw new Error(result.error);
-      }
-      _payLog('capture OK reward=' + JSON.stringify(result.reward || {}));
-      return result;
-    };
-
-    paypal.Buttons({
-      style: { layout: 'horizontal', color: 'blue', shape: 'rect', label: 'pay', height: 35, tagline: false },
-      createOrder,
-      onApprove: async (data) => {
-        try {
-          const result = await captureOrder(data.orderID);
-          applyPurchaseReward(pid, result.reward);
-        } catch (e) {
-          showShopSnack('⚠️ Error: ' + e.message.slice(0, 60) + ' — see Debug Log');
-          msg('Payment error: ' + e.message);
-        }
-      },
-      onError: (err) => { _payLog('onError: ' + (err?.message || JSON.stringify(err))); msg('Payment failed. Please try again.'); },
-    }).render('#paypal-btn-' + pid);
+    const note = document.createElement('div');
+    note.className = 'android-only-msg';
+    note.textContent = '📱 Available on Android';
+    el.appendChild(note);
   }
 }
 

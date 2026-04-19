@@ -84,7 +84,6 @@ let _premiumSilentRestoreDone = false;
 
 const _SUPABASE_URL  = 'https://hhpikvqeopscjdzuhbfk.supabase.co';
 const _SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhocGlrdnFlb3BzY2pkenVoYmZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMzA2NDUsImV4cCI6MjA5MTcwNjY0NX0.-iYI6Wf8eREEBKFxfty7ot1Ke8AqjC73xlT7KCTZaqc';
-const _PAYPAL_CLIENT = 'AShS0nOeix44W4CifOSTB6pL4gvi6k3O_j6CXAmvCanfDKm9PXhjkED8PBZIOHk0aHdqHLtD1LyH9kLd';
 
 function initMonkeys() {
   return MONKEY_DATA.map((m, i) => ({

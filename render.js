@@ -944,7 +944,7 @@ function renderPremiumShop() {
           '<div class="premium-divider"></div>' +
           (bought
             ? '<div class="premium-owned">✓ Active</div><div class="premium-active-desc">' + p.desc + '</div>'
-            : '<div id="paypal-btn-' + p.id + '" class="paypal-btn-wrap"></div>'
+            : '<div id="buy-slot-' + p.id + '" class="buy-slot-wrap"></div>'
           ) +
         '</div>'
       );
