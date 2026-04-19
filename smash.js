@@ -6,10 +6,8 @@
 // ============================================================
 
 // ==================== ROUND MANAGEMENT ====================
-let _roundPending  = false;
-let _spawningRound = false;
+// _roundPending, _spawningRound, _stageEggsCache declared in game.js (avoid TDZ — render.js and game.js reference them before smash.js loads)
 let _centuryCooldown = 0; // rounds remaining before century can spawn again
-const _stageEggsCache = {}; // session-level per-stage egg snapshots: key = `${monkeyIdx}_${stageIdx}`
 
 function newRound() {
   _roundPending  = false;

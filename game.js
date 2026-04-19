@@ -295,6 +295,9 @@ function $id(id) { return document.getElementById(id); }
 
 let _bonusCache = null;
 let _achieveBonusCache = null;
+let _roundPending  = false;
+let _spawningRound = false;
+const _stageEggsCache = {};
 
 const _logLines = [];
 const _fullLog   = [];   // timestamped history, max 200 entries
