@@ -1,5 +1,5 @@
 // ============================================================
-//  Egg Breaker Adventures – UI Rendering
+//  Egg Smash Adventures – UI Rendering
 //  render.js  (requires config.js, data.js loaded first)
 //
 //  All DOM updates, visual builders, and tab renderers.

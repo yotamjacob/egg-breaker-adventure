@@ -1,5 +1,5 @@
 // ============================================================
-//  Egg Breaker Adventures – Hammer SVG Definitions
+//  Egg Smash Adventures – Hammer SVG Definitions
 //  hammers.js  (uses $id and G from game.js at runtime)
 // ============================================================
 

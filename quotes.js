@@ -1,5 +1,5 @@
 // ============================================================
-//  Egg Breaker Adventures – Item Quotes
+//  Egg Smash Adventures – Item Quotes
 //  quotes.js  (loaded before data.js)
 //
 //  Edit the quotes here. Each key is the exact item display name.

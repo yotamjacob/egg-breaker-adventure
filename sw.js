@@ -1,10 +1,10 @@
 // ============================================================
-//  Egg Breaker Adventures — Service Worker
+//  Egg Smash Adventures — Service Worker
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '2.2.1';
-const CACHE_NAME    = 'eba-' + CACHE_VERSION;
+const CACHE_VERSION = '2.3.0';
+const CACHE_NAME    = 'esa-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
   '/',
@@ -82,14 +82,14 @@ self.addEventListener('fetch', event => {
 
 // Push notifications
 self.addEventListener('push', event => {
-  let data = { title: 'Egg Breaker Adventure Revival', body: 'Tap to play.', url: '/' }
+  let data = { title: 'Egg Smash Adventures', body: 'Tap to play.', url: '/' }
   try { if (event.data) data = { ...data, ...event.data.json() } } catch (_) {}
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: '/icon-192.png',
       badge: '/icon-192.png',
-      tag: data.tag || 'eba',
+      tag: data.tag || 'esa',
       data: { url: data.url || '/' },
     })
   )

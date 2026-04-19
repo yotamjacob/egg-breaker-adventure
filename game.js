@@ -1,5 +1,5 @@
 // ============================================================
-//  Egg Breaker Adventures – Game Engine
+//  Egg Smash Adventures – Game Engine
 //  game.js  (requires all other JS files loaded first)
 // ============================================================
 
@@ -1670,7 +1670,7 @@ function copyStatsToClipboard() {
   const divider = '─'.repeat(36);
 
   const text = [
-    '🥚 Egg Breaker Adventures — Lifetime Stats',
+    '🥚 Egg Smash Adventures — Lifetime Stats',
     divider,
     row('Game started',   formatDate(G.firstPlayDate || 0)),
     row('Eggs smashed',   String(G.totalEggs)),
@@ -2605,7 +2605,7 @@ function godMode() {
 function buildTourSteps() {
   const C = CONFIG;
   return [
-    { icon: '🥚', title: 'Welcome!', body: 'Welcome to Egg Breaker Adventures Revival!\n\nA love letter to the classic 2008 Facebook game.\nReady for a quick tour?' },
+    { icon: '🥚', title: 'Welcome!', body: 'Welcome to Egg Smash Adventures!\n\nA love letter to the classic 2008 Facebook game.\nReady for a quick tour?' },
     { icon: '🔨', title: 'Smash Eggs', body: 'Tap or click eggs to smash them!\nEach hit costs 1 hammer.\nDifferent eggs have different HP — harder eggs give better rewards.' },
     { icon: '🪙', title: 'Prizes', body: 'Break eggs to win gold, star pieces, feathers, multipliers, and collection items.\nSome eggs can be empty — that\'s life.' },
     { icon: '✖️', title: 'Multipliers', body: 'Earn multiplier badges (x2, x3, x5...) from eggs.\n\nSelect one or more from the mult bar before smashing — they ADD together!\nx2 + x3 = x5 total reward.\n\nMults are consumed after each smash, so save big ones for rare eggs!' },
@@ -2685,7 +2685,7 @@ initCloudSave();
 _startCloudAutoSave();
 _initNotifBtn();
 
-$id('version-tag').textContent = 'Egg Breaker Adventures v' + VERSION;
+$id('version-tag').textContent = 'Egg Smash Adventures v' + VERSION;
 
 // PWA shortcut deep-linking: ?tab=play|album|shop|monkeys etc.
 (function() {

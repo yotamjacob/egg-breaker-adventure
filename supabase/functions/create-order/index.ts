@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
         intent: 'CAPTURE',
         purchase_units: [{
           amount: { currency_code: 'USD', value: product.price },
-          description: `Egg Breaker Adventures — ${product.name}`,
+          description: `Egg Smash Adventures — ${product.name}`,
         }],
       }),
     })

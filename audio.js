@@ -1,5 +1,5 @@
 // ============================================================
-//  Egg Breaker Adventures – Audio
+//  Egg Smash Adventures – Audio
 //  audio.js  (standalone, no dependencies)
 // ============================================================
 
@@ -147,7 +147,7 @@ const MUSIC = (() => {
   function _updateMediaSession(playing) {
     if (!('mediaSession' in navigator)) return;
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: 'Egg Breaker Adventure Revival',
+      title: 'Egg Smash Adventures',
       artwork: [
         { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
         { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },

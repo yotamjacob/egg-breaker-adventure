@@ -1,5 +1,5 @@
 // ============================================================
-//  Egg Breaker Adventures — Game Math Unit Tests
+//  Egg Smash Adventures — Game Math Unit Tests
 //  Run: node --test tests/
 //  Uses Node's built-in test runner (no extra dependencies).
 // ============================================================

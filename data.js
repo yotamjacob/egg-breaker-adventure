@@ -1,5 +1,5 @@
 // ============================================================
-//  Egg Breaker Adventures – Game Data
+//  Egg Smash Adventures – Game Data
 //  data.js  (load before game.js)
 //
 //  Item quotes are in quotes.js — edit them there.

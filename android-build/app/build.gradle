@@ -25,8 +25,8 @@ def twaManifest = [
     applicationId: 'com.eggbreakeradventures.app',
     hostName: 'egg-breaker-adventures.vercel.app', // The domain being opened in the TWA.
     launchUrl: '/', // The start path for the TWA. Must be relative to the domain.
-    name: 'Egg Breaker Adventure Revival', // The application name.
-    launcherName: 'Egg Breaker Adventure Revival', // The name shown on the Android Launcher.
+    name: 'Egg Smash Adventures', // The application name.
+    launcherName: 'Egg Smash Adventures', // The name shown on the Android Launcher.
     themeColor: '#F5C542', // The color used for the status bar.
     themeColorDark: '#000000', // The color used for the dark status bar.
     navigationColor: '#000000', // The color used for the navigation bar.
@@ -58,8 +58,8 @@ android {
         applicationId "com.eggbreakeradventures.app"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 103
-        versionName "2.1.0"
+        versionCode 104
+        versionName "2.3.0"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name

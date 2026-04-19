@@ -1,12 +1,12 @@
 // ============================================================
-//  Egg Breaker Adventures – Tuning Config
+//  Egg Smash Adventures – Tuning Config
 //  config.js  (load before data.js and game.js)
 //
 //  All drop rates, spawn chances, and reward values in one place.
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.2.1';
+const VERSION = '2.3.0';
 
 const CONFIG = {
 

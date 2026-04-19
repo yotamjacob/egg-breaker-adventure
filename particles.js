@@ -1,5 +1,5 @@
 // ============================================================
-//  Egg Breaker Adventures – Particle System
+//  Egg Smash Adventures – Particle System
 //  particles.js  (requires config.js loaded first)
 // ============================================================
 

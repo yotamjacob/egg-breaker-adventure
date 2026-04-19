@@ -182,7 +182,7 @@ serve(async (req) => {
       const recentlyHammersNotified = sub.last_notified_at && new Date(sub.last_notified_at) > new Date(hammersDedupCutoff)
       debugLogs.push(`hammers_full_at check: fullAt=${fullAt.toISOString()} past=${fullAt < now} recentlyHammersNotified=${recentlyHammersNotified} isTest=${isTest}`)
       if ((fullAt < now || isTest) && (!recentlyHammersNotified || isTest)) {
-        const ok = await sendPush({ title: 'Egg Breaker Adventures', body: 'Your hammers are full, get smashin\u0027!', tag: 'hammers-full', url: '/' })
+        const ok = await sendPush({ title: 'Egg Smash Adventures', body: 'Your hammers are full, get smashin\u0027!', tag: 'hammers-full', url: '/' })
         if (!ok) expiredDevices.push(sub.device_id)
         else {
           sentHammersFull = true
@@ -197,7 +197,7 @@ serve(async (req) => {
     const recentlyNotified = sub.last_notified_at && new Date(sub.last_notified_at) > new Date(dedupeCutoff)
     debugLogs.push(`daily check: inactive=${inactive} sentHammersFull=${sentHammersFull} recentlyNotified=${recentlyNotified}`)
     if ((inactive || isTest) && !sentHammersFull && !recentlyNotified) {
-      const ok = await sendPush({ title: 'Egg Breaker Adventures', body: 'Your daily reward is ready. Come claim it!', tag: 'daily-reward', url: '/?tab=daily' })
+      const ok = await sendPush({ title: 'Egg Smash Adventures', body: 'Your daily reward is ready. Come claim it!', tag: 'daily-reward', url: '/?tab=daily' })
       if (!ok) expiredDevices.push(sub.device_id)
       else { sent++; notifiedDevices.push(sub.device_id) }
     }

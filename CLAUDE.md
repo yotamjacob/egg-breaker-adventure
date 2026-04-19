@@ -1,4 +1,4 @@
-# Egg Breaker Adventures — Claude Code Guide
+# Egg Smash Adventures — Claude Code Guide
 
 ## Module map
 | File | Purpose |

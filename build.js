@@ -1,5 +1,5 @@
 // ============================================================
-//  Egg Breaker Adventures — Build Script
+//  Egg Smash Adventures — Build Script
 //  Concatenates + minifies JS and CSS into two bundle files.
 //  Run: node build.js
 //  Output: bundle.min.js, bundle.min.css
