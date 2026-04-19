@@ -232,9 +232,7 @@ function rollCollectionItem(eggType) {
 
 // All owned hammers/hats/monkeys give permanent bonuses (accumulative)
 // Cached — call invalidateBonusCache() when equipment or monkeys change
-let _bonusCache = null;
-let _achieveBonusCache = null;
-
+// (_bonusCache / _achieveBonusCache declared in game.js — must exist before INIT runs)
 function invalidateBonusCache() { _bonusCache = null; }
 function invalidateAchieveCache() { _achieveBonusCache = null; }
 

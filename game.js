@@ -294,6 +294,9 @@ function claimDaily() {
 // ==================== HELPERS ====================
 function $id(id) { return document.getElementById(id); }
 
+let _bonusCache = null;
+let _achieveBonusCache = null;
+
 const _logLines = [];
 const _fullLog   = [];   // timestamped history, max 200 entries
 const _FULL_LOG_MAX = 200;
