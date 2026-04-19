@@ -6,8 +6,8 @@
 // ============================================================
 
 // ==================== ROUND MANAGEMENT ====================
-// _roundPending, _spawningRound, _stageEggsCache declared in game.js (avoid TDZ — render.js and game.js reference them before smash.js loads)
-let _centuryCooldown = 0; // rounds remaining before century can spawn again
+// _roundPending, _spawningRound, _centuryCooldown, _stageEggsCache, _shopNudgeDone, _balloonHold
+// all declared in game.js to avoid TDZ — hoisted functions here are called from game.js startup
 
 function newRound() {
   _roundPending  = false;
@@ -281,7 +281,6 @@ const NO_HAMMER_MSGS = [
   'Zero hammers. Infinite sadness.',
   'Patience is a virtue you don\'t have.',
 ];
-let _shopNudgeDone = false;
 function noHammerMsg() {
   if (!_shopNudgeDone) {
     _shopNudgeDone = true;
@@ -303,7 +302,6 @@ function checkSpyglassHint() {
 }
 
 // ==================== BALLOON EGG ====================
-let _balloonHold = null;
 function startBalloonInflate(index, slot) {
   if (_balloonHold) return;
   const egg = G.roundEggs[index];
