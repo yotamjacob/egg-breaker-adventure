@@ -548,14 +548,14 @@ function resolvePrize(type, eggType) {
     const baseVal = HAMMER_PRIZES[Math.floor(Math.random() * HAMMER_PRIZES.length)];
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
-    return { type: 'hammers', value: val, baseVal, usedMult, label: '+' + val + ' hammers!', color: '#b45309' };
+    return { type: 'hammers', value: val, baseVal, usedMult, label: '+' + val + ' 🔨', color: '#b45309' };
   }
 
   if (type === 'star') {
     const baseVal = eDef.starPieces || 1;
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
-    return { type: 'star', value: val, baseVal, usedMult, label: '+' + val + ' star piece' + (val > 1 ? 's' : ''), color: '#f59e0b' };
+    return { type: 'star', value: val, baseVal, usedMult, label: '+' + val + ' ⭐', color: '#f59e0b' };
   }
 
   // For prize types not directly multiplied, give bonus gold when mult is active
@@ -946,12 +946,13 @@ function smashEgg(index) {
       // Additive: egg bonus(3) + chips instead of 3 × chips
       if (prize.value) prize.value = Math.round(prize.value * (3 + chipTotal) / chipTotal);
       prize.usedMult = null; // suppress chips equation; combined value shown in label
+      const combinedMult = 3 + chipTotal;
       const v = prize.value;
-      if (prize.type === 'gold')    prize.label = 'x3 +' + v + ' 🪙';
-      else if (prize.type === 'feather') prize.label = 'x3 +' + v + ' 🪶';
-      else if (prize.type === 'hammers') prize.label = 'x3 +' + v + ' hammers!';
-      else if (prize.type === 'star')    prize.label = 'x3 +' + v + ' star piece' + (v !== 1 ? 's' : '');
-      else prize.label = 'x3 ' + prize.label;
+      if (prize.type === 'gold')         prize.label = 'x' + combinedMult + ' +' + v + ' 🪙';
+      else if (prize.type === 'feather') prize.label = 'x' + combinedMult + ' +' + v + ' 🪶';
+      else if (prize.type === 'hammers') prize.label = 'x' + combinedMult + ' +' + v + ' 🔨';
+      else if (prize.type === 'star')    prize.label = 'x' + combinedMult + ' +' + v + ' ⭐';
+      else prize.label = 'x' + combinedMult + ' ' + prize.label;
     } else {
       if (prize.value) prize.value *= 3;
       if (prize.baseVal) prize.baseVal *= 3;
@@ -1037,7 +1038,7 @@ function applyPrize(prize, cx, cy) {
     if (prize.balloonMult || prize.usedMult) {
       // prize.baseVal already has all bonuses baked in at the per-unit level, so the
       // equation label is always exact: totalMult × baseVal = prize.value (no rounding drift).
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'gold', prize.balloonMult, prize.popPrefix);
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, '🪙', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#d97706', cls || 'big', cx, cy);
       msg(eq, 'prizes');
     } else {
@@ -1052,7 +1053,7 @@ function applyPrize(prize, cx, cy) {
     G.starPieces += prize.value;
     G.totalStarPieces += prize.value;
     if (prize.balloonMult || prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'stars', prize.balloonMult, prize.popPrefix);
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, '⭐', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#f59e0b', 'big', cx, cy);
       msg(eq, 'prizes');
     } else {
@@ -1086,7 +1087,7 @@ function applyPrize(prize, cx, cy) {
     G.feathers += prize.value;
     G.totalFeathers += prize.value;
     if (prize.balloonMult || prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'feathers', prize.balloonMult, prize.popPrefix);
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, '🪶', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#059669', 'big', cx, cy);
       msg(eq, 'prizes');
     } else {
@@ -1099,7 +1100,7 @@ function applyPrize(prize, cx, cy) {
   if (prize.type === 'hammers') {
     G.hammers += prize.value;
     if (prize.balloonMult || prize.usedMult) {
-      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, 'hammers', prize.balloonMult, prize.popPrefix);
+      const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, '🔨', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#b45309', 'big', cx, cy);
       msg(eq, 'prizes');
     } else {
@@ -1161,14 +1162,14 @@ function applyPrize(prize, cx, cy) {
       const dupeGold = Math.round((dRange[0] + Math.floor(Math.random() * (dRange[1] - dRange[0] + 1))) * (prize.goldMult || 1));
       G.gold += dupeGold;
       G.totalGold += dupeGold;
-      msg('Duplicate! +' + dupeGold + ' gold', 'duplicates');
+      msg('Duplicate! +' + dupeGold + ' 🪙', 'duplicates');
       SFX.play('coin');
     }
     if (prize.bonusGold) {
       G.gold += prize.bonusGold;
       G.totalGold += prize.bonusGold;
-      spawnFloat(zone, '+' + prize.bonusGold + ' gold (mult bonus)', '#d97706');
-      msg('+' + prize.bonusGold + ' gold (mult bonus)', 'prizes');
+      spawnFloat(zone, '+' + prize.bonusGold + ' 🪙 (mult bonus)', '#d97706');
+      msg('+' + prize.bonusGold + ' 🪙 (mult bonus)', 'prizes');
     }
   }
 
@@ -1568,6 +1569,14 @@ function unlockMonkey(index) {
     const reqIdx = MONKEY_DATA.findIndex(m => m.id === req.monkey);
     if (reqIdx === -1 || !G.monkeys[reqIdx]?.unlocked) {
       showAlert('🔒', req.hint || 'Unlock another warrior first.');
+      SFX.play('err');
+      return;
+    }
+  }
+  if (req && req.monkeys) {
+    const unmet = req.monkeys.find(id => { const ri = MONKEY_DATA.findIndex(m => m.id === id); return ri === -1 || !G.monkeys[ri]?.unlocked; });
+    if (unmet) {
+      showAlert('🔒', req.hint || 'Unlock all warriors first.');
       SFX.play('err');
       return;
     }
