@@ -239,6 +239,8 @@ async function restorePurchases(opts = {}) {
         if (k === 'deviceId') continue;
         G[k] = typeof G[k] === 'number' ? 0 : false;
       }
+      saveGame();          // persist cleared fields to SAVE_KEY so they survive a reload
+      renderPremiumShop();
     }
     const purchases = data.purchases || [];
     _payLog('restore found=' + purchases.length + ' items=[' + purchases.map(p => p.product_id).join(',') + ']');
