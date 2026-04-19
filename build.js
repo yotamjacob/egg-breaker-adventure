@@ -18,6 +18,8 @@ const JS_FILES = [
   'hammers.js',
   'render.js',
   'game.js',
+  'payments.js',
+  'cloud.js',
 ];
 
 const CSS_FILES = [
