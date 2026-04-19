@@ -475,10 +475,14 @@
 
         }).catch(() => {});
 
-        // Once the new SW takes control, reload to use fresh assets
+        // Reload when a new SW takes over — but only if there was already a
+        // controller before registration (i.e. this is an update, not a fresh
+        // install). On a fresh install clients.claim() also fires controllerchange,
+        // and reloading inside a TWA causes the native splash to reappear and hang.
+        const hadController = !!navigator.serviceWorker.controller;
         let reloading = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-          if (!reloading) { reloading = true; window.location.reload(); }
+          if (hadController && !reloading) { reloading = true; window.location.reload(); }
         });
       });
     }
