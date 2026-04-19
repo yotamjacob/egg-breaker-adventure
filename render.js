@@ -768,6 +768,8 @@ function renderMonkeys() {
     // Attach handlers AFTER innerHTML
     if (mp.unlocked && !isActive) {
       card.onclick = function() { switchMonkey(i); };
+    } else if (isActive && mp.unlocked) {
+      card.onclick = function() { document.querySelector('[data-tab="play"]').click(); };
     }
     if (!mp.unlocked) {
       const btn = card.querySelector('.monkey-unlock-btn');
