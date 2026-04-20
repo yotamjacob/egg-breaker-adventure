@@ -7,6 +7,13 @@ const VAPID_PUBLIC  = Deno.env.get('VAPID_PUBLIC_KEY')!
 const VAPID_PRIVATE = Deno.env.get('VAPID_PRIVATE_KEY')!
 const VAPID_EMAIL   = Deno.env.get('VAPID_EMAIL') ?? 'mailto:yotam@exacti.us'
 
+// Max parallel push sends — keeps well within FCM rate limits and edge fn timeout
+const CONCURRENCY = 50
+// Rows per DB page — PostgREST default is 1000, be explicit
+const PAGE_SIZE   = 500
+// Max devices per bulk UPDATE/DELETE — avoids URL-length issues in PostgREST
+const DB_BATCH    = 1000
+
 webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC, VAPID_PRIVATE)
 
 const supabase = createClient(
@@ -24,7 +31,6 @@ async function getFcmAccessToken(): Promise<string> {
 
   const sa = JSON.parse(Deno.env.get('FIREBASE_SERVICE_ACCOUNT')!)
 
-  // Build JWT assertion for Google OAuth2
   const now   = Math.floor(Date.now() / 1000)
   const claim = {
     iss:   sa.client_email,
@@ -38,7 +44,6 @@ async function getFcmAccessToken(): Promise<string> {
   const payload = btoa(JSON.stringify(claim)).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')
   const toSign  = header + '.' + payload
 
-  // Import the RSA private key and sign
   const pemBody    = sa.private_key.replace(/-----[^-]+-----/g, '').replace(/\s/g, '')
   const keyBuffer  = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0))
   const cryptoKey  = await crypto.subtle.importKey(
@@ -87,15 +92,15 @@ async function sendFcm(fcmToken: string, payload: { title: string; body: string;
       const body = await resp.text()
       logs.push(`[fcm] status=${resp.status} body=${body}`)
       console.warn('[fcm] send failed', resp.status, body)
-      if (resp.status === 404 || resp.status === 410) return false  // token invalid/expired — delete subscription
-      return true  // other errors are transient — keep subscription
+      if (resp.status === 404 || resp.status === 410) return false
+      return true
     }
     logs.push(`[fcm] sent OK`)
     return true
   } catch (e: any) {
     logs.push(`[fcm] exception: ${e?.message}`)
     console.warn('[fcm] send failed (exception)', e)
-    return true  // keep subscription, transient error
+    return true
   }
 }
 
@@ -124,101 +129,151 @@ function isNighttime(tz: string | null): boolean {
   } catch { return false }
 }
 
+// ── Concurrency helper ─────────────────────────────────────────────────────────
+
+// Process items in chunks of `concurrency` parallel operations.
+// JS is single-threaded so shared array mutations between concurrent callbacks are safe.
+async function runConcurrent<T>(
+  items: T[],
+  fn: (item: T) => Promise<void>,
+  concurrency: number,
+): Promise<void> {
+  for (let i = 0; i < items.length; i += concurrency) {
+    await Promise.all(items.slice(i, i + concurrency).map(fn))
+  }
+}
+
+// Bulk DB update/delete in safe-sized batches to avoid PostgREST URL-length limits
+async function bulkUpdate(devices: string[], patch: Record<string, unknown>) {
+  for (let i = 0; i < devices.length; i += DB_BATCH) {
+    const { error } = await supabase
+      .from('push_subscriptions')
+      .update(patch)
+      .in('device_id', devices.slice(i, i + DB_BATCH))
+    if (error) console.error('[send-notif] bulk update failed', error)
+  }
+}
+
+async function bulkDelete(devices: string[]) {
+  for (let i = 0; i < devices.length; i += DB_BATCH) {
+    const { error } = await supabase
+      .from('push_subscriptions')
+      .delete()
+      .in('device_id', devices.slice(i, i + DB_BATCH))
+    if (error) console.error('[send-notif] bulk delete failed', error)
+  }
+}
+
 // ── Main handler ───────────────────────────────────────────────────────────────
 
 serve(async (req) => {
   const url        = new URL(req.url)
   const testDevice = url.searchParams.get('test_device')
   const now        = new Date()
-  const inactiveCutoff    = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString()
-  const dedupeCutoff      = new Date(now.getTime() - 22 * 60 * 60 * 1000).toISOString()
+  const nowIso     = now.toISOString()
+
+  const inactiveCutoff     = new Date(now.getTime() - 20 * 60 * 60 * 1000).toISOString()
+  const dedupeCutoff       = new Date(now.getTime() - 22 * 60 * 60 * 1000).toISOString()
   const hammersDedupCutoff = new Date(now.getTime() - 10 * 60 * 1000).toISOString()
 
-  let query = supabase
-    .from('push_subscriptions')
-    .select('device_id, subscription, fcm_token, user_id, updated_at, last_notified_at, timezone, hammers_full_at')
-  if (testDevice) query = query.eq('device_id', testDevice)
-  const { data: subs } = await query
+  // ── Fetch only eligible subscribers ───────────────────────────────────────
+  // Conditions (applied in SQL — never load the whole table):
+  //   • not recently notified: last_notified_at IS NULL OR < 22h ago
+  //   • actually needs a notification: hammers_full_at < now  OR  updated_at < 20h ago
+  //
+  // updated_at is a reliable last-activity proxy because every auto-save (every 15 min)
+  // patches push_subscriptions.hammers_full_at, which bumps updated_at.
 
-  if (!subs?.length) return new Response(JSON.stringify({ ok: true, sent: 0 }), {
+  const allSubs: any[] = []
+
+  if (testDevice) {
+    const { data } = await supabase
+      .from('push_subscriptions')
+      .select('device_id, subscription, fcm_token, timezone, last_notified_at, hammers_full_at, updated_at')
+      .eq('device_id', testDevice)
+    if (data) allSubs.push(...data)
+  } else {
+    let page = 0
+    while (true) {
+      const { data, error } = await supabase
+        .from('push_subscriptions')
+        .select('device_id, subscription, fcm_token, timezone, last_notified_at, hammers_full_at, updated_at')
+        .or(`last_notified_at.is.null,last_notified_at.lt.${dedupeCutoff}`)
+        .or(`hammers_full_at.lt.${nowIso},updated_at.lt.${inactiveCutoff}`)
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+      if (error) { console.error('[send-notif] query error', error); break }
+      if (!data?.length) break
+      allSubs.push(...data)
+      if (data.length < PAGE_SIZE) break
+      page++
+    }
+  }
+
+  if (!allSubs.length) return new Response(JSON.stringify({ ok: true, sent: 0, subs: 0 }), {
     headers: { 'Content-Type': 'application/json' },
   })
 
-  // game_saves used only for last_seen_at (daily reward inactive check)
-  const userIds = subs.filter(s => s.user_id).map(s => s.user_id as string)
-  const { data: saves } = userIds.length > 0
-    ? await supabase.from('game_saves').select('user_id, last_seen_at').in('user_id', userIds)
-    : { data: [] as any[] }
-  const savesMap = new Map((saves ?? []).map((s: any) => [s.user_id, s]))
-
-  const expiredDevices: string[]      = []
-  const notifiedDevices: string[]     = []
-  const hammersFullDevices: string[]  = []
-  const debugLogs: string[] = []
+  const expiredDevices: string[]     = []
+  const notifiedDevices: string[]    = []
+  const hammersFullDevices: string[] = []
+  const debugLogs: string[]          = []
   let sent = 0
 
-  for (const sub of subs) {
+  // ── Send notifications concurrently ───────────────────────────────────────
+  await runConcurrent(allSubs, async (sub) => {
     const isTest = !!testDevice
-    if (!isTest && isNighttime(sub.timezone)) continue
+    if (!isTest && isNighttime(sub.timezone)) return
 
-    const save     = sub.user_id ? savesMap.get(sub.user_id) : null
-    const lastSeen = save?.last_seen_at ?? sub.updated_at
-    const inactive = new Date(lastSeen) < new Date(inactiveCutoff)
+    const logs = isTest ? debugLogs : []
 
-    debugLogs.push(`device=${sub.device_id} fcm=${!!sub.fcm_token} hammers_full_at=${sub.hammers_full_at ?? 'none'} inactive=${inactive}`)
-
-    // Choose delivery method
     const sendPush = sub.fcm_token
-      ? (p: any) => sendFcm(sub.fcm_token, p, debugLogs)
+      ? (p: any) => sendFcm(sub.fcm_token, p, logs)
       : sub.subscription
         ? (p: any) => sendWebPush(sub.subscription, p)
         : null
-    if (!sendPush) { debugLogs.push('skip: no delivery method'); continue }
+    if (!sendPush) { logs.push(`device=${sub.device_id} skip: no delivery method`); return }
 
-    // Hammers-full — works for all users (hammers_full_at stored in push_subscriptions on each startup)
+    logs.push(`device=${sub.device_id} fcm=${!!sub.fcm_token} hammers_full_at=${sub.hammers_full_at ?? 'none'}`)
+
+    // Hammers-full notification
     let sentHammersFull = false
     if (sub.hammers_full_at) {
       const fullAt = new Date(sub.hammers_full_at)
       const recentlyHammersNotified = sub.last_notified_at && new Date(sub.last_notified_at) > new Date(hammersDedupCutoff)
-      debugLogs.push(`hammers_full_at check: fullAt=${fullAt.toISOString()} past=${fullAt < now} recentlyHammersNotified=${recentlyHammersNotified} isTest=${isTest}`)
+      logs.push(`hammers check: fullAt=${fullAt.toISOString()} past=${fullAt < now} recentDedup=${recentlyHammersNotified}`)
       if ((fullAt < now || isTest) && (!recentlyHammersNotified || isTest)) {
-        const ok = await sendPush({ title: 'Egg Smash Adventures', body: 'Your hammers are full, get smashin\u0027!', tag: 'hammers-full', url: '/' })
+        const ok = await sendPush({ title: 'Egg Smash Adventures', body: "Your hammers are full, get smashin'!", tag: 'hammers-full', url: '/' })
         if (!ok) expiredDevices.push(sub.device_id)
         else {
           sentHammersFull = true
           sent++
           notifiedDevices.push(sub.device_id)
           hammersFullDevices.push(sub.device_id)
+          logs.push('hammers-full sent')
         }
       }
     }
 
-    // Daily reward
+    // Daily reward notification
     const recentlyNotified = sub.last_notified_at && new Date(sub.last_notified_at) > new Date(dedupeCutoff)
-    debugLogs.push(`daily check: inactive=${inactive} sentHammersFull=${sentHammersFull} recentlyNotified=${recentlyNotified}`)
+    const inactive = new Date(sub.updated_at) < new Date(inactiveCutoff)
+    logs.push(`daily check: inactive=${inactive} sentHammersFull=${sentHammersFull} recentDedup=${recentlyNotified}`)
     if ((inactive || isTest) && !sentHammersFull && !recentlyNotified) {
       const ok = await sendPush({ title: 'Egg Smash Adventures', body: 'Your daily reward is ready. Come claim it!', tag: 'daily-reward', url: '/?tab=daily' })
       if (!ok) expiredDevices.push(sub.device_id)
-      else { sent++; notifiedDevices.push(sub.device_id) }
+      else { sent++; notifiedDevices.push(sub.device_id); logs.push('daily sent') }
     }
-  }
+  }, CONCURRENCY)
 
-  if (notifiedDevices.length) {
-    const { error: e1 } = await supabase.from('push_subscriptions').update({ last_notified_at: now.toISOString() }).in('device_id', notifiedDevices)
-    if (e1) console.error('[send-notif] last_notified_at update failed', e1)
-  }
-  if (hammersFullDevices.length) {
-    const { error: e2 } = await supabase.from('push_subscriptions').update({ hammers_full_at: null }).in('device_id', hammersFullDevices)
-    if (e2) console.error('[send-notif] hammers_full_at clear failed', e2)
-  }
-  if (expiredDevices.length) {
-    const { error: e3 } = await supabase.from('push_subscriptions').delete().in('device_id', expiredDevices)
-    if (e3) console.error('[send-notif] expired delete failed', e3)
-  }
+  // ── Bulk DB updates ────────────────────────────────────────────────────────
+  if (notifiedDevices.length)   await bulkUpdate(notifiedDevices, { last_notified_at: nowIso })
+  if (hammersFullDevices.length) await bulkUpdate(hammersFullDevices, { hammers_full_at: null })
+  if (expiredDevices.length)    await bulkDelete(expiredDevices)
 
-  console.log(`[send-notif] done — sent=${sent} expired=${expiredDevices.length} subs=${subs.length}`)
+  console.log(`[send-notif] done — sent=${sent} eligible=${allSubs.length} expired=${expiredDevices.length}`)
 
-  return new Response(JSON.stringify({ ok: true, sent, test: !!testDevice, ...(testDevice ? { logs: debugLogs } : {}) }), {
-    headers: { 'Content-Type': 'application/json' },
-  })
+  return new Response(JSON.stringify({
+    ok: true, sent, subs: allSubs.length,
+    ...(testDevice ? { logs: debugLogs } : {}),
+  }), { headers: { 'Content-Type': 'application/json' } })
 })
