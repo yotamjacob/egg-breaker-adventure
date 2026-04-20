@@ -1371,6 +1371,12 @@ function nextUncompletedStageIdx() {
 }
 
 // Shared: advance to next uncompleted stage, or open monkeys if all done
+// Progress bar click → open album
+$id('stage-bar').addEventListener('click', () => {
+  document.querySelector('[data-tab="album"]').click();
+});
+
+// Banner click → advance to next uncompleted stage (or open monkeys if all done)
 function stageBarAction() {
   const prog = curProgress();
   if (prog.completed) {
@@ -1384,7 +1390,6 @@ function stageBarAction() {
     updateStageBar();
   }
 }
-$id('stage-bar').addEventListener('click', stageBarAction);
 const _scBanner = $id('stage-complete-banner');
 if (_scBanner) { _scBanner.style.pointerEvents = 'auto'; _scBanner.style.cursor = 'pointer'; _scBanner.addEventListener('click', stageBarAction); }
 
