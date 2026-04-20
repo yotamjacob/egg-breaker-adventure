@@ -437,15 +437,30 @@ function smashEgg(index) {
   // Animate IMMEDIATELY before any logic
   const slots = $id('egg-tray').children;
   const slot = slots[index];
-  SFX.play('hit');
-  shake(slot, egg.hp <= 1 ? 'md' : 'sm');
+  const isSpecial = ['crystal','ruby','black','century'].includes(egg.type);
 
-  if (['crystal','ruby','black','century'].includes(egg.type)) {
+  if (isSpecial) {
+    SFX.play('crunch');
+    shake(slot, egg.hp <= 1 ? 'lg' : 'md');
+    // Slot punch animation
+    slot.classList.remove('egg-crunching');
+    void slot.offsetWidth;
+    slot.classList.add('egg-crunching');
+    slot.addEventListener('animationend', () => slot.classList.remove('egg-crunching'), { once: true });
+    // White flash overlay
+    const flash = document.createElement('div');
+    flash.className = 'crunch-flash';
+    slot.appendChild(flash);
+    flash.addEventListener('animationend', () => flash.remove(), { once: true });
+    // Tray wiggle
     const tray = $id('egg-tray-wrap');
     tray.classList.remove('tray-wiggle');
-    void tray.offsetWidth; // force reflow to restart animation
+    void tray.offsetWidth;
     tray.classList.add('tray-wiggle');
     tray.addEventListener('animationend', () => tray.classList.remove('tray-wiggle'), { once: true });
+  } else {
+    SFX.play('hit');
+    shake(slot, egg.hp <= 1 ? 'md' : 'sm');
   }
 
   const hammerEl = $id('hammer');
@@ -498,7 +513,9 @@ function smashEgg(index) {
     msg('⚡ Mjǫllnir strikes! +7 star pieces', 'mjolnir');
   }
 
-  const particleCount = 8 + (egg.maxHp - egg.hp) * 5;
+  const particleCount = isSpecial
+    ? 18 + (egg.maxHp - egg.hp) * 7
+    : 8 + (egg.maxHp - egg.hp) * 5;
   Particles.emit(cx, cy, egg.type, particleCount);
 
   if (egg.hp > 0) {
