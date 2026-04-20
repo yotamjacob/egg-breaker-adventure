@@ -539,11 +539,11 @@ function updateStageBar() {
   }
   $id('stage-bar').classList.toggle('stage-complete-hint', hasNext);
 
-  // Top banner: hide immediately if already on an uncompleted stage
-  if (tier < 3 && _stageBannerPending) _stageBannerPending = false;
+  // Top banner: only show when viewing a completed stage (tier 3) with flag set, or monkey fully done
+  if (tier < 3) _stageBannerPending = false;
   const banner = $id('stage-complete-banner');
   if (banner) {
-    const showBanner = prog.completed || _stageBannerPending;
+    const showBanner = prog.completed || (_stageBannerPending && tier >= 3);
     banner.classList.toggle('hidden', !showBanner);
     if (showBanner) {
       banner.textContent = prog.completed

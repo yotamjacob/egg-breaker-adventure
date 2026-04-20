@@ -782,6 +782,8 @@ function switchStage(stageIdx) {
   }
 
   prog.activeStage = stageIdx;
+  // Clear stage banner if switching to an incomplete stage
+  if (((prog.tiers && prog.tiers[stageIdx]) || 0) < 3) _stageBannerPending = false;
 
   // Restore that stage's eggs if we've visited it this session, else spawn fresh
   if (_stageEggsCache[keyTo]) {
