@@ -295,6 +295,7 @@ function claimDaily() {
 function $id(id) { return document.getElementById(id); }
 
 let _bonusCache = null;
+let _stageBannerPending = false;
 let _achieveBonusCache = null;
 let _roundPending    = false;
 let _spawningRound   = false;
@@ -618,6 +619,7 @@ function checkCollectionComplete(suppressFlash) {
         prog.stage = si + 1;
       }
       msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌 +' + refill3 + ' 🔨', 'tiers');
+      _stageBannerPending = true;
       // Check if ALL stages are complete
       if (prog.tiers.every(t => t >= 3)) {
         prog.completed = true;
@@ -1339,22 +1341,27 @@ $id('res-f-wrap').addEventListener('click', () => {
   requestAnimationFrame(() => $id('album-items').scrollIntoView({ behavior: 'smooth', block: 'start' }));
 });
 
-// Shared: advance stage, or open monkeys if all done, or fall back to album
+// Find lowest-index unlocked stage that isn't tier 3 yet
+function nextUncompletedStageIdx() {
+  const prog = curProgress();
+  for (let i = 0; i <= prog.stage && i < curMonkey().stages.length; i++) {
+    if ((prog.tiers && prog.tiers[i] || 0) < 3) return i;
+  }
+  return -1;
+}
+
+// Shared: advance to next uncompleted stage, or open monkeys if all done
 function stageBarAction() {
   const prog = curProgress();
-  const si = curActiveStage();
-  const tier = (prog.tiers && prog.tiers[si]) || 0;
-  const nextIdx = si + 1;
-  if (tier >= 3 && nextIdx <= prog.stage && nextIdx < curMonkey().stages.length) {
-    switchStage(nextIdx);
-  } else if (prog.completed) {
+  if (prog.completed) {
     document.querySelector('[data-tab="monkeys"]').click();
-  } else {
-    document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelector('.nav-tab[data-tab="album"]').classList.add('active');
-    $id('panel-album').classList.add('active');
-    renderAlbum();
+    return;
+  }
+  const nextIdx = nextUncompletedStageIdx();
+  if (nextIdx >= 0) {
+    _stageBannerPending = false;
+    switchStage(nextIdx);
+    updateStageBar();
   }
 }
 $id('stage-bar').addEventListener('click', stageBarAction);

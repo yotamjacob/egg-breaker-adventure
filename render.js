@@ -529,6 +529,7 @@ function updateStageBar() {
   fill.style.width = pct + '%';
   fill.className = 'prog-fill' + (found >= total ? ' complete' : '');
 
+  // Progress bar "next stage" hint — only when viewing a completed stage with a next one
   const nextIdx = si + 1;
   const hasNext = tier >= 3 && nextIdx <= prog.stage && nextIdx < curMonkey().stages.length;
   if (tier >= 3) {
@@ -537,8 +538,18 @@ function updateStageBar() {
     $id('stage-detail').textContent = found + '/' + total + ' items';
   }
   $id('stage-bar').classList.toggle('stage-complete-hint', hasNext);
+
+  // Top banner: appears on stage complete, persists until clicked; different text when all done
   const banner = $id('stage-complete-banner');
-  if (banner) banner.classList.toggle('hidden', !hasNext);
+  if (banner) {
+    const showBanner = prog.completed || _stageBannerPending;
+    banner.classList.toggle('hidden', !showBanner);
+    if (showBanner) {
+      banner.textContent = prog.completed
+        ? 'all stages complete — unlock a new monkey'
+        : 'stage complete — tap to continue';
+    }
+  }
 }
 
 function flashTierUp(newTier) {
