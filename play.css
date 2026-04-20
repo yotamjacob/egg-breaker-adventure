@@ -153,10 +153,10 @@
 #panel-play{overflow:hidden}
 .stage-complete-banner{
   position:absolute;top:4px;left:50%;transform:translateX(-50%);z-index:10;
-  width:50%;
+  width:72%;
   background:rgba(34,197,94,.82);color:#fff;
   font-size:8px;font-family:var(--px);text-align:center;
-  padding:3px 6px;border-radius:2px;
+  padding:4px 10px;border-radius:2px;
   pointer-events:auto;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .stage-complete-banner.hidden{ display:none; }
