@@ -444,8 +444,7 @@ function updateResources() {
   $id('res-b').textContent = G.crystalBananas;
   $id('res-f').textContent = G.feathers;
   $id('res-b-wrap').style.display = G.crystalBananas > 0 ? '' : 'none';
-  const _mrStage = G.monkeys?.[0]?.stage ?? -1;
-  $id('res-f-wrap').style.display = _mrStage >= 1 ? '' : 'none';
+  $id('res-f-wrap').style.display = G.monkeys?.[0]?.completed ? '' : 'none';
 
   // Hammer row with color + timer
   const hRow = $id('hammer-row');
@@ -689,7 +688,7 @@ function renderAlbumStage(stageIdx) {
     html += '<span class="album-rarity ' + rarityClass + '">' + rarityLabel + '</span>';
     html += '</div>';
     html += '</div>';
-    if (!found) {
+    if (!found && G.monkeys[0]?.completed) {
       html += '<button class="feather-buy-btn" data-stage="' + stageIdx + '" data-idx2="' + i + '" data-cost="' + cost + '">' +
         '🪶 ' + cost + '</button>';
     }

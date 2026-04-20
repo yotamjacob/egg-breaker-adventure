@@ -621,6 +621,14 @@ function checkCollectionComplete(suppressFlash) {
       if (prog.tiers.every(t => t >= 3)) {
         prog.completed = true;
         SFX.play('complete');
+        // Mr. Monkey completion — unlock feathers
+        if (G.activeMonkey === 0) {
+          setTimeout(() => showConfirm('🎉', 'Mr. Monkey Complete!',
+            'You\'ve unlocked <strong>Feathers 🪶</strong>!<br><br>Feathers drop from eggs and let you buy missing album items directly — great for speeding up your collection.',
+            () => { document.querySelector('[data-tab="album"]').click(); },
+            'Go to Album'
+          ), 800);
+        }
       }
     }
     // Refresh UI after tier change — skip renderEggTray so eggs don't jump positions

@@ -96,8 +96,11 @@ function rollPrize(eggType) {
   if (hasBonus('itemBoost'))    w.item *= 1.15;
   if (hasBonus('allfather'))  { w.star *= 1.1; w.feather *= 1.1; }
 
-  // Mr Monkey: slightly more item drops
-  if (monkey && monkey.id === 'mr_monkey') w.item *= 1.5;
+  // Mr Monkey: slightly more item drops; feathers locked until completed
+  if (monkey && monkey.id === 'mr_monkey') {
+    w.item *= 1.5;
+    if (!G.monkeys[0]?.completed) w.feather = 0;
+  }
 
   // Achievement percentage bonuses
   const ab = getAchievementBonuses();
@@ -579,7 +582,7 @@ function smashEgg(index) {
       if (G['owned_goldmagnet']) gVal = Math.round(gVal * 1.2);
       applyPrize({ type: 'gold',    value: gVal,     label: '🌀 Century! +' + gVal + ' 🪙',      color: '#d97706' }, cx, cy);
       const fVal = Math.round(50 * mult);
-      applyPrize({ type: 'feather', value: fVal,     label: '🌀 +' + fVal + ' 🪶!',              color: '#059669' }, cx, cy);
+      if (G.monkeys[0]?.completed) applyPrize({ type: 'feather', value: fVal, label: '🌀 +' + fVal + ' 🪶!', color: '#059669' }, cx, cy);
       const sVal = Math.round(50 * mult);
       applyPrize({ type: 'star',    value: sVal,     label: '🌀 +' + sVal + ' star pieces!',     color: '#f59e0b' }, cx, cy);
       if (Math.random() < 0.25) applyPrize(resolvePrize('item', 'century'), cx, cy);
