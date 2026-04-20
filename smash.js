@@ -440,6 +440,14 @@ function smashEgg(index) {
   SFX.play('hit');
   shake(slot, egg.hp <= 1 ? 'md' : 'sm');
 
+  if (['crystal','ruby','black','century'].includes(egg.type)) {
+    const tray = $id('egg-tray-wrap');
+    tray.classList.remove('tray-wiggle');
+    void tray.offsetWidth; // force reflow to restart animation
+    tray.classList.add('tray-wiggle');
+    tray.addEventListener('animationend', () => tray.classList.remove('tray-wiggle'), { once: true });
+  }
+
   const hammerEl = $id('hammer');
   const rect = slot.getBoundingClientRect();
   const wrapRect = $id('egg-tray-wrap').getBoundingClientRect();
