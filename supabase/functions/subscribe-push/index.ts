@@ -24,14 +24,24 @@ serve(async (req) => {
 
   try {
     const { device_id, subscription, fcm_token, user_id, timezone, hammers_full_at } = await req.json()
-    if (!device_id || (!subscription && !fcm_token)) {
-      return new Response(JSON.stringify({ error: 'missing fields' }), { status: 400, headers: hdrs })
+    if (!device_id) {
+      return new Response(JSON.stringify({ error: 'missing device_id' }), { status: 400, headers: hdrs })
     }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
+
+    // Partial update: only hammers_full_at (no new subscription token needed)
+    if (!subscription && !fcm_token) {
+      const { error } = await supabase
+        .from('push_subscriptions')
+        .update({ hammers_full_at: hammers_full_at || null })
+        .eq('device_id', device_id)
+      if (error) throw error
+      return new Response(JSON.stringify({ ok: true }), { headers: hdrs })
+    }
 
     const { error } = await supabase
       .from('push_subscriptions')

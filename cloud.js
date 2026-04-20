@@ -446,6 +446,14 @@ async function _syncToCloud() {
   G._cloudSavedAt = G._savedAt;
   saveGame();
   track('cloud-save', { action: 'save' });
+  // Keep push_subscriptions.hammers_full_at in sync so cron fires at the right time
+  if (localStorage.getItem('eba_push_sub')) {
+    fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
+      body:    JSON.stringify({ device_id: getDeviceId(), hammers_full_at: hammersFullAt }),
+    }).catch(() => {});
+  }
 }
 
 function _applyCloudSave(saveData) {
