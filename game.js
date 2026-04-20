@@ -1328,7 +1328,7 @@ if (!G._welcomeDone && G.totalEggs === 0) {
     $id('overlay-welcome').classList.remove('hidden');
     _tipIdx = Math.floor(Math.random() * _WELCOME_TIPS.length);
     _rotateTip();
-  }, 800);
+  }, 2800);
 }
 
 // Hammer regen catch-up when app is minimized / backgrounded
