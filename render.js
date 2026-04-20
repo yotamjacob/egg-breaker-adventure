@@ -923,6 +923,7 @@ function renderStats() {
     ['Mults used', G.multUsed || 0],
     ['x5 mults bought', G.shopMult5 || 0],
     ['— per 100 eggs —', ''],
+    ['Items / 100', per100(G.totalItems)],
     ['Silver / 100', per100(G.silverSmashed)],
     ['Gold / 100', per100(G.goldSmashed)],
     ['Crystal / 100', per100(G.crystalSmashed)],
