@@ -526,17 +526,14 @@ function updateStageBar() {
   fill.style.width = pct + '%';
   fill.className = 'prog-fill' + (found >= total ? ' complete' : '');
 
+  const nextIdx = si + 1;
+  const hasNext = tier >= 3 && nextIdx <= prog.stage && nextIdx < curMonkey().stages.length;
   if (tier >= 3) {
-    // Stage complete — suggest next stage
-    const nextIdx = si + 1;
-    if (nextIdx <= prog.stage && nextIdx < curMonkey().stages.length) {
-      $id('stage-detail').textContent = 'next stage ▶';
-    } else {
-      $id('stage-detail').textContent = found + '/' + total + ' items';
-    }
+    $id('stage-detail').textContent = hasNext ? 'next stage ▶' : found + '/' + total + ' items';
   } else {
     $id('stage-detail').textContent = found + '/' + total + ' items';
   }
+  $id('stage-bar').classList.toggle('stage-complete-hint', hasNext);
 }
 
 function flashTierUp(newTier) {

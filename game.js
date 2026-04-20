@@ -1335,11 +1335,19 @@ $id('res-f-wrap').addEventListener('click', () => {
 
 // Stage bar click → Album tab
 $id('stage-bar').addEventListener('click', () => {
-  document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelector('.nav-tab[data-tab="album"]').classList.add('active');
-  $id('panel-album').classList.add('active');
-  renderAlbum();
+  const prog = curProgress();
+  const si = curActiveStage();
+  const tier = (prog.tiers && prog.tiers[si]) || 0;
+  const nextIdx = si + 1;
+  if (tier >= 3 && nextIdx <= prog.stage && nextIdx < curMonkey().stages.length) {
+    switchStage(nextIdx);
+  } else {
+    document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('.nav-tab[data-tab="album"]').classList.add('active');
+    $id('panel-album').classList.add('active');
+    renderAlbum();
+  }
 });
 
 // Auto-save

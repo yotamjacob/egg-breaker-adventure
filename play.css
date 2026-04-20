@@ -39,6 +39,13 @@
 .stage-footer{display:flex;justify-content:space-between;align-items:center}
 .stage-detail{font-size:11px;color:var(--gray)}
 
+/* Stage complete — persistent blink hint to advance */
+@keyframes stage-complete-pulse {
+  0%,100%{ border-color:var(--gold3) }
+  50%    { border-color:var(--green);box-shadow:inset 2px 2px 0 var(--raised),inset -2px -2px 0 var(--inset),3px 3px 0 var(--dark),0 0 10px 3px var(--green) }
+}
+.stage-bar.stage-complete-hint{ animation:stage-complete-pulse 1.6s ease-in-out infinite }
+
 /* Tier advancement flash */
 @keyframes tier-glow-silver {
   0%,100%{ box-shadow:inset 1px 1px 0 rgba(0,0,0,.5) }
