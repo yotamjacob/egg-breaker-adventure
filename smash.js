@@ -490,7 +490,7 @@ function smashEgg(index) {
     msg('⚡ Mjǫllnir strikes! +7 star pieces', 'mjolnir');
   }
 
-  const particleCount = 4 + (egg.maxHp - egg.hp) * 3;
+  const particleCount = 8 + (egg.maxHp - egg.hp) * 5;
   Particles.emit(cx, cy, egg.type, particleCount);
 
   if (egg.hp > 0) {
@@ -637,10 +637,8 @@ function applyPrize(prize, cx, cy) {
     G.gold += prize.value;
     G.totalGold += prize.value;
     G.biggestWin = Math.max(G.biggestWin, prize.value);
-    const cls = prize.value >= 500 ? 'mega' : prize.value >= 200 ? 'big' : '';
+    const cls = prize.value >= 300 ? 'mega' : prize.value >= 80 ? 'big' : '';
     if (prize.balloonMult || prize.usedMult) {
-      // prize.baseVal already has all bonuses baked in at the per-unit level, so the
-      // equation label is always exact: totalMult × baseVal = prize.value (no rounding drift).
       const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, '🪙', prize.balloonMult, prize.popPrefix);
       spawnFloat(zone, eq, '#d97706', cls || 'big', cx, cy);
       msg(eq, 'prizes');
@@ -649,7 +647,8 @@ function applyPrize(prize, cx, cy) {
       msg(prize.label, 'prizes');
     }
     SFX.play('coin');
-    if (prize.value >= 200) Particles.sparkle(cx, cy, 12, '#FFD700');
+    const sparkCount = prize.value >= 300 ? 22 : prize.value >= 80 ? 14 : 6;
+    Particles.sparkle(cx, cy, sparkCount, '#FFD700');
   }
 
   if (prize.type === 'star') {

@@ -21,17 +21,19 @@ const Particles = (() => {
     const cols = COLORS[type] || COLORS.normal;
     const toAdd = Math.min(count, MAX_PARTICLES - ps.length);
     for (let i = 0; i < toAdd; i++) {
-      const a = (Math.PI * 2 / count) * i + (Math.random() - .5) * .8;
-      const sp = 3 + Math.random() * 5;
+      const isSpark = i % 4 === 0; // mix 1-in-4 as bright sparkles
+      const a = (Math.PI * 2 / count) * i + (Math.random() - .5) * .9;
+      const sp = isSpark ? 5 + Math.random() * 6 : 4 + Math.random() * 7;
       ps.push({
         x: cx, y: cy,
-        vx: Math.cos(a) * sp * (.7 + Math.random() * .6),
-        vy: Math.sin(a) * sp - 2 - Math.random() * 2,
-        life: 1, decay: .012 + Math.random() * .008,
-        sz: 3 + Math.random() * 5,
-        rot: Math.random() * Math.PI * 2, rv: (Math.random() - .5) * .3,
-        grav: .12 + Math.random() * .06,
-        col: cols[Math.random() * cols.length | 0], sh: 'shell',
+        vx: Math.cos(a) * sp * (.8 + Math.random() * .5),
+        vy: Math.sin(a) * sp - 2.5 - Math.random() * 3,
+        life: 1, decay: isSpark ? .015 + Math.random() * .008 : .010 + Math.random() * .007,
+        sz: isSpark ? 2 + Math.random() * 3 : 4 + Math.random() * 6,
+        rot: Math.random() * Math.PI * 2, rv: (Math.random() - .5) * .4,
+        grav: .10 + Math.random() * .06,
+        col: isSpark ? '#FFFFFF' : cols[Math.random() * cols.length | 0],
+        sh: isSpark ? 'star' : 'shell',
       });
     }
     _tryStart();
@@ -39,11 +41,11 @@ const Particles = (() => {
   function sparkle(cx, cy, count, col) {
     const toAdd = Math.min(count, MAX_PARTICLES - ps.length);
     for (let i = 0; i < toAdd; i++) {
-      const a = Math.random() * Math.PI * 2, sp = 1 + Math.random() * 3;
+      const a = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 5;
       ps.push({
-        x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1,
-        life: 1, decay: .02 + Math.random() * .015, sz: 1.5 + Math.random() * 2.5,
-        rot: 0, rv: 0, grav: .02, col: col || '#FFD700', sh: 'star',
+        x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.5,
+        life: 1, decay: .014 + Math.random() * .012, sz: 2 + Math.random() * 3.5,
+        rot: 0, rv: 0, grav: .025, col: col || '#FFD700', sh: 'star',
       });
     }
     _tryStart();
