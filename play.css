@@ -97,16 +97,30 @@
 }
 .starfall-box{
   flex:0 0 20%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;border:3px solid var(--gold);border-radius:2px;
-  background:linear-gradient(180deg,var(--gold),var(--gold2));color:var(--dark);
-  font-family:var(--px);cursor:pointer;padding:6px 4px;
+  gap:2px;border:3px solid var(--gold3);border-radius:2px;
+  background:linear-gradient(180deg,#6b5300,#3d2f00);color:#6b5300;
+  font-family:var(--px);cursor:default;padding:6px 4px;
   box-shadow:inset 2px 2px 0 var(--raised),inset -2px -2px 0 var(--inset),3px 3px 0 var(--dark);
-  overflow:hidden;
+  overflow:hidden;transition:background .2s,border-color .2s,color .2s;
 }
 .starfall-box:disabled{cursor:default}
+.starfall-box.star-muted{
+  border-color:var(--gold3);
+  background:linear-gradient(180deg,#6b5300,#3d2f00);color:#6b5300;
+}
+@keyframes star-glow{
+  0%,100%{box-shadow:inset 2px 2px 0 var(--raised),inset -2px -2px 0 var(--inset),3px 3px 0 var(--dark),0 0 4px 1px rgba(245,197,66,.3)}
+  50%    {box-shadow:inset 2px 2px 0 var(--raised),inset -2px -2px 0 var(--inset),3px 3px 0 var(--dark),0 0 12px 4px rgba(245,197,66,.7)}
+}
+.starfall-box.star-ready{
+  border-color:var(--gold);cursor:pointer;
+  background:linear-gradient(180deg,var(--gold),var(--gold2));color:var(--dark);
+  animation:star-glow 1.8s ease-in-out infinite;
+}
 .starfall-icon{font-size:22px;text-align:center;margin-top:1px;margin-bottom:-1px}
 .starfall-count{font-size:8px;text-align:center}
 .starfall-hint{font-size:9px;color:#3a2a00;text-align:center;line-height:1.4}
+.starfall-box.star-muted .starfall-hint{color:#4a3800}
 @keyframes pulse-star{0%,100%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark)}50%{box-shadow:inset 2px 2px 0 var(--raised),3px 3px 0 var(--dark),0 0 10px rgba(245,197,66,.5)}}
 .mult-chip{
   background:var(--panel);border:2px solid var(--purple);border-radius:1px;

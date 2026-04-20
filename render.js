@@ -425,15 +425,17 @@ function updateStarBtn() {
   const need = starfallCost();
   if (!isStarfallUnlocked()) {
     btn.disabled = true;
+    btn.classList.remove('star-ready', 'star-muted');
     $id('star-count').textContent = '🔒';
     $id('star-hint').textContent = 'Finish\nStage 1';
     $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '';
     return;
   }
   $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '⭐';
-  $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '⭐';
   const ready = G.starPieces >= need && G.roundEggs && !G.roundEggs.every(e => e.broken || e.expired) && !_spawningRound;
   btn.disabled = !ready;
+  btn.classList.toggle('star-ready', ready);
+  btn.classList.toggle('star-muted', !ready);
   $id('star-count').textContent = G.starPieces + ' / ' + need;
   $id('star-hint').textContent = ready ? 'Tap!' : '';
 }
