@@ -757,6 +757,16 @@ function applyPrize(prize, cx, cy) {
       // Show popup for new item
       msg('New item collected: ' + prize.emoji + ' ' + prize.name, 'items');
       setTimeout(() => showItemToast(prize), 400);
+      // First rare item tutorial modal
+      if (prize.rarity === 3 && !G._firstRareSeen) {
+        G._firstRareSeen = true;
+        saveGame();
+        setTimeout(() => showConfirm('💎', 'First Rare Item!',
+          'Rare items are the hardest to find — nice pull! 🎉<br><br>Collect all items in a stage to complete it. Check your progress in the <strong>Album</strong>.',
+          () => { document.querySelector('[data-tab="album"]').click(); },
+          'View Album', 'Later'
+        ), 1200);
+      }
       // Check collection completion
       checkCollectionComplete();
     } else {

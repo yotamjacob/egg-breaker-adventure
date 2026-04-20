@@ -54,6 +54,7 @@ const DEFAULT_STATE = {
   musicOn: true,
   autoBuy: false,
   _welcomeDone: false,
+  _firstRareSeen: false,
   deviceId: null,
   // Premium purchases (one-time flags + counter)
   premium_starter_pack: false,
@@ -969,7 +970,7 @@ function showAlert(icon, text) {
   if (noBtn) { noBtn.style.display = ''; noBtn.textContent = 'OK'; }
 }
 
-function showConfirm(icon, title, detail, onYes, yesText) {
+function showConfirm(icon, title, detail, onYes, yesText, noText) {
   const yesBtn = $id('confirm-yes');
   const noBtn  = $id('overlay-confirm').querySelector('.confirm-no');
   $id('confirm-icon').textContent = icon;
@@ -979,7 +980,7 @@ function showConfirm(icon, title, detail, onYes, yesText) {
     yesBtn.style.display = '';
     yesBtn.textContent   = yesText || 'Buy';
     yesBtn.onclick       = function() { closeOverlay('overlay-confirm'); onYes(); };
-    if (noBtn) { noBtn.style.display = ''; noBtn.textContent = 'Cancel'; }
+    if (noBtn) { noBtn.style.display = ''; noBtn.textContent = noText || 'Cancel'; }
   } else {
     if (noBtn) noBtn.style.display = 'none';
     yesBtn.style.display = '';
