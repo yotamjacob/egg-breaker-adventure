@@ -1334,14 +1334,16 @@ $id('res-f-wrap').addEventListener('click', () => {
   requestAnimationFrame(() => $id('album-items').scrollIntoView({ behavior: 'smooth', block: 'start' }));
 });
 
-// Stage bar click → Album tab
-$id('stage-bar').addEventListener('click', () => {
+// Shared: advance stage, or open monkeys if all done, or fall back to album
+function stageBarAction() {
   const prog = curProgress();
   const si = curActiveStage();
   const tier = (prog.tiers && prog.tiers[si]) || 0;
   const nextIdx = si + 1;
   if (tier >= 3 && nextIdx <= prog.stage && nextIdx < curMonkey().stages.length) {
     switchStage(nextIdx);
+  } else if (prog.completed) {
+    document.querySelector('[data-tab="monkeys"]').click();
   } else {
     document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -1349,7 +1351,10 @@ $id('stage-bar').addEventListener('click', () => {
     $id('panel-album').classList.add('active');
     renderAlbum();
   }
-});
+}
+$id('stage-bar').addEventListener('click', stageBarAction);
+const _scBanner = $id('stage-complete-banner');
+if (_scBanner) { _scBanner.style.pointerEvents = 'auto'; _scBanner.style.cursor = 'pointer'; _scBanner.addEventListener('click', stageBarAction); }
 
 // Auto-save
 setInterval(saveGame, 15000);
