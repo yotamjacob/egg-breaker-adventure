@@ -32,7 +32,7 @@ const SFX = (() => {
     try {
       // 16-bit chiptune style: square & triangle waves
       if (n === 'hit')     { noise(.022, .55); tone(680, .035, .22, 'square'); setTimeout(() => tone(520, .04, .12, 'triangle'), 18); setTimeout(() => tone(1040, .025, .07, 'sine'), 35); }
-      if (n === 'crunch')  { noise(.007, .1); tone(420, .035, .55, 'triangle'); setTimeout(() => tone(630, .028, .32, 'triangle'), 12); setTimeout(() => tone(280, .045, .28, 'sine'), 8); }
+      if (n === 'crunch')  { noise(.02, .72); tone(700, .022, .42, 'square'); setTimeout(() => noise(.012, .35), 14); setTimeout(() => tone(480, .032, .22, 'triangle'), 18); }
       if (n === 'coin')    { tone(1047, .06, .16, 'square'); setTimeout(() => tone(1319, .08, .13, 'square'), 45); setTimeout(() => tone(1568, .1, .09, 'triangle'), 90); }
       if (n === 'gem')     { tone(1047, .06, .1, 'square'); setTimeout(() => tone(1319, .06, .08, 'square'), 40); setTimeout(() => tone(1568, .12, .07, 'triangle'), 80); }
       if (n === 'star')    { tone(784, .08, .1, 'square'); setTimeout(() => tone(988, .08, .08, 'square'), 60); setTimeout(() => tone(1319, .12, .07, 'triangle'), 120); }
