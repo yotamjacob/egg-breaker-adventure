@@ -1257,6 +1257,15 @@ initCloudSave();
 _startCloudAutoSave();
 _initNotifBtn();
 
+// Once per session: warn in the log if not synced to cloud
+let _noSyncWarned = false;
+setTimeout(() => {
+  if (!_noSyncWarned && !_cloudUser) {
+    _noSyncWarned = true;
+    msg('☁️ Not synced — tap the profile icon to save your progress', 'noSync');
+  }
+}, 3000);
+
 $id('version-tag').textContent = 'Egg Smash Adventures v' + VERSION;
 
 // PWA shortcut deep-linking: ?tab=play|album|shop|monkeys etc.
