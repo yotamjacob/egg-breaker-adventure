@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.3.45';
+const VERSION = '2.3.46';
 
 const CONFIG = {
 
@@ -22,7 +22,7 @@ const CONFIG = {
       goldMult: 1, featherMult: 1, starPieces: 1,
       colors: { f:'#FEF9F0', s:'#D4A853', h:'#fff8e0', sh:'#b8922e' },
       particles: ['#ffe8b0','#e8c878','#d4a840','#c09028'],
-      prizes: { empty:5, gold_s:24, gold_m:18, gold_l:8, star:4, mult:2, feather:7, item:6, hammers:0 },
+      prizes: { empty:4, gold_s:20, gold_m:22, gold_l:14, star:4, mult:2, feather:7, item:6, hammers:0 },
       desc: 'Can be empty',
     },
     {
@@ -31,7 +31,7 @@ const CONFIG = {
       goldMult: 2, featherMult: 2, starPieces: 2,
       colors: { f:'#d8dde3', s:'#8899aa', h:'#eceff2', sh:'#667788' },
       particles: ['#c8d8e8','#a0b8c8','#88a0b0','#6888a0'],
-      prizes: { empty:1, gold_s:11, gold_m:20, gold_l:16, star:7, mult:3, feather:7, item:8, hammers:10 },
+      prizes: { empty:1, gold_s:8, gold_m:20, gold_l:24, star:7, mult:3, feather:7, item:8, hammers:10 },
       desc: 'Rarely empty, 2x prizes, can drop bonus hammers',
     },
     {
@@ -86,9 +86,9 @@ const CONFIG = {
   // 2. GOLD DROP RANGES
   // ----------------------------------------------------------
   goldValues: {
-    gold_s: [1,   4],
-    gold_m: [5,  15],
-    gold_l: [18, 60],
+    gold_s: [2,   8],
+    gold_m: [8,  22],
+    gold_l: [25, 80],
   },
 
   starPiecesForStarfall: 7,
@@ -138,7 +138,7 @@ const CONFIG = {
   featherStageMultiplier: 1.10,  // cost multiplied by this^(stageIndex) — stage1=1x, stage2=1.10x, stage3=1.21x...
 
   // Gold given when you roll a duplicate item (keyed by rarity: 1=common, 2=uncommon, 3=rare)
-  duplicateGoldByRarity: { 1: [20, 60], 2: [80, 200], 3: [250, 600] },
+  duplicateGoldByRarity: { 1: [35, 90], 2: [120, 280], 3: [350, 800] },
 
   // ----------------------------------------------------------
   // 9. CRYSTAL BANANAS
@@ -190,7 +190,7 @@ const CONFIG = {
   // ----------------------------------------------------------
   startingHammers:     75,
   startingMaxHammers:  75,
-  startingGold:        1000,
+  startingGold:        2000,
 
   // ----------------------------------------------------------
   // 15. REWARD LOG — which message types show in the log
