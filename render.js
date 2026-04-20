@@ -411,6 +411,7 @@ function renderMultQueue() {
         } else {
           G._selectedCounts[val] = 0;
         }
+        SFX.play('mult');
         recalcActiveMult();
         renderMultQueue();
       });
