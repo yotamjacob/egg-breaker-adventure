@@ -1293,14 +1293,42 @@ $id('version-tag').textContent = 'Egg Smash Adventures v' + VERSION;
 if (G.hammers < G.maxH && !regenInt) startRegen();
 
 // Welcome modal — show once to new players who haven't synced
+const _WELCOME_TIPS = [
+  'Use feathers to unlock album items directly — great for filling stubborn gaps.',
+  'Collect 7 star pieces to unleash Starfall and smash every egg at once!',
+  'Multiplier chips stack with balloon egg pops for truly massive rewards.',
+  'Silver and gold eggs never give empty prizes — hunt them for better loot.',
+  'Feeling stuck? The shop has upgrades that keep the hammers flowing.',
+  'Complete Mr. Monkey to unlock feathers and power up your collection speed.',
+  'Tap the gold counter to jump straight to the shop.',
+  'The premium shop has game-changing gear — check it out when you\'re ready.',
+  'Crystal and ruby eggs hit harder but pay out big — worth the extra taps.',
+];
+let _tipIdx = 0, _tipTimer = null;
+function _rotateTip() {
+  const el = $id('welcome-tip-text');
+  const box = el && el.closest('.welcome-tip-box');
+  if (!el) return;
+  el.textContent = _WELCOME_TIPS[_tipIdx % _WELCOME_TIPS.length];
+  _tipIdx++;
+  box.classList.remove('tip-in');
+  void box.offsetWidth;
+  box.classList.add('tip-in');
+  _tipTimer = setTimeout(_rotateTip, 4000);
+}
 function dismissWelcome(goToCloud) {
+  clearTimeout(_tipTimer);
   closeOverlay('overlay-welcome');
   G._welcomeDone = true;
   saveGame();
   if (goToCloud) openCloudSaveModal();
 }
 if (!G._welcomeDone && G.totalEggs === 0) {
-  setTimeout(() => $id('overlay-welcome').classList.remove('hidden'), 800);
+  setTimeout(() => {
+    $id('overlay-welcome').classList.remove('hidden');
+    _tipIdx = Math.floor(Math.random() * _WELCOME_TIPS.length);
+    _rotateTip();
+  }, 800);
 }
 
 // Hammer regen catch-up when app is minimized / backgrounded

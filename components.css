@@ -64,6 +64,15 @@
 /* ---------- Welcome modal ---------- */
 .pop-welcome{max-width:280px;text-align:center}
 .pop-welcome .pop-sub{font-size:13px;color:#ccc;line-height:1.5}
+.welcome-tip-box{
+  margin-top:12px;padding:9px 12px;border-radius:10px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  font-size:12px;color:#ddd;line-height:1.45;text-align:left;min-height:44px;
+  display:flex;flex-direction:column;gap:3px;
+}
+.welcome-tip-label{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.5px;text-transform:uppercase}
+@keyframes tip-fade{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
+.welcome-tip-box.tip-in{animation:tip-fade .3s ease}
 
 /* ---------- Settings menu + sub-modals (shared design) ---------- */
 .pop-settings,
