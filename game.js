@@ -1320,6 +1320,11 @@ document.addEventListener('visibilitychange', () => {
 // Save _savedAt when app is fully closed so offline regen is accurate on next open
 window.addEventListener('pagehide', () => { saveGame(); });
 
+// Gold click → Shop
+$id('res-g-wrap').addEventListener('click', () => {
+  document.querySelector('[data-tab="shop"]').click();
+});
+
 // Feathers click → Album items
 $id('res-b-wrap').addEventListener('click', () => {
   document.querySelector('.nav-tab[data-tab="monkeys"]').click();
