@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.3.55';
+const VERSION = '2.3.56';
 
 const CONFIG = {
 
@@ -22,7 +22,7 @@ const CONFIG = {
       goldMult: 1, featherMult: 1, starPieces: 1,
       colors: { f:'#FEF9F0', s:'#D4A853', h:'#fff8e0', sh:'#b8922e' },
       particles: ['#ffe8b0','#e8c878','#d4a840','#c09028'],
-      prizes: { empty:4, gold_s:20, gold_m:22, gold_l:14, star:4, mult:2, feather:7, item:6, hammers:0 },
+      prizes: { empty:4, gold_s:20, gold_m:22, gold_l:14, star:4, mult:2, feather:7, item:4, hammers:0 },
       desc: 'Can be empty',
     },
     {
@@ -31,7 +31,7 @@ const CONFIG = {
       goldMult: 2, featherMult: 2, starPieces: 2,
       colors: { f:'#d8dde3', s:'#8899aa', h:'#eceff2', sh:'#667788' },
       particles: ['#c8d8e8','#a0b8c8','#88a0b0','#6888a0'],
-      prizes: { empty:1, gold_s:8, gold_m:20, gold_l:24, star:7, mult:3, feather:7, item:8, hammers:10 },
+      prizes: { empty:1, gold_s:8, gold_m:20, gold_l:24, star:7, mult:3, feather:7, item:6, hammers:10 },
       desc: 'Rarely empty, 2x prizes, can drop bonus hammers',
     },
     {
@@ -40,7 +40,7 @@ const CONFIG = {
       goldMult: 1.5, featherMult: 1, starPieces: 1,
       colors: { f:'#FFD700', s:'#B8860B', h:'#ffe44d', sh:'#8B6508' },
       particles: ['#FFD700','#FFA500','#FF8C00','#DAA520'],
-      prizes: { empty:0, gold_s:0, gold_m:18, gold_l:26, star:7, mult:2, feather:6, item:10, hammers:8 },
+      prizes: { empty:0, gold_s:0, gold_m:18, gold_l:26, star:7, mult:2, feather:6, item:7, hammers:8 },
       desc: 'Never empty, 1.5x gold, best item drop rate',
     },
     {
@@ -49,7 +49,7 @@ const CONFIG = {
       goldMult: 3, featherMult: 2, starPieces: 4,
       colors: { f:'#E0D0FF', s:'#8B5CF6', h:'#F0E8FF', sh:'#6D28D9' },
       particles: ['#E0D0FF','#C4B5FD','#A78BFA','#8B5CF6'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:42, star:11, mult:6, feather:8, item:14, hammers:8 },
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:42, star:11, mult:6, feather:8, item:10, hammers:8 },
       desc: 'Stage 3+. Never empty, 2x gold, 3 star pieces, rarest drops',
     },
     {
@@ -58,7 +58,7 @@ const CONFIG = {
       goldMult: 5, featherMult: 3, starPieces: 5,
       colors: { f:'#E8143C', s:'#8B0020', h:'#FF6B7A', sh:'#5C0015' },
       particles: ['#FF2D55','#E8143C','#C70039','#8B0020'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:40, star:10, mult:6, feather:7, item:10, hammers:8, banana:0 },
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:40, star:10, mult:6, feather:7, item:7, hammers:8, banana:0 },
       desc: 'Stage 5+. 9 hits, 3x gold, best rewards',
     },
     {
@@ -67,7 +67,7 @@ const CONFIG = {
       goldMult: 8, featherMult: 5, starPieces: 7,
       colors: { f:'#1a1a1a', s:'#000000', h:'#3a3a3a', sh:'#0a0a0a' },
       particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:58, star:16, mult:12, feather:10, item:10, hammers:10, maxHammers:2, banana:2 },
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:58, star:16, mult:12, feather:10, item:7, hammers:10, maxHammers:2, banana:2 },
       desc: 'Stage 9. 20 hits, 5x gold, best rewards in the game',
     },
     {
