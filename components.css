@@ -60,18 +60,6 @@
 #toast-header{color:var(--amber);font-size:11px;letter-spacing:1px;text-transform:uppercase}
 .toast small{color:var(--gray);font-size:11px}
 
-/* ---------- Onboarding tour ---------- */
-.pop-tour{max-width:300px}
-.tour-body{
-  font-size:10px;color:var(--white);line-height:1.7;
-  text-align:center;max-width:260px;white-space:pre-line;
-}
-.tour-dots{display:flex;gap:6px;justify-content:center;margin:6px 0 2px}
-.tour-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:var(--gray);border:1px solid var(--dark);
-}
-.tour-dot.active{background:var(--gold)}
 
 /* ---------- Settings menu + sub-modals (shared design) ---------- */
 .pop-settings,
