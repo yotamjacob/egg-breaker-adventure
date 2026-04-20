@@ -53,6 +53,7 @@ const DEFAULT_STATE = {
   soundOn: true,
   musicOn: true,
   autoBuy: false,
+  _welcomeDone: false,
   deviceId: null,
   // Premium purchases (one-time flags + counter)
   premium_starter_pack: false,
@@ -1268,6 +1269,17 @@ $id('version-tag').textContent = 'Egg Smash Adventures v' + VERSION;
 })();
 
 if (G.hammers < G.maxH && !regenInt) startRegen();
+
+// Welcome modal — show once to new players who haven't synced
+function dismissWelcome(goToCloud) {
+  closeOverlay('overlay-welcome');
+  G._welcomeDone = true;
+  saveGame();
+  if (goToCloud) openCloudSaveModal();
+}
+if (!G._welcomeDone && G.totalEggs === 0) {
+  setTimeout(() => $id('overlay-welcome').classList.remove('hidden'), 800);
+}
 
 // Hammer regen catch-up when app is minimized / backgrounded
 let _hiddenAt = 0;

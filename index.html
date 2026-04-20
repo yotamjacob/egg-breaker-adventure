@@ -222,6 +222,19 @@
     </div>
 
 
+    <!-- ===== WELCOME MODAL ===== -->
+    <div class="overlay hidden" id="overlay-welcome" onclick="if(event.target===this)dismissWelcome()">
+      <div class="popup pop-welcome">
+        <div class="pop-icon">🥚</div>
+        <strong>Welcome to Egg Smash Adventures!</strong>
+        <span class="pop-sub">Sync your progress to the cloud so you never lose your save.</span>
+        <div class="confirm-btns">
+          <button class="pop-btn confirm-yes" onclick="dismissWelcome(true)">Take me there</button>
+          <button class="pop-btn confirm-no" onclick="dismissWelcome()">No thanks</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ===== SETTINGS MENU ===== -->
     <div class="overlay hidden" id="overlay-settings" onclick="if(event.target===this)closeOverlay('overlay-settings')">
       <div class="popup pop-settings">

@@ -61,6 +61,10 @@
 .toast small{color:var(--gray);font-size:11px}
 
 
+/* ---------- Welcome modal ---------- */
+.pop-welcome{max-width:280px;text-align:center}
+.pop-welcome .pop-sub{font-size:13px;color:#ccc;line-height:1.5}
+
 /* ---------- Settings menu + sub-modals (shared design) ---------- */
 .pop-settings,
 .pop-submodal{
