@@ -3,6 +3,9 @@
 //  cloud.js  (requires game.js and payments.js loaded first)
 // ============================================================
 
+// Pre-warm serviceWorker.ready so it's resolved before the user taps anything
+const _swReady = ('serviceWorker' in navigator) ? navigator.serviceWorker.ready : Promise.resolve(null);
+
 // ==================== CLOUD SAVE ====================
 
 // ── Payment debug logger ─────────────────────────────────────────────────────
@@ -529,12 +532,16 @@ async function _sendFcmSubscription(token) {
 
 async function toggleNotifications() {
   const label = $id('notif-toggle-label');
+  const btn   = $id('notif-toggle-btn');
+  const re = () => { if (btn) btn.disabled = false; };
+
+  if (btn) btn.disabled = true;
 
   // Already subscribed — unsubscribe
   if (localStorage.getItem('eba_push_sub')) {
     if (!window.AndroidBridge) {
       try {
-        const sw  = await navigator.serviceWorker.ready;
+        const sw  = await _swReady;
         const sub = await sw.pushManager.getSubscription();
         if (sub) await sub.unsubscribe();
       } catch (_) {}
@@ -542,7 +549,7 @@ async function toggleNotifications() {
     localStorage.removeItem('eba_push_sub');
     label.textContent = 'OFF';
     label.classList.remove('on');
-    return;
+    re(); return;
   }
 
   // Android: request FCM token via native bridge
@@ -550,7 +557,7 @@ async function toggleNotifications() {
     _payLog('notif: AndroidBridge detected, requestFcmToken=' + typeof window.AndroidBridge.requestFcmToken);
     if (typeof window.AndroidBridge.requestFcmToken !== 'function') {
       msg('Please update the app to enable push notifications.');
-      return;
+      re(); return;
     }
     try {
       const token = await new Promise((resolve, reject) => {
@@ -576,22 +583,22 @@ async function toggleNotifications() {
       _payLog('notif: error ' + e.message);
       msg('Could not enable notifications: ' + (e.message || String(e)));
     }
-    return;
+    re(); return;
   }
 
   // Web push (browser)
   if (typeof Notification === 'undefined') {
     msg('Push notifications are not supported in this browser.');
-    return;
+    re(); return;
   }
   try {
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') {
       msg('Notification permission denied.');
-      return;
+      re(); return;
     }
 
-    const sw  = await navigator.serviceWorker.ready;
+    const sw  = await _swReady;
     const sub = await sw.pushManager.subscribe({
       userVisibleOnly:      true,
       applicationServerKey: _urlBase64ToUint8Array(_VAPID_PUBLIC),
@@ -613,6 +620,7 @@ async function toggleNotifications() {
     console.warn('[push] subscribe failed', e);
     msg('Could not enable notifications: ' + (e.message || String(e)));
   }
+  re();
 }
 
 function _initNotifBtn() {
