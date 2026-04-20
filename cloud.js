@@ -134,11 +134,16 @@ function openCloudSaveModal() {
   closeOverlay('overlay-settings');
   $id('overlay-cloudsave').classList.remove('hidden');
   _renderCloudModal();
-  // Fetch last cloud save timestamp if linked
-  if (_sbClient && _cloudUser) {
-    _sbClient.from('game_saves').select('saved_at').eq('user_id', _cloudUser.id).maybeSingle()
-      .then(({ data }) => {
-        if (data) { G._cloudSavedAt = new Date(data.saved_at).getTime(); _renderCloudModal(); }
+  // Fetch last cloud save timestamp if linked — raw fetch to avoid stale Supabase client token
+  if (_cloudSession && _cloudUser) {
+    fetch(_SUPABASE_URL + '/rest/v1/game_saves?select=saved_at&user_id=eq.' + _cloudUser.id, {
+      headers: {
+        'apikey':        _SUPABASE_ANON,
+        'Authorization': 'Bearer ' + _cloudSession.access_token,
+      },
+    }).then(r => r.ok ? r.json() : null)
+      .then(rows => {
+        if (rows && rows[0]) { G._cloudSavedAt = new Date(rows[0].saved_at).getTime(); _renderCloudModal(); }
       }).catch(() => {});
   }
 }
