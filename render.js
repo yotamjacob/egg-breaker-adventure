@@ -432,10 +432,11 @@ function updateStarBtn() {
     return;
   }
   $id('star-count').parentElement.querySelector('.starfall-icon').textContent = '⭐';
-  const ready = G.starPieces >= need && G.roundEggs && !G.roundEggs.every(e => e.broken || e.expired) && !_spawningRound;
+  const hasEnough = G.starPieces >= need;
+  const ready = hasEnough && G.roundEggs && !G.roundEggs.every(e => e.broken || e.expired) && !_spawningRound;
   btn.disabled = !ready;
-  btn.classList.toggle('star-ready', ready);
-  btn.classList.toggle('star-muted', !ready);
+  btn.classList.toggle('star-ready', hasEnough);
+  btn.classList.toggle('star-muted', !hasEnough);
   $id('star-count').textContent = G.starPieces + ' / ' + need;
   $id('star-hint').textContent = ready ? 'Tap!' : '';
 }
