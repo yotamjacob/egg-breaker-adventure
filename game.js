@@ -1300,7 +1300,7 @@ function dismissWelcome(goToCloud) {
   if (goToCloud) openCloudSaveModal();
 }
 if (!G._welcomeDone && G.totalEggs === 0) {
-  setTimeout(() => $id('overlay-welcome').classList.remove('hidden'), 2800);
+  setTimeout(() => $id('overlay-welcome').classList.remove('hidden'), 3800);
 }
 
 // Splash screen tip — show a random tip while the splash is visible (every load)
@@ -1398,13 +1398,13 @@ if (window.AndroidBridge && typeof window.AndroidBridge.jsReady === 'function') 
   window.AndroidBridge.jsReady();
 }
 
-// Splash screen — fade out 2s after the game has initialised
+// Splash screen — fade out 3s after the game has initialised
 setTimeout(() => {
   const splash = document.getElementById('splash-screen');
   if (!splash) return;
   splash.classList.add('fade-out');
   setTimeout(() => splash.remove(), 650);
-}, 2000);
+}, 3000);
 
 
 
