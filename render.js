@@ -539,7 +539,8 @@ function updateStageBar() {
   }
   $id('stage-bar').classList.toggle('stage-complete-hint', hasNext);
 
-  // Top banner: appears on stage complete, persists until clicked; different text when all done
+  // Top banner: hide immediately if already on an uncompleted stage
+  if (tier < 3 && _stageBannerPending) _stageBannerPending = false;
   const banner = $id('stage-complete-banner');
   if (banner) {
     const showBanner = prog.completed || _stageBannerPending;
