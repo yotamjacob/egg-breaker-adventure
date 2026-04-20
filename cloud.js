@@ -307,8 +307,14 @@ async function _onCloudSignIn() {
   if (_isOAuthPending) {
     try { sessionStorage.removeItem('_oauthPending'); } catch (e) {}
     _oauthLog('SIGNED_IN: OAuth pending flag found — showing linked notification');
+    // Auto-enable 15-min cloud save on first link
+    if (!G.cloudAutoSave) {
+      G.cloudAutoSave = true;
+      _startCloudAutoSave();
+      saveGame();
+    }
     setTimeout(() => {
-      showShopSnack('☁️ Google account linked!');
+      showShopSnack('☁️ Google account linked! Auto-save enabled.');
       openCloudSaveModal(); // reopen modal (was closed by page reload on web)
     }, 400);
   }
