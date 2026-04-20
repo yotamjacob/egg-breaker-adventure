@@ -537,6 +537,8 @@ function updateStageBar() {
     $id('stage-detail').textContent = found + '/' + total + ' items';
   }
   $id('stage-bar').classList.toggle('stage-complete-hint', hasNext);
+  const banner = $id('stage-complete-banner');
+  if (banner) banner.classList.toggle('hidden', !hasNext);
 }
 
 function flashTierUp(newTier) {
