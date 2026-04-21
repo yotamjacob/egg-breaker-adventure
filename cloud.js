@@ -182,7 +182,7 @@ function _renderCloudModal() {
   saveBtn.disabled = !linked;
   loadBtn.disabled = !linked || !G._cloudSavedAt;
   const delBtn = $id('cloud-delete-action-btn');
-  if (delBtn) delBtn.disabled = !linked;
+  if (delBtn) delBtn.disabled = !linked || !G._cloudSavedAt;
   tsEl.textContent = G._cloudSavedAt
     ? _timeAgo(G._cloudSavedAt) + ' (' + _formatSaveDate(G._cloudSavedAt) + ')'
     : 'No cloud save yet';
@@ -199,6 +199,7 @@ function _startCloudAutoSave() {
   _cloudSyncTimer = setInterval(async () => {
     try {
       await _syncToCloud();
+      _renderCloudModal();
       msg('☁️ Auto-saved to cloud');
     } catch (e) {
       console.warn('[cloud] auto-save failed:', e);
@@ -298,24 +299,33 @@ async function deleteCloudData() {
     const prevSavedAt = G._cloudSavedAt;
     G._cloudSavedAt = 0;
     saveGame();
-    _renderCloudModal(); // disable Load before the async delete starts
+    _renderCloudModal(); // disable Load/Delete before the async delete starts
     try {
-      await _sbClient.from('game_saves').delete().eq('user_id', _cloudUser.id);
+      if (!_cloudSession) throw new Error('no session');
+      if (_cloudSession.expires_at && (Date.now() / 1000) >= (_cloudSession.expires_at - 60)) {
+        await _refreshCloudSession();
+        if (!_cloudSession) throw new Error('session lost after refresh');
+      }
+      const doDelete = (token) => fetch(
+        _SUPABASE_URL + '/rest/v1/game_saves?user_id=eq.' + _cloudUser.id,
+        { method: 'DELETE', headers: { 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + token } }
+      );
+      let resp = await doDelete(_cloudSession.access_token);
+      if (resp.status === 401) {
+        const refreshed = await _refreshCloudSession();
+        if (!refreshed) throw new Error('HTTP 401 — session expired');
+        resp = await doDelete(_cloudSession.access_token);
+      }
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
       track('cloud-save', { action: 'delete-data' });
-      _cloudUnlinking = true; // block any SIGNED_IN race during signOut
-      _cloudUser = null;
-      _stopCloudAutoSave();
-      await _sbClient.auth.signOut();
-      _cloudUnlinking = false;
       _renderCloudModal();
       showShopSnack('Cloud data deleted.');
     } catch (e) {
-      G._cloudSavedAt = prevSavedAt; // restore if delete failed
+      G._cloudSavedAt = prevSavedAt;
       saveGame();
-      _cloudUnlinking = false;
-      _cloudUser = null;
       _renderCloudModal();
       showShopSnack('Delete failed. Try again.');
+      console.warn('[cloud] delete error:', e);
     }
   }, 'Delete');
 }
@@ -350,7 +360,11 @@ async function _onCloudSignIn() {
       .from('game_saves').select('save_data, saved_at')
       .eq('user_id', _cloudUser.id).maybeSingle();
 
-    if (!data) return; // no cloud save on record — nothing to do
+    if (!data) {
+      // No cloud save on record — make sure Load/Delete stay disabled
+      if (G._cloudSavedAt !== 0) { G._cloudSavedAt = 0; saveGame(); _renderCloudModal(); }
+      return;
+    }
 
     const cloudTs  = new Date(data.saved_at).getTime();
     G._cloudSavedAt = cloudTs;
@@ -387,7 +401,7 @@ function cloudSaveManual() {
     showShopSnack('☁️ Saving...', 12000);
     const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
     Promise.race([_syncToCloud(), _timeout])
-      .then(() => showShopSnack('☁️ Saved to cloud!'))
+      .then(() => { showShopSnack('☁️ Saved to cloud!'); _renderCloudModal(); })
       .catch(e => { showShopSnack('⚠️ Save failed.'); console.warn('[cloud] save error:', e); });
   }, 'Save');
 }
