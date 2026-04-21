@@ -466,7 +466,7 @@ function esc(s) {
 }
 
 // ── Analytics tab (Umami Cloud) ───────────────────────────────────────────────
-const UMAMI_BASE    = 'https://cloud.umami.is/api'
+const UMAMI_BASE    = 'https://api.umami.is/v1'
 const UMAMI_SITE_ID = '343bb5db-6668-469d-a99c-9b6fcaa1c45a'
 let _umamiRange = 7
 
@@ -490,13 +490,13 @@ async function loadAnalytics() {
 
   const now      = Date.now()
   const startAt  = now - _umamiRange * 86400 * 1000
-  const headers  = { Authorization: 'Bearer ' + token }
+  const headers  = { 'x-umami-api-key': token }
   const qp       = `?startAt=${startAt}&endAt=${now}`
 
   try {
     const [statsRes, eventsRes] = await Promise.all([
       fetch(`${UMAMI_BASE}/websites/${UMAMI_SITE_ID}/stats${qp}`, { headers }),
-      fetch(`${UMAMI_BASE}/websites/${UMAMI_SITE_ID}/event-data/events${qp}`, { headers }),
+      fetch(`${UMAMI_BASE}/websites/${UMAMI_SITE_ID}/event-data${qp}`, { headers }),
     ])
 
     if (statsRes.status === 401 || eventsRes.status === 401) {
