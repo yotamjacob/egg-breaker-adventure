@@ -67,6 +67,21 @@
   .tier-2 { background: #2a2a10; color: #f5c542; }
   .tier-3 { background: #102a18; color: #2ecc71; }
 
+  /* Analytics tab */
+  .analytics-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .analytics-toolbar input { padding: 7px 12px; background: #16213e; border: 1px solid #2a2a4a; border-radius: 6px; color: #e0e0e0; font-size: 0.85rem; width: 280px; }
+  .range-btn { padding: 6px 14px; border: 1px solid #2a2a4a; border-radius: 5px; background: #1a1a30; color: #7f8c8d; cursor: pointer; font-size: 0.82rem; font-weight: 600; }
+  .range-btn.active { background: #f5c542; color: #0a0a18; border-color: #f5c542; }
+  .stats-cards { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .stat-card { background: #16213e; border: 1px solid #2a2a4a; border-radius: 8px; padding: 14px 20px; min-width: 130px; flex: 1; }
+  .stat-card-label { color: #7f8c8d; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .stat-card-val { color: #f5c542; font-size: 1.5rem; font-weight: 700; }
+  .stat-card-sub { color: #555; font-size: 0.78rem; margin-top: 2px; }
+  .analytics-section-title { color: #f5c542; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  #umami-events-table th { background: #16213e; }
+  .event-bar-wrap { background: #1a1a30; border-radius: 3px; height: 6px; margin-top: 4px; }
+  .event-bar { height: 6px; border-radius: 3px; background: #f5c542; }
+
   /* Toast & confirm */
   #toast { position: fixed; bottom: 24px; right: 24px; background: #2ecc71; color: #0a0a18; padding: 10px 18px; border-radius: 8px; font-weight: 600; display: none; }
   #confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
@@ -91,6 +106,7 @@
   <div class="tab-nav">
     <button class="tab-btn active" data-tab="purchases" onclick="showTab('purchases')">💳 Purchases</button>
     <button class="tab-btn" data-tab="players" onclick="showTab('players')">👥 Players</button>
+    <button class="tab-btn" data-tab="analytics" onclick="showTab('analytics')">📊 Analytics</button>
   </div>
 
   <!-- Purchases tab -->
@@ -115,6 +131,37 @@
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Analytics tab -->
+  <div id="tab-analytics" style="display:none">
+    <div class="analytics-toolbar">
+      <input type="password" id="umami-token" placeholder="Umami API token (from cloud.umami.is → Settings → API Keys)" autocomplete="off">
+      <button class="range-btn active" data-range="7"  onclick="setRange(7)">7d</button>
+      <button class="range-btn"        data-range="30" onclick="setRange(30)">30d</button>
+      <button class="range-btn"        data-range="90" onclick="setRange(90)">90d</button>
+      <button class="btn btn-refresh"  onclick="loadAnalytics()">Load</button>
+      <span id="analytics-status" style="color:#7f8c8d;font-size:0.82rem"></span>
+    </div>
+
+    <div class="stats-cards" id="umami-stats-cards">
+      <div class="stat-card"><div class="stat-card-label">Unique Visitors</div><div class="stat-card-val" id="um-visitors">—</div></div>
+      <div class="stat-card"><div class="stat-card-label">Page Views</div><div class="stat-card-val" id="um-pageviews">—</div></div>
+      <div class="stat-card"><div class="stat-card-label">Sessions</div><div class="stat-card-val" id="um-visits">—</div></div>
+      <div class="stat-card"><div class="stat-card-label">Avg Session</div><div class="stat-card-val" id="um-duration">—</div><div class="stat-card-sub" id="um-bounce"></div></div>
+    </div>
+
+    <div class="analytics-section-title">Custom Events</div>
+    <table id="umami-events-table">
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th style="text-align:right;width:80px">Count</th>
+          <th style="width:220px"></th>
+        </tr>
+      </thead>
+      <tbody id="umami-events-tbody"><tr><td colspan="3" class="empty">Load data above</td></tr></tbody>
     </table>
   </div>
 
@@ -168,8 +215,10 @@ function doLogin() {
 function showTab(name) {
   document.getElementById('tab-purchases').style.display = name === 'purchases' ? '' : 'none'
   document.getElementById('tab-players').style.display   = name === 'players'   ? '' : 'none'
+  document.getElementById('tab-analytics').style.display = name === 'analytics' ? '' : 'none'
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name))
-  if (name === 'players' && !allPlayers.length) loadPlayers()
+  if (name === 'players'   && !allPlayers.length) loadPlayers()
+  if (name === 'analytics') restoreUmamiToken()
 }
 
 // ── Purchases tab ────────────────────────────────────────────────────────────
@@ -414,6 +463,88 @@ function toast(msg) {
 
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+}
+
+// ── Analytics tab (Umami Cloud) ───────────────────────────────────────────────
+const UMAMI_BASE    = 'https://cloud.umami.is/api'
+const UMAMI_SITE_ID = '343bb5db-6668-469d-a99c-9b6fcaa1c45a'
+let _umamiRange = 7
+
+function restoreUmamiToken() {
+  const saved = sessionStorage.getItem('eba_umami_token')
+  if (saved) document.getElementById('umami-token').value = saved
+}
+
+function setRange(days) {
+  _umamiRange = days
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.toggle('active', +b.dataset.range === days))
+}
+
+async function loadAnalytics() {
+  const token = document.getElementById('umami-token').value.trim()
+  if (!token) { alert('Paste your Umami API token first.\nGet it from cloud.umami.is → Settings → API Keys.'); return }
+  sessionStorage.setItem('eba_umami_token', token)
+
+  const status = document.getElementById('analytics-status')
+  status.textContent = 'Loading…'
+
+  const now      = Date.now()
+  const startAt  = now - _umamiRange * 86400 * 1000
+  const headers  = { Authorization: 'Bearer ' + token }
+  const qp       = `?startAt=${startAt}&endAt=${now}`
+
+  try {
+    const [statsRes, eventsRes] = await Promise.all([
+      fetch(`${UMAMI_BASE}/websites/${UMAMI_SITE_ID}/stats${qp}`, { headers }),
+      fetch(`${UMAMI_BASE}/websites/${UMAMI_SITE_ID}/event-data/events${qp}`, { headers }),
+    ])
+
+    if (statsRes.status === 401 || eventsRes.status === 401) {
+      status.textContent = '401 — invalid token'
+      return
+    }
+
+    const stats  = await statsRes.json()
+    const events = await eventsRes.json()
+
+    // Stats cards
+    document.getElementById('um-visitors').textContent  = fmt(stats.visitors?.value  ?? 0)
+    document.getElementById('um-pageviews').textContent = fmt(stats.pageviews?.value ?? 0)
+    document.getElementById('um-visits').textContent    = fmt(stats.visits?.value    ?? 0)
+    const avgSec = stats.totaltime?.value && stats.visits?.value
+      ? Math.round(stats.totaltime.value / stats.visits.value)
+      : 0
+    document.getElementById('um-duration').textContent = avgSec ? fmtTime(avgSec) : '—'
+    const bounceRate = stats.bounces?.value && stats.visits?.value
+      ? Math.round(stats.bounces.value / stats.visits.value * 100)
+      : null
+    document.getElementById('um-bounce').textContent = bounceRate !== null ? bounceRate + '% bounce' : ''
+
+    // Events table
+    const rows = Array.isArray(events) ? events : (events.data ?? [])
+    rows.sort((a, b) => (b.count ?? 0) - (a.count ?? 0))
+    const max = rows[0]?.count ?? 1
+    const tbody = document.getElementById('umami-events-tbody')
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="3" class="empty">No custom events in this period</td></tr>'
+    } else {
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td><strong>${esc(r.eventName ?? r.event_name ?? '—')}</strong></td>
+          <td style="text-align:right;color:#f5c542;font-weight:700">${fmt(r.count)}</td>
+          <td>
+            <div class="event-bar-wrap">
+              <div class="event-bar" style="width:${Math.round((r.count / max) * 100)}%"></div>
+            </div>
+          </td>
+        </tr>
+      `).join('')
+    }
+
+    status.textContent = 'Updated ' + new Date().toLocaleTimeString()
+  } catch (e) {
+    status.textContent = 'Error: ' + e.message
+  }
 }
 
 // Restore session
