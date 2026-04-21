@@ -31,8 +31,28 @@ const SFX = (() => {
     if (!on) return;
     try {
       // 16-bit chiptune style: square & triangle waves
-      if (n === 'hit')     { noise(.022, .55); tone(680, .035, .22, 'square'); setTimeout(() => tone(520, .04, .12, 'triangle'), 18); setTimeout(() => tone(1040, .025, .07, 'sine'), 35); }
-      if (n === 'crunch')  { noise(.02, .72); tone(700, .022, .42, 'square'); setTimeout(() => noise(.012, .35), 14); setTimeout(() => tone(480, .032, .22, 'triangle'), 18); }
+      if (n === 'hit') {
+        // soft crack-pop: tiny noise click + falling-pitch sine
+        noise(.008, .18);
+        const c = ensure(), o = c.createOscillator(), g = c.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(320, c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(75, c.currentTime + .038);
+        g.gain.setValueAtTime(.42, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .045);
+        o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .045);
+      }
+      if (n === 'crunch') {
+        // fuller crack-pop for the final break
+        noise(.012, .28);
+        const c = ensure(), o = c.createOscillator(), g = c.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(460, c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(70, c.currentTime + .052);
+        g.gain.setValueAtTime(.58, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .06);
+        o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .06);
+      }
       if (n === 'coin')    { tone(1047, .06, .16, 'square'); setTimeout(() => tone(1319, .08, .13, 'square'), 45); setTimeout(() => tone(1568, .1, .09, 'triangle'), 90); }
       if (n === 'gem')     { tone(1047, .06, .1, 'square'); setTimeout(() => tone(1319, .06, .08, 'square'), 40); setTimeout(() => tone(1568, .12, .07, 'triangle'), 80); }
       if (n === 'star')    { tone(784, .08, .1, 'square'); setTimeout(() => tone(988, .08, .08, 'square'), 60); setTimeout(() => tone(1319, .12, .07, 'triangle'), 120); }
