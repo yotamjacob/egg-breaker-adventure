@@ -158,7 +158,8 @@ function openCloudSaveModal() {
       },
     }).then(r => r.ok ? r.json() : null)
       .then(rows => {
-        if (rows && rows[0]) { G._cloudSavedAt = new Date(rows[0].saved_at).getTime(); _renderCloudModal(); }
+        G._cloudSavedAt = (rows && rows[0]) ? new Date(rows[0].saved_at).getTime() : 0;
+        _renderCloudModal();
       }).catch(() => {});
   }
 }
@@ -179,7 +180,7 @@ function _renderCloudModal() {
     $id('cloud-link-label').textContent = 'Link Google Account';
   }
   saveBtn.disabled = !linked;
-  loadBtn.disabled = !linked;
+  loadBtn.disabled = !linked || !G._cloudSavedAt;
   const delBtn = $id('cloud-delete-action-btn');
   if (delBtn) delBtn.disabled = !linked;
   tsEl.textContent = G._cloudSavedAt
