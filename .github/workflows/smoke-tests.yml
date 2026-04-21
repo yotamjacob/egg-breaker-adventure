@@ -38,6 +38,8 @@ jobs:
     name: Smoke Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
 
     steps:
       - uses: actions/checkout@v4
@@ -52,7 +54,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: Send failure alert email
-        if: failure() && secrets.MAIL_USERNAME != ''
+        if: failure() && env.MAIL_USERNAME != ''
         continue-on-error: true   # don't let a misconfigured mailer hide the real failure
         uses: dawidd6/action-send-mail@v3
         with:
