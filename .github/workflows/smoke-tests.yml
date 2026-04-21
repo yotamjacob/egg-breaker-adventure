@@ -44,7 +44,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run smoke tests
         run: node --test tests/smoke.test.js
@@ -52,7 +52,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: Send failure alert email
-        if: failure()
+        if: failure() && secrets.MAIL_USERNAME != ''
         continue-on-error: true   # don't let a misconfigured mailer hide the real failure
         uses: dawidd6/action-send-mail@v3
         with:
@@ -61,7 +61,7 @@ jobs:
           secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "🚨 Smoke tests FAILED — Egg Smash Adventures"
+          subject: "Smoke tests FAILED — Egg Smash Adventures"
           body: |
             One or more smoke tests failed.
 
@@ -72,4 +72,3 @@ jobs:
             Started at   : ${{ github.run_started_at }}
           to: yotam@exacti.us
           from: ${{ secrets.MAIL_USERNAME }}
-          content_type: text/plain
