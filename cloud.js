@@ -295,11 +295,12 @@ function linkGoogleAccount() {
 async function deleteCloudData() {
   if (!_sbClient || !_cloudUser) return;
   showConfirm('🗑️', 'Delete all cloud data?', 'This removes your save from our servers. Your local save is unaffected.', async function() {
+    const prevSavedAt = G._cloudSavedAt;
+    G._cloudSavedAt = 0;
+    saveGame();
+    _renderCloudModal(); // disable Load before the async delete starts
     try {
       await _sbClient.from('game_saves').delete().eq('user_id', _cloudUser.id);
-      G._cloudSavedAt = 0;
-      saveGame();
-      _renderCloudModal(); // disable Load immediately — don't wait for signOut
       track('cloud-save', { action: 'delete-data' });
       _cloudUnlinking = true; // block any SIGNED_IN race during signOut
       _cloudUser = null;
@@ -309,6 +310,8 @@ async function deleteCloudData() {
       _renderCloudModal();
       showShopSnack('Cloud data deleted.');
     } catch (e) {
+      G._cloudSavedAt = prevSavedAt; // restore if delete failed
+      saveGame();
       _cloudUnlinking = false;
       _cloudUser = null;
       _renderCloudModal();
