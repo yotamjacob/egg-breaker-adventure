@@ -67,6 +67,23 @@ function makeEggSVG(type, damage) {
     </svg>`;
   }
 
+  // Black egg: glowing white edges + white highlights for visibility against dark bg
+  if (type === 'black') {
+    return `<svg width="72" height="88" viewBox="0 0 80 96" shape-rendering="crispEdges">
+      <ellipse cx="40" cy="50" rx="32" ry="41" fill="rgba(255,255,255,.05)"/>
+      <ellipse cx="40" cy="50" rx="29" ry="38" fill="rgba(255,255,255,.10)"/>
+      <ellipse cx="40" cy="50" rx="27" ry="36" fill="rgba(255,255,255,.22)"/>
+      <ellipse cx="40" cy="90" rx="18" ry="4" fill="rgba(0,0,0,.25)"/>
+      <ellipse cx="40" cy="50" rx="26" ry="35" fill="${c.s}" />
+      <ellipse cx="40" cy="50" rx="23" ry="32" fill="${c.f}" />
+      <ellipse cx="40" cy="34" rx="16" ry="10" fill="rgba(255,255,255,.12)"/>
+      <rect x="26" y="22" width="3" height="18" fill="rgba(255,255,255,.45)"/>
+      <rect x="29" y="19" width="3" height="12" fill="rgba(255,255,255,.28)"/>
+      <ellipse cx="40" cy="68" rx="18" ry="8" fill="${c.sh}" opacity=".2"/>
+      ${cracks}
+    </svg>`;
+  }
+
   return `<svg width="72" height="88" viewBox="0 0 80 96" shape-rendering="crispEdges">
     <ellipse cx="40" cy="90" rx="18" ry="4" fill="rgba(0,0,0,.25)"/>
     <ellipse cx="40" cy="50" rx="26" ry="35" fill="${c.s}" />
