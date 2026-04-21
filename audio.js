@@ -32,26 +32,33 @@ const SFX = (() => {
     try {
       // 16-bit chiptune style: square & triangle waves
       if (n === 'hit') {
-        // soft crack-pop: tiny noise click + falling-pitch sine
-        noise(.008, .18);
+        noise(.006, .16);
         const c = ensure(), o = c.createOscillator(), g = c.createGain();
         o.type = 'sine';
-        o.frequency.setValueAtTime(320, c.currentTime);
-        o.frequency.exponentialRampToValueAtTime(75, c.currentTime + .038);
-        g.gain.setValueAtTime(.42, c.currentTime);
-        g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .045);
-        o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .045);
+        o.frequency.setValueAtTime(380, c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(78, c.currentTime + .036);
+        g.gain.setValueAtTime(.36, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .036);
+        o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .036);
       }
       if (n === 'crunch') {
-        // fuller crack-pop for the final break
-        noise(.012, .28);
+        noise(.008, .2);
         const c = ensure(), o = c.createOscillator(), g = c.createGain();
         o.type = 'sine';
-        o.frequency.setValueAtTime(460, c.currentTime);
-        o.frequency.exponentialRampToValueAtTime(70, c.currentTime + .052);
-        g.gain.setValueAtTime(.58, c.currentTime);
-        g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .06);
-        o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .06);
+        o.frequency.setValueAtTime(400, c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(80, c.currentTime + .04);
+        g.gain.setValueAtTime(.5, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .04);
+        o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + .04);
+        setTimeout(() => {
+          const c2 = ensure(), o2 = c2.createOscillator(), g2 = c2.createGain();
+          o2.type = 'sine';
+          o2.frequency.setValueAtTime(560, c2.currentTime);
+          o2.frequency.exponentialRampToValueAtTime(90, c2.currentTime + .03);
+          g2.gain.setValueAtTime(.3, c2.currentTime);
+          g2.gain.exponentialRampToValueAtTime(.001, c2.currentTime + .03);
+          o2.connect(g2).connect(c2.destination); o2.start(); o2.stop(c2.currentTime + .03);
+        }, 20);
       }
       if (n === 'coin')    { tone(1047, .06, .16, 'square'); setTimeout(() => tone(1319, .08, .13, 'square'), 45); setTimeout(() => tone(1568, .1, .09, 'triangle'), 90); }
       if (n === 'gem')     { tone(1047, .06, .1, 'square'); setTimeout(() => tone(1319, .06, .08, 'square'), 40); setTimeout(() => tone(1568, .12, .07, 'triangle'), 80); }
