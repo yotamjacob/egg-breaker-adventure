@@ -174,6 +174,28 @@ describe('push', () => {
     assert.equal(body.ok, true, `send-notifications returned ok:false — ${JSON.stringify(body)}`);
   });
 
+  test('send-notifications: test_device targets CI subscriber and returns logs', async () => {
+    // Calls the function with test_device= to bypass nighttime/dedup guards and
+    // target only the CI subscriber registered above. Verifies the function found
+    // the device, processed it, and returned structured debug logs.
+    // FCM delivery itself will fail (invalid token) but that is expected — we are
+    // testing the notification pipeline, not FCM reachability.
+    const r = await POST(
+      `${SB}/functions/v1/send-notifications?test_device=${CI_DEVICE}`,
+      {},
+      anon()
+    );
+    assert.ok(r.status < 500, `test_device call failed with ${r.status}`);
+    const body = await r.json().catch(() => null);
+    assert.ok(body !== null, 'send-notifications returned non-JSON');
+    assert.equal(body.ok, true, `ok:false — ${JSON.stringify(body)}`);
+    assert.equal(body.subs, 1, `Expected subs:1 for CI device — ${JSON.stringify(body)}`);
+    assert.ok(
+      Array.isArray(body.logs) && body.logs.some(l => l.includes(CI_DEVICE)),
+      `CI device not found in debug logs — ${JSON.stringify(body)}`
+    );
+  });
+
   test('cleanup: delete CI push subscription', { skip: NEED_SVC }, async () => {
     const r = await fetch(`${SB}/rest/v1/push_subscriptions?device_id=eq.${CI_DEVICE}`, {
       method: 'DELETE', headers: svc(),
