@@ -81,6 +81,29 @@
   #umami-events-table th { background: #16213e; }
   .event-bar-wrap { background: #1a1a30; border-radius: 3px; height: 6px; margin-top: 4px; }
   .event-bar { height: 6px; border-radius: 3px; background: #f5c542; }
+  #umami-events-table tbody tr { cursor: pointer; }
+  #umami-events-table tbody tr:hover td { background: #1e2a40; }
+  #umami-events-table tbody tr.selected td { background: #1a2e4a; border-left: 3px solid #f5c542; }
+  /* Event detail drawer */
+  #event-detail-drawer { display:none; margin-top: 4px; background: #111828; border: 1px solid #2a2a4a; border-radius: 8px; padding: 16px 20px; }
+  #event-detail-drawer.open { display: block; }
+  .drawer-title { color: #f5c542; font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .drawer-close { background: none; border: none; color: #555; cursor: pointer; font-size: 1.1rem; padding: 0; line-height: 1; }
+  .drawer-close:hover { color: #e0e0e0; }
+  .prop-breakdown { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+  .prop-group { background: #16213e; border-radius: 6px; padding: 10px 14px; min-width: 140px; }
+  .prop-group-name { color: #7f8c8d; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .prop-value-row { display: flex; justify-content: space-between; gap: 12px; font-size: 0.82rem; padding: 2px 0; }
+  .prop-value-name { color: #e0e0e0; }
+  .prop-value-count { color: #f5c542; font-weight: 600; }
+  .instances-title { color: #7f8c8d; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 14px 0 8px; }
+  #instances-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  #instances-table th { background: #16213e; color: #7f8c8d; padding: 6px 10px; text-align: left; font-weight: 600; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  #instances-table td { padding: 6px 10px; border-bottom: 1px solid #1a1a30; vertical-align: top; }
+  #instances-table tr:last-child td { border-bottom: none; }
+  .prop-chip { display: inline-block; background: #1a2a3a; border-radius: 4px; padding: 1px 6px; font-size: 0.74rem; color: #93c5fd; margin: 1px; white-space: nowrap; }
+  .prop-chip-key { color: #7f8c8d; }
+  .drawer-loading { color: #555; font-style: italic; font-size: 0.85rem; padding: 12px 0; }
 
   /* Toast & confirm */
   #toast { position: fixed; bottom: 24px; right: 24px; background: #2ecc71; color: #0a0a18; padding: 10px 18px; border-radius: 8px; font-weight: 600; display: none; }
@@ -163,6 +186,15 @@
       </thead>
       <tbody id="umami-events-tbody"><tr><td colspan="3" class="empty">Load data above</td></tr></tbody>
     </table>
+
+    <!-- Event detail drawer -->
+    <div id="event-detail-drawer">
+      <div class="drawer-title">
+        <span id="drawer-event-name">Event Details</span>
+        <button class="drawer-close" onclick="closeDrawer()">✕</button>
+      </div>
+      <div id="drawer-content"><div class="drawer-loading">Loading…</div></div>
+    </div>
   </div>
 
   <!-- Players tab -->
@@ -485,6 +517,7 @@ async function loadAnalytics() {
   if (!token) { alert('Paste your Umami API token first.\nGet it from cloud.umami.is → Settings → API Keys.'); return }
   sessionStorage.setItem('eba_umami_token', token)
 
+  closeDrawer()
   const status = document.getElementById('analytics-status')
   status.textContent = 'Loading…'
 
@@ -547,7 +580,7 @@ async function loadAnalytics() {
         const key   = r.x ?? r.eventName ?? r.event_name ?? '—'
         const count = r.y ?? r.count ?? 0
         const label = EVENT_LABELS[key] || key
-        return `<tr>
+        return `<tr data-event="${esc(key)}" onclick="clickEventRow('${esc(key)}')">
           <td><strong>${esc(label)}</strong><br><span style="color:#555;font-size:0.78rem">${esc(key)}</span></td>
           <td style="text-align:right;color:#f5c542;font-weight:700;white-space:nowrap">${fmt(count)}</td>
           <td>
@@ -562,6 +595,129 @@ async function loadAnalytics() {
     status.textContent = 'Updated ' + new Date().toLocaleTimeString()
   } catch (e) {
     status.textContent = 'Error: ' + e.message
+  }
+}
+
+// ── Event drill-down ─────────────────────────────────────────────────────────
+let _selectedEvent = null
+
+function closeDrawer() {
+  document.getElementById('event-detail-drawer').classList.remove('open')
+  document.querySelectorAll('#umami-events-tbody tr').forEach(r => r.classList.remove('selected'))
+  _selectedEvent = null
+}
+
+async function clickEventRow(eventKey) {
+  if (_selectedEvent === eventKey) { closeDrawer(); return }
+  _selectedEvent = eventKey
+
+  document.querySelectorAll('#umami-events-tbody tr').forEach(r =>
+    r.classList.toggle('selected', r.dataset.event === eventKey)
+  )
+
+  const drawer  = document.getElementById('event-detail-drawer')
+  const content = document.getElementById('drawer-content')
+  document.getElementById('drawer-event-name').textContent = eventKey
+  content.innerHTML = '<div class="drawer-loading">Loading…</div>'
+  drawer.classList.add('open')
+  drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+
+  const token   = sessionStorage.getItem('eba_umami_token')
+  const now     = Date.now()
+  const startAt = now - _umamiRange * 86400 * 1000
+  const headers = { 'x-umami-api-key': token }
+  const base    = `${UMAMI_BASE}/websites/${UMAMI_SITE_ID}`
+
+  try {
+    const res = await fetch(
+      `${base}/event-data/events?startAt=${startAt}&endAt=${now}&eventName=${encodeURIComponent(eventKey)}&pageSize=500`,
+      { headers }
+    )
+    if (!res.ok) { content.innerHTML = `<div class="drawer-loading">Error ${res.status}</div>`; return }
+    const body = await res.json()
+    const rows = body.data ?? (Array.isArray(body) ? body : [])
+
+    if (!rows.length) {
+      content.innerHTML = '<div class="drawer-loading">No event data found for this period.</div>'
+      return
+    }
+
+    // Group by event id to reconstruct full instances (Umami returns one row per property key)
+    const instances = new Map()
+    for (const row of rows) {
+      const id = row.id ?? (row.websiteEventId ?? (row.createdAt + '|' + row.dataKey))
+      if (!instances.has(id)) {
+        instances.set(id, {
+          id,
+          createdAt: row.createdAt,
+          browser: row.browserName,
+          os: row.osName,
+          country: row.country,
+          props: {}
+        })
+      }
+      if (row.dataKey) {
+        instances.get(id).props[row.dataKey] = row.stringValue ?? row.numberValue ?? row.dateValue ?? row.dataValue
+      }
+    }
+
+    // Property value breakdown
+    const breakdown = new Map()
+    for (const inst of instances.values()) {
+      for (const [k, v] of Object.entries(inst.props)) {
+        if (!breakdown.has(k)) breakdown.set(k, new Map())
+        const val = String(v ?? '—')
+        breakdown.get(k).set(val, (breakdown.get(k).get(val) ?? 0) + 1)
+      }
+    }
+
+    let html = ''
+
+    if (breakdown.size) {
+      html += '<div class="prop-breakdown">'
+      for (const [key, vals] of breakdown.entries()) {
+        html += `<div class="prop-group"><div class="prop-group-name">${esc(key)}</div>`
+        const sorted = [...vals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8)
+        for (const [val, cnt] of sorted) {
+          html += `<div class="prop-value-row"><span class="prop-value-name">${esc(val)}</span><span class="prop-value-count">${cnt}</span></div>`
+        }
+        html += '</div>'
+      }
+      html += '</div>'
+    }
+
+    const instList = [...instances.values()].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const SKIP_IN_CHIPS = new Set(['email', 'user_email', 'user_id', 'userId'])
+
+    html += `<div class="instances-title">${instList.length} instances (newest first)</div>`
+    html += `<table id="instances-table"><thead><tr>
+      <th>Time</th><th>User</th><th>Device</th><th>Properties</th>
+    </tr></thead><tbody>`
+
+    for (const inst of instList) {
+      const timeStr   = new Date(inst.createdAt).toLocaleString()
+      const userEmail = inst.props.email ?? inst.props.user_email ?? ''
+      const userId    = inst.props.user_id ?? inst.props.userId ?? ''
+      const userCell  = userEmail
+        ? `<strong>${esc(userEmail)}</strong>`
+        : (userId ? `<span class="mono" style="font-size:0.76rem">${esc(userId.slice(0, 12))}…</span>` : '<span style="color:#555">—</span>')
+      const device    = [inst.browser, inst.os, inst.country].filter(Boolean).join(' · ') || '—'
+      const chips     = Object.entries(inst.props)
+        .filter(([k]) => !SKIP_IN_CHIPS.has(k))
+        .map(([k, v]) => `<span class="prop-chip"><span class="prop-chip-key">${esc(k)}:</span>${esc(String(v ?? ''))}</span>`)
+        .join('')
+      html += `<tr>
+        <td style="white-space:nowrap;color:#93c5fd">${esc(timeStr)}</td>
+        <td>${userCell}</td>
+        <td style="color:#7f8c8d;font-size:0.78rem;white-space:nowrap">${esc(device)}</td>
+        <td>${chips || '<span style="color:#555">—</span>'}</td>
+      </tr>`
+    }
+
+    html += '</tbody></table>'
+    content.innerHTML = html
+  } catch (e) {
+    content.innerHTML = `<div class="drawer-loading">Error: ${esc(e.message)}</div>`
   }
 }
 
