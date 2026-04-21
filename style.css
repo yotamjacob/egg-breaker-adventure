@@ -197,6 +197,10 @@ body{
   color:var(--gold);
 }
 .nav-tab[data-tab="premium"].active{color:var(--dark)}
+/* Daily reward available — faint gold pulse */
+@keyframes daily-pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,197,66,.0)}50%{box-shadow:0 0 6px 2px rgba(245,197,66,.45)}}
+.nav-tab.daily-ready{animation:daily-pulse 2s ease-in-out infinite;color:var(--gold)}
+.nav-tab.daily-ready.active{animation:none}
 @keyframes shop-nudge{
   0%,100%{background:transparent;color:inherit}
   50%{background:var(--gold3);color:#000}

@@ -6,25 +6,29 @@
 
 const RUNS = 5000; // Monte Carlo iterations per stage per strategy
 
-// ─── Egg types (from config.js) ──────────────────────────────
+// ─── Egg types — synced from config.js ───────────────────────
 // sw=spawnWeight, us=unlockStage, gm=goldMult, fm=featherMult
 const EGG_TYPES = [
-  { id:'normal',  hp:1,  sw:80,  us:0, gm:1,   fm:1, p:{empty:5, gold_s:24,gold_m:18,gold_l:8, star:6, mult:2, feather:7, item:21, hammers:0 }},
-  { id:'silver',  hp:2,  sw:15,  us:0, gm:2,   fm:2, p:{empty:1, gold_s:11,gold_m:20,gold_l:16,star:10,mult:3, feather:7, item:26, hammers:10}},
-  { id:'gold',    hp:3,  sw:5,   us:0, gm:1.5, fm:1, p:{empty:0, gold_s:0, gold_m:18,gold_l:26,star:10,mult:2, feather:6, item:28, hammers:8 }},
-  { id:'crystal', hp:4,  sw:2,   us:2, gm:2,   fm:1, p:{empty:0, gold_s:0, gold_m:5, gold_l:30,star:12,mult:4, feather:8, item:38, hammers:11}},
-  { id:'ruby',    hp:9,  sw:1,   us:4, gm:3,   fm:2, p:{empty:0, gold_s:0, gold_m:0, gold_l:25,star:10,mult:4, feather:7, item:32, hammers:9 }},
-  { id:'black',   hp:20, sw:0.5, us:8, gm:4,   fm:3, p:{empty:0, gold_s:0, gold_m:0, gold_l:30,star:10,mult:5, feather:5, item:25, hammers:10}},
+  { id:'normal',  hp:1,  sw:80,  us:0, gm:1,   fm:1, p:{empty:4, gold_s:20,gold_m:22,gold_l:14,star:4, mult:2,feather:5,item:4,  hammers:0  }},
+  { id:'silver',  hp:2,  sw:15,  us:0, gm:2,   fm:2, p:{empty:1, gold_s:8, gold_m:20,gold_l:24,star:7, mult:3,feather:5,item:6,  hammers:10 }},
+  { id:'gold',    hp:3,  sw:5,   us:0, gm:1.5, fm:1, p:{empty:0, gold_s:0, gold_m:18,gold_l:26,star:7, mult:2,feather:4,item:7,  hammers:8  }},
+  { id:'crystal', hp:4,  sw:2,   us:2, gm:3,   fm:2, p:{empty:0, gold_s:0, gold_m:0, gold_l:42,star:11,mult:6,feather:6,item:10, hammers:8  }},
+  { id:'ruby',    hp:9,  sw:1,   us:4, gm:5,   fm:3, p:{empty:0, gold_s:0, gold_m:0, gold_l:40,star:10,mult:6,feather:5,item:7,  hammers:8  }},
+  { id:'black',   hp:20, sw:0.7, us:8, gm:8,   fm:5, p:{empty:0, gold_s:0, gold_m:0, gold_l:58,star:16,mult:12,feather:7,item:7, hammers:10 }},
 ];
 
-const GOLD_RANGES   = { gold_s:[1,5], gold_m:[8,22], gold_l:[30,90] };
-const MULT_POOL     = [2,2,2,2,2,2,2,2, 3,3,3,3,3,3, 5,5,5, 10,10, 50,50, 123];
+// Item weight multiplier by monkey type (matches smash.js rollPrize logic)
+// 'mr_monkey' = 1.5x, all others = 0.7x
+const ITEM_MULT = { mr_monkey: 1.5, other: 0.7 };
+
+const GOLD_RANGES   = { gold_s:[2,8], gold_m:[8,22], gold_l:[25,80] };
+const MULT_POOL     = [2,2,2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3, 5,5, 10, 50, 123];
 const FEATHER_RANGE = [1, 3];
 const HAMMER_PRIZES = [2, 3, 5, 5, 8];
-const ITEM_RW       = { 1:5, 2:2, 3:3 };        // rarity → weight for item selection
-const DUPE_GOLD     = { 1:[20,60], 2:[80,200], 3:[250,600] };
+const ITEM_RW       = { 1:5, 2:2, 3:3 };
+const DUPE_GOLD     = { 1:[35,90], 2:[120,280], 3:[350,800] };
 const MULT_Q_MAX    = 3;
-const MULT_BONUS    = 20;                          // bonus gold per mult-unit when prize can't be multiplied
+const MULT_BONUS    = 20;
 const TIER_PCT      = { bronze:0.40, silver:0.70, gold:1.00 };
 
 // ─── Stage definitions (exact rarities from data.js) ─────────
@@ -57,7 +61,9 @@ function rollPrize(p) {
 }
 
 // ─── Simulate one full stage (bronze → silver → gold tier) ───
-function simStage(stage, useMultStrategy) {
+// monkeyId: 'mr_monkey' | 'other'
+function simStage(stage, useMultStrategy, monkeyId = 'mr_monkey') {
+  const itemMult = ITEM_MULT[monkeyId] ?? 1;
   const eligible = EGG_TYPES.filter(e => e.us <= stage.si);
   const allItems = stage.items.map((r, i) => ({ r, i }));
   const total    = stage.items.length;
@@ -82,7 +88,8 @@ function simStage(stage, useMultStrategy) {
       multUsed++;
     }
 
-    const prize = rollPrize(egg.p);
+    const adjP  = { ...egg.p, item: egg.p.item * itemMult };
+    const prize = rollPrize(adjP);
 
     // bonus gold for non-multipliable prizes when a mult was active
     const bonus = () => {
@@ -152,10 +159,10 @@ function simStage(stage, useMultStrategy) {
 }
 
 // ─── Average N simulation runs ────────────────────────────────
-function avgRuns(stage, strategy, n) {
+function avgRuns(stage, strategy, n, monkeyId = 'mr_monkey') {
   const sum = {};
   for (let i = 0; i < n; i++) {
-    for (const [k, v] of Object.entries(simStage(stage, strategy)))
+    for (const [k, v] of Object.entries(simStage(stage, strategy, monkeyId)))
       sum[k] = (sum[k] ?? 0) + v;
   }
   return Object.fromEntries(Object.entries(sum).map(([k, v]) => [k, v / n]));
@@ -172,19 +179,23 @@ console.log(`  ${RUNS.toLocaleString()} Monte Carlo runs per stage  •  2 strat
 console.log('══════════════════════════════════════════════════════════════════════════════════════════\n');
 console.log('  Computing...');
 
+// Simulate both Mr. Monkey (1.5x items) and other monkeys (0.7x items)
 const results = STAGES.map(stage => ({
   stage,
-  noMult: avgRuns(stage, false, RUNS),
-  greedy: avgRuns(stage, true,  RUNS),
+  noMult:    avgRuns(stage, false, RUNS, 'mr_monkey'),
+  greedy:    avgRuns(stage, true,  RUNS, 'mr_monkey'),
+  greedyOth: avgRuns(stage, true,  RUNS, 'other'),
 }));
 
 // ─── Table 1: Hammers to each tier ───────────────────────────
-for (const [label, key] of [['NO-MULTS', 'noMult'], ['GREEDY-MULTS (use best queued mult each break)', 'greedy']]) {
+// Mr. Monkey uses 1.5x item mult; other monkeys use 0.7x
+for (const [label, key] of [['NO-MULTS  (Mr. Monkey, 1.5x items)', 'noMult'], ['GREEDY-MULTS — Mr. Monkey (1.5x items)', 'greedy'], ['GREEDY-MULTS — Other monkeys (0.7x items)', 'greedyOth']]) {
   console.log(`\n  ── ${label} ──`);
   const H = `  ${'Stage'.padEnd(22)}  N  ${'Bronze'.padStart(7)} ${'Silver'.padStart(7)} ${'Gold'.padStart(7)}  ${'NetH'.padStart(7)}  ${'Refunds'.padStart(8)}  ${'Gold💰'.padStart(8)} ${'Feathers'.padStart(9)}  ${'MultDrop'.padStart(8)} ${'MultUsed'.padStart(9)} ${'MultLost'.padStart(9)}`;
   console.log(H);
   console.log(`  ${'─'.repeat(H.length - 2)}`);
   for (const { stage, [key]: r } of results) {
+    if (!r) continue;
     console.log(
       `  ${stage.label.padEnd(22)}` +
       `  ${stage.items.length}` +

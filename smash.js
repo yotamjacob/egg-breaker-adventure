@@ -51,7 +51,7 @@ function newRound() {
     } else {
       if (mrStage >= 1 && Math.random() < 0.05) effects.push('runny');  // Stage 2
       if (mrStage >= 2 && Math.random() < 0.05 && ['normal','silver','gold','crystal'].includes(type)) effects.push('timer'); // Stage 3
-      const hexChance = mrStage >= 3 ? Math.min(0.10, 0.03 + (mrStage - 3) * 0.015) : 0;  // 3%→4.5%→6%→7.5%→9%→10%
+      const hexChance = mrStage >= 3 ? Math.min(0.06, 0.02 + (mrStage - 3) * 0.008) : 0;  // 2%→2.8%→3.6%→4.4%→5.2%→6%
       if (hexChance > 0 && Math.random() < hexChance && type !== 'ruby' && type !== 'black' && type !== 'crystal' && type !== 'century') effects.push('hex');
     }
     eggs.push({ type, hp, maxHp: hp, broken: false, effects, timer: effects.includes('timer') ? 3.0 : 0 });

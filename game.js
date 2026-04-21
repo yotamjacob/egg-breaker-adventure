@@ -261,11 +261,17 @@ function localDateStr(d) {
     String(t.getDate()).padStart(2, '0');
 }
 
+function updateDailyGlow() {
+  const btn = document.querySelector('.nav-tab[data-tab="daily"]');
+  if (btn) btn.classList.toggle('daily-ready', !G.dailyClaimed);
+}
+
 function checkDaily() {
   const now = new Date();
   const today = localDateStr(now);
   if (G.lastLoginDate === today) {
     renderDailyCalendar();
+    updateDailyGlow();
     return;
   }
   // New day — use local date arithmetic for correct DST handling
@@ -281,6 +287,7 @@ function checkDaily() {
   G.dailyClaimed = false;
   saveGame();
   renderDailyCalendar();
+  updateDailyGlow();
 }
 
 function claimDaily() {
@@ -298,6 +305,7 @@ function claimDaily() {
   if (reward.type === 'banana')   { G.crystalBananas += dv; }
 
   G.dailyClaimed = true;
+  updateDailyGlow();
   G.totalDailyClaims = (G.totalDailyClaims || 0) + 1;
   track('daily-claim', { day: G.consecutiveDays });
   msg('Day ' + G.consecutiveDays + ': ' + reward.label, 'daily');
@@ -447,11 +455,14 @@ function isStarfallUnlocked() {
 }
 
 // ==================== HEX EFFECT ====================
+// Penalties scale with Mr. Monkey stage: 1.5% at stage 4, up to 5% at stage 9
+function _hexPct(mrStage) { return Math.min(0.05, 0.015 + Math.max(0, mrStage - 3) * 0.007); }
+
 const HEX_TYPES = [
-  { id: 'loseGold',     apply: () => { const lost = Math.max(1, Math.ceil(G.gold * 0.01)); G.gold = Math.max(0, G.gold - lost); return '😈 -' + lost + ' gold'; } },
-  { id: 'loseFeathers', apply: () => { const lost = Math.max(1, Math.ceil(G.feathers * 0.01)); G.feathers = Math.max(0, G.feathers - lost); return '😈 -' + lost + ' feathers'; } },
-  { id: 'loseHammers',  apply: () => { const lost = Math.max(1, Math.ceil(G.hammers * 0.01)); G.hammers = Math.max(0, G.hammers - lost); return '😈 -' + lost + ' hammers'; } },
-  { id: 'regenPause',   apply: () => { pauseRegen(30); return '😈 Regen paused 30s'; } },
+  { id: 'loseGold',     apply: (pct) => { const lost = Math.max(1, Math.ceil(G.gold * pct)); G.gold = Math.max(0, G.gold - lost); return '😈 -' + lost + ' gold'; } },
+  { id: 'loseFeathers', apply: (pct) => { const lost = Math.max(1, Math.ceil(G.feathers * pct)); G.feathers = Math.max(0, G.feathers - lost); return '😈 -' + lost + ' feathers'; } },
+  { id: 'loseHammers',  apply: (pct) => { const lost = Math.max(1, Math.ceil(G.hammers * pct)); G.hammers = Math.max(0, G.hammers - lost); return '😈 -' + lost + ' hammers'; } },
+  { id: 'regenPause',   apply: ()    => { pauseRegen(30); return '😈 Regen paused 30s'; } },
 ];
 
 let _regenPauseTimer = null;
@@ -469,8 +480,10 @@ function pauseRegen(seconds) {
 
 function applyHex(cx, cy) {
   const zone = $id('prize-zone');
-  const hex = HEX_TYPES[Math.floor(Math.random() * HEX_TYPES.length)];
-  const text = hex.apply();
+  const mrStage = G.monkeys && G.monkeys[0] ? (G.monkeys[0].stage || 0) : 0;
+  const pct  = _hexPct(mrStage);
+  const hex  = HEX_TYPES[Math.floor(Math.random() * HEX_TYPES.length)];
+  const text = hex.apply(pct);
   G.hexesHit = (G.hexesHit || 0) + 1;
   spawnFloat(zone, text, '#ff4444', 'big', cx, cy - 30);
   msg(text, 'hex');
