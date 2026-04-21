@@ -290,9 +290,24 @@ public class MainActivity extends Activity {
                     "if(typeof handleAndroidOAuthCallback==='function')" +
                     "handleAndroidOAuthCallback('" + escaped + "')", null));
             } else if (query != null && query.contains("code=")) {
-                String gameUrl = GAME_URL + "?" + query;
-                jsLog("onNewIntent: PKCE, reloading=" + gameUrl.substring(0, Math.min(gameUrl.length(), 100)));
-                webView.loadUrl(gameUrl);
+                // PKCE flow — extract the code and exchange via JS without a page reload.
+                // webView.loadUrl() would reload the page which can clear sessionStorage
+                // and the Supabase code_verifier. handleAndroidPkceCallback() calls
+                // exchangeCodeForSession(), which looks up the stored verifier itself.
+                try {
+                    String code = Uri.parse("https://x/?" + query).getQueryParameter("code");
+                    if (code != null) {
+                        jsLog("onNewIntent: PKCE, injecting code via JS");
+                        final String escaped = code.replace("\\", "\\\\").replace("'", "\\'");
+                        webView.post(() -> webView.evaluateJavascript(
+                            "if(typeof handleAndroidPkceCallback==='function')" +
+                            "handleAndroidPkceCallback('" + escaped + "')", null));
+                    } else {
+                        jsLog("onNewIntent: PKCE, no code param in query=" + query.substring(0, Math.min(query.length(), 60)));
+                    }
+                } catch (Exception e) {
+                    jsLog("onNewIntent: PKCE parse error: " + e.getMessage());
+                }
             }
         } else {
             webView.loadUrl(data.toString());

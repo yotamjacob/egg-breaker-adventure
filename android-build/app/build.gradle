@@ -58,8 +58,8 @@ android {
         applicationId "com.eggbreakeradventures.app"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 105
-        versionName "2.3.8"
+        versionCode 106
+        versionName "2.3.9"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name

@@ -113,11 +113,8 @@ function initCloudSave() {
   }).catch(e => _oauthLog('getSession ERROR: ' + e.message));
 }
 
-// Called from Android onNewIntent() via evaluateJavascript when the OAuth
-// redirect arrives as #access_token=...&refresh_token=... (implicit flow).
-// webView.loadUrl() with a hash fragment is a same-page navigation — the page
-// doesn't reload so Supabase never scans the URL. Injecting via setSession()
-// bypasses that limitation entirely.
+// Called from Android onNewIntent() for implicit flow (#access_token=...).
+// Kept for backwards-compat; primary Android path is now PKCE via handleAndroidPkceCallback.
 function handleAndroidOAuthCallback(fragment) {
   _oauthLog('handleAndroidOAuthCallback fragment=' + fragment.substring(0, 80));
   if (!_sbClient) { _oauthLog('handleAndroidOAuthCallback: no _sbClient'); return; }
@@ -131,6 +128,21 @@ function handleAndroidOAuthCallback(fragment) {
                 ' err=' + (error?.message || 'none'));
     })
     .catch(e => _oauthLog('setSession catch=' + e.message));
+}
+
+// Called from Android onNewIntent() for PKCE flow (?code=...).
+// Supabase JS v2 defaults to PKCE — the redirect arrives as eggbreakeradventures://oauth/callback?code=xxxx.
+// exchangeCodeForSession() looks up the stored code_verifier from localStorage and exchanges the code,
+// firing onAuthStateChange(SIGNED_IN) without any page reload.
+async function handleAndroidPkceCallback(code) {
+  _oauthLog('handleAndroidPkceCallback code=' + (code ? code.substring(0, 20) + '...' : 'null'));
+  if (!_sbClient || !code) { _oauthLog('handleAndroidPkceCallback: missing sbClient or code'); return; }
+  try {
+    const { data, error } = await _sbClient.auth.exchangeCodeForSession(code);
+    _oauthLog('exchangeCode user=' + (data?.session?.user?.email || 'none') + ' err=' + (error?.message || 'none'));
+  } catch (e) {
+    _oauthLog('handleAndroidPkceCallback exception: ' + e.message);
+  }
 }
 
 function openCloudSaveModal() {
@@ -246,13 +258,17 @@ function linkGoogleAccount() {
     }, 'Unlink');
     return;
   }
-  // Use the HTTPS game URL for all platforms — custom scheme (eggbreakeradventures://)
-  // caused Chrome to hang when the fragment was stripped from the intent on some
-  // Android versions. With assetlinks.json verified (SHA256 matches signing cert),
-  // Android App Links route https://egg-breaker-adventures.vercel.app/ back to
-  // onNewIntent() in the WebView, same as the custom scheme but without the hang.
+  // On Android: use a custom URI scheme so Chrome Custom Tab routes the callback directly
+  // to onNewIntent() without relying on App Links verification (which can fail on
+  // direct APK installs or devices that haven't run the verification check).
+  // NOTE: eggbreakeradventures://oauth/callback must be in Supabase → Auth → Redirect URLs.
+  // On web: keep the HTTPS origin so Supabase's detectSessionInUrl handles the code on reload.
+  // The old custom-scheme issue (Chrome stripping #fragment) only applied to implicit flow;
+  // Supabase JS v2 uses PKCE by default (?code=…), so there is no fragment to strip.
   const isAndroidApp = typeof window.AndroidBridge !== 'undefined';
-  const redirectTo = window.location.origin + '/';
+  const redirectTo = isAndroidApp
+    ? 'eggbreakeradventures://oauth/callback'
+    : window.location.origin + '/';
   _oauthLog('LINK isAndroid=' + isAndroidApp + ' redirectTo=' + redirectTo);
   showShopSnack('Connecting to Google...');
   _sbClient.auth.signInWithOAuth({
@@ -266,10 +282,9 @@ function linkGoogleAccount() {
     }
     _oauthLog('OAUTH url=' + (data?.url?.substring(0, 100) || 'null'));
     if (!data?.url) { showShopSnack('⚠️ No auth URL'); return; }
-    // Mark OAuth as in-flight in sessionStorage — survives page reload (PKCE web flow)
-    // and same-page injection (Android implicit flow). _onCloudSignIn reads this flag
-    // to show the success snack and reopen the cloud modal after the redirect returns.
-    try { sessionStorage.setItem('_oauthPending', '1'); } catch (e) {}
+    // Mark OAuth as in-flight in localStorage with a timestamp (survives page reloads and
+    // webView.loadUrl navigations). TTL of 5 min prevents stale flags from persisting.
+    try { localStorage.setItem('_oauthPending', String(Date.now())); } catch (e) {}
     try { localStorage.setItem('_cloudLinkPref', 'linked'); } catch (e) {}
     _oauthLog('OAUTH navigating to auth URL');
     window.location.href = data.url;
@@ -300,12 +315,12 @@ async function _onCloudSignIn() {
   track('cloud-save', { action: 'link' });
   _startCloudAutoSave();
   _renderCloudModal();
-  // Use sessionStorage flag set by linkGoogleAccount() to detect a real OAuth link.
-  // URL-based check (_isOAuthRedirect) was unreliable: Supabase cleans ?code= from
-  // the URL before onAuthStateChange fires, so the flag was always false on web.
-  const _isOAuthPending = (() => { try { return sessionStorage.getItem('_oauthPending') === '1'; } catch(e) { return false; } })();
+  // localStorage flag with timestamp set by linkGoogleAccount() — 5-min TTL guards against
+  // stale flags. localStorage survives page reloads and webView.loadUrl() navigations.
+  const _oauthPendingTs = (() => { try { return parseInt(localStorage.getItem('_oauthPending') || '0', 10); } catch(e) { return 0; } })();
+  const _isOAuthPending = _oauthPendingTs > 0 && Date.now() - _oauthPendingTs < 5 * 60 * 1000;
   if (_isOAuthPending) {
-    try { sessionStorage.removeItem('_oauthPending'); } catch (e) {}
+    try { localStorage.removeItem('_oauthPending'); } catch (e) {}
     _oauthLog('SIGNED_IN: OAuth pending flag found — showing linked notification');
     // Auto-enable 15-min cloud save on first link
     if (!G.cloudAutoSave) {
