@@ -1280,7 +1280,7 @@ let _noSyncWarned = false;
 setTimeout(() => {
   if (!_noSyncWarned && !_cloudUser) {
     _noSyncWarned = true;
-    msg('☁️ Not synced — <span class="log-link" onclick="openSettings()">tap here to save your progress</span>', 'noSync');
+    msg('☁️ Not synced — go to ⚙️ Settings → Cloud Save to back up your progress', 'noSync');
   }
 }, 3000);
 
