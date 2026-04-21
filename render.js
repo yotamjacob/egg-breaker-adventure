@@ -1122,7 +1122,7 @@ function buildLexicon() {
     html: () => `
 <p>Each hit costs <strong>1 hammer</strong>. Eggs spawn randomly each round — rarer eggs take more hits but give better prizes.</p>
 <table class="lex-table">
-<tr><th>Egg</th><th>HP</th><th>Spawn Rate</th><th>Special</th></tr>
+<tr><th>Egg</th><th style="width:32px">HP</th><th style="width:76px">Spawn Rate</th><th>Special</th></tr>
 ${C.eggTypes.map(d => isEggDiscovered(d.id)
   ? '<tr><td>' + d.emoji + ' ' + d.name + '</td><td class="num">' + d.hp + '</td><td class="num">~' + pct(d.id) + '%</td><td>' + d.desc + '</td></tr>'
   : '<tr><td>❓ ???</td><td class="num">?</td><td class="num">?</td><td>Undiscovered — keep playing!</td></tr>'
