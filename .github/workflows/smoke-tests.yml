@@ -1,0 +1,75 @@
+# ============================================================
+#  Egg Smash Adventures — Smoke Tests
+#  Runs against production twice daily and on every push to main.
+#
+#  Required GitHub secrets (Settings → Secrets → Actions):
+#
+#    SUPABASE_SERVICE_ROLE_KEY
+#      Supabase dashboard → Project Settings → API → service_role key.
+#      Enables DB-write tests (cloud save round-trip, push cleanup).
+#      Tests that need it are automatically skipped when absent.
+#
+#    MAIL_USERNAME
+#      Gmail address to send failure alerts from.
+#      e.g. yourname@gmail.com
+#
+#    MAIL_PASSWORD
+#      Gmail App Password (NOT your real Gmail password).
+#      Enable 2-Step Verification first, then:
+#      Google Account → Security → 2-Step Verification → App Passwords → create one.
+#
+#  Both MAIL_* secrets are optional. Without them, the alert email step
+#  silently skips — you'll still see the failure in GitHub's UI and get
+#  GitHub's own notification emails (if enabled in your account settings).
+# ============================================================
+
+name: Smoke Tests
+
+on:
+  schedule:
+    - cron: '0 8 * * *'    # 08:00 UTC daily
+    - cron: '0 20 * * *'   # 20:00 UTC daily
+  push:
+    branches: [main]        # also run on every deploy
+  workflow_dispatch:        # manual trigger from Actions UI
+
+jobs:
+  smoke:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run smoke tests
+        run: node --test tests/smoke.test.js
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Send failure alert email
+        if: failure()
+        continue-on-error: true   # don't let a misconfigured mailer hide the real failure
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "🚨 Smoke tests FAILED — Egg Smash Adventures"
+          body: |
+            One or more smoke tests failed.
+
+            → ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Triggered by : ${{ github.event_name }}
+            Branch       : ${{ github.ref_name }}
+            Started at   : ${{ github.run_started_at }}
+          to: yotam@exacti.us
+          from: ${{ secrets.MAIL_USERNAME }}
+          content_type: text/plain
