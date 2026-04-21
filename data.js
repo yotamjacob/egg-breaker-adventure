@@ -615,23 +615,24 @@ function generateDailyRewards() {
     if (d === 30 || d === 60 || d === 100) {
       rewards.push({ day: d, type: 'banana', val: 1, icon: '🍌', label: '+1 banana' });
     }
-    // Max hammers on weekly milestones
+    // Max hammers on bi-weekly milestones
     else if (d % 14 === 0) {
-      rewards.push({ day: d, type: 'maxH', val: 3 + Math.floor(d / 20), icon: '📦', label: '+' + (3 + Math.floor(d / 20)) + ' max hammers' });
+      const mv = 3 + Math.floor(d / 20);
+      rewards.push({ day: d, type: 'maxH', val: mv, icon: '📦', label: '+' + mv + ' max hammers' });
     }
-    // Feathers every 5 days
+    // Feathers every 5 days — starts at 10, +5 every 10 days
     else if (d % 5 === 0) {
-      const fv = 3 + Math.floor(d / 10) * 2;
+      const fv = 10 + Math.floor(d / 10) * 5;
       rewards.push({ day: d, type: 'feathers', val: fv, icon: '🪶', label: '+' + fv + ' feathers' });
     }
-    // Gold on even days (scales up — 10x base to make daily gold meaningful)
+    // Gold on even days — starts at ~1 000, scales to ~5 000 by day 100
     else if (d % 2 === 0) {
-      const gv = (20 + d * 5) * 10;
+      const gv = Math.round((1000 + d * 40) / 100) * 100;
       rewards.push({ day: d, type: 'gold', val: gv, icon: '🪙', label: '+' + gv.toLocaleString() + ' gold' });
     }
-    // Hammers on odd days
+    // Hammers on odd days — starts at 45, +5 every ~7 days
     else {
-      const hv = 20 + Math.floor(d / 5) * 5;
+      const hv = 45 + Math.floor(d / 7) * 5;
       rewards.push({ day: d, type: 'hammers', val: hv, icon: '🔨', label: '+' + hv + ' hammers' });
     }
   }

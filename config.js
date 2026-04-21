@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.3.86';
+const VERSION = '2.3.87';
 
 const CONFIG = {
 
@@ -175,8 +175,8 @@ const CONFIG = {
   // ----------------------------------------------------------
   // 12. DAILY LOGIN
   // ----------------------------------------------------------
-  dailyBaseHammers:    40,    // hammers on day 1
-  dailyBonusPerDay:    5,     // extra hammers per consecutive day
+  dailyBaseHammers:    45,    // hammers on day 1 (odd days)
+  dailyBonusPerDay:    5,     // extra hammers per ~7 consecutive days
   dailyBonusCap:       100,   // max streak bonus
 
   // ----------------------------------------------------------
