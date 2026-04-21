@@ -114,6 +114,18 @@
   #confirm-box p { color: #b0b0c0; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; }
   #confirm-box .actions { display: flex; gap: 10px; justify-content: flex-end; }
   #confirm-box .btn-cancel { background: #2a2a4a; color: #e0e0e0; }
+
+  /* Sounds tab */
+  .sound-group { margin-bottom: 26px; }
+  .sound-group h3 { color: #f5c542; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .sound-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .splay-btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 600; background: #0f3460; color: #e0e0e0; transition: background 0.12s; }
+  .splay-btn:hover { background: #1a4a80; }
+  .splay-btn:active { background: #f5c542; color: #0a0a18; }
+  .splay-btn.current { outline: 2px solid #f5c542; }
+  .slabel { font-size: 0.8rem; color: #7f8c8d; display: flex; flex-direction: column; gap: 4px; }
+  .slabel input[type=range] { width: 100%; accent-color: #f5c542; }
+  .slabel span { color: #f5c542; font-weight: 600; font-size: 0.82rem; }
 </style>
 </head>
 <body>
@@ -130,6 +142,7 @@
     <button class="tab-btn active" data-tab="purchases" onclick="showTab('purchases')">💳 Purchases</button>
     <button class="tab-btn" data-tab="players" onclick="showTab('players')">👥 Players</button>
     <button class="tab-btn" data-tab="analytics" onclick="showTab('analytics')">📊 Analytics</button>
+    <button class="tab-btn" data-tab="sounds" onclick="showTab('sounds')">🔊 Sounds</button>
   </div>
 
   <!-- Purchases tab -->
@@ -206,6 +219,35 @@
     </div>
     <div id="players-grid" class="player-grid"></div>
   </div>
+
+  <!-- Sounds tab -->
+  <div id="tab-sounds" style="display:none">
+    <p style="color:#7f8c8d;font-size:0.85rem;margin-bottom:20px">Click any button to audition. Use the sliders to tweak parameters, then copy the values into audio.js.</p>
+
+    <div id="sound-sections"></div>
+
+    <!-- Parametric builder -->
+    <h3 style="color:#f5c542;margin:28px 0 12px">🎛️ Custom builder</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px" id="builder-controls">
+      <label class="slabel">Start freq (Hz)<br><input type="range" id="b-f0" min="80" max="1200" value="400" oninput="bSync()"><span id="b-f0v">400</span></label>
+      <label class="slabel">End freq (Hz)<br><input type="range" id="b-f1" min="40" max="600" value="80" oninput="bSync()"><span id="b-f1v">80</span></label>
+      <label class="slabel">Duration (ms)<br><input type="range" id="b-dur" min="10" max="200" value="50" oninput="bSync()"><span id="b-durv">50</span></label>
+      <label class="slabel">Volume<br><input type="range" id="b-vol" min="0.05" max="1" step="0.01" value="0.5" oninput="bSync()"><span id="b-volv">0.50</span></label>
+      <label class="slabel">Wave type<br>
+        <select id="b-type" style="background:#1a1a30;color:#e0e0e0;border:1px solid #333;padding:4px;border-radius:4px">
+          <option value="sine">sine</option>
+          <option value="triangle">triangle</option>
+          <option value="square">square</option>
+          <option value="sawtooth">sawtooth</option>
+        </select>
+      </label>
+      <label class="slabel">Noise click<br><input type="range" id="b-noise" min="0" max="0.8" step="0.01" value="0.2" oninput="bSync()"><span id="b-noisev">0.20</span></label>
+      <label class="slabel">Noise dur (ms)<br><input type="range" id="b-ndur" min="0" max="30" value="8" oninput="bSync()"><span id="b-ndurv">8</span></label>
+    </div>
+    <button class="splay-btn" onclick="playCustom()">▶ Play custom</button>
+    <button class="splay-btn" style="background:#2a3a5a;margin-left:8px" onclick="copyCustomCode()">📋 Copy code</button>
+    <pre id="custom-code" style="margin-top:12px;background:#0a0a18;padding:10px;border-radius:6px;font-size:0.78rem;color:#86efac;white-space:pre-wrap"></pre>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -248,6 +290,7 @@ function showTab(name) {
   document.getElementById('tab-purchases').style.display = name === 'purchases' ? '' : 'none'
   document.getElementById('tab-players').style.display   = name === 'players'   ? '' : 'none'
   document.getElementById('tab-analytics').style.display = name === 'analytics' ? '' : 'none'
+  document.getElementById('tab-sounds').style.display    = name === 'sounds'    ? '' : 'none'
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name))
   if (name === 'players'   && !allPlayers.length) loadPlayers()
   if (name === 'analytics') restoreUmamiToken()
@@ -739,6 +782,162 @@ if (saved) { secret = saved; document.getElementById('secret-input').value = sav
 else document.getElementById('secret-input').focus()
 
 document.getElementById('secret-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin() })
+
+// ── Sound Lab ─────────────────────────────────────────────────────────────────
+;(function() {
+  let _ctx
+  function ac() {
+    if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)()
+    if (_ctx.state === 'suspended') _ctx.resume()
+    return _ctx
+  }
+  function tone(freq, dur, vol, type) {
+    const c = ac(), o = c.createOscillator(), g = c.createGain()
+    o.type = type || 'sine'
+    o.frequency.setValueAtTime(freq, c.currentTime)
+    g.gain.setValueAtTime(vol, c.currentTime)
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur)
+    o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + dur)
+  }
+  function noise(dur, vol) {
+    const c = ac(), len = Math.floor(c.sampleRate * dur)
+    const buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0)
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5)
+    const s = c.createBufferSource(); s.buffer = buf
+    const g = c.createGain(); g.gain.value = vol
+    s.connect(g).connect(c.destination); s.start()
+  }
+  function pop(f0, f1, dur, vol, noiseDur, noiseVol, type) {
+    const c = ac()
+    if (noiseDur > 0 && noiseVol > 0) noise(noiseDur, noiseVol)
+    const o = c.createOscillator(), g = c.createGain()
+    o.type = type || 'sine'
+    o.frequency.setValueAtTime(f0, c.currentTime)
+    o.frequency.exponentialRampToValueAtTime(f1, c.currentTime + dur)
+    g.gain.setValueAtTime(vol, c.currentTime)
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur * 1.1)
+    o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + dur * 1.1)
+  }
+
+  // Sample library — each entry: { label, fn, tag }
+  // tag: 'hit' | 'crunch' | 'both' — what it replaces
+  const SAMPLES = [
+    // ── Current (chiptune) ────────────────────────────────────────────────────
+    { label: 'Current HIT (chiptune)',    tag: 'hit',
+      fn: () => { noise(.022,.55); tone(680,.035,.22,'square'); setTimeout(()=>tone(520,.04,.12,'triangle'),18); setTimeout(()=>tone(1040,.025,.07,'sine'),35) } },
+    { label: 'Current CRUNCH (chiptune)', tag: 'crunch',
+      fn: () => { noise(.02,.72); tone(700,.022,.42,'square'); setTimeout(()=>noise(.012,.35),14); setTimeout(()=>tone(480,.032,.22,'triangle'),18) } },
+
+    // ── Pop family ────────────────────────────────────────────────────────────
+    { label: 'Pop — soft (320→75, 45ms)',  tag: 'hit',
+      fn: () => pop(320, 75, .045, .42, .008, .18) },
+    { label: 'Pop — full (460→70, 60ms)', tag: 'crunch',
+      fn: () => pop(460, 70, .06, .58, .012, .28) },
+    { label: 'Pop — high (500→90, 35ms)',  tag: 'hit',
+      fn: () => pop(500, 90, .035, .45, .006, .15) },
+    { label: 'Pop — deep (260→55, 55ms)', tag: 'hit',
+      fn: () => pop(260, 55, .055, .5, .01, .2) },
+    { label: 'Pop — bubbly (600→100, 30ms)', tag: 'hit',
+      fn: () => pop(600, 100, .03, .4, 0, 0) },
+    { label: 'Pop — cartoon (800→80, 45ms)', tag: 'hit',
+      fn: () => pop(800, 80, .045, .38, .005, .12) },
+    { label: 'Pop — dry double', tag: 'crunch',
+      fn: () => { pop(400, 80, .04, .5, .008, .2); setTimeout(() => pop(560, 90, .03, .3, 0, 0), 20) } },
+    { label: 'Pop — sine only (380→70)', tag: 'hit',
+      fn: () => pop(380, 70, .05, .48, 0, 0) },
+    { label: 'Pop — triangle (350→65)', tag: 'hit',
+      fn: () => pop(350, 65, .048, .44, .008, .18, 'triangle') },
+
+    // ── Thud/knock family ────────────────────────────────────────────────────
+    { label: 'Thud — low (200→60, 60ms)', tag: 'hit',
+      fn: () => pop(200, 60, .06, .55, .015, .35) },
+    { label: 'Thud — mid (280→80, 55ms)', tag: 'hit',
+      fn: () => pop(280, 80, .055, .5, .012, .3) },
+    { label: 'Thud — punchy (320→70, 40ms)', tag: 'crunch',
+      fn: () => { pop(320, 70, .04, .6, .018, .4); setTimeout(() => pop(420, 80, .035, .3, 0, 0), 18) } },
+
+    // ── Tap family ───────────────────────────────────────────────────────────
+    { label: 'Tap — plastic (700→200, 25ms)', tag: 'hit',
+      fn: () => pop(700, 200, .025, .35, .006, .25) },
+    { label: 'Tap — hollow (500→150, 30ms)', tag: 'hit',
+      fn: () => pop(500, 150, .03, .4, .008, .2) },
+    { label: 'Tap — ceramic (900→300, 20ms)', tag: 'hit',
+      fn: () => pop(900, 300, .02, .3, .005, .22) },
+
+    // ── Squish/wet family ────────────────────────────────────────────────────
+    { label: 'Squish — wet (180→40, 70ms)', tag: 'crunch',
+      fn: () => { noise(.025, .5); pop(180, 40, .07, .45, 0, 0) } },
+    { label: 'Squish — yolk (220→50, 80ms)', tag: 'crunch',
+      fn: () => { noise(.03, .55); pop(220, 50, .08, .4, 0, 0) } },
+  ]
+
+  const groups = {
+    'hit':    { label: '🥚 HIT sounds (hammer tap)',   items: [] },
+    'crunch': { label: '💥 CRUNCH sounds (egg break)', items: [] },
+  }
+  SAMPLES.forEach(s => {
+    if (s.tag === 'hit' || s.tag === 'both') groups.hit.items.push(s)
+    if (s.tag === 'crunch' || s.tag === 'both') groups.crunch.items.push(s)
+  })
+
+  function render() {
+    const el = document.getElementById('sound-sections')
+    let html = ''
+    for (const [key, grp] of Object.entries(groups)) {
+      html += `<div class="sound-group"><h3>${grp.label}</h3><div class="sound-row">`
+      grp.items.forEach((s, i) => {
+        html += `<button class="splay-btn" onclick="window._soundSamples['${key}'][${i}]()">${s.label}</button>`
+      })
+      html += '</div></div>'
+    }
+    el.innerHTML = html
+    window._soundSamples = {
+      hit:    groups.hit.items.map(s => s.fn),
+      crunch: groups.crunch.items.map(s => s.fn),
+    }
+  }
+  render()
+
+  // Custom builder
+  window.bSync = function() {
+    ;['f0','f1','dur','vol','noise','ndur'].forEach(id => {
+      const inp = document.getElementById('b-' + id)
+      document.getElementById('b-' + id + 'v').textContent =
+        id === 'vol' ? parseFloat(inp.value).toFixed(2) : inp.value
+    })
+    updateCode()
+  }
+  function getParams() {
+    return {
+      f0:     parseFloat(document.getElementById('b-f0').value),
+      f1:     parseFloat(document.getElementById('b-f1').value),
+      dur:    parseFloat(document.getElementById('b-dur').value) / 1000,
+      vol:    parseFloat(document.getElementById('b-vol').value),
+      type:   document.getElementById('b-type').value,
+      noise:  parseFloat(document.getElementById('b-noise').value),
+      ndur:   parseFloat(document.getElementById('b-ndur').value) / 1000,
+    }
+  }
+  function updateCode() {
+    const p = getParams()
+    const nLine = p.ndur > 0 && p.noise > 0
+      ? `noise(${p.ndur.toFixed(3)}, ${p.noise.toFixed(2)}); ` : ''
+    document.getElementById('custom-code').textContent =
+      `if (n === 'hit') {\n  ${nLine}pop(${p.f0}, ${p.f1}, ${p.dur.toFixed(3)}, ${p.vol.toFixed(2)}, '${p.type}');\n}`
+  }
+  window.playCustom = function() {
+    const p = getParams()
+    pop(p.f0, p.f1, p.dur, p.vol, p.ndur, p.noise, p.type)
+  }
+  window.copyCustomCode = function() {
+    const code = document.getElementById('custom-code').textContent
+    navigator.clipboard.writeText(code).then(() => {
+      const btn = document.querySelector('#tab-sounds .splay-btn[onclick="copyCustomCode()"]')
+      const orig = btn.textContent; btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = orig, 1200)
+    })
+  }
+  updateCode()
+})()
 </script>
 </body>
 </html>
