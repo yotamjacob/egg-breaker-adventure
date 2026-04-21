@@ -3,6 +3,21 @@
 //  game.js  (requires all other JS files loaded first)
 // ============================================================
 
+// ── Silence Umami network errors — their fetch.js logs 500s to console.error
+// before the promise propagates, so we intercept at the fetch level instead.
+(function() {
+  const _orig = window.fetch;
+  window.fetch = function(input, init) {
+    const url = (typeof input === 'string' ? input : (input && input.url)) || '';
+    if (url.includes('api-gateway.umami.dev') || url.includes('cloud.umami.is/api/send')) {
+      return _orig.call(this, input, init).catch(() =>
+        new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } })
+      );
+    }
+    return _orig.call(this, input, init);
+  };
+})();
+
 // ── Analytics helper (Umami) ──────────────────────────────────
 function track(event, props) {
   try {
