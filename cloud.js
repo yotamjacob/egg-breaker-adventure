@@ -184,8 +184,8 @@ function _renderCloudModal() {
   const delBtn = $id('cloud-delete-action-btn');
   if (delBtn) delBtn.disabled = !linked;
   tsEl.textContent = G._cloudSavedAt
-    ? 'Last cloud save: ' + _timeAgo(G._cloudSavedAt)
-    : 'Last cloud save: never';
+    ? _timeAgo(G._cloudSavedAt) + ' (' + _formatSaveDate(G._cloudSavedAt) + ')'
+    : 'No cloud save yet';
   if (cbEl) {
     cbEl.checked  = !!G.cloudAutoSave;
     cbEl.disabled = !linked;
@@ -515,6 +515,14 @@ function _timeAgo(ms) {
   const h = Math.floor(m / 60);
   if (h < 24) return h + 'h ago';
   return Math.floor(h / 24) + 'd ago';
+}
+
+function _formatSaveDate(ms) {
+  const d = new Date(ms);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const hh = d.getHours().toString().padStart(2, '0');
+  const mm = d.getMinutes().toString().padStart(2, '0');
+  return hh + ':' + mm + ' · ' + months[d.getMonth()] + ' ' + d.getDate();
 }
 
 // ==================== PUSH NOTIFICATIONS ====================
