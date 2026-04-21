@@ -852,8 +852,12 @@ function unlockMonkey(index) {
       SFX.play('levelup');
       msg(MONKEY_DATA[index].name + ' unlocked!', 'discovery');
       checkAchievements();
-      renderMonkeys();
-      updateResources();
+      const prog = curProgress();
+      if (prog.activeStage === undefined) prog.activeStage = prog.stage;
+      G.roundEggs = null;
+      MUSIC.play(curMonkey().id);
+      newRound();
+      renderAll();
       saveGame();
     },
     'Unlock'
