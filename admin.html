@@ -691,7 +691,13 @@ async function clickEventRow(eventKey) {
       html += '</div>'
     }
 
-    const instList = [...instances.values()].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    function parseTs(v) {
+      if (!v) return 0
+      if (typeof v === 'number') return v < 1e12 ? v * 1000 : v  // seconds → ms
+      const d = new Date(v)
+      return isNaN(d) ? 0 : d.getTime()
+    }
+    const instList = [...instances.values()].sort((a, b) => parseTs(b.createdAt) - parseTs(a.createdAt))
     const SKIP_IN_CHIPS = new Set(['email', 'user_email', 'user_id', 'userId'])
 
     html += `<div class="instances-title">${instList.length} instances (newest first)</div>`
@@ -700,7 +706,8 @@ async function clickEventRow(eventKey) {
     </tr></thead><tbody>`
 
     for (const inst of instList) {
-      const timeStr   = new Date(inst.createdAt).toLocaleString()
+      const ts = parseTs(inst.createdAt)
+      const timeStr = ts ? new Date(ts).toLocaleString() : '—'
       const userEmail = inst.props.email ?? inst.props.user_email ?? ''
       const userId    = inst.props.user_id ?? inst.props.userId ?? ''
       const userCell  = userEmail
