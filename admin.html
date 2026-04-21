@@ -493,14 +493,28 @@ async function loadAnalytics() {
   const headers  = { 'x-umami-api-key': token }
   const qp       = `?startAt=${startAt}&endAt=${now}`
 
+  // Human-readable labels for known game events
+  const EVENT_LABELS = {
+    'cloud-save':        '☁️ Cloud save',
+    'shop-purchase':     '🛒 Shop purchase',
+    'premium-purchase':  '💎 Premium purchase',
+    'daily-claim':       '📅 Daily reward claimed',
+    'stage-complete':    '🏆 Stage completed',
+    'monkey-unlock':     '🐒 Monkey unlocked',
+  }
+
   try {
     const [statsRes, eventsRes] = await Promise.all([
       fetch(`${UMAMI_BASE}/websites/${UMAMI_SITE_ID}/stats${qp}`, { headers }),
-      fetch(`${UMAMI_BASE}/websites/${UMAMI_SITE_ID}/event-data${qp}`, { headers }),
+      fetch(`${UMAMI_BASE}/websites/${UMAMI_SITE_ID}/metrics?type=event&${qp.slice(1)}`, { headers }),
     ])
 
     if (statsRes.status === 401 || eventsRes.status === 401) {
-      status.textContent = '401 — invalid token'
+      status.textContent = `401 — invalid token (stats:${statsRes.status} events:${eventsRes.status})`
+      return
+    }
+    if (!statsRes.ok || !eventsRes.ok) {
+      status.textContent = `Error — stats:${statsRes.status} events:${eventsRes.status}`
       return
     }
 
@@ -520,25 +534,29 @@ async function loadAnalytics() {
       : null
     document.getElementById('um-bounce').textContent = bounceRate !== null ? bounceRate + '% bounce' : ''
 
-    // Events table
-    const rows = Array.isArray(events) ? events : (events.data ?? [])
-    rows.sort((a, b) => (b.count ?? 0) - (a.count ?? 0))
-    const max = rows[0]?.count ?? 1
+    // Events table — /metrics?type=event returns [{x: "event-name", y: count}]
+    const rows = (Array.isArray(events) ? events : (events.data ?? []))
+      .filter(r => (r.y ?? r.count ?? 0) > 0)
+      .sort((a, b) => (b.y ?? b.count ?? 0) - (a.y ?? a.count ?? 0))
+    const max = rows[0] ? (rows[0].y ?? rows[0].count ?? 1) : 1
     const tbody = document.getElementById('umami-events-tbody')
     if (!rows.length) {
       tbody.innerHTML = '<tr><td colspan="3" class="empty">No custom events in this period</td></tr>'
     } else {
-      tbody.innerHTML = rows.map(r => `
-        <tr>
-          <td><strong>${esc(r.eventName ?? r.event_name ?? '—')}</strong></td>
-          <td style="text-align:right;color:#f5c542;font-weight:700">${fmt(r.count)}</td>
+      tbody.innerHTML = rows.map(r => {
+        const key   = r.x ?? r.eventName ?? r.event_name ?? '—'
+        const count = r.y ?? r.count ?? 0
+        const label = EVENT_LABELS[key] || key
+        return `<tr>
+          <td><strong>${esc(label)}</strong><br><span style="color:#555;font-size:0.78rem">${esc(key)}</span></td>
+          <td style="text-align:right;color:#f5c542;font-weight:700;white-space:nowrap">${fmt(count)}</td>
           <td>
             <div class="event-bar-wrap">
-              <div class="event-bar" style="width:${Math.round((r.count / max) * 100)}%"></div>
+              <div class="event-bar" style="width:${Math.round((count / max) * 100)}%"></div>
             </div>
           </td>
-        </tr>
-      `).join('')
+        </tr>`
+      }).join('')
     }
 
     status.textContent = 'Updated ' + new Date().toLocaleTimeString()
