@@ -554,16 +554,18 @@ async function loadAnalytics() {
     const stats  = await statsRes.json()
     const events = await eventsRes.json()
 
-    // Stats cards
-    document.getElementById('um-visitors').textContent  = fmt(stats.visitors?.value  ?? 0)
-    document.getElementById('um-pageviews').textContent = fmt(stats.pageviews?.value ?? 0)
-    document.getElementById('um-visits').textContent    = fmt(stats.visits?.value    ?? 0)
-    const avgSec = stats.totaltime?.value && stats.visits?.value
-      ? Math.round(stats.totaltime.value / stats.visits.value)
+    // Stats cards — Umami v1 uses "uniques" for visitors, "visits"/"sessions" for sessions
+    const visitorsVal = stats.visitors?.value ?? stats.uniques?.value ?? 0
+    const sessionsVal = stats.visits?.value   ?? stats.sessions?.value ?? stats.uniques?.value ?? 0
+    document.getElementById('um-visitors').textContent  = fmt(visitorsVal)
+    document.getElementById('um-pageviews').textContent = fmt(stats.pageviews?.value ?? stats.views?.value ?? 0)
+    document.getElementById('um-visits').textContent    = fmt(sessionsVal)
+    const avgSec = stats.totaltime?.value && sessionsVal
+      ? Math.round(stats.totaltime.value / sessionsVal)
       : 0
     document.getElementById('um-duration').textContent = avgSec ? fmtTime(avgSec) : '—'
-    const bounceRate = stats.bounces?.value && stats.visits?.value
-      ? Math.round(stats.bounces.value / stats.visits.value * 100)
+    const bounceRate = stats.bounces?.value && sessionsVal
+      ? Math.round(stats.bounces.value / sessionsVal * 100)
       : null
     document.getElementById('um-bounce').textContent = bounceRate !== null ? bounceRate + '% bounce' : ''
 
@@ -592,7 +594,10 @@ async function loadAnalytics() {
       }).join('')
     }
 
-    status.textContent = 'Updated ' + new Date().toLocaleTimeString()
+    const allZero = !visitorsVal && !(stats.pageviews?.value ?? stats.views?.value)
+    status.textContent = allZero
+      ? 'Updated — keys: ' + Object.keys(stats).join(', ')
+      : 'Updated ' + new Date().toLocaleTimeString()
   } catch (e) {
     status.textContent = 'Error: ' + e.message
   }
