@@ -27,12 +27,31 @@ const SFX = (() => {
     const g = c.createGain(); g.gain.value = vol;
     s.connect(g).connect(c.destination); s.start();
   }
+  // Woody knock: bandpass-filtered noise transient + falling-pitch body resonance
+  function knock(bpFreq, resonFreq, dur, vol) {
+    const c = ensure();
+    const len = Math.floor(c.sampleRate * dur);
+    const buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 4);
+    const src = c.createBufferSource(); src.buffer = buf;
+    const flt = c.createBiquadFilter(); flt.type = 'bandpass'; flt.frequency.value = bpFreq; flt.Q.value = 3;
+    const g = c.createGain(); g.gain.value = vol;
+    src.connect(flt).connect(g).connect(c.destination); src.start();
+    // Body resonance: pitch drops as wood settles
+    const o = c.createOscillator(); o.type = 'sine';
+    o.frequency.setValueAtTime(resonFreq, c.currentTime);
+    o.frequency.exponentialRampToValueAtTime(resonFreq * 0.52, c.currentTime + dur);
+    const og = c.createGain();
+    og.gain.setValueAtTime(vol * 0.75, c.currentTime);
+    og.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur * 1.3);
+    o.connect(og).connect(c.destination); o.start(); o.stop(c.currentTime + dur * 1.3);
+  }
   function play(n) {
     if (!on) return;
     try {
       // 16-bit chiptune style: square & triangle waves
-      if (n === 'hit')     { noise(.022, .55); tone(680, .035, .22, 'square'); setTimeout(() => tone(520, .04, .12, 'triangle'), 18); setTimeout(() => tone(1040, .025, .07, 'sine'), 35); }
-      if (n === 'crunch')  { noise(.02, .72); tone(700, .022, .42, 'square'); setTimeout(() => noise(.012, .35), 14); setTimeout(() => tone(480, .032, .22, 'triangle'), 18); }
+      if (n === 'hit')    { knock(680, 260, 0.055, 0.52); }
+      if (n === 'crunch') { knock(620, 230, 0.07, 0.62); setTimeout(() => knock(820, 310, 0.038, 0.28), 22); }
       if (n === 'coin')    { tone(1047, .06, .16, 'square'); setTimeout(() => tone(1319, .08, .13, 'square'), 45); setTimeout(() => tone(1568, .1, .09, 'triangle'), 90); }
       if (n === 'gem')     { tone(1047, .06, .1, 'square'); setTimeout(() => tone(1319, .06, .08, 'square'), 40); setTimeout(() => tone(1568, .12, .07, 'triangle'), 80); }
       if (n === 'star')    { tone(784, .08, .1, 'square'); setTimeout(() => tone(988, .08, .08, 'square'), 60); setTimeout(() => tone(1319, .12, .07, 'triangle'), 120); }
