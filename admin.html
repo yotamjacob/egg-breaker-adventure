@@ -245,6 +245,7 @@
       <label class="slabel">Noise dur (ms)<br><input type="range" id="b-ndur" min="0" max="30" value="8" oninput="bSync()"><span id="b-ndurv">8</span></label>
     </div>
     <button class="splay-btn" onclick="playCustom()">▶ Play custom</button>
+    <button class="splay-btn" style="background:#1a3a2a;margin-left:8px" onclick="randomizeBuilder()">🎲 Randomize</button>
     <button class="splay-btn" style="background:#2a3a5a;margin-left:8px" onclick="copyCustomCode()">📋 Copy code</button>
     <pre id="custom-code" style="margin-top:12px;background:#0a0a18;padding:10px;border-radius:6px;font-size:0.78rem;color:#86efac;white-space:pre-wrap"></pre>
   </div>
@@ -924,6 +925,29 @@ document.getElementById('secret-input').addEventListener('keydown', e => { if (e
       ? `noise(${p.ndur.toFixed(3)}, ${p.noise.toFixed(2)}); ` : ''
     document.getElementById('custom-code').textContent =
       `if (n === 'hit') {\n  ${nLine}pop(${p.f0}, ${p.f1}, ${p.dur.toFixed(3)}, ${p.vol.toFixed(2)}, '${p.type}');\n}`
+  }
+  window.randomizeBuilder = function() {
+    const rnd = (min, max, step) => {
+      const steps = Math.floor((max - min) / step)
+      return min + Math.floor(Math.random() * (steps + 1)) * step
+    }
+    const f0   = rnd(100, 1200, 10)
+    const f1   = Math.min(f0 - 20, rnd(40, 400, 5))
+    const dur  = rnd(10, 150, 5)
+    const vol  = rnd(20, 80, 1) / 100
+    const ndur = rnd(0, 25, 1)
+    const nvol = ndur > 0 ? rnd(5, 60, 1) / 100 : 0
+    const types = ['sine','triangle','square','sawtooth']
+    const type = types[Math.floor(Math.random() * types.length)]
+    document.getElementById('b-f0').value    = f0
+    document.getElementById('b-f1').value    = f1
+    document.getElementById('b-dur').value   = dur
+    document.getElementById('b-vol').value   = vol
+    document.getElementById('b-noise').value = nvol
+    document.getElementById('b-ndur').value  = ndur
+    document.getElementById('b-type').value  = type
+    bSync()
+    pop(f0, f1, dur / 1000, vol, ndur / 1000, nvol, type)
   }
   window.playCustom = function() {
     const p = getParams()
