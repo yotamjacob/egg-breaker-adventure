@@ -138,10 +138,8 @@ function resolvePrize(type, eggType) {
     if (hasBonus('allfather')) base *= 1.1;
     const ab = getAchievementBonuses();
     if (ab.goldPct > 0) base *= (1 + ab.goldPct / 100);
-    // Per-monkey gold scale: Mr. Monkey is the generous onboarding monkey (1.0).
-    // Later monkeys give progressively less gold to keep the mid/late game challenging.
-    // Each monkey's goldScale is defined in data.js (steampunk 0.78 → odin 0.60).
-    if (monkey && monkey.goldScale != null) base *= monkey.goldScale;
+    const _mk = curMonkey();
+    if (_mk && _mk.goldScale != null) base *= _mk.goldScale;
     if (G['owned_goldmagnet']) base *= 1.2;
     const baseVal = Math.round(base);   // round once
     const val = baseVal * G.activeMult; // exact — no rounding drift
