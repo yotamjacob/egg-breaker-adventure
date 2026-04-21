@@ -235,10 +235,10 @@ serve(async (req) => {
 
     logs.push(`device=${sub.device_id} fcm=${!!sub.fcm_token} hammers_full_at=${sub.hammers_full_at ?? 'none'}`)
 
-    // Hammers-full notification
+    // Hammers-full notification — in test mode always attempt even if hammers_full_at is null
     let sentHammersFull = false
-    if (sub.hammers_full_at) {
-      const fullAt = new Date(sub.hammers_full_at)
+    if (sub.hammers_full_at || isTest) {
+      const fullAt = sub.hammers_full_at ? new Date(sub.hammers_full_at) : new Date(0)
       const recentlyHammersNotified = sub.last_notified_at && new Date(sub.last_notified_at) > new Date(hammersDedupCutoff)
       logs.push(`hammers check: fullAt=${fullAt.toISOString()} past=${fullAt < now} recentDedup=${recentlyHammersNotified}`)
       if ((fullAt < now || isTest) && (!recentlyHammersNotified || isTest)) {
@@ -254,11 +254,11 @@ serve(async (req) => {
       }
     }
 
-    // Daily reward notification
+    // Daily reward notification — test mode bypasses all dedup guards
     const recentlyNotified = sub.last_notified_at && new Date(sub.last_notified_at) > new Date(dedupeCutoff)
     const inactive = new Date(sub.updated_at) < new Date(inactiveCutoff)
     logs.push(`daily check: inactive=${inactive} sentHammersFull=${sentHammersFull} recentDedup=${recentlyNotified}`)
-    if ((inactive || isTest) && !sentHammersFull && !recentlyNotified) {
+    if ((inactive || isTest) && (!sentHammersFull || isTest) && (!recentlyNotified || isTest)) {
       const ok = await sendPush({ title: 'Egg Smash Adventures', body: 'Your daily reward is ready. Come claim it!', tag: 'daily-reward', url: '/?tab=daily' })
       if (!ok) expiredDevices.push(sub.device_id)
       else { sent++; notifiedDevices.push(sub.device_id); logs.push('daily sent') }
