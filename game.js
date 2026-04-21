@@ -53,6 +53,8 @@ const DEFAULT_STATE = {
   totalItems: 0, biggestWin: 0, highestMult: 1,
   starfallsUsed: 0, collectionsCompleted: 0, stagesCompleted: 0,
   roundClears: 0, feathersBought: 0, maxMultUsed: 0, runnySmashed: 0, blackSmashed: 0, timerSmashed: 0, timerMissed: 0, timerCloseCall: 0,
+  silverSmashed: 0, goldSmashed: 0, crystalSmashed: 0, rubySmashed: 0, centurySmashed: 0,
+  hexesHit: 0, balloonPopped: 0, comboSmashed: 0,
   // Hammer economy
   hammersDepleted: 0,   // times hit 0 hammers
   shopHammers5: 0,      // times bought +5 from shop
