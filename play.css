@@ -297,6 +297,7 @@
 .reward-log .log-line:nth-child(4){opacity:.5}
 .reward-log .log-line:nth-child(5){opacity:.3}
 .reward-log .log-line:nth-child(6){opacity:.15}
+.log-link{color:#7dd3fc;text-decoration:underline;cursor:pointer}
 
 
 /* ---------- Prize floats ---------- */
