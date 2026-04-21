@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.3.83';
+const VERSION = '2.3.84';
 
 const CONFIG = {
 
@@ -183,7 +183,7 @@ const CONFIG = {
   // 13. HAMMER REGENERATION
   // ----------------------------------------------------------
   regenInterval:       30,    // seconds per hammer (standard)
-  fastRegenInterval:   15,    // seconds per hammer (with upgrade)
+  fastRegenInterval:   20,    // seconds per hammer (with upgrade)
 
   // ----------------------------------------------------------
   // 14. STARTING RESOURCES

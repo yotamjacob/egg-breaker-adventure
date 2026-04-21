@@ -138,8 +138,10 @@ function resolvePrize(type, eggType) {
     if (hasBonus('allfather')) base *= 1.1;
     const ab = getAchievementBonuses();
     if (ab.goldPct > 0) base *= (1 + ab.goldPct / 100);
-    // Progressive gold: +2% per completed stage, capped at +30%
-    if (G.stagesCompleted > 0) base *= (1 + Math.min(G.stagesCompleted * 0.02, 0.30));
+    // Per-monkey gold scale: Mr. Monkey is the generous onboarding monkey (1.0).
+    // Later monkeys give progressively less gold to keep the mid/late game challenging.
+    // Each monkey's goldScale is defined in data.js (steampunk 0.78 → odin 0.60).
+    if (monkey && monkey.goldScale != null) base *= monkey.goldScale;
     if (G['owned_goldmagnet']) base *= 1.2;
     const baseVal = Math.round(base);   // round once
     const val = baseVal * G.activeMult; // exact — no rounding drift

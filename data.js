@@ -97,7 +97,7 @@ const MONKEY_DATA = [
   {
     id: 'steampunk', name: 'Steampunk Monkey', emoji: '🔧', img: 'img/steampunk_nohat.jpeg',
     hatImgs: { chef:'img/steampunk_chef.jpeg', crown:'img/steam_crown.jpeg', wizard:'img/steampunk_wizard.jpeg', tophat:'img/steampunk_tophat.jpeg', pirate:'img/steampunk_pirate.jpeg' },
-    cost: 9,
+    cost: 9, goldScale: 0.78,
     perk: 'moreStars', perkDesc: '+15% star piece chance',
     stages: [
       { name: 'Gear Workshop', eggs: 3, collection: { name: 'Basic Gears', items: [
@@ -184,7 +184,7 @@ const MONKEY_DATA = [
   {
     id: 'princess', name: 'Princess Monkey', emoji: '👸', img: 'img/princess_nohat.jpeg',
     hatImgs: { chef:'img/princess_chef.jpeg', crown:'img/princess_crown.jpeg', wizard:'img/princess_wizard.jpeg', tophat:'img/princess_tophat.jpeg', pirate:'img/princess_pirate.jpeg' },
-    cost: 9,
+    cost: 9, goldScale: 0.72,
     perk: 'moreGold', perkDesc: '+20% gold from eggs',
     stages: [
       { name: 'Royal Garden', eggs: 3, collection: { name: 'Garden Flowers', items: [
@@ -271,7 +271,7 @@ const MONKEY_DATA = [
   {
     id: 'space', name: 'Space Cadette', emoji: '🚀', img: 'img/space_nohat.jpeg',
     hatImgs: { chef:'img/space_chef.jpeg', crown:'img/space_crown.jpeg', wizard:'img/space_wizard.jpeg', tophat:'img/space_tophat.jpeg', pirate:'img/space_pirate.jpeg' },
-    cost: 9,
+    cost: 9, goldScale: 0.66,
     perk: 'moreItems', perkDesc: '+10% item chance',
     stages: [
       { name: 'Launch Pad', eggs: 3, collection: { name: 'Launch Gear', items: [
@@ -358,7 +358,7 @@ const MONKEY_DATA = [
   {
     id: 'odin', name: 'Odin Grímnir, the All-Father', emoji: '🧙', img: 'img/odin_nohat.jpeg',
     hatImgs: { chef:'img/odin_chef.jpeg', crown:'img/odin_crown.jpeg', wizard:'img/odin_wizard.jpeg', tophat:'img/odin_tophat.jpeg', pirate:'img/odin_pirate.jpeg' },
-    cost: 9,
+    cost: 9, goldScale: 0.60,
     unlockRequires: { monkeys: ['steampunk', 'princess', 'space'], hint: 'Unlock all three monkeys to reveal the All-Father' },
     perk: 'allfather', perkDesc: "+10% gold, stars & feathers",
     stages: [
@@ -457,7 +457,7 @@ const SHOP_SUPPLIES = [
   { id: 'mult5',      name: 'x5 Multiplier',    emoji: '✖️', cost: 5000,   currency: 'gold', type: 'consumable' },
   { id: 'spyglass',   name: 'Spyglass',         emoji: '🔍', desc: 'Reveal egg names & HP', cost: 5000, currency: 'gold', type: 'upgrade', unique: true },
   { id: 'maxhammers', name: '+5 Hammer Cap',    emoji: '📦', desc: 'Increase max hammers by 5', cost: 8000, currency: 'gold', type: 'upgrade' },
-  { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', desc: 'Hammers regen 2x faster', cost: 12500, currency: 'gold', type: 'upgrade', unique: true },
+  { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', desc: 'Hammers regen 1.5x faster', cost: 25000, currency: 'gold', type: 'upgrade', unique: true },
 ];
 
 // All tuning values are read from CONFIG (config.js)

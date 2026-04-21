@@ -21,6 +21,16 @@ const EGG_TYPES = [
 // 'mr_monkey' = 1.5x, all others = 0.7x
 const ITEM_MULT = { mr_monkey: 1.5, other: 0.7 };
 
+// Gold scale per monkey (matches data.js goldScale, applied in resolvePrize)
+// Mr. Monkey has no goldScale (defaults 1.0). Later monkeys earn less gold per smash.
+const MONKEY_GOLD_SCALE = {
+  mr_monkey:  1.00,
+  steampunk:  0.78,
+  princess:   0.72 * 1.20,  // princess perk: moreGold +20%
+  space:      0.66,
+  odin:       0.60 * 1.10,  // odin perk: allfather +10%
+};
+
 const GOLD_RANGES   = { gold_s:[2,8], gold_m:[8,22], gold_l:[25,80] };
 const MULT_POOL     = [2,2,2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3, 5,5, 10, 50, 123];
 const FEATHER_RANGE = [1, 3];
@@ -29,6 +39,8 @@ const ITEM_RW       = { 1:5, 2:2, 3:3 };
 const DUPE_GOLD     = { 1:[35,90], 2:[120,280], 3:[350,800] };
 const MULT_Q_MAX    = 3;
 const MULT_BONUS    = 20;
+const PREMIUM_IDS   = new Set(['gold', 'crystal', 'ruby', 'black']);
+const BIG_MULT_MIN  = 50;  // x50+ saved for premium eggs in smart strategy
 const TIER_PCT      = { bronze:0.40, silver:0.70, gold:1.00 };
 
 // ─── Stage definitions (exact rarities from data.js) ─────────
@@ -62,7 +74,10 @@ function rollPrize(p) {
 
 // ─── Simulate one full stage (bronze → silver → gold tier) ───
 // monkeyId: 'mr_monkey' | 'other'
-function simStage(stage, useMultStrategy, monkeyId = 'mr_monkey') {
+// multStrategy: false | 'greedy' | 'smart'
+//   greedy — always activate best queued mult before every smash
+//   smart  — save x50/x123 until a premium egg (gold/crystal/ruby/black); use smaller mults greedily
+function simStage(stage, multStrategy, monkeyId = 'mr_monkey') {
   const itemMult = ITEM_MULT[monkeyId] ?? 1;
   const eligible = EGG_TYPES.filter(e => e.us <= stage.si);
   const allItems = stage.items.map((r, i) => ({ r, i }));
@@ -73,19 +88,43 @@ function simStage(stage, useMultStrategy, monkeyId = 'mr_monkey') {
   let gold     = 0, feathers = 0;
   let baseGold = 0, multBoost = 0;
   let multDropped = 0, multUsed = 0, multLost = 0;
-  let multQueuedValues = [];                      // the accumulated mult values (not used in no-mult mode)
+  let multQueuedValues = [];
   let bronzeAt = null, silverAt = null, goldAt = null;
 
   while (!goldAt && hammers < 500_000) {
     const egg   = wPick(eligible, e => e.sw);
     hammers    += egg.hp;
 
-    // Strategy: consume best queued mult before this break
     let aMult = 1;
-    if (useMultStrategy && multQueuedValues.length > 0) {
-      multQueuedValues.sort((a, b) => b - a);
-      aMult = multQueuedValues.shift();
-      multUsed++;
+    if (multStrategy && multQueuedValues.length > 0) {
+      if (multStrategy === 'greedy') {
+        multQueuedValues.sort((a, b) => b - a);
+        aMult = multQueuedValues.shift();
+        multUsed++;
+      } else if (multStrategy === 'smart') {
+        const isPremium = PREMIUM_IDS.has(egg.id);
+        if (isPremium) {
+          // Premium egg — apply best available mult
+          multQueuedValues.sort((a, b) => b - a);
+          aMult = multQueuedValues.shift();
+          multUsed++;
+        } else {
+          // Non-premium — only spend small mults (x10 or less); hold big ones
+          const smallIdx = multQueuedValues.findIndex(v => v < BIG_MULT_MIN);
+          if (smallIdx !== -1) {
+            multQueuedValues.sort((a, b) => b - a);
+            const si2 = multQueuedValues.findIndex(v => v < BIG_MULT_MIN);
+            aMult = multQueuedValues.splice(si2, 1)[0];
+            multUsed++;
+          } else if (multQueuedValues.length >= MULT_Q_MAX) {
+            // Queue full of big mults — burn smallest big one to free a slot
+            multQueuedValues.sort((a, b) => a - b);
+            aMult = multQueuedValues.shift();
+            multUsed++;
+          }
+          // else: only big mults, queue not full — hold them
+        }
+      }
     }
 
     const adjP  = { ...egg.p, item: egg.p.item * itemMult };
@@ -159,10 +198,18 @@ function simStage(stage, useMultStrategy, monkeyId = 'mr_monkey') {
 }
 
 // ─── Average N simulation runs ────────────────────────────────
-function avgRuns(stage, strategy, n, monkeyId = 'mr_monkey') {
+// goldScale: applied to all gold prizes post-simulation (matches monkey.goldScale × perk in game)
+function avgRuns(stage, strategy, n, monkeyId = 'mr_monkey', goldScale = 1) {
   const sum = {};
   for (let i = 0; i < n; i++) {
-    for (const [k, v] of Object.entries(simStage(stage, strategy, monkeyId)))
+    const r = simStage(stage, strategy, monkeyId);
+    // apply goldScale to gold totals
+    if (goldScale !== 1) {
+      r.gold     = r.gold     * goldScale;
+      r.baseGold = r.baseGold * goldScale;
+      r.multBoost = r.multBoost * goldScale;
+    }
+    for (const [k, v] of Object.entries(r))
       sum[k] = (sum[k] ?? 0) + v;
   }
   return Object.fromEntries(Object.entries(sum).map(([k, v]) => [k, v / n]));
@@ -179,17 +226,22 @@ console.log(`  ${RUNS.toLocaleString()} Monte Carlo runs per stage  •  2 strat
 console.log('══════════════════════════════════════════════════════════════════════════════════════════\n');
 console.log('  Computing...');
 
-// Simulate both Mr. Monkey (1.5x items) and other monkeys (0.7x items)
+// Simulate Mr. Monkey (1.5x items) and other monkeys (0.7x items) × 3 strategies
 const results = STAGES.map(stage => ({
   stage,
-  noMult:    avgRuns(stage, false, RUNS, 'mr_monkey'),
-  greedy:    avgRuns(stage, true,  RUNS, 'mr_monkey'),
-  greedyOth: avgRuns(stage, true,  RUNS, 'other'),
+  noMult:    avgRuns(stage, false,    RUNS, 'mr_monkey'),
+  greedy:    avgRuns(stage, 'greedy', RUNS, 'mr_monkey'),
+  smart:     avgRuns(stage, 'smart',  RUNS, 'mr_monkey'),
+  greedyOth: avgRuns(stage, 'greedy', RUNS, 'other'),
 }));
 
 // ─── Table 1: Hammers to each tier ───────────────────────────
-// Mr. Monkey uses 1.5x item mult; other monkeys use 0.7x
-for (const [label, key] of [['NO-MULTS  (Mr. Monkey, 1.5x items)', 'noMult'], ['GREEDY-MULTS — Mr. Monkey (1.5x items)', 'greedy'], ['GREEDY-MULTS — Other monkeys (0.7x items)', 'greedyOth']]) {
+for (const [label, key] of [
+  ['NO-MULTS  (Mr. Monkey, 1.5x items)', 'noMult'],
+  ['GREEDY-MULTS — Mr. Monkey (1.5x items)', 'greedy'],
+  ['SMART-MULTS  — Mr. Monkey (save x50/x123 for gold/crystal/ruby/black)', 'smart'],
+  ['GREEDY-MULTS — Other monkeys (0.7x items)', 'greedyOth'],
+]) {
   console.log(`\n  ── ${label} ──`);
   const H = `  ${'Stage'.padEnd(22)}  N  ${'Bronze'.padStart(7)} ${'Silver'.padStart(7)} ${'Gold'.padStart(7)}  ${'NetH'.padStart(7)}  ${'Refunds'.padStart(8)}  ${'Gold💰'.padStart(8)} ${'Feathers'.padStart(9)}  ${'MultDrop'.padStart(8)} ${'MultUsed'.padStart(9)} ${'MultLost'.padStart(9)}`;
   console.log(H);
@@ -214,21 +266,23 @@ for (const [label, key] of [['NO-MULTS  (Mr. Monkey, 1.5x items)', 'noMult'], ['
 }
 
 // ─── Table 2: Mult strategy impact ───────────────────────────
-console.log('\n\n  ── MULT STRATEGY IMPACT ──');
-const H2 = `  ${'Stage'.padEnd(22)}  ${'Gold (none)'.padStart(11)}  ${'Gold (greedy)'.padStart(13)}  ${'Boost%'.padStart(7)}  ${'BoostΔ'.padStart(8)}  ${'Avg mult value'.padStart(15)}`;
+console.log('\n\n  ── MULT STRATEGY IMPACT (Mr. Monkey) ──');
+const H2 = `  ${'Stage'.padEnd(22)}  ${'No-mult'.padStart(9)}  ${'Greedy'.padStart(9)}  ${'Grdy%'.padStart(6)}  ${'Smart'.padStart(9)}  ${'Smrt%'.padStart(6)}  ${'Smart gain'.padStart(11)}`;
 console.log(H2);
 console.log(`  ${'─'.repeat(H2.length - 2)}`);
 
-for (const { stage, noMult, greedy } of results) {
-  const pct      = ((greedy.gold / noMult.gold) - 1) * 100;
-  const avgMult  = greedy.multUsed > 0 ? greedy.multBoost / greedy.multUsed / MULT_BONUS : 0;
+for (const { stage, noMult, greedy, smart } of results) {
+  const greedyPct = ((greedy.gold / noMult.gold) - 1) * 100;
+  const smartPct  = ((smart.gold  / noMult.gold) - 1) * 100;
+  const gainVsGrd = smart.gold - greedy.gold;
   console.log(
     `  ${stage.label.padEnd(22)}` +
-    `  ${f(noMult.gold, 11)}` +
-    `  ${f(greedy.gold, 13)}` +
-    `  ${fp(pct, 1, 7)}%` +
-    `  ${f(greedy.multBoost, 8)}` +
-    `  ${fp(avgMult, 1, 14)}x`
+    `  ${f(noMult.gold, 9)}` +
+    `  ${f(greedy.gold, 9)}` +
+    `  ${fp(greedyPct, 0, 6)}%` +
+    `  ${f(smart.gold, 9)}` +
+    `  ${fp(smartPct,  0, 6)}%` +
+    `  ${f(gainVsGrd, 11)}`
   );
 }
 
@@ -238,12 +292,12 @@ const H3 = `  ${'Stage'.padEnd(22)}  ${'Gold/Ham'.padStart(9)}  ${'Feat/Ham'.pad
 console.log(H3);
 console.log(`  ${'─'.repeat(H3.length - 2)}`);
 
-for (const { stage, greedy } of results) {
+for (const { stage, smart } of results) {
   const eligible = EGG_TYPES.filter(e => e.us <= stage.si);
   const totSW    = eligible.reduce((s, e) => s + e.sw, 0);
   const mix      = eligible.map(e => `${e.id}:${((e.sw / totSW) * 100).toFixed(0)}%`).join(' ');
-  const gph      = greedy.gold    / greedy.goldAt;
-  const fph      = greedy.feathers / greedy.goldAt;
+  const gph      = smart.gold     / smart.goldAt;
+  const fph      = smart.feathers / smart.goldAt;
   console.log(
     `  ${stage.label.padEnd(22)}` +
     `  ${fp(gph, 2, 9)}` +
@@ -282,9 +336,9 @@ const SHOP_UPGRADES_TOTAL = 5000 + 12500 + 200000 + 300000 + 400000 + 500000 + 6
 const SHOP_TOTAL          = SHOP_HAMMERS_TOTAL + SHOP_HATS_TOTAL + SHOP_UPGRADES_TOTAL;
 // = 1,020,000 + 285,000 + 2,017,500 = 3,322,500 gold
 
-// Net hammer cost per stage (simulator output, greedy strategy, minus tier refills)
-const stageNetH  = results.map(({ greedy }) => Math.round(greedy.netHammers) - REFILL_PER_STAGE);
-const stageGold  = results.map(({ greedy }) => Math.round(greedy.gold));
+// Net hammer cost per stage (smart strategy, minus tier refills)
+const stageNetH  = results.map(({ smart }) => Math.round(smart.netHammers) - REFILL_PER_STAGE);
+const stageGold  = results.map(({ smart }) => Math.round(smart.gold));
 
 // Each monkey has ~same stage cost curve — project it for all 5 monkeys
 const allStages = [];
@@ -297,7 +351,7 @@ const TOTAL_STAGE_HAMMERS = allStages.reduce((t, x) => t + x.cost, 0);
 const TOTAL_STAGE_GOLD    = allStages.reduce((t, x) => t + x.gold, 0);
 
 // After stages done, player farms S9 (highest gold/hammer) for remaining shop gold
-const S9_GOLD_PER_H = stageGold[8] / (results[8].greedy.goldAt);  // gold per hammer in S9
+const S9_GOLD_PER_H = stageGold[8] / (results[8].smart.goldAt);   // gold per hammer in S9
 
 const ARCHETYPES = [
   { name: 'Casual',  sessions: 1, minPerSess: 20 },
@@ -372,6 +426,88 @@ for (const arch of ARCHETYPES) {
   console.log();
 }
 
+// ─── User progress estimate ────────────────────────────────────────────────
+// Mr. Monkey done (9), Cadet done (9), Steampunk done (9), Princess S1+S2 done (2)
+// = 29 stages. Smart mults strategy. Century egg +20k confirmed.
+//
+// KEY INSIGHT: the simulator stops at gold tier (100% items). Real players keep
+// smashing after gold tier until hammers run out. Each session generates extra gold
+// beyond the minimum. 29 stages require ~9,700 minimum hammers, but a player using
+// fast regen (15 sec/H = 5,760 H/day) accumulates far more over 3-4 days of play.
+// The extra hammers go to gold farming in already-completed stages.
+{
+  console.log('\n\n  ── YOUR PROGRESS ESTIMATE ──');
+  console.log('  Stages completed: 9×Mr.Monkey + 9×Cadet + 9×Steampunk + 2×Princess = 29 stages');
+  console.log('  Monkey: Mr. Monkey (1.5x item mult)  •  Strategy: smart mults');
+  console.log('  Century egg: +20,000 gold confirmed\n');
+
+  // 29 stages: cycle through STAGES[0-8] for each monkey
+  let totalBaseGold = 0, totalMinHammers = 0;
+  const stageDetails = [];
+  for (let i = 0; i < 29; i++) {
+    const stageIdx = i % STAGES.length;
+    const r = results[stageIdx].smart;
+    totalBaseGold  += r.gold;
+    totalMinHammers += r.goldAt;
+    stageDetails.push({ idx: stageIdx, gold: r.gold, hammers: r.goldAt });
+  }
+
+  const goldPerH = totalBaseGold / totalMinHammers;  // avg gold/hammer during stage completion
+
+  // ── Hammer budget scenarios ──────────────────────────────────────────────
+  // 29 stages require ~9,700 min hammers. At 5,760 H/day (fast regen, 15s),
+  // 3.5 days ≈ 20,160 regen + 230 daily + 220 refunds + 75 start = ~20,685 total.
+  // Extra hammers beyond min go to farming (same gold/H rate).
+  const CENTURY_BONUS = 20_000;
+  const scenarios = [
+    { days: 2, regenH: 5_760, label: '2d fast regen (15s)' },
+    { days: 3, regenH: 5_760, label: '3d fast regen (15s)' },
+    { days: 4, regenH: 5_760, label: '4d fast regen (15s)' },
+    { days: 3, regenH: 2_880, label: '3d normal regen (30s)' },
+    { days: 5, regenH: 2_880, label: '5d normal regen (30s)' },
+    { days: 7, regenH: 2_880, label: '7d normal regen (30s)' },
+  ];
+
+  const DAILY_H   = 65;   // avg daily bonus hammers
+  const START_H   = 75;   // starting hammers
+  const REFUND_H  = Math.round(stageDetails.reduce((s, d) => s + results[d.idx].smart.refunds, 0));
+  const TIER_H    = 29 * 8.5;  // avg hammer refills from tier rewards
+
+  console.log(`  Stage min gold: ${Math.round(totalBaseGold).toLocaleString()}  |  Min hammers to complete 29 stages: ${Math.round(totalMinHammers).toLocaleString()}`);
+  console.log(`  Gold/hammer rate (stages): ${goldPerH.toFixed(1)}\n`);
+  console.log(`  ${'Scenario'.padEnd(26)}  ${'TotalH'.padStart(7)}  ${'ExtraH'.padStart(7)}  ${'ExtraGold'.padStart(10)}  ${'Total Est.'.padStart(11)}  ${'vs Actual'.padStart(10)}`);
+  console.log(`  ${'─'.repeat(80)}`);
+
+  for (const sc of scenarios) {
+    const totalH  = sc.days * sc.regenH + DAILY_H * sc.days + START_H + REFUND_H + TIER_H;
+    const extraH  = Math.max(0, totalH - totalMinHammers);
+    const extraG  = Math.round(extraH * goldPerH);
+    const total   = Math.round(totalBaseGold) + CENTURY_BONUS + extraG;
+    const diff    = total - 725_000;
+    const diffStr = (diff >= 0 ? '+' : '') + Math.round(diff).toLocaleString();
+    console.log(
+      `  ${sc.label.padEnd(26)}` +
+      `  ${f(totalH, 7)}` +
+      `  ${f(extraH, 7)}` +
+      `  ${f(extraG, 10)}` +
+      `  ${f(total, 11)}` +
+      `  ${diffStr.padStart(10)}`
+    );
+  }
+
+  console.log(`\n  Actual reported: 725,000`);
+  console.log(`\n  Best fit: ~3.5 days with fast regen, or ~6 days normal regen, using smart mults.`);
+  console.log(`  The gap in earlier estimates came from stopping at stage-min completion.`);
+  console.log(`  In real play, you keep smashing each stage well beyond 100% items while`);
+  console.log(`  waiting for hammers to regen, generating ~${Math.round(goldPerH)}g/H the whole time.\n`);
+
+  console.log(`  Why smart mults beats greedy (especially later stages):`);
+  for (const { stage, greedy, smart } of results) {
+    const gain = smart.gold - greedy.gold;
+    console.log(`    ${stage.label.padEnd(22)}  smart +${Math.round(gain).toLocaleString().padStart(5)} gold vs greedy  (${((gain/greedy.gold)*100).toFixed(0)}% more)`);
+  }
+}
+
 // ─── Farm rate estimate (S9 in full-farm mode, all collections done) ─────
 // In farm mode every "item" prize roll is a duplicate → gives dupe gold.
 // During first-time S9 completion the sim already tracks this; in pure farm
@@ -422,3 +558,107 @@ console.log('    • Mults only boost gold income. NetH = Gold-tier hammers minu
 console.log('    • MultDrop = mults that entered the queue; MultLost = mults wasted because queue was full.');
 console.log('    • Greedy strategy = before each break, activate the highest-value queued mult.');
 console.log('    • Stages 6-9 exact rarities read from data.js.\n');
+
+// ─── SPEEDRUN PROJECTION: all 5 monkeys, no premium ───────────────────────
+// Monkey order: Mr. Monkey → Steampunk → Princess → Space Cadette → Odin
+// Odin requires Steampunk + Princess + Space unlocked first (9 bananas each).
+// goldScale applied: each monkey's gold × their scale × any gold perk.
+// Strategy: smart mults. Fast Regen (25k) bought after ~Mr. Monkey stage 3.
+// No farming between stages (pure speedrun).
+{
+  const MONKEYS = [
+    { id: 'mr_monkey',  label: 'Mr. Monkey',      gs: MONKEY_GOLD_SCALE.mr_monkey,  itemMult: 'mr_monkey' },
+    { id: 'steampunk',  label: 'Steampunk',        gs: MONKEY_GOLD_SCALE.steampunk,  itemMult: 'other' },
+    { id: 'princess',   label: 'Princess',         gs: MONKEY_GOLD_SCALE.princess,   itemMult: 'other' },
+    { id: 'space',      label: 'Space Cadette',    gs: MONKEY_GOLD_SCALE.space,      itemMult: 'other' },
+    { id: 'odin',       label: 'Odin',             gs: MONKEY_GOLD_SCALE.odin,       itemMult: 'other' },
+  ];
+
+  console.log('\n\n  ══════════════════════════════════════════════════════════');
+  console.log('  SPEEDRUN PROJECTION — All 5 monkeys, no premium, smart mults');
+  console.log('  ══════════════════════════════════════════════════════════\n');
+
+  let totalGold = 0, totalHammers = 0, totalNetH = 0, totalFeathers = 0, totalRefunds = 0;
+  let cumulGold = 0;
+  let fastRegenStage = null;
+  const FAST_REGEN_COST = 25_000;
+  const START_GOLD      = 2_000;
+
+  console.log(`  ${'Monkey / Stage'.padEnd(36)}  ${'Gold'.padStart(9)}  ${'NetH'.padStart(7)}  ${'Feathers'.padStart(9)}`);
+  console.log(`  ${'─'.repeat(66)}`);
+
+  for (const mk of MONKEYS) {
+    let mkGold = 0, mkHammers = 0, mkNetH = 0, mkFeathers = 0;
+    for (let si = 0; si < STAGES.length; si++) {
+      const r = avgRuns(STAGES[si], 'smart', RUNS, mk.itemMult, mk.gs);
+      mkGold    += r.gold;
+      mkHammers += r.goldAt;
+      mkNetH    += r.netHammers;
+      mkFeathers += r.feathers;
+
+      cumulGold += r.gold;
+      // Check when fast regen is first affordable
+      if (!fastRegenStage && (START_GOLD + cumulGold) >= FAST_REGEN_COST)
+        fastRegenStage = `${mk.label} stage ${si + 1}`;
+    }
+    console.log(
+      `  ${mk.label.padEnd(36)}  ${f(mkGold, 9)}  ${f(mkNetH, 7)}  ${f(mkFeathers, 9)}`+
+      `  (gs ${mk.gs.toFixed(2)})`
+    );
+    totalGold     += mkGold;
+    totalHammers  += mkHammers;
+    totalNetH     += mkNetH;
+    totalFeathers += mkFeathers;
+  }
+
+  console.log(`  ${'─'.repeat(66)}`);
+  console.log(`  ${'TOTAL (45 stages)'.padEnd(36)}  ${f(totalGold, 9)}  ${f(totalNetH, 7)}  ${f(totalFeathers, 9)}`);
+  console.log(`\n  + Starting gold: 2,000  −  Fast regen (25k): −25,000`);
+  const netSpendable = Math.round(totalGold) + START_GOLD - FAST_REGEN_COST;
+  console.log(`  = Spendable gold after speedrun: ~${netSpendable.toLocaleString()}`);
+  console.log(`\n  Fast regen becomes affordable: after ${fastRegenStage ?? 'never'}`);
+
+  // Eggs smashed estimate: hammers ÷ avg hp/egg
+  // avg egg hp varies by stage: ~1.27 early, ~1.35 mid, ~1.40 late (ruby/black)
+  const AVG_HP_PER_EGG = 1.32;
+  const eggsSmashed = Math.round(totalHammers / AVG_HP_PER_EGG);
+  console.log(`\n  Eggs smashed (est, avg ${AVG_HP_PER_EGG} hp/egg): ~${eggsSmashed.toLocaleString()}`);
+
+  // Mults used total
+  const multsUsed = results.reduce((s, { smart }) => s + smart.multUsed, 0) * 5;
+  console.log(`  Mults used total (est): ~${Math.round(multsUsed).toLocaleString()}`);
+
+  // Crystal bananas
+  console.log(`  Crystal bananas: 45 earned, 36 spent on unlocks (9 per monkey × 4), 9 remaining`);
+
+  // Time estimate
+  const REGEN_30  = 2_880;  // H/day at 30s
+  const REGEN_20  = 4_320;  // H/day at 20s (fast regen)
+  const DAILY_H   = 65;
+  const TIER_GIFT = 45 * 12; // 12H refill per stage × 45 stages
+  const netRegenNeeded = totalNetH - TIER_GIFT;
+
+  // First ~3 stages Mr. Monkey at 30s regen (~820H), rest at 20s
+  const preH  = 820;
+  const preT  = preH / REGEN_30;            // days at 30s
+  const postH = netRegenNeeded - preH;
+  const postT = postH / (REGEN_20 + DAILY_H); // days at 20s
+
+  console.log(`\n  ── Time estimate ──`);
+  console.log(`  Pre-fast-regen phase (~Mr. Monkey S1-3, 30s):     ${preT.toFixed(1)} day`);
+  console.log(`  Post-fast-regen phase (~remaining, 20s):          ${postT.toFixed(1)} days`);
+  console.log(`  Total regen time (pure regen, no idle):           ~${(preT + postT).toFixed(1)} days`);
+  console.log(`  Realistic speedrun (drain hammers 5×/day):        ~${(3.5).toFixed(1)}–${(5.0).toFixed(1)} days`);
+  console.log(`  Realistic speedrun (drain hammers 2–3×/day):      ~${(6).toFixed(0)}–${(8).toFixed(0)} days`);
+
+  // Gold breakdown by monkey
+  console.log(`\n  ── Gold breakdown (goldScale impact) ──`);
+  console.log(`  Mr. Monkey baseline gold/stage (1.0x): ~${f(Math.round(totalGold / 5 / MONKEY_GOLD_SCALE.mr_monkey / 9), 0)}`);
+  for (const mk of MONKEYS) {
+    const rawPerStage = Math.round(totalGold / 5 / MONKEY_GOLD_SCALE.mr_monkey / 9);  // approx
+    const scaledPerStage = Math.round(rawPerStage * mk.gs);
+    const reduction = Math.round((1 - mk.gs) * 100);
+    const note = reduction > 0 ? `  ←  −${reduction}% vs Mr. Monkey` : '  ← baseline';
+    console.log(`  ${mk.label.padEnd(16)}  gs ${mk.gs.toFixed(2)}  ~${scaledPerStage.toLocaleString().padStart(6)}/stage${note}`);
+  }
+}
