@@ -436,6 +436,11 @@ async function _syncToCloud() {
   // If it's expired (401), refresh once then retry — covers the race where
   // onAuthStateChange fires before _recoverAndRefresh finishes its refresh.
   if (!_cloudSession) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
+  // Proactively refresh if token expires within the next 60 s to avoid a 401 round-trip.
+  if (_cloudSession.expires_at && (Date.now() / 1000) >= (_cloudSession.expires_at - 60)) {
+    await _refreshCloudSession();
+    if (!_cloudSession) throw new Error('session lost after proactive refresh');
+  }
   const _doSaveFetch = (token) => fetch(_SUPABASE_URL + '/rest/v1/game_saves', {
     method: 'POST',
     headers: {
