@@ -299,13 +299,19 @@ async function deleteCloudData() {
       await _sbClient.from('game_saves').delete().eq('user_id', _cloudUser.id);
       G._cloudSavedAt = 0;
       saveGame();
+      _renderCloudModal(); // disable Load immediately — don't wait for signOut
       track('cloud-save', { action: 'delete-data' });
-      await _sbClient.auth.signOut();
+      _cloudUnlinking = true; // block any SIGNED_IN race during signOut
       _cloudUser = null;
       _stopCloudAutoSave();
+      await _sbClient.auth.signOut();
+      _cloudUnlinking = false;
       _renderCloudModal();
       showShopSnack('Cloud data deleted.');
     } catch (e) {
+      _cloudUnlinking = false;
+      _cloudUser = null;
+      _renderCloudModal();
       showShopSnack('Delete failed. Try again.');
     }
   }, 'Delete');
