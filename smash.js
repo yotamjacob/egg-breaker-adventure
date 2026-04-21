@@ -97,10 +97,13 @@ function rollPrize(eggType) {
   if (hasBonus('itemBoost'))    w.item *= 1.15;
   if (hasBonus('allfather'))  { w.star *= 1.1; w.feather *= 1.1; }
 
-  // Mr Monkey: slightly more item drops; feathers locked until completed
+  // Mr Monkey: more item drops; feathers locked until completed
+  // All other monkeys: items are rarer (harder to fill later collections)
   if (monkey && monkey.id === 'mr_monkey') {
     w.item *= 1.5;
     if (!G.monkeys[0]?.completed) w.feather = 0;
+  } else if (monkey) {
+    w.item *= 0.7;
   }
 
   // Achievement percentage bonuses
