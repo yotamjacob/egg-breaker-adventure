@@ -464,6 +464,7 @@ async function _syncToCloud() {
     await _refreshCloudSession();
     if (!_cloudSession) throw new Error('session lost after proactive refresh');
   }
+  const syncedAt = new Date().toISOString();
   const _doSaveFetch = (token) => fetch(_SUPABASE_URL + '/rest/v1/game_saves', {
     method: 'POST',
     headers: {
@@ -475,8 +476,8 @@ async function _syncToCloud() {
     body: JSON.stringify({
       user_id:         _cloudUser.id,
       save_data:       compressed,
-      saved_at:        new Date(G._savedAt).toISOString(),
-      last_seen_at:    new Date().toISOString(),
+      saved_at:        syncedAt,
+      last_seen_at:    syncedAt,
       hammers_full_at: hammersFullAt,
     }),
   });
@@ -487,7 +488,7 @@ async function _syncToCloud() {
     resp = await _doSaveFetch(_cloudSession.access_token);
   }
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
-  G._cloudSavedAt = G._savedAt;
+  G._cloudSavedAt = new Date(syncedAt).getTime();
   saveGame();
   track('cloud-save', { action: 'save' });
   // Keep push_subscriptions.hammers_full_at in sync so cron fires at the right time
