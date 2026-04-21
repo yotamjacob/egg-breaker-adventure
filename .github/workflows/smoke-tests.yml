@@ -48,6 +48,19 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Wait for Vercel deployment
+        if: github.event_name == 'push'
+        run: |
+          EXPECTED=$(grep "const VERSION" config.js | grep -o "'[^']*'" | tr -d "'")
+          echo "Waiting for production to reach v$EXPECTED …"
+          for i in $(seq 1 18); do
+            LIVE=$(curl -sf https://egg-breaker-adventures.vercel.app/sw.js | grep -o "CACHE_VERSION = '[^']*'" | grep -o "'[^']*'" | tr -d "'" || echo "err")
+            echo "  attempt $i: live=$LIVE expected=$EXPECTED"
+            [ "$LIVE" = "$EXPECTED" ] && echo "Deployment ready." && exit 0
+            sleep 10
+          done
+          echo "Timed out waiting for deployment." && exit 1
+
       - name: Run smoke tests
         run: node --test tests/smoke.test.js
         env:
