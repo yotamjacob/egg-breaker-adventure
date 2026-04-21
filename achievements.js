@@ -10,7 +10,7 @@ let toastTimeout = null;
 function grantAchievementReward(a) {
   if (!a.reward) return;
   const r = a.reward;
-  if (r.type === 'maxH')       { G.maxH += r.val; G.hammers = Math.min(G.maxH, G.hammers + r.val); }
+  if (r.type === 'maxH')       { G.maxH += r.val; if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + r.val); }
   if (r.type === 'gold')       { G.gold += r.val; G.totalGold += r.val; }
   if (r.type === 'feathers')   { G.feathers += r.val; G.totalFeathers += r.val; }
   if (r.type === 'starPieces') { G.starPieces += r.val; G.totalStarPieces += r.val; }

@@ -753,7 +753,7 @@ function applyPrize(prize, cx, cy) {
 
   if (prize.type === 'maxHammers') {
     G.maxH += prize.value;
-    G.hammers = Math.min(G.maxH, G.hammers + prize.value);
+    if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + prize.value);
     const mhLabel = (prize.popPrefix || '') + prize.label;
     spawnFloat(zone, mhLabel, prize.color, 'mega', cx, cy);
     msg(mhLabel, 'prizes');
