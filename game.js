@@ -9,7 +9,8 @@ function track(event, props) {
     if (typeof umami !== 'undefined') {
       const p = Object.assign({}, props)
       if (typeof _cloudUser !== 'undefined' && _cloudUser?.email) p.user = _cloudUser.email
-      umami.track(event, p)
+      const r = umami.track(event, p)
+      if (r && typeof r.catch === 'function') r.catch(() => {})
     }
   } catch(e) {}
 }
