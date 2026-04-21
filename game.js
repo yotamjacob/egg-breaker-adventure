@@ -73,6 +73,7 @@ const DEFAULT_STATE = {
   autoBuy: false,
   _welcomeDone: false,
   _firstRareSeen: false,
+  _starfallTipSeen: false,
   deviceId: null,
   // Premium purchases (one-time flags + counter)
   premium_starter_pack: false,
@@ -651,6 +652,14 @@ function checkCollectionComplete(suppressFlash) {
       }
       msg('✅ Complete! ' + stage.name + ' +' + CONFIG.crystalBananasPerStage + ' 🍌 +' + refill3 + ' 🔨', 'tiers');
       _stageBannerPending = true;
+      // First-time stage 1 completion — teach starfall
+      if (si === 0 && G.activeMonkey === 0 && !G._starfallTipSeen) {
+        G._starfallTipSeen = true;
+        setTimeout(() => showConfirm('⭐', 'Starfall Unlocked!',
+          'Collect <strong>7 ⭐ Star Pieces</strong> from eggs to fill the star meter.<br><br>Once it\'s full, tap the ⭐ button to trigger <strong>Starfall</strong> — smashing all eggs on screen at once!',
+          null, 'Got it!'
+        ), 900);
+      }
       // Check if ALL stages are complete
       if (prog.tiers.every(t => t >= 3)) {
         prog.completed = true;
