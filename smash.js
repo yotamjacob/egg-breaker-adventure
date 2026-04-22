@@ -598,8 +598,8 @@ function smashEgg(index) {
     if (egg.effects && egg.effects.includes('hex')) {
       applyHex(cx, cy);
     } else if (egg.type === 'century') {
-      // Fixed rewards: 10k gold + 50 feathers + 50 star pieces (all × active mult), + 25% item
-      const mult = G.activeMult > 1 ? G.activeMult : 1;
+      // Fixed rewards: 10k gold + 50 feathers + 50 star pieces (never multiplied — century is immune to mults)
+      const mult = 1;
       // Gold with equipment bonuses
       let gVal = 10000 * mult;
       if (hasBonus('moreGold'))  gVal = Math.round(gVal * 1.2);
@@ -632,8 +632,11 @@ function smashEgg(index) {
       setTimeout(() => newRound(), 600);
     }
 
-    // Consume the active multiplier after use
-    if (G.activeMult > 1) {
+    // Century eggs are immune to multipliers — preserve the active mult
+    if (G.activeMult > 1 && egg.type === 'century') {
+      msg('🌀 Century egg! x' + G.activeMult + ' mult preserved.', 'specials');
+      renderMultQueue();
+    } else if (G.activeMult > 1) {
       consumeMultiplier();
       renderMultQueue();
     }
