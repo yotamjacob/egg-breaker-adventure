@@ -294,7 +294,7 @@ function startRunnyDrift(runnySlots, trayW, trayH) {
     let anyAlive = false;
     for (const r of runnySlots) {
       const egg = G.roundEggs && G.roundEggs[r.idx];
-      if (!egg || egg.broken) { r.slot.classList.remove('runny'); continue; }
+      if (!egg || egg.broken || egg.expired) { r.slot.classList.remove('runny'); continue; }
       anyAlive = true;
 
       r.x += r.vx * speed;
