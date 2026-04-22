@@ -264,6 +264,7 @@ body{
 .flog-row{display:flex;gap:8px;align-items:baseline;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .flog-time{flex-shrink:0;font-size:9px;color:var(--gray);min-width:52px;text-align:right}
 .flog-text{color:var(--gold);word-break:break-word}
+.flog-egg{color:var(--gray);font-size:10px;opacity:.75}
 .flog-row.log-green   .flog-text{color:#86efac}
 .flog-row.log-blue    .flog-text{color:#93c5fd}
 .flog-row.log-gray    .flog-text{color:var(--gray)}

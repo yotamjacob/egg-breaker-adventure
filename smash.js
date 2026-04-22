@@ -9,6 +9,9 @@
 // _roundPending, _spawningRound, _centuryCooldown, _stageEggsCache, _shopNudgeDone, _balloonHold
 // all declared in game.js to avoid TDZ — hoisted functions here are called from game.js startup
 
+// Set before applyPrize, read by msg() to tag full-log entries with their source egg
+var _prizeEggType = null;
+
 function newRound() {
   _roundPending  = false;
   _spawningRound = true;
@@ -413,7 +416,9 @@ function popBalloonEgg(index, slot) {
     if (egg.effects && egg.effects.includes('hex')) {
       applyHex(cx, cy);
     } else {
+      _prizeEggType = egg.type;
       applyPrize(prize, cx, cy);
+      _prizeEggType = null;
     }
     if (G.activeMult > 1) { consumeMultiplier(); }
     renderMultQueue();
@@ -620,14 +625,18 @@ function smashEgg(index) {
       if (_ab.goldPct > 0) gVal = Math.round(gVal * (1 + _ab.goldPct / 100));
       if (G.stagesCompleted > 0) gVal = Math.round(gVal * (1 + Math.min(G.stagesCompleted * 0.02, 0.30)));
       if (G['owned_goldmagnet']) gVal = Math.round(gVal * 1.2);
+      _prizeEggType = 'century';
       applyPrize({ type: 'gold',    value: gVal,     label: '🌀 Century! +' + gVal + ' 🪙',      color: '#d97706' }, cx, cy);
       const fVal = Math.round(50 * mult);
       if (G.monkeys[0]?.completed) applyPrize({ type: 'feather', value: fVal, label: '🌀 +' + fVal + ' 🪶!', color: '#059669' }, cx, cy);
       const sVal = Math.round(50 * mult);
       applyPrize({ type: 'star',    value: sVal,     label: '🌀 +' + sVal + ' star pieces!',     color: '#f59e0b' }, cx, cy);
       if (Math.random() < 0.25) applyPrize(resolvePrize('item', 'century'), cx, cy);
+      _prizeEggType = null;
     } else {
+      _prizeEggType = egg.type;
       applyPrize(prize, cx, cy);
+      _prizeEggType = null;
     }
 
     // Update egg visual to fully broken

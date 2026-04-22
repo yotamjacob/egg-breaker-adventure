@@ -363,7 +363,8 @@ function msg(text, cat) {
   renderLog();
   // Full log — skip noisy no-hammer noise, keep everything else
   if (cat !== 'noHammers') {
-    _fullLog.unshift({ text, cat: cat || '', ts: Date.now() });
+    const eggType = (typeof _prizeEggType !== 'undefined' && _prizeEggType) ? _prizeEggType : null;
+    _fullLog.unshift({ text, cat: cat || '', ts: Date.now(), eggType });
     if (_fullLog.length > _FULL_LOG_MAX) _fullLog.length = _FULL_LOG_MAX;
   }
 }
@@ -434,7 +435,12 @@ function renderFullLog() {
               : e.cat === 'mjolnir'                          ? 'log-mjolnir'
               : e.cat === 'freehit'                          ? 'log-freehit'
               : '';
-    return `<div class="flog-row ${cls}"><span class="flog-time">${time}</span><span class="flog-text">${e.text}</span></div>`;
+    let prefix = '';
+    if (e.eggType) {
+      const eCfg = CONFIG.eggTypes.find(t => t.id === e.eggType);
+      if (eCfg) prefix = `<span class="flog-egg">${eCfg.emoji} ${eCfg.name}:</span> `;
+    }
+    return `<div class="flog-row ${cls}"><span class="flog-time">${time}</span><span class="flog-text">${prefix}${e.text}</span></div>`;
   }).join('');
 }
 
