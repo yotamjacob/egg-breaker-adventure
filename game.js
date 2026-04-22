@@ -1186,24 +1186,6 @@ document.addEventListener('mouseup', () => {
 });
 
 // ==================== EASTER EGGS ====================
-// 1. Tap title 5 times → eggs flip upside down for one round
-(() => {
-  let titleTaps = 0, titleLast = 0;
-  const titleEl = document.querySelector('.title-text h1');
-  if (titleEl) titleEl.addEventListener('click', () => {
-    const now = Date.now();
-    if (now - titleLast > 1200) titleTaps = 0;
-    titleLast = now;
-    titleTaps++;
-    if (titleTaps >= 5) {
-      titleTaps = 0;
-      document.querySelectorAll('.egg-slot:not(.broken)').forEach(s => s.style.transform = 'scaleY(-1)');
-      msg('The eggs are feeling... upside down', 'discovery');
-      G._secretFlip = true; checkAchievements(); saveGame();
-      setTimeout(() => document.querySelectorAll('.egg-slot').forEach(s => s.style.transform = ''), 5000);
-    }
-  });
-})();
 
 // 3. Track consecutive no-gold streaks
 let _noGoldStreak = 0;
@@ -1310,20 +1292,6 @@ document.addEventListener('keydown', (e) => {
     }
   }
   if (e.code === 'KeyS' && e.ctrlKey) { e.preventDefault(); useStarfall(); }
-
-  // #3 "omelette" typed
-  if (!window._eggBuf) window._eggBuf = '';
-  window._eggBuf += e.key.toLowerCase();
-  if (window._eggBuf.length > 10) window._eggBuf = window._eggBuf.slice(-10);
-  if (window._eggBuf.includes('omelette')) {
-    window._eggBuf = '';
-    document.querySelectorAll('.egg-slot:not(.broken)').forEach(s => {
-      s.style.animation = 'egg-smash-retro .35s steps(6)';
-      setTimeout(() => s.style.animation = '', 400);
-    });
-    msg('🍳 The eggs are nervous...', 'discovery');
-    G._secretOmelette = true; checkAchievements(); saveGame();
-  }
 });
 
 
