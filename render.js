@@ -1180,12 +1180,11 @@ ${rows}
   {
     id: 'tips', icon: '🧠', title: 'Quick Tips',
     html: () => {
-      const bigMult = Math.max(...C.multiplierValues);
       return `
 <p><strong>Early on:</strong> smash Normal eggs, claim dailies, let hammers regen naturally.</p>
 <p><strong>Mid game:</strong> Silver eggs can't be empty and drop bonus hammers — self-sustaining once you have enough.</p>
 <p><strong>Late game:</strong> Gold eggs + saved multipliers = massive rewards. Starfall on a late-stage round is the ultimate move.</p>
-<p><strong>Save x${bigMult} multipliers</strong> for Gold egg large-gold rolls (${C.goldValues.gold_l[0]}–${C.goldValues.gold_l[1]} base). One lucky hit can net huge gold.</p>
+<p><strong>Save big multipliers</strong> for Gold egg large-gold rolls (${C.goldValues.gold_l[0]}–${C.goldValues.gold_l[1]} base). One lucky hit can net huge gold. x123 is a rare jackpot — hold it!</p>
 <p><strong>Best builds:</strong> Princess + Golden Hammer + Crown for gold farming. Space Cadette + Rainbow + Pirate for fast collection completion.</p>
 <p><strong>Mjǫllnir</strong> (500k gold) has a 3% chance per hit to grant +7 star pieces — great for charging up Starfall quickly.</p>
 <p><strong>Grind Mr. Monkey stage 9:</strong> it unlocks Black eggs (8× gold, 5× feathers, 7 star pieces each) and gives 7 eggs per round. Other monkeys have a built-in gold penalty (down to 0.6×) — Mr. Monkey is the only one with full gold output, making his stage 9 the best farming spot in the game.</p>

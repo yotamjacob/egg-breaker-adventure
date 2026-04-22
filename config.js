@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.4.14';
+const VERSION = '2.4.15';
 
 const CONFIG = {
 
@@ -107,8 +107,9 @@ const CONFIG = {
   //    array make that value more common.
   //    e.g. two 2's and two 3's = 25% each, one 50 = 12.5%
   // ----------------------------------------------------------
-  // x2: ~43%, x3: ~35%, x5: ~9%, x10: ~4%, x50: ~4%, x123: ~4%
-  multiplierValues: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 10, 50, 123],
+  // x2: ~45%, x3: ~36%, x5: ~9%, x10: ~4.5%, x50: ~4.5%  (x123 rolled separately via mult123Chance)
+  multiplierValues: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 10, 50],
+  mult123Chance: 0.01,   // 1% of mult drops are x123 (requires unlock123 bonus)
 
   // ----------------------------------------------------------
   // 7. HAMMER PRIZES (from silver eggs only)
