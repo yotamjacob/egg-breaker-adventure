@@ -438,7 +438,7 @@ function renderFullLog() {
     let prefix = '';
     if (e.eggType) {
       const eCfg = CONFIG.eggTypes.find(t => t.id === e.eggType);
-      if (eCfg) prefix = `<span class="flog-egg">${eCfg.emoji} ${eCfg.name} › </span>`;
+      if (eCfg) prefix = `<span class="flog-egg">${eCfg.name} › </span>`;
     }
     return `<div class="flog-row ${cls}"><span class="flog-time">${time}</span><span class="flog-text">${prefix}${e.text}</span></div>`;
   }).join('');
