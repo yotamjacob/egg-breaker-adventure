@@ -1413,14 +1413,19 @@ let _hiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     _hiddenAt = Date.now();
+    // Stop the 1 Hz regen loop while backgrounded — no point waking the JS thread every
+    // second when applyOfflineRegen handles the catch-up math instantly on resume.
+    if (regenInt) { clearInterval(regenInt); regenInt = null; }
   } else if (_hiddenAt > 0) {
     const elapsed = Math.floor((Date.now() - _hiddenAt) / 1000);
+    // Always clear first (the hex-pause callback may have restarted regen while backgrounded)
+    if (regenInt) { clearInterval(regenInt); regenInt = null; }
     if (elapsed > 0 && G.hammers < G.maxH) {
       applyOfflineRegen(elapsed);
-      if (regenInt) { clearInterval(regenInt); regenInt = null; }
-      if (G.hammers < G.maxH) startRegen(true);
       updateResources();
     }
+    // Restart unless a hex-pause is still counting down (it will call startRegen when done)
+    if (G.hammers < G.maxH && !regenInt && !_regenPauseTimer) startRegen(true);
     _hiddenAt = 0;
     Particles.resume();
   }
