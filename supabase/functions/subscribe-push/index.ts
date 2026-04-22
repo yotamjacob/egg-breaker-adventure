@@ -33,30 +33,34 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    // Partial update: only hammers_full_at (no new subscription token needed)
+    // Partial update: only hammers_full_at (no new subscription token needed).
+    // Only update the field when a value is provided — never clear a pending timestamp.
     if (!subscription && !fcm_token) {
-      const { error } = await supabase
-        .from('push_subscriptions')
-        .update({ hammers_full_at: hammers_full_at || null })
-        .eq('device_id', device_id)
-      if (error) throw error
+      if (hammers_full_at) {
+        const { error } = await supabase
+          .from('push_subscriptions')
+          .update({ hammers_full_at })
+          .eq('device_id', device_id)
+        if (error) throw error
+      }
       return new Response(JSON.stringify({ ok: true }), { headers: hdrs })
     }
 
+    // Full upsert — only include hammers_full_at when the client explicitly provides it.
+    // Omitting it lets the server's notification-sent clear (null) survive the next app open.
+    const patch: Record<string, unknown> = {
+      device_id,
+      subscription:  subscription || null,
+      fcm_token:     fcm_token    || null,
+      user_id:       user_id      || null,
+      timezone:      timezone     || null,
+      updated_at:    new Date().toISOString(),
+    }
+    if (hammers_full_at) patch.hammers_full_at = hammers_full_at
+
     const { error } = await supabase
       .from('push_subscriptions')
-      .upsert(
-        {
-          device_id,
-          subscription:     subscription     || null,
-          fcm_token:        fcm_token        || null,
-          user_id:          user_id          || null,
-          timezone:         timezone         || null,
-          hammers_full_at:  hammers_full_at  || null,
-          updated_at:       new Date().toISOString(),
-        },
-        { onConflict: 'device_id' }
-      )
+      .upsert(patch, { onConflict: 'device_id' })
 
     if (error) throw error
     return new Response(JSON.stringify({ ok: true }), { headers: hdrs })

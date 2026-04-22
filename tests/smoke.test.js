@@ -117,6 +117,18 @@ describe('supabase', () => {
     const r = await GET(`${SB}/rest/v1/game_saves?select=user_id&limit=1`, svc());
     assert.ok(r.status < 300, `REST API returned ${r.status}`);
   });
+
+  test('game_saves timestamp fetch (order+limit) is valid', { skip: NEED_SVC }, async () => {
+    // Mirrors the openCloudSaveModal raw-fetch that was returning null on 401 and zeroing
+    // G._cloudSavedAt — verifies the query shape works with service key.
+    const r = await GET(
+      `${SB}/rest/v1/game_saves?select=saved_at&order=saved_at.desc&limit=1`,
+      svc()
+    );
+    assert.ok(r.status < 300, `game_saves timestamp query returned ${r.status}`);
+    const rows = await r.json();
+    assert.ok(Array.isArray(rows), `Expected array from game_saves: ${JSON.stringify(rows)}`);
+  });
 });
 
 // ── Purchases ─────────────────────────────────────────────────────────────────
@@ -201,6 +213,46 @@ describe('push', () => {
       method: 'DELETE', headers: svc(),
     });
     assert.ok(r.status < 300, `Cleanup DELETE failed: ${r.status}`);
+  });
+});
+
+// ── subscribe-push: hammers_full_at preservation ─────────────────────────────
+
+describe('push-hammers', () => {
+  // Verifies that a partial subscribe-push update does NOT clear hammers_full_at
+  // when the field is omitted — prevents the foreground-fill race condition where
+  // auto-save was cancelling pending hammer-full notifications.
+
+  const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // +1 h
+
+  test('set hammers_full_at on CI subscriber', { skip: NEED_SVC }, async () => {
+    // Ensure CI device exists first
+    await POST(`${SB}/functions/v1/subscribe-push`,
+      { device_id: CI_DEVICE, fcm_token: 'ci-hammer-test-000', timezone: 'UTC', hammers_full_at: FUTURE },
+      anon());
+    // Verify it was stored
+    const r = await GET(`${SB}/rest/v1/push_subscriptions?device_id=eq.${CI_DEVICE}&select=hammers_full_at`, svc());
+    const rows = await r.json();
+    assert.equal(rows[0]?.hammers_full_at, FUTURE, `hammers_full_at not stored: ${JSON.stringify(rows)}`);
+  });
+
+  test('partial update without hammers_full_at preserves existing value', { skip: NEED_SVC }, async () => {
+    // Simulate what happens when hammers are full — client sends no hammers_full_at field
+    const r = await POST(`${SB}/functions/v1/subscribe-push`,
+      { device_id: CI_DEVICE },  // no hammers_full_at → should NOT clear the DB value
+      anon());
+    assert.equal((await r.json()).ok, true);
+
+    const check = await GET(`${SB}/rest/v1/push_subscriptions?device_id=eq.${CI_DEVICE}&select=hammers_full_at`, svc());
+    const rows  = await check.json();
+    assert.equal(rows[0]?.hammers_full_at, FUTURE,
+      `hammers_full_at was cleared when it should have been preserved: ${JSON.stringify(rows)}`);
+  });
+
+  test('cleanup: delete CI hammer-test subscription', { skip: NEED_SVC }, async () => {
+    const r = await fetch(`${SB}/rest/v1/push_subscriptions?device_id=eq.${CI_DEVICE}`,
+      { method: 'DELETE', headers: svc() });
+    assert.ok(r.status < 300, `Cleanup failed: ${r.status}`);
   });
 });
 

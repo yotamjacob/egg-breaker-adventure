@@ -149,18 +149,22 @@ function openCloudSaveModal() {
   closeOverlay('overlay-settings');
   $id('overlay-cloudsave').classList.remove('hidden');
   _renderCloudModal();
-  // Fetch last cloud save timestamp if linked — raw fetch to avoid stale Supabase client token
+  // Fetch last cloud save timestamp if linked — raw fetch to avoid stale Supabase client token.
+  // On non-ok response (e.g. expired token) keep existing G._cloudSavedAt so Load stays enabled.
   if (_cloudSession && _cloudUser) {
-    fetch(_SUPABASE_URL + '/rest/v1/game_saves?select=saved_at&user_id=eq.' + _cloudUser.id, {
+    fetch(_SUPABASE_URL + '/rest/v1/game_saves?select=saved_at&user_id=eq.' + _cloudUser.id +
+          '&order=saved_at.desc&limit=1', {
       headers: {
         'apikey':        _SUPABASE_ANON,
         'Authorization': 'Bearer ' + _cloudSession.access_token,
       },
-    }).then(r => r.ok ? r.json() : null)
+    }).then(r => r.ok ? r.json() : undefined)  // undefined = keep existing value on error
       .then(rows => {
-        G._cloudSavedAt = (rows && rows[0]) ? new Date(rows[0].saved_at).getTime() : 0;
+        if (rows !== undefined) {
+          G._cloudSavedAt = (rows && rows[0]) ? new Date(rows[0].saved_at).getTime() : 0;
+        }
         _renderCloudModal();
-      }).catch(() => {});
+      }).catch(() => { _renderCloudModal(); });
   }
 }
 
@@ -449,9 +453,12 @@ async function _syncToCloud() {
   }
   const json = JSON.stringify(d);
   const compressed = 'lz:' + LZString.compressToUTF16(json);
-  // Calculate when hammers will be full (for push notification scheduling)
+  // Calculate when hammers will be full (for push notification scheduling).
+  // Include current partial countdown G.regenCD so the timestamp is accurate to the second.
   const regenSec    = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
-  const secsToFull  = G.hammers < G.maxH ? (G.maxH - G.hammers) * regenSec : 0;
+  const secsToFull  = G.hammers < G.maxH
+    ? G.regenCD + (G.maxH - G.hammers - 1) * regenSec
+    : 0;
   const hammersFullAt = secsToFull > 0
     ? new Date(Date.now() + secsToFull * 1000).toISOString()
     : null;
@@ -491,8 +498,10 @@ async function _syncToCloud() {
   G._cloudSavedAt = new Date(syncedAt).getTime();
   saveGame();
   track('cloud-save', { action: 'save' });
-  // Keep push_subscriptions.hammers_full_at in sync so cron fires at the right time
-  if (localStorage.getItem('eba_push_sub')) {
+  // Keep push_subscriptions.hammers_full_at in sync so cron fires at the right time.
+  // Only send when hammers are regenerating — never send null, which would cancel a pending
+  // notification that was set before hammers filled up in the foreground.
+  if (localStorage.getItem('eba_push_sub') && hammersFullAt !== null) {
     fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
@@ -581,19 +590,24 @@ document.addEventListener('visibilitychange', () => {
 });
 
 async function _sendFcmSubscription(token) {
-  const regenSec     = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
-  const secsToFull   = G.hammers < G.maxH ? (G.maxH - G.hammers) * regenSec : 0;
+  const regenSec      = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  const secsToFull    = G.hammers < G.maxH
+    ? G.regenCD + (G.maxH - G.hammers - 1) * regenSec
+    : 0;
   const hammersFullAt = secsToFull > 0 ? new Date(Date.now() + secsToFull * 1000).toISOString() : null;
+  const body = {
+    device_id: getDeviceId(),
+    fcm_token: token,
+    user_id:   _cloudUser?.id ?? null,
+    timezone:  Intl.DateTimeFormat().resolvedOptions().timeZone,
+  };
+  // Only include hammers_full_at when regenerating — omitting it preserves any pending
+  // notification timestamp already stored, avoiding the foreground-fill race condition.
+  if (hammersFullAt !== null) body.hammers_full_at = hammersFullAt;
   await fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
-    body:    JSON.stringify({
-      device_id:       getDeviceId(),
-      fcm_token:       token,
-      user_id:         _cloudUser?.id ?? null,
-      timezone:        Intl.DateTimeFormat().resolvedOptions().timeZone,
-      hammers_full_at: hammersFullAt,
-    }),
+    body:    JSON.stringify(body),
   });
 }
 

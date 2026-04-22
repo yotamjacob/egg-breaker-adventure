@@ -142,9 +142,9 @@ describe('offline regen', () => {
   });
 
   test('fast regen uses shorter interval', () => {
-    // regenCD=15, elapsed=60s, fastInterval=15 → first at 15s, then (60-15)/15=3 more → 4 total
+    // regenCD=15, elapsed=60s, fastInterval=20 → first at 15s, then (60-15)/20=2 more → 3 total
     const { hammers } = offlineHammersEarned(50, maxH, now - 60000, now, 15, true);
-    assert.equal(hammers, 54);
+    assert.equal(hammers, 53);
   });
 
   test('no regen when savedAt is 0 (new game)', () => {
@@ -264,5 +264,41 @@ describe('featherCost', () => {
     const mult = CONFIG.featherStageMultiplier;
     const expected = Math.round(CONFIG.featherItemCost.common * mult * mult);
     assert.equal(featherCost(1, 1, 1), expected);
+  });
+});
+
+// ── secsToFull (hammer notification timestamp) ────────────────────────────────
+// Must account for the partial countdown G.regenCD so the push timestamp is accurate.
+
+function secsToFull(hammers, maxH, regenCD, fastRegen) {
+  const regenSec = fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  if (hammers >= maxH) return 0;
+  return regenCD + (maxH - hammers - 1) * regenSec;
+}
+
+describe('secsToFull', () => {
+  test('returns 0 when hammers are full', () => {
+    assert.equal(secsToFull(75, 75, 30, false), 0);
+  });
+
+  test('returns regenCD when exactly one hammer is missing', () => {
+    // 74/75: next hammer fills it — time = current countdown only
+    assert.equal(secsToFull(74, 75, 15, false), 15);
+  });
+
+  test('accounts for regenCD plus remaining intervals', () => {
+    // 73/75 with regenCD=10, interval=30 → 10 + 1*30 = 40
+    assert.equal(secsToFull(73, 75, 10, false), 40);
+  });
+
+  test('uses fast regen interval when fastRegen=true', () => {
+    // 74/75 with regenCD=8, fastInterval=20 → 8 + 0*20 = 8
+    assert.equal(secsToFull(74, 75, 8, true), 8);
+    // 73/75 with regenCD=8, fastInterval=20 → 8 + 1*20 = 28
+    assert.equal(secsToFull(73, 75, 8, true), 28);
+  });
+
+  test('never returns negative', () => {
+    assert.ok(secsToFull(0, 75, CONFIG.regenInterval, false) > 0);
   });
 });

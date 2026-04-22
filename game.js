@@ -334,6 +334,27 @@ const _stageEggsCache = {};
 const _logLines = [];
 const _fullLog   = [];   // timestamped history, max 200 entries
 const _FULL_LOG_MAX = 200;
+
+// ── JS error capture ──────────────────────────────────────────────────────────
+const _errorLog = [];
+const _ERROR_LOG_MAX = 50;
+function _pushError(msg, stack) {
+  const existing = _errorLog.find(e => e.msg === msg);
+  if (existing) { existing.count++; existing.ts = Date.now(); }
+  else {
+    _errorLog.unshift({ ts: Date.now(), msg, stack: stack || '', count: 1 });
+    if (_errorLog.length > _ERROR_LOG_MAX) _errorLog.length = _ERROR_LOG_MAX;
+  }
+  if (_logFilter === 'errors') renderFullLog();
+}
+window.addEventListener('error', function(e) {
+  const loc = e.filename ? ' (' + e.filename.replace(/.*\//, '') + ':' + e.lineno + ')' : '';
+  _pushError((e.message || String(e)) + loc, e.error && e.error.stack);
+});
+window.addEventListener('unhandledrejection', function(e) {
+  _pushError('Unhandled: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason)),
+             e.reason && e.reason.stack);
+});
 function msg(text, cat) {
   const show = CONFIG.logShow || {};
   if (cat && show[cat] === false) return;
@@ -370,6 +391,22 @@ let _logFilter = '';
 function renderFullLog() {
   const el = $id('full-log-list');
   if (!el) return;
+  if (_logFilter === 'errors') {
+    if (!_errorLog.length) {
+      el.innerHTML = '<div class="flog-empty">No errors recorded. 🎉</div>';
+      return;
+    }
+    const now = Date.now();
+    el.innerHTML = _errorLog.map(e => {
+      const age  = now - e.ts;
+      const mins = Math.floor(age / 60000);
+      const time = mins < 1 ? 'just now' : mins < 60 ? mins + 'm ago' : Math.floor(mins / 60) + 'h ago';
+      const badge = e.count > 1 ? ' <span class="flog-errcnt">×' + e.count + '</span>' : '';
+      return '<div class="flog-row log-err"><span class="flog-time">' + time + badge + '</span>' +
+             '<span class="flog-text flog-errtext" title="' + (e.stack || '').replace(/"/g,'&quot;') + '">' + e.msg + '</span></div>';
+    }).join('');
+    return;
+  }
   const _SPECIALS_CATS = new Set(['specials', 'cucumber', 'mjolnir', 'freehit']);
   const entries = _logFilter
     ? _fullLog.filter(e => _logFilter === 'specials' ? _SPECIALS_CATS.has(e.cat) : e.cat === _logFilter)
