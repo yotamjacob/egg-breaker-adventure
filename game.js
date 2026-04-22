@@ -971,11 +971,12 @@ function showAlbumInfo() {
 }
 
 function showMonkeysInfo() {
-  showConfirm('🍌', 'Crystal Bananas',
-    '1. 🍌 Bananas unlock new monkeys<br>' +
+  showConfirm('🍌', 'Monkeys',
+    '1. 🍌 Crystal Bananas unlock new monkeys<br>' +
     '2. Earn bananas by completing stages<br>' +
     '3. Each monkey has unique stages &amp; items<br>' +
-    '4. Buy bananas in the Premium shop',
+    '4. <strong>Perks are always active once unlocked</strong> — you don\'t need to equip a monkey to benefit from its bonus. All unlocked monkey perks stack permanently.<br>' +
+    '5. Buy bananas in the Premium shop',
     null, 'Got it!'
   );
 }
