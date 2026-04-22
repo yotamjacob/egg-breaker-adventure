@@ -199,6 +199,7 @@
 /* ---------- Cloud Save Modal ---------- */
 .cloud-save-box{display:flex;flex-direction:column;gap:8px;padding:12px}
 .cloud-health-banner{font-size:10px;color:var(--red);background:rgba(220,38,38,.12);border:1px solid var(--red);border-radius:2px;padding:5px 8px;text-align:center}
+.cloud-health-banner.hidden{display:none}
 .cloud-link-btn{
   display:flex;align-items:center;justify-content:center;gap:8px;
   width:100%;padding:12px;
