@@ -301,7 +301,7 @@ function noHammerMsg() {
 function _maybeStuckHint() {
   if (G.hammersDepleted % 5 !== 0) return;
   if (curProgress().completed) return;
-  msg('Feeling stuck? Go back to any monkey\'s stage 9, gather gold and upgrades and come try again later 💡', 'noHammers');
+  msg('💡 Tip: grind stage 9 of any monkey for gold & upgrades, then come back stronger!', 'tiers');
 }
 
 function checkSpyglassHint() {
