@@ -1248,7 +1248,7 @@ applyPrize = function(prize, cx, cy) {
     _noGoldStreak = 0;
   } else {
     _noGoldStreak++;
-    if (_noGoldStreak >= 42) {
+    if (_noGoldStreak >= 15) {
       spawnFloat(zone, 'The meaning of life is... not gold apparently', '#c084fc', 'big', cx, cy);
       G._secret42 = true; checkAchievements(); saveGame();
       _noGoldStreak = 0;
