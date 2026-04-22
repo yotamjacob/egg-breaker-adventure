@@ -226,6 +226,7 @@ function _startCloudAutoSave() {
   _cloudSyncTimer = setInterval(async () => {
     try {
       await _syncToCloud();
+      _cloudHealthy = true;
       _renderCloudModal();
       msg('☁️ Auto-saved to cloud');
     } catch (e) {
@@ -438,7 +439,7 @@ function cloudSaveManual() {
     showShopSnack('☁️ Saving...', 12000);
     const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
     Promise.race([_syncToCloud(), _timeout])
-      .then(() => { showShopSnack('☁️ Saved to cloud!'); _renderCloudModal(); })
+      .then(() => { _cloudHealthy = true; showShopSnack('☁️ Saved to cloud!'); _renderCloudModal(); })
       .catch(e => { showShopSnack(_cloudErrMsg(e, 'Save'), 4000); console.warn('[cloud] save error:', e); });
   }, 'Save');
 }
@@ -468,7 +469,7 @@ function cloudLoadManual() {
       track('cloud-save', { action: 'load' });
     })();
     Promise.race([_load, _timeout])
-      .then(() => showShopSnack('☁️ Cloud save loaded!'))
+      .then(() => { _cloudHealthy = true; showShopSnack('☁️ Cloud save loaded!'); _renderCloudModal(); })
       .catch(e => {
         if (e.message === 'no data') { showShopSnack('No cloud save found.'); return; }
         showShopSnack(_cloudErrMsg(e, 'Load'), 4000);
