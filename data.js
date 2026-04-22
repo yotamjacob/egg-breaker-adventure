@@ -358,7 +358,7 @@ const MONKEY_DATA = [
   {
     id: 'odin', name: 'Odin Grímnir, the All-Father', emoji: '🧙', img: 'img/odin_nohat.jpeg',
     hatImgs: { chef:'img/odin_chef.jpeg', crown:'img/odin_crown.jpeg', wizard:'img/odin_wizard.jpeg', tophat:'img/odin_tophat.jpeg', pirate:'img/odin_pirate.jpeg' },
-    cost: 9, goldScale: 0.60,
+    cost: 9, goldScale: 0.80,
     unlockRequires: { monkeys: ['steampunk', 'princess', 'space'], hint: 'Unlock all three monkeys to reveal the All-Father' },
     perk: 'allfather', perkDesc: "+10% gold, stars & feathers",
     stages: [
