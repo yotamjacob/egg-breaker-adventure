@@ -97,7 +97,7 @@ const MONKEY_DATA = [
   {
     id: 'steampunk', name: 'Steampunk Monkey', emoji: '🔧', img: 'img/steampunk_nohat.jpeg',
     hatImgs: { chef:'img/steampunk_chef.jpeg', crown:'img/steam_crown.jpeg', wizard:'img/steampunk_wizard.jpeg', tophat:'img/steampunk_tophat.jpeg', pirate:'img/steampunk_pirate.jpeg' },
-    cost: 9, goldScale: 0.78,
+    cost: 9, goldScale: 0.90,
     perk: 'moreStars', perkDesc: '+15% star piece chance',
     stages: [
       { name: 'Gear Workshop', eggs: 3, collection: { name: 'Basic Gears', items: [
@@ -184,7 +184,7 @@ const MONKEY_DATA = [
   {
     id: 'princess', name: 'Princess Monkey', emoji: '👸', img: 'img/princess_nohat.jpeg',
     hatImgs: { chef:'img/princess_chef.jpeg', crown:'img/princess_crown.jpeg', wizard:'img/princess_wizard.jpeg', tophat:'img/princess_tophat.jpeg', pirate:'img/princess_pirate.jpeg' },
-    cost: 9, goldScale: 0.72,
+    cost: 9, goldScale: 0.85,
     perk: 'moreGold', perkDesc: '+20% gold from eggs',
     stages: [
       { name: 'Royal Garden', eggs: 3, collection: { name: 'Garden Flowers', items: [
