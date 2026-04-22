@@ -294,4 +294,85 @@ describe('cloud', () => {
         { method: 'DELETE', headers: { apikey: SVC, Authorization: `Bearer ${SVC}` } }).catch(() => {});
     }
   });
+
+  test('upsert does not create duplicate rows', { skip: NEED_SVC }, async () => {
+    const createRes = await POST(
+      `${SB}/auth/v1/admin/users`,
+      { email: `ci-smoke-upsert-${Date.now()}@ci.invalid`, password: 'CI-smoke-!1Az', email_confirm: true },
+      { apikey: SVC, Authorization: `Bearer ${SVC}`, 'Content-Type': 'application/json' }
+    );
+    assert.equal(createRes.status, 200, `Failed to create CI test user: ${createRes.status}`);
+    const { id: userId } = await createRes.json();
+
+    try {
+      const base = { user_id: userId, saved_at: new Date().toISOString(), last_seen_at: new Date().toISOString() };
+      const upsertHdr = svc({ Prefer: 'resolution=merge-duplicates,return=minimal' });
+
+      // Write twice with different payloads — should produce exactly one row.
+      await POST(`${SB}/rest/v1/game_saves`, { ...base, save_data: 'lz:first' },  upsertHdr);
+      await POST(`${SB}/rest/v1/game_saves`, { ...base, save_data: 'lz:second' }, upsertHdr);
+
+      const readRes = await GET(`${SB}/rest/v1/game_saves?user_id=eq.${userId}&select=save_data`, svc());
+      const rows = await readRes.json();
+      assert.equal(rows.length, 1, `Expected 1 row after two upserts, got ${rows.length}`);
+      assert.equal(rows[0].save_data, 'lz:second', 'Second upsert should overwrite first');
+    } finally {
+      await fetch(`${SB}/rest/v1/game_saves?user_id=eq.${userId}`,
+        { method: 'DELETE', headers: svc() }).catch(() => {});
+      await fetch(`${SB}/auth/v1/admin/users/${userId}`,
+        { method: 'DELETE', headers: { apikey: SVC, Authorization: `Bearer ${SVC}` } }).catch(() => {});
+    }
+  });
+
+  test('hammers_full_at field round-trips as ISO timestamp', { skip: NEED_SVC }, async () => {
+    const createRes = await POST(
+      `${SB}/auth/v1/admin/users`,
+      { email: `ci-smoke-hfa-${Date.now()}@ci.invalid`, password: 'CI-smoke-!1Az', email_confirm: true },
+      { apikey: SVC, Authorization: `Bearer ${SVC}`, 'Content-Type': 'application/json' }
+    );
+    assert.equal(createRes.status, 200, `Failed to create CI test user: ${createRes.status}`);
+    const { id: userId } = await createRes.json();
+    const hfa = new Date(Date.now() + 60_000).toISOString();
+
+    try {
+      const writeRes = await POST(
+        `${SB}/rest/v1/game_saves`,
+        { user_id: userId, save_data: 'lz:hfa-test', saved_at: new Date().toISOString(),
+          last_seen_at: new Date().toISOString(), hammers_full_at: hfa },
+        svc({ Prefer: 'resolution=merge-duplicates,return=minimal' })
+      );
+      assert.ok(writeRes.status < 300, `Write failed: ${writeRes.status}`);
+
+      const readRes = await GET(
+        `${SB}/rest/v1/game_saves?user_id=eq.${userId}&select=hammers_full_at`, svc());
+      const rows = await readRes.json();
+      // Postgres may return with microseconds or slight formatting differences; compare via Date parse.
+      assert.ok(rows[0]?.hammers_full_at, 'hammers_full_at not returned');
+      const diff = Math.abs(new Date(rows[0].hammers_full_at) - new Date(hfa));
+      assert.ok(diff < 1000, `hammers_full_at drifted by ${diff}ms`);
+    } finally {
+      await fetch(`${SB}/rest/v1/game_saves?user_id=eq.${userId}`,
+        { method: 'DELETE', headers: svc() }).catch(() => {});
+      await fetch(`${SB}/auth/v1/admin/users/${userId}`,
+        { method: 'DELETE', headers: { apikey: SVC, Authorization: `Bearer ${SVC}` } }).catch(() => {});
+    }
+  });
+
+  test('anon key is blocked by RLS on game_saves', async () => {
+    // Without a valid user JWT, the anon role must not be able to read any rows.
+    const r = await GET(`${SB}/rest/v1/game_saves?select=user_id&limit=1`, anon());
+    // PostgREST returns 200 with [] (RLS filters all rows) or 401 — both are acceptable.
+    // What must NOT happen is leaking real rows.
+    if (r.status === 200) {
+      const rows = await r.json();
+      assert.equal(rows.length, 0, 'Anon key returned game_saves rows — RLS may be misconfigured');
+    } else {
+      assert.ok([401, 403].includes(r.status), `Unexpected status from anon game_saves read: ${r.status}`);
+    }
+  });
+
+  test('Supabase REST API reachable with anon key', async () => {
+    const r = await GET(`${SB}/rest/v1/`, anon());
+    assert.ok(r.status < 500, `Supabase REST not reachable: ${r.status}`);
+  });
 });

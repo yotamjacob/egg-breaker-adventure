@@ -66,6 +66,23 @@ function clearOauthDebugLog() {
 }
 // ────────────────────────────────────────────────────────────────────────────
 
+let _cloudHealthy = null; // null=unchecked, true=ok, false=unreachable
+
+async function _checkCloudHealth() {
+  try {
+    const c = new AbortController();
+    setTimeout(() => c.abort(), 5000);
+    const r = await fetch(_SUPABASE_URL + '/rest/v1/', {
+      headers: { apikey: _SUPABASE_ANON },
+      signal: c.signal,
+    });
+    _cloudHealthy = r.status < 500;
+  } catch (_) {
+    _cloudHealthy = false;
+  }
+  _renderCloudModal();
+}
+
 function initCloudSave() {
   if (typeof supabase === 'undefined') { _oauthLog('INIT: supabase SDK not loaded'); return; }
 
@@ -111,6 +128,9 @@ function initCloudSave() {
     _cloudUser = data.session ? data.session.user : null;
     _renderCloudModal();
   }).catch(e => _oauthLog('getSession ERROR: ' + e.message));
+
+  // Non-blocking health check — fires once per session on launch.
+  _checkCloudHealth();
 }
 
 // Called from Android onNewIntent() for implicit flow (#access_token=...).
@@ -176,6 +196,9 @@ function _renderCloudModal() {
   const tsEl     = $id('cloud-timestamp');
   const cbEl     = $id('cloud-autosave-cb');
   if (!linkBtn) return;
+
+  const healthBanner = $id('cloud-health-banner');
+  if (healthBanner) healthBanner.classList.toggle('hidden', _cloudHealthy !== false);
   if (linked) {
     linkBtn.classList.add('cloud-link-linked');
     $id('cloud-link-label').textContent = '✓ ' + _cloudUser.email;
