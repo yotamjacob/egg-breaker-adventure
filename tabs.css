@@ -190,8 +190,9 @@
 /* ---------- Shop tab ---------- */
 .auto-buy-row{
   display:flex;align-items:center;justify-content:flex-end;gap:6px;
-  margin-bottom:6px;
+  margin-bottom:6px;padding-right:8px;
 }
+.shop-info-btn{flex-shrink:0}
 .auto-buy-label{font-size:10px;color:var(--gray)}
 .auto-buy-toggle{
   border:2px solid var(--gray);border-radius:2px;
