@@ -980,6 +980,16 @@ function showMonkeysInfo() {
   );
 }
 
+function showShopInfo() {
+  showConfirm('🛒', 'Shop — How Bonuses Work',
+    '1. <strong>Special bonuses are always active</strong> — owning an item is enough, no need to equip it<br>' +
+    '2. Hammers &amp; hats with a bonus stat stack permanently once purchased<br>' +
+    '3. Equipping changes your cursor &amp; look — not your power<br>' +
+    '4. Buy everything you can afford to maximize your bonuses!',
+    null, 'Got it!'
+  );
+}
+
 let _snackTimeout = null;
 function showMultInfo() {
   showConfirm('💡', 'How Multipliers Work',
