@@ -622,12 +622,15 @@ function _doStarfall(message, cat) {
     recalcActiveMult();
     renderMultQueue();
     _starfallActive = false;
-
-    G.roundClears++;
-    checkAchievements();
     updateStarBtn();
     updateResources();
-    setTimeout(() => newRound(), 600);
+    checkAchievements();
+    // Only advance to the next round if every egg is gone.
+    // Century eggs are immune to starfall and must be smashed manually.
+    if (!G.roundEggs || G.roundEggs.every(e => e.broken || e.expired)) {
+      G.roundClears++;
+      setTimeout(() => newRound(), 600);
+    }
   }, unbroken.length * 200 + 300);
 }
 
