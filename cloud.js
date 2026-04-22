@@ -398,6 +398,16 @@ async function _onCloudSignIn() {
   }
 }
 
+function _cloudErrMsg(e, action) {
+  const m = e.message || '';
+  if (m === 'timeout')                           return '⚠️ ' + action + ' timed out — check your connection';
+  if (m.includes('fetch') || m === 'Failed to fetch' || m.includes('NetworkError'))
+                                                 return '⚠️ No connection — try again';
+  if (m.includes('session') || m.includes('401')) return '⚠️ Session expired — relink Google account';
+  if (m.startsWith('HTTP '))                     return '⚠️ Server error (' + m + ') — try again later';
+  return '⚠️ ' + action + ' failed — try again';
+}
+
 function cloudSaveManual() {
   if (!_sbClient || !_cloudUser) return;
   showConfirm('☁️', 'Save to cloud?', 'This will overwrite your current cloud save.', function() {
@@ -406,7 +416,7 @@ function cloudSaveManual() {
     const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
     Promise.race([_syncToCloud(), _timeout])
       .then(() => { showShopSnack('☁️ Saved to cloud!'); _renderCloudModal(); })
-      .catch(e => { showShopSnack('⚠️ Save failed.'); console.warn('[cloud] save error:', e); });
+      .catch(e => { showShopSnack(_cloudErrMsg(e, 'Save'), 4000); console.warn('[cloud] save error:', e); });
   }, 'Save');
 }
 
@@ -438,7 +448,7 @@ function cloudLoadManual() {
       .then(() => showShopSnack('☁️ Cloud save loaded!'))
       .catch(e => {
         if (e.message === 'no data') { showShopSnack('No cloud save found.'); return; }
-        showShopSnack('⚠️ Load failed.');
+        showShopSnack(_cloudErrMsg(e, 'Load'), 4000);
         console.warn('[cloud] load error:', e);
       });
   }, 'Load');
