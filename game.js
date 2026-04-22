@@ -493,15 +493,21 @@ function isStarfallUnlocked() {
 }
 
 // ==================== HEX EFFECT ====================
-// Penalties scale with Mr. Monkey stage: 1.5% at stage 4, up to 5% at stage 9
-function _hexPct(mrStage) { return Math.min(0.05, 0.015 + Math.max(0, mrStage - 3) * 0.007); }
+// Penalties scale with Mr. Monkey stage: 2% at stage 3, up to ~10% at stage 9
+function _hexPct(mrStage) { return Math.min(0.10, 0.02 + Math.max(0, mrStage - 3) * 0.013); }
 
 const HEX_TYPES = [
-  { id: 'loseGold',     apply: (pct) => { const lost = Math.max(1, Math.ceil(G.gold * pct)); G.gold = Math.max(0, G.gold - lost); return '😈 -' + lost + ' gold'; } },
-  { id: 'loseFeathers', apply: (pct) => { const lost = Math.max(1, Math.ceil(G.feathers * pct)); G.feathers = Math.max(0, G.feathers - lost); return '😈 -' + lost + ' feathers'; } },
-  { id: 'loseHammers',  apply: (pct) => { const lost = Math.max(1, Math.ceil(G.hammers * pct)); G.hammers = Math.max(0, G.hammers - lost); return '😈 -' + lost + ' hammers'; } },
-  { id: 'regenPause',   apply: ()    => { pauseRegen(30); return '😈 Regen paused 30s'; } },
+  { id: 'loseGold',     weight: 3, apply: (pct)          => { const lost = Math.max(1, Math.ceil(G.gold * pct)); G.gold = Math.max(0, G.gold - lost); return '😈 -' + lost + ' gold'; } },
+  { id: 'loseFeathers', weight: 3, apply: (pct)          => { const lost = Math.max(1, Math.ceil(G.feathers * pct)); G.feathers = Math.max(0, G.feathers - lost); return '😈 -' + lost + ' feathers'; } },
+  { id: 'loseHammers',  weight: 3, apply: (pct)          => { const lost = Math.max(1, Math.ceil(G.hammers * pct)); G.hammers = Math.max(0, G.hammers - lost); return '😈 -' + lost + ' hammers'; } },
+  { id: 'regenPause',   weight: 1, apply: (pct, mrStage) => { const secs = 15 + Math.max(0, mrStage - 3) * 5; pauseRegen(secs); return '😈 Regen paused ' + secs + 's'; } },
 ];
+const _HEX_WEIGHT_TOTAL = HEX_TYPES.reduce((s, h) => s + h.weight, 0);
+function _pickHex() {
+  let r = Math.random() * _HEX_WEIGHT_TOTAL;
+  for (const h of HEX_TYPES) { r -= h.weight; if (r <= 0) return h; }
+  return HEX_TYPES[HEX_TYPES.length - 1];
+}
 
 let _regenPauseTimer = null;
 function pauseRegen(seconds) {
@@ -520,8 +526,8 @@ function applyHex(cx, cy) {
   const zone = $id('prize-zone');
   const mrStage = G.monkeys && G.monkeys[0] ? (G.monkeys[0].stage || 0) : 0;
   const pct  = _hexPct(mrStage);
-  const hex  = HEX_TYPES[Math.floor(Math.random() * HEX_TYPES.length)];
-  const text = hex.apply(pct);
+  const hex  = _pickHex();
+  const text = hex.apply(pct, mrStage);
   G.hexesHit = (G.hexesHit || 0) + 1;
   spawnFloat(zone, text, '#ff4444', 'big', cx, cy - 30);
   msg(text, 'hex');
