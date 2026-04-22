@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.4.6';
+const VERSION = '2.4.7';
 
 const CONFIG = {
 
@@ -55,20 +55,20 @@ const CONFIG = {
     {
       id: 'ruby', name: 'Ruby', emoji: '💎',
       hp: 9, spawnWeight: 1, unlockStage: 4,
-      goldMult: 5, featherMult: 3, starPieces: 5,
+      goldMult: 6, featherMult: 3, starPieces: 5,
       colors: { f:'#E8143C', s:'#8B0020', h:'#FF6B7A', sh:'#5C0015' },
       particles: ['#FF2D55','#E8143C','#C70039','#8B0020'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:40, star:10, mult:6, feather:5, item:7, hammers:8, banana:0 },
-      desc: 'Stage 5+. 9 hits, 3x gold, best rewards',
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:54, star:14, mult:9, feather:8, item:11, hammers:12, banana:0 },
+      desc: 'Stage 5+. 9 hits, 6x gold, premium rewards',
     },
     {
       id: 'black', name: 'Black', emoji: '🖤',
       hp: 20, spawnWeight: 0.7, unlockStage: 8,
-      goldMult: 8, featherMult: 5, starPieces: 7,
+      goldMult: 10, featherMult: 5, starPieces: 7,
       colors: { f:'#1a1a1a', s:'#000000', h:'#3a3a3a', sh:'#0a0a0a' },
       particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:58, star:16, mult:12, feather:7, item:7, hammers:10, maxHammers:2, banana:2 },
-      desc: 'Stage 9. 20 hits, 5x gold, best rewards in the game',
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:72, star:22, mult:16, feather:11, item:12, hammers:15, maxHammers:3, banana:2 },
+      desc: 'Stage 9. 20 hits, 10x gold, best rewards in the game',
     },
     {
       id: 'century', name: 'Century', emoji: '🌀',
