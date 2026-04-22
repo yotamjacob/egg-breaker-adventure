@@ -301,7 +301,11 @@ function noHammerMsg() {
 function _maybeStuckHint() {
   if (G.hammersDepleted % 5 !== 0) return;
   if (curProgress().completed) return;
-  msg('💡 Tip: grind Mr. Monkey stage 9 for gold & upgrades, then come back stronger!', 'tiers');
+  if (Math.floor(G.hammersDepleted / 5) % 2 === 1) {
+    msg('💡 Tip: grind Mr. Monkey stage 9 for gold & upgrades, then come back stronger!', 'tiers');
+  } else {
+    msg('💡 Tip: check the Premium Shop for gold & hammer boosts — they stack permanently!', 'tiers');
+  }
 }
 
 function checkSpyglassHint() {
