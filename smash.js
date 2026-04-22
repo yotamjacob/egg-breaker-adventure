@@ -298,6 +298,12 @@ function noHammerMsg() {
   return NO_HAMMER_MSGS[Math.floor(Math.random() * NO_HAMMER_MSGS.length)];
 }
 
+function _maybeStuckHint() {
+  if (G.hammersDepleted % 5 !== 0) return;
+  if (curProgress().completed) return;
+  msg('Feeling stuck? Go back to any monkey\'s stage 9, gather gold and upgrades and come try again later 💡', 'noHammers');
+}
+
 function checkSpyglassHint() {
   if (!G['owned_spyglass'] && !G._spyglassHintShown && G.gold >= 5000) {
     G._spyglassHintShown = true;
@@ -313,7 +319,7 @@ function startBalloonInflate(index, slot) {
   if (_balloonHold) return;
   const egg = G.roundEggs[index];
   if (!egg || egg.broken || egg.expired) return;
-  if (G.hammers < 1) { G.hammersDepleted = (G.hammersDepleted || 0) + 1; msg(noHammerMsg(), 'noHammers'); SFX.play('err'); return; }
+  if (G.hammers < 1) { G.hammersDepleted = (G.hammersDepleted || 0) + 1; msg(noHammerMsg(), 'noHammers'); _maybeStuckHint(); SFX.play('err'); return; }
 
   let scale = 1;
   const maxScale = 1.8;
@@ -434,6 +440,7 @@ function smashEgg(index) {
     G.hammersDepleted = (G.hammersDepleted || 0) + 1;
     egg._smashing = false;
     msg(noHammerMsg(), 'noHammers');
+    _maybeStuckHint();
     SFX.play('err');
     return;
   }
