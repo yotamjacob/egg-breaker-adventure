@@ -607,7 +607,7 @@ function _doStarfall(message, cat) {
       setTimeout(() => {
         applyPrize(prize, cx, cy);
         slot.classList.add('broken');
-        slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + '<span class="egg-label">' + egg.type + '</span>';
+        slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + eggLabel(egg.type, 0, egg.maxHp, true);
         updateResources();
         updateStageBar();
         saveGame();
