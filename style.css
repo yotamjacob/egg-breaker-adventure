@@ -171,7 +171,7 @@ body{
 }
 .nav-play:hover:not(.active){color:var(--white);background:var(--panel2)}
 .nav-tab{
-  padding:8px 1px;border:none;
+  padding:12px 1px;border:none;
   background:var(--panel);
   border-radius:1px;cursor:pointer;font-size:9px;
   font-family:var(--px);font-weight:400;
@@ -237,7 +237,7 @@ body{
   .nav-grid{gap:1px}
   .nav-play{font-size:12px}
   .nav-play.active{font-size:14px}
-  .nav-tab{font-size:8px;padding:8px 1px}
+  .nav-tab{font-size:8px;padding:10px 1px}
   .title-text h1{font-size:10px}
   .egg-slot{width:65px;min-height:90px}
   .egg-slot .egg-label{font-size:8px}
@@ -278,7 +278,7 @@ body{
 @media(max-width:340px){
   .nav-play{font-size:10px}
   .nav-play.active{font-size:12px}
-  .nav-tab{font-size:7px;padding:6px 1px}
+  .nav-tab{font-size:7px;padding:8px 1px}
   .res{font-size:9px;padding:2px 3px}
   .res span{font-size:11px}
   .res strong{font-size:9px}

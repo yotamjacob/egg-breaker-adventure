@@ -300,7 +300,7 @@ function claimDaily() {
   // Apply reward (Double Daily doubles the value)
   const dv = G['owned_doubledaily'] ? reward.val * 2 : reward.val;
   if (reward.type === 'gold')     { G.gold += dv; G.totalGold += dv; }
-  if (reward.type === 'hammers')  { G.hammers += dv; G.dailyHammerTotal = (G.dailyHammerTotal || 0) + dv; }
+  if (reward.type === 'hammers')  { G.hammers = Math.min(G.maxH, G.hammers + dv); G.dailyHammerTotal = (G.dailyHammerTotal || 0) + dv; }
   if (reward.type === 'maxH')     { G.maxH += dv; if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + dv); }
   if (reward.type === 'feathers') { G.feathers += dv; G.totalFeathers += dv; }
   if (reward.type === 'banana')   { G.crystalBananas += dv; }
