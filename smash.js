@@ -544,14 +544,11 @@ function smashEgg(index) {
       egg._timerStopped = true;
       slot.classList.remove('timed');
     }
-    // Century egg: +10 gold on every hit before the final break
+    // Century egg: +100 gold on every hit before the final break
     if (egg.type === 'century') {
-      G.gold += 10;
-      G.totalGold += 10;
-      const rect = slot.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      spawnFloat($id('egg-tray-wrap'), '+10 🪙', '#d97706', '', cx, cy);
+      G.gold += 100;
+      G.totalGold += 100;
+      spawnFloat($id('prize-zone'), '+100 🪙', '#d97706', '', cx, cy);
       SFX.play('coin');
     }
     const damage = egg.maxHp - egg.hp;
