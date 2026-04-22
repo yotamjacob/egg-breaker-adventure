@@ -772,10 +772,7 @@ function renderMonkeys() {
       ? '<div class="m-emoji m-avatar-wrap"><img src="' + m.img + '" alt="' + m.name + '"></div>'
       : '<span class="m-emoji">' + m.emoji + '</span>';
     inner += '<span class="m-name">' + m.name + '</span>';
-    const hasPerk = m.perk && m.perk !== 'none';
-    inner += '<span class="m-perk">' + m.perkDesc +
-      (mp.unlocked && hasPerk ? ' <span class="m-perk-active">✓ active</span>' : '') +
-      '</span>';
+    inner += '<span class="m-perk">' + m.perkDesc + '</span>';
 
     if (mp.unlocked) {
       const stageNum = mp.completed ? m.stages.length : mp.stage + 1;
