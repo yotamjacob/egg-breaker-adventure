@@ -499,14 +499,14 @@ function isStarfallUnlocked() {
 }
 
 // ==================== HEX EFFECT ====================
-// Penalties scale with Mr. Monkey stage: 2% at stage 3, up to ~10% at stage 9
-function _hexPct(mrStage) { return Math.min(0.10, 0.02 + Math.max(0, mrStage - 3) * 0.013); }
+// Penalties scale with Mr. Monkey stage: 2% at stage 3, up to ~6% at stage 9
+function _hexPct(mrStage) { return Math.min(0.06, 0.02 + Math.max(0, mrStage - 3) * 0.007); }
 
 const HEX_TYPES = [
   { id: 'loseGold',     weight: 3, apply: (pct)          => { const lost = Math.max(1, Math.ceil(G.gold * pct)); G.gold = Math.max(0, G.gold - lost); return '😈 -' + lost + ' gold'; } },
   { id: 'loseFeathers', weight: 3, apply: (pct)          => { const lost = Math.max(1, Math.ceil(G.feathers * pct)); G.feathers = Math.max(0, G.feathers - lost); return '😈 -' + lost + ' feathers'; } },
   { id: 'loseHammers',  weight: 3, apply: (pct)          => { const lost = Math.max(1, Math.ceil(G.hammers * pct)); G.hammers = Math.max(0, G.hammers - lost); return '😈 -' + lost + ' hammers'; } },
-  { id: 'regenPause',   weight: 1, apply: (pct, mrStage) => { const secs = 15 + Math.max(0, mrStage - 3) * 5; pauseRegen(secs); return '😈 Regen paused ' + secs + 's'; } },
+  { id: 'regenPause',   weight: 1, apply: (pct, mrStage) => { const secs = 15 + Math.max(0, mrStage - 3) * 2.5; pauseRegen(secs); return '😈 Regen paused ' + secs + 's'; } },
 ];
 const _HEX_WEIGHT_TOTAL = HEX_TYPES.reduce((s, h) => s + h.weight, 0);
 function _pickHex() {
