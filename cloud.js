@@ -66,22 +66,7 @@ function clearOauthDebugLog() {
 }
 // ────────────────────────────────────────────────────────────────────────────
 
-let _cloudHealthy = null; // null=unchecked, true=ok, false=unreachable
-
-async function _checkCloudHealth() {
-  try {
-    const c = new AbortController();
-    setTimeout(() => c.abort(), 5000);
-    const r = await fetch(_SUPABASE_URL + '/rest/v1/', {
-      headers: { apikey: _SUPABASE_ANON },
-      signal: c.signal,
-    });
-    _cloudHealthy = r.status < 500;
-  } catch (_) {
-    _cloudHealthy = false;
-  }
-  _renderCloudModal();
-}
+let _cloudHealthy = null; // null=no operation yet, true=last op ok, false=last op failed
 
 function initCloudSave() {
   if (typeof supabase === 'undefined') { _oauthLog('INIT: supabase SDK not loaded'); return; }
@@ -129,8 +114,6 @@ function initCloudSave() {
     _renderCloudModal();
   }).catch(e => _oauthLog('getSession ERROR: ' + e.message));
 
-  // Non-blocking health check — fires once per session on launch.
-  _checkCloudHealth();
 }
 
 // Called from Android onNewIntent() for implicit flow (#access_token=...).
@@ -440,7 +423,7 @@ function cloudSaveManual() {
     const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
     Promise.race([_syncToCloud(), _timeout])
       .then(() => { _cloudHealthy = true; showShopSnack('☁️ Saved to cloud!'); _renderCloudModal(); })
-      .catch(e => { showShopSnack(_cloudErrMsg(e, 'Save'), 4000); console.warn('[cloud] save error:', e); });
+      .catch(e => { _cloudHealthy = false; _renderCloudModal(); showShopSnack(_cloudErrMsg(e, 'Save'), 4000); console.warn('[cloud] save error:', e); });
   }, 'Save');
 }
 
@@ -472,6 +455,7 @@ function cloudLoadManual() {
       .then(() => { _cloudHealthy = true; showShopSnack('☁️ Cloud save loaded!'); _renderCloudModal(); })
       .catch(e => {
         if (e.message === 'no data') { showShopSnack('No cloud save found.'); return; }
+        _cloudHealthy = false; _renderCloudModal();
         showShopSnack(_cloudErrMsg(e, 'Load'), 4000);
         console.warn('[cloud] load error:', e);
       });
