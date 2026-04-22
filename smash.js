@@ -301,7 +301,7 @@ function noHammerMsg() {
 function _maybeStuckHint() {
   if (G.hammersDepleted % 5 !== 0) return;
   if (curProgress().completed) return;
-  msg('💡 Tip: grind stage 9 of any monkey for gold & upgrades, then come back stronger!', 'tiers');
+  msg('💡 Tip: grind Mr. Monkey stage 9 for gold & upgrades, then come back stronger!', 'tiers');
 }
 
 function checkSpyglassHint() {
