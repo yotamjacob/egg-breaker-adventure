@@ -59,6 +59,19 @@ async function build() {
 
   console.log(`JS:  ${kb(jsBefore)} → ${kb(jsAfter)}  (${pct(jsBefore, jsAfter)} smaller)`);
   console.log(`CSS: ${kb(cssBefore)} → ${kb(cssAfter)}  (${pct(cssBefore, cssAfter)} smaller)`);
+
+  // Auto-sync sw.js CACHE_VERSION to match config.js VERSION — eliminates the
+  // class of CI failures caused by bumping one file but forgetting the other.
+  const ver = jsSource.match(/const VERSION\s*=\s*['"]([^'"]+)['"]/)?.[1];
+  if (ver) {
+    const sw    = fs.readFileSync('sw.js', 'utf8');
+    const swNew = sw.replace(/const CACHE_VERSION\s*=\s*'[^']*'/, `const CACHE_VERSION = '${ver}'`);
+    if (swNew !== sw) {
+      fs.writeFileSync('sw.js', swNew);
+      console.log(`sw.js CACHE_VERSION synced → ${ver}`);
+    }
+  }
+
   console.log('Build complete.');
 }
 

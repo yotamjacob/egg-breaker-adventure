@@ -28,7 +28,7 @@ Never run `npx vercel --prod` manually.
 
 ## Version bumping (every commit)
 - `config.js` near top: `const VERSION = 'X.Y.Z'`
-- `sw.js` line 6: `const CACHE_VERSION = 'X.Y.Z'`
+- `sw.js` is **auto-synced** by `build.js` — do not edit it manually. Just bump `config.js` and run `node build.js`.
 
 ## Android build & sign
 ```bash

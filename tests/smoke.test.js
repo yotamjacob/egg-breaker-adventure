@@ -80,18 +80,34 @@ describe('app', () => {
     assert.ok(Array.isArray(data.icons) && data.icons.length > 0, 'manifest.json is missing icons');
   });
 
-  test('sw.js CACHE_VERSION matches config.js VERSION', async () => {
-    // Catches the common mistake of forgetting to bump sw.js when deploying.
-    const swText  = await (await GET(`${APP}/sw.js`)).text();
+  test('sw.js CACHE_VERSION matches config.js VERSION (local files)', () => {
+    // Primary check: both local source files must agree before deployment.
+    // build.js auto-syncs sw.js from config.js, so a mismatch here means
+    // the build was not run before committing.
+    const swText  = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
     const swVer   = swText.match(/CACHE_VERSION\s*=\s*['"]([^'"]+)['"]/)?.[1];
-    assert.ok(swVer, 'CACHE_VERSION not found in live sw.js');
+    assert.ok(swVer, 'CACHE_VERSION not found in sw.js');
 
     const cfgText = fs.readFileSync(path.join(__dirname, '..', 'config.js'), 'utf8');
     const cfgVer  = cfgText.match(/const VERSION\s*=\s*['"]([^'"]+)['"]/)?.[1];
     assert.ok(cfgVer, 'VERSION not found in config.js');
 
     assert.equal(swVer, cfgVer,
-      `Version mismatch — sw.js has ${swVer} but config.js has ${cfgVer}. Did you forget to bump sw.js?`);
+      `Version mismatch in repo — sw.js has ${swVer} but config.js has ${cfgVer}. Run "node build.js" to auto-sync.`);
+  });
+
+  test('live sw.js CACHE_VERSION matches deployed config.js VERSION', async () => {
+    // Secondary check: verifies the correct version actually reached production.
+    const [swRes, cfgRes] = await Promise.all([
+      GET(`${APP}/sw.js`),
+      GET(`${APP}/bundle.min.js`),
+    ]);
+    const swVer  = (await swRes.text()).match(/CACHE_VERSION\s*=\s*['"]([^'"]+)['"]/)?.[1];
+    const cfgVer = (await cfgRes.text()).match(/const VERSION\s*=\s*['"]([^'"]+)['"]/)?.[1];
+    assert.ok(swVer,  'CACHE_VERSION not found in live sw.js');
+    assert.ok(cfgVer, 'VERSION not found in live bundle.min.js');
+    assert.equal(swVer, cfgVer,
+      `Live version mismatch — sw.js=${swVer} bundle.min.js=${cfgVer}. Deployment may be incomplete.`);
   });
 });
 
