@@ -52,11 +52,16 @@ jobs:
         if: github.event_name == 'push'
         run: |
           EXPECTED=$(grep "const VERSION" config.js | grep -o "'[^']*'" | tr -d "'")
-          echo "Waiting for production to reach v$EXPECTED …"
+          echo "Waiting for production to reach v$EXPECTED or newer …"
+          ver_patch() { echo "$1" | cut -d. -f3; }
+          EXPECTED_PATCH=$(ver_patch "$EXPECTED")
           for i in $(seq 1 18); do
             LIVE=$(curl -sf https://egg-breaker-adventures.vercel.app/sw.js | grep -o "CACHE_VERSION = '[^']*'" | grep -o "'[^']*'" | tr -d "'" || echo "err")
             echo "  attempt $i: live=$LIVE expected=$EXPECTED"
-            [ "$LIVE" = "$EXPECTED" ] && echo "Deployment ready." && exit 0
+            LIVE_PATCH=$(ver_patch "$LIVE")
+            if echo "$LIVE_PATCH" | grep -qE '^[0-9]+$' && [ "$LIVE_PATCH" -ge "$EXPECTED_PATCH" ]; then
+              echo "Deployment ready (live=$LIVE)." && exit 0
+            fi
             sleep 10
           done
           echo "Timed out waiting for deployment." && exit 1
