@@ -515,7 +515,7 @@ function updateOverallProgress() {
 
   const grand = totalItems + totalShop;
   const grandFound = foundItems + ownedShop;
-  const pct = grand > 0 ? Math.round((grandFound / grand) * 100) : 0;
+  const pct = grand > 0 ? Math.floor((grandFound / grand) * 100) : 0;
   $id('overall-pct').textContent = pct + '%';
   $id('overall-fill').style.width = pct + '%';
   $id('overall-detail').innerHTML =
@@ -781,7 +781,7 @@ function renderMonkeys() {
         totalItems += s.collection.items.length;
         if (mp.collections[si]) foundItems += mp.collections[si].filter(Boolean).length;
       });
-      const pct = totalItems > 0 ? Math.round(foundItems / totalItems * 100) : 0;
+      const pct = totalItems > 0 ? Math.floor(foundItems / totalItems * 100) : 0;
       const isDone = mp.completed;
       inner += '<span class="m-progress' + (isDone ? ' done' : '') + '">' +
         (isDone ? '✅ ' : '') + 'Stage ' + stageNum + '/' + m.stages.length + ' — ' + pct + '%</span>';
