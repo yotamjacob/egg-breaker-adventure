@@ -213,6 +213,8 @@ function _startCloudAutoSave() {
       _renderCloudModal();
       msg('☁️ Auto-saved to cloud');
     } catch (e) {
+      _cloudHealthy = false;
+      _renderCloudModal();
       console.warn('[cloud] auto-save failed:', e);
     }
   }, 15 * 60 * 1000);
@@ -224,7 +226,7 @@ function _startCloudAutoSave() {
 async function _refreshCloudSession() {
   const result = await Promise.race([
     _sbClient.auth.refreshSession(),
-    new Promise((_, r) => setTimeout(() => r(new Error('refresh timeout')), 5000)),
+    new Promise((_, r) => setTimeout(() => r(new Error('refresh timeout')), 8000)),
   ]);
   if (result.data && result.data.session) {
     _cloudSession = result.data.session;
@@ -420,7 +422,7 @@ function cloudSaveManual() {
   showConfirm('☁️', 'Save to cloud?', 'This will overwrite your current cloud save.', function() {
     closeOverlay('overlay-cloudsave');
     showShopSnack('☁️ Saving...', 12000);
-    const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
+    const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 20000));
     Promise.race([_syncToCloud(), _timeout])
       .then(() => { _cloudHealthy = true; showShopSnack('☁️ Saved to cloud!'); _renderCloudModal(); })
       .catch(e => { _cloudHealthy = false; _renderCloudModal(); showShopSnack(_cloudErrMsg(e, 'Save'), 4000); console.warn('[cloud] save error:', e); });
@@ -432,7 +434,7 @@ function cloudLoadManual() {
   showConfirm('📥', 'Load from cloud?', 'This will overwrite your current game progress.', function() {
     closeOverlay('overlay-cloudsave');
     showShopSnack('☁️ Loading...', 12000);
-    const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 10000));
+    const _timeout = new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 20000));
     const _load = (async function() {
       if (!_cloudSession) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
       const _doLoadFetch = (token) => fetch(
