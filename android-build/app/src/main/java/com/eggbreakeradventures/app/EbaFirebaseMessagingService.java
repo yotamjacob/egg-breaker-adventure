@@ -52,6 +52,9 @@ public class EbaFirebaseMessagingService extends FirebaseMessagingService {
             .setAutoCancel(true)
             .setContentIntent(pi);
 
-        nm.notify(1, builder.build());
+        // Unique ID per message so rapid notifications don't replace each other.
+        String msgId = message.getMessageId();
+        int notifId = (msgId != null) ? msgId.hashCode() : (int) System.currentTimeMillis();
+        nm.notify(notifId, builder.build());
     }
 }

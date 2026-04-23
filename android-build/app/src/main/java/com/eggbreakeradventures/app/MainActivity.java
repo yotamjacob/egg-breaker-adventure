@@ -30,6 +30,7 @@ import com.android.billingclient.api.QueryPurchasesParams;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,12 +42,13 @@ public class MainActivity extends Activity {
     private volatile boolean _jsReady      = false;
     private static final String GAME_URL = "https://egg-breaker-adventures.vercel.app/";
 
-    // Static reference so EbaFirebaseMessagingService can deliver tokens
-    static MainActivity instance;
+    // WeakReference so EbaFirebaseMessagingService can deliver tokens without preventing GC.
+    static WeakReference<MainActivity> _instanceRef;
 
     // Called from EbaFirebaseMessagingService when a new FCM token is issued
     static void deliverFcmToken(String token) {
-        if (instance != null) instance.sendFcmTokenToJs(token);
+        MainActivity a = _instanceRef != null ? _instanceRef.get() : null;
+        if (a != null) a.sendFcmTokenToJs(token);
     }
 
     private void sendFcmTokenToJs(String token) {
@@ -60,7 +62,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        instance = this;
+        _instanceRef = new WeakReference<>(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -172,11 +174,15 @@ public class MainActivity extends Activity {
             }
         });
         // Grant web permission requests (Notification API, Push Manager) from our controlled origin.
-        // Without this override the bare WebChromeClient silently denies all requests.
+        // Origin check prevents any rogue cross-origin frame from silently acquiring permissions.
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(PermissionRequest request) {
-                request.grant(request.getResources());
+                if (Uri.parse("https://egg-breaker-adventures.vercel.app").equals(request.getOrigin())) {
+                    request.grant(request.getResources());
+                } else {
+                    request.deny();
+                }
             }
         });
 
@@ -187,6 +193,13 @@ public class MainActivity extends Activity {
                 requestPermissions(
                     new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1001);
             }
+        }
+
+        // Register predictive back callback (API 33+); onBackPressed() handles API < 33.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                () -> { if (webView != null && webView.canGoBack()) webView.goBack(); else finish(); });
         }
 
         Uri intentData = getIntent().getData();
@@ -360,8 +373,10 @@ public class MainActivity extends Activity {
         if (hasFocus) applyImmersiveMode();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
+        // Handles API < 33; API 33+ uses OnBackInvokedCallback registered in onCreate().
         if (webView != null && webView.canGoBack()) {
             webView.goBack();
         } else {
@@ -384,7 +399,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        if (instance == this) instance = null;
+        if (_instanceRef != null && _instanceRef.get() == this) _instanceRef = null;
         if (billingClient != null) { billingClient.endConnection(); billingClient = null; }
         if (webView != null) { webView.destroy(); webView = null; }
         super.onDestroy();

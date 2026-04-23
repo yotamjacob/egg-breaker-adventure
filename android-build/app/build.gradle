@@ -58,8 +58,8 @@ android {
         applicationId "com.eggbreakeradventures.app"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 106
-        versionName "2.3.9"
+        versionCode 107
+        versionName "2.4.31"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -156,6 +156,8 @@ android {
     buildTypes {
         release {
             minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
