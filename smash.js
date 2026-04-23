@@ -52,7 +52,7 @@ function newRound() {
     if (mrStage >= 5 && Math.random() < 0.015) {
       effects = ['balloon'];  // exclusive — no other effects (unlocks Stage 6)
     } else {
-      if (mrStage >= 1 && Math.random() < 0.05) effects.push('runny');  // Stage 2
+      if (mrStage >= 1 && Math.random() < 0.05 && type !== 'century') effects.push('runny');  // Stage 2
       if (mrStage >= 2 && Math.random() < 0.05 && ['normal','silver','gold','crystal'].includes(type)) effects.push('timer'); // Stage 3
       const hexChance = mrStage >= 3 ? Math.min(0.015, 0.006 + (mrStage - 3) * 0.0015) : 0;  // 0.6%→0.75%→0.9%→1.05%→1.2%→1.35%→1.5%
       if (hexChance > 0 && Math.random() < hexChance && type !== 'ruby' && type !== 'black' && type !== 'crystal' && type !== 'century') effects.push('hex');
