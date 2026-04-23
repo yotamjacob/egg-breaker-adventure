@@ -511,7 +511,7 @@ function updateOverallProgress() {
     + SHOP_SUPPLIES.filter(s => s.unique).length;
   const ownedShop = (G.ownedHammers || []).filter(id => id !== 'default').length
     + (G.ownedHats || []).filter(id => id !== 'none').length
-    + (G['owned_spyglass'] ? 1 : 0) + (G.fastRegen ? 1 : 0);
+    + SHOP_SUPPLIES.filter(s => s.unique).reduce((n, s) => n + ((s.id === 'fastregen' ? G.fastRegen : G['owned_' + s.id]) ? 1 : 0), 0);
 
   const grand = totalItems + totalShop;
   const grandFound = foundItems + ownedShop;
