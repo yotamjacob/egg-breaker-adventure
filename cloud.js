@@ -38,6 +38,44 @@ function clearPayLog() {
 }
 // ────────────────────────────────────────────────────────────────────────────
 
+// ── Cloud save debug logger ──────────────────────────────────────────────────
+// Separate from _oauthLog (auth flow) and _payLog (purchases).
+// Captures every save/load/refresh attempt — survives page reloads via localStorage.
+const _cloudLogs = [];
+function _cloudLog(msg) {
+  const ts = new Date().toISOString().substring(11, 19);
+  const entry = '[' + ts + '] ' + msg;
+  _cloudLogs.push(entry);
+  if (_cloudLogs.length > 100) _cloudLogs.shift();
+  try {
+    const arr = JSON.parse(localStorage.getItem('_cloudDbg') || '[]');
+    arr.push(entry);
+    if (arr.length > 100) arr.splice(0, arr.length - 100);
+    localStorage.setItem('_cloudDbg', JSON.stringify(arr));
+  } catch (e) {}
+}
+function showCloudLog() {
+  const lines = _cloudLogs.length
+    ? _cloudLogs
+    : (() => { try { return JSON.parse(localStorage.getItem('_cloudDbg') || '[]'); } catch(e) { return []; } })();
+  const now     = Date.now();
+  const expIn   = _cloudSession?.expires_at ? Math.round(_cloudSession.expires_at - now / 1000) + 's' : 'none';
+  const header  = '[STATE] linked=' + !!_cloudUser +
+                  ' token_exp_in=' + expIn +
+                  ' healthy=' + _cloudHealthy +
+                  ' autoSave=' + !!G.cloudAutoSave;
+  const text = header + '\n' + (lines.length ? lines.join('\n') : '(empty — try a cloud save first)');
+  navigator.clipboard.writeText(text)
+    .then(() => showShopSnack('📋 Cloud log copied! Paste it in chat.'))
+    .catch(() => { alert(text); });
+}
+function clearCloudLog() {
+  _cloudLogs.length = 0;
+  try { localStorage.removeItem('_cloudDbg'); } catch (e) {}
+  showShopSnack('Cloud debug log cleared.');
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 // ── OAuth debug logger ───────────────────────────────────────────────────────
 // Persists across page reloads (survives the OAuth redirect) via localStorage.
 // Read with the "📋 OAuth Debug" button in the Cloud Save modal.
@@ -220,17 +258,60 @@ function _startCloudAutoSave() {
   }, 15 * 60 * 1000);
 }
 
-// On a 401 (expired token cached before Supabase finished refreshing), call
-// refreshSession() directly — it's a plain HTTP POST that won't hang like the
-// DB auth interceptor — then update _cloudSession for the next request.
+// Refresh the Supabase session. Tries a raw HTTP POST first (bypasses the SDK
+// state machine — more reliable on Android after long background pauses where
+// JS timers were throttled and the SDK's auto-refresh never fired). Falls back
+// to the SDK call if the raw fetch fails.
 async function _refreshCloudSession() {
-  const result = await Promise.race([
-    _sbClient.auth.refreshSession(),
-    new Promise((_, r) => setTimeout(() => r(new Error('refresh timeout')), 8000)),
-  ]);
-  if (result.data && result.data.session) {
-    _cloudSession = result.data.session;
-    return true;
+  _cloudLog('REFRESH: start expires_at=' + (_cloudSession?.expires_at || 'none'));
+  const refreshToken = _cloudSession?.refresh_token;
+
+  // ── Primary: raw HTTP refresh ──────────────────────────────────────────────
+  if (refreshToken) {
+    try {
+      const resp = await Promise.race([
+        fetch(_SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+          method:  'POST',
+          headers: { 'apikey': _SUPABASE_ANON, 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ refresh_token: refreshToken }),
+        }),
+        new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 8000)),
+      ]);
+      if (resp.ok) {
+        const d = await resp.json();
+        if (d.access_token) {
+          _cloudSession = {
+            access_token:  d.access_token,
+            refresh_token: d.refresh_token || refreshToken,
+            expires_at:    Math.floor(Date.now() / 1000) + (d.expires_in || 3600),
+            user:          _cloudSession?.user,
+          };
+          // Keep SDK's internal state in sync so autoRefreshToken works going forward.
+          _sbClient.auth.setSession({ access_token: d.access_token, refresh_token: d.refresh_token || refreshToken }).catch(() => {});
+          _cloudLog('REFRESH: raw HTTP ok expires_in=' + (d.expires_in || '?'));
+          return true;
+        }
+      }
+      _cloudLog('REFRESH: raw HTTP status=' + resp.status);
+    } catch (e) {
+      _cloudLog('REFRESH: raw HTTP err=' + e.message);
+    }
+  }
+
+  // ── Fallback: SDK refresh ──────────────────────────────────────────────────
+  try {
+    const result = await Promise.race([
+      _sbClient.auth.refreshSession(),
+      new Promise((_, r) => setTimeout(() => r(new Error('refresh timeout')), 8000)),
+    ]);
+    if (result.data?.session) {
+      _cloudSession = result.data.session;
+      _cloudLog('REFRESH: SDK ok');
+      return true;
+    }
+    _cloudLog('REFRESH: SDK no session err=' + (result.error?.message || 'none'));
+  } catch (e) {
+    _cloudLog('REFRESH: SDK err=' + e.message);
   }
   return false;
 }
@@ -466,6 +547,9 @@ function cloudLoadManual() {
 
 async function _syncToCloud() {
   if (!_sbClient || !_cloudUser) return;
+  const now   = Date.now() / 1000;
+  const expIn = _cloudSession?.expires_at ? Math.round(_cloudSession.expires_at - now) : null;
+  _cloudLog('SAVE: start token_exp_in=' + (expIn !== null ? expIn + 's' : 'none'));
   const d = {};
   for (const k of Object.keys(DEFAULT_STATE)) d[k] = G[k];
   if (G.roundEggs) {
@@ -486,8 +570,9 @@ async function _syncToCloud() {
   // If it's expired (401), refresh once then retry — covers the race where
   // onAuthStateChange fires before _recoverAndRefresh finishes its refresh.
   if (!_cloudSession) { _cloudUser = null; _renderCloudModal(); throw new Error('no session'); }
-  // Proactively refresh if token expires within the next 60 s to avoid a 401 round-trip.
+  // Proactively refresh if token is expired or expires within 60 s.
   if (_cloudSession.expires_at && (Date.now() / 1000) >= (_cloudSession.expires_at - 60)) {
+    _cloudLog('SAVE: proactive refresh (exp_in<60s)');
     await _refreshCloudSession();
     if (!_cloudSession) throw new Error('session lost after proactive refresh');
   }
@@ -509,12 +594,23 @@ async function _syncToCloud() {
     }),
   });
   let resp = await _doSaveFetch(_cloudSession.access_token);
+  _cloudLog('SAVE: POST status=' + resp.status);
   if (resp.status === 401) {
+    _cloudLog('SAVE: 401 — refreshing session');
     const refreshed = await _refreshCloudSession();
     if (!refreshed) throw new Error('HTTP 401 — session expired');
     resp = await _doSaveFetch(_cloudSession.access_token);
+    _cloudLog('SAVE: retry status=' + resp.status);
   }
-  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  // Transient server error (503/502/429) — wait 2 s and retry once.
+  if ((resp.status === 503 || resp.status === 502 || resp.status === 429) && resp.status !== 200) {
+    _cloudLog('SAVE: ' + resp.status + ' — retrying in 2s');
+    await new Promise(r => setTimeout(r, 2000));
+    resp = await _doSaveFetch(_cloudSession.access_token);
+    _cloudLog('SAVE: retry2 status=' + resp.status);
+  }
+  if (!resp.ok) { _cloudLog('SAVE: final error HTTP ' + resp.status); throw new Error('HTTP ' + resp.status); }
+  _cloudLog('SAVE: ok');
   G._cloudSavedAt = new Date(syncedAt).getTime();
   saveGame();
   track('cloud-save', { action: 'save' });
@@ -602,10 +698,22 @@ window.onFcmToken = async function(token) {
   }
 };
 
-// Re-sync hammers_full_at whenever the user backgrounds the app
+// On foreground resume: proactively refresh a stale/expired cloud session so
+// the first save attempt after a long break doesn't need a mid-save refresh.
+// On background: sync hammers_full_at for push notification scheduling.
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && _fcmToken && localStorage.getItem('eba_push_sub')) {
-    _sendFcmSubscription(_fcmToken).catch(() => {});
+  if (!document.hidden) {
+    if (_cloudSession && _sbClient) {
+      const expIn = _cloudSession.expires_at ? _cloudSession.expires_at - Date.now() / 1000 : null;
+      if (expIn === null || expIn < 5 * 60) {
+        _cloudLog('RESUME: token stale (exp_in=' + (expIn !== null ? Math.round(expIn) + 's' : 'none') + ') — proactive refresh');
+        _refreshCloudSession().catch(e => _cloudLog('RESUME refresh err: ' + e.message));
+      }
+    }
+  } else {
+    if (_fcmToken && localStorage.getItem('eba_push_sub')) {
+      _sendFcmSubscription(_fcmToken).catch(() => {});
+    }
   }
 });
 
