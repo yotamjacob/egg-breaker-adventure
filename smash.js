@@ -136,9 +136,12 @@ function resolvePrize(type, eggType) {
     // Apply all bonuses to the per-unit base BEFORE multiplying by activeMult so the
     // equation label is always exact (base × mult = total, no rounding drift).
     let base = rawBase * goldMult;
-    if (hasBonus('moreGold'))  base *= 1.2;
-    if (hasBonus('goldBoost')) base *= 1.1;
-    if (hasBonus('allfather')) base *= 1.1;
+    if (hasBonus('moreGold'))    base *= 1.2;
+    if (hasBonus('goldBoost'))   base *= 1.1;
+    if (hasBonus('allfather'))   base *= 1.1;
+    if (hasBonus('goldBoost15')) base *= 1.15;
+    if (hasBonus('goldBoost25')) base *= 1.25;
+    if (hasBonus('goldBoost40')) base *= 1.40;
     const ab = getAchievementBonuses();
     if (ab.goldPct > 0) base *= (1 + ab.goldPct / 100);
     const _mk = curMonkey();
@@ -249,11 +252,11 @@ function getAllBonuses() {
   const bonuses = new Set();
   for (const id of G.ownedHammers) {
     const h = SHOP_HAMMERS.find(h => h.id === id);
-    if (h && h.bonus) bonuses.add(h.bonus);
+    if (h && h.bonus) { if (Array.isArray(h.bonus)) h.bonus.forEach(b => bonuses.add(b)); else bonuses.add(h.bonus); }
   }
   for (const id of G.ownedHats) {
     const h = SHOP_HATS.find(h => h.id === id);
-    if (h && h.bonus) bonuses.add(h.bonus);
+    if (h && h.bonus) { if (Array.isArray(h.bonus)) h.bonus.forEach(b => bonuses.add(b)); else bonuses.add(h.bonus); }
   }
   for (let i = 0; i < G.monkeys.length; i++) {
     if (G.monkeys[i].unlocked) {
