@@ -724,6 +724,15 @@ function checkCollectionComplete(suppressFlash) {
             'Go to Album'
           ), 800);
         }
+        // Check if ALL unlocked monkeys are now complete
+        const allMonkeysDone = G.monkeys.every((mp, mi) => !mp.unlocked || mp.completed);
+        if (allMonkeysDone && !G._allMonkeysCongratsSeen) {
+          G._allMonkeysCongratsSeen = true;
+          setTimeout(() => {
+            SFX.play('fanfare');
+            setTimeout(() => $id('overlay-congrats').classList.remove('hidden'), 800);
+          }, 1200);
+        }
       }
     }
     // Refresh UI after tier change — skip renderEggTray so eggs don't jump positions

@@ -364,6 +364,22 @@
       </div>
     </div>
 
+    <!-- ===== ALL MONKEYS COMPLETE MODAL ===== -->
+    <div class="overlay hidden" id="overlay-congrats">
+      <div class="popup pop-congrats">
+        <div class="pop-icon spin">🏆</div>
+        <strong>Legendary Egg Breaker!</strong>
+        <span class="pop-sub">You've completed every monkey — that's seriously impressive.<br>We're already working on new content. Stay tuned!</span>
+        <span class="pop-sub" style="margin-top:2px;color:var(--amber)">In the meantime, try collecting every item in the Shop and pushing your overall progress to 100%.</span>
+        <div class="congrats-btns">
+          <button class="pop-btn" onclick="closeOverlay('overlay-congrats');document.querySelector('[data-tab=shop]').click()">🛒 Shop</button>
+          <button class="pop-btn" onclick="closeOverlay('overlay-congrats');openSubModal('overlay-progress',renderStats)">📊 Progress</button>
+          <button class="pop-btn" onclick="closeOverlay('overlay-congrats');document.querySelector('[data-tab=premium]').click()">💎 Support Us</button>
+        </div>
+        <button class="pop-btn congrats-dismiss" onclick="closeOverlay('overlay-congrats')">Close</button>
+      </div>
+    </div>
+
     <div class="shop-snack" id="shop-snack"></div>
 
     <div class="update-banner hidden" id="update-banner">

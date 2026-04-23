@@ -79,6 +79,18 @@ const SFX = (() => {
         // Triumphant held chord
         setTimeout(() => { tone(1047, .6, .1, 'square'); tone(1319, .6, .09, 'triangle'); tone(1568, .6, .08, 'triangle'); }, 620);
       }
+      if (n === 'fanfare') {
+        // Grand ascending run C-E-G-A-C'-E'-G'
+        [[523,.12],[659,.12],[784,.12],[880,.12],[1047,.18],[1319,.18],[1568,.22]].forEach(([f,d],i) =>
+          setTimeout(() => tone(f, d, .13, 'square'), i * 80));
+        // Full triumphant chord
+        setTimeout(() => {
+          tone(1047, 1.0, .12, 'square'); tone(1319, 1.0, .10, 'triangle');
+          tone(1568, 1.0, .09, 'triangle'); tone(2093, 1.0, .07, 'triangle');
+        }, 640);
+        // Echo sparkle
+        setTimeout(() => { tone(2093, .25, .06, 'square'); tone(2637, .3, .05, 'triangle'); }, 1200);
+      }
     } catch (_) {}
   }
   return { play, toggle() { on = !on; return on; }, isOn() { return on; } };

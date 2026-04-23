@@ -39,6 +39,10 @@
 .pop-btn:active{transform:translate(2px,2px);box-shadow:0 0 0 transparent}
 
 .confirm-btns{display:flex;gap:6px;margin-top:6px}
+.congrats-btns{display:flex;gap:6px;margin-top:8px;width:100%}
+.congrats-btns .pop-btn{flex:1;padding:8px 4px;font-size:9px}
+.congrats-dismiss{background:var(--panel)!important;color:var(--gray)!important;border-color:var(--gray)!important;font-size:9px!important;margin-top:4px!important}
+.pop-congrats{max-width:300px}
 .confirm-yes{background:linear-gradient(180deg,var(--green),var(--green2))!important;border-color:var(--green)!important}
 .confirm-no{background:var(--panel)!important;color:var(--gray)!important;border-color:var(--gray)!important}
 .pop-quote{font-size:11px;color:var(--amber);font-style:italic;max-width:220px;text-align:center;line-height:1.5}
