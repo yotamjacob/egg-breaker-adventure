@@ -436,7 +436,6 @@ const SHOP_HAMMERS = [
   { id: 'bat',        name: 'Bat Hammer',       emoji: '🦇', desc: 'Fewer empty eggs',            cost: 12000, currency: 'gold', bonus: 'lessEmpty' },
   { id: 'crystal',    name: 'Crystal Hammer',    emoji: '🔮', desc: '+20% feathers',               cost: 25000, currency: 'gold', bonus: 'moreFeathers' },
   { id: 'golden',     name: 'Golden Hammer',     emoji: '⭐', desc: '2x gold from eggs',           cost: 120000, currency: 'gold', bonus: 'moreGold' },
-  { id: 'cleanse',    name: 'Cleanse',            emoji: '🌿', desc: 'Hex immunity',               cost: 150000, currency: 'gold', bonus: 'cleanse' },
   { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% items, +15% gold',       cost: 220000, currency: 'gold', bonus: ['moreItems', 'goldBoost15'] },
   { id: 'cucumber',   name: 'Cucumber Hammer',   emoji: '🥒', desc: '5% double hit, +25% gold',   cost: 300000, currency: 'gold', bonus: ['doubleHit', 'goldBoost25'] },
   { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% chance: full Starfall + 7 star pieces, +40% gold', cost: 420000, currency: 'gold', bonus: ['mjolnirStarfall', 'goldBoost40'] },
@@ -459,6 +458,7 @@ const SHOP_SUPPLIES = [
   { id: 'spyglass',   name: 'Spyglass',         emoji: '🔍', desc: 'Reveal egg names & HP', cost: 5000, currency: 'gold', type: 'upgrade', unique: true },
   { id: 'maxhammers', name: '+5 Hammer Cap',    emoji: '📦', desc: 'Increase max hammers by 5', cost: 8000, currency: 'gold', type: 'upgrade' },
   { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', desc: 'Hammers regen 1.5x faster', cost: 25000, currency: 'gold', type: 'upgrade', unique: true },
+  { id: 'cleanse',    name: 'Cleanse',          emoji: '🌿', desc: 'Hex immunity',               cost: 150000, currency: 'gold', type: 'upgrade', unique: true },
 ];
 
 // All tuning values are read from CONFIG (config.js)

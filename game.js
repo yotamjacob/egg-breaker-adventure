@@ -80,7 +80,7 @@ const DEFAULT_STATE = {
   premiumPurchases: 0,
   // Shop upgrades (unique one-time purchases)
   owned_spyglass: false, owned_luckycharm: false, owned_goldmagnet: false,
-  owned_eggradar: false, owned_doubledaily: false, owned_starsaver: false,
+  owned_eggradar: false, owned_doubledaily: false, owned_starsaver: false, owned_cleanse: false,
   _spyglassHintShown: false,
   // Secrets
   _secretFlip: false, _secretOuch: false, _secretChicken: false, _secretStrikes: false,
