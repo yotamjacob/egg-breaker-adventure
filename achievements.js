@@ -96,7 +96,6 @@ function checkAchievements() {
     black_10:     () => (G.blackSmashed || 0) >= 10,
     // Daily login
     streak_5:     () => G.consecutiveDays >= 5,
-    streak_20:    () => G.consecutiveDays >= 20,
     daily_10:     () => (G.totalDailyClaims || 0) >= 10,
     daily_100:    () => (G.totalDailyClaims || 0) >= 100,
     // Shopping

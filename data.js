@@ -543,7 +543,6 @@ const ACHIEVEMENT_DATA = [
   { id:'black_10',     name:'Dark Matter',         desc:'Break 10 black eggs',           icon:'⚫', reward:{type:'goldPct',val:10,    label:'+10% gold from eggs'} },
   // -- Daily login --
   { id:'streak_5',     name:'On a Roll',           desc:'5-day login streak',            icon:'📅', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
-  { id:'streak_20',    name:'Dedicated',            desc:'20-day login streak',           icon:'🔥', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'daily_10',     name:'Regular',             desc:'Claim daily bonus 10 times',    icon:'📆', reward:{type:'gold',val:500,      label:'+500 gold'} },
   { id:'daily_100',    name:'Centurion',           desc:'Claim daily bonus 100 times',   icon:'💯', reward:{type:'gold',val:5000,     label:'+5,000 gold'} },
   // -- Shopping --

@@ -24,6 +24,13 @@
   background:repeating-linear-gradient(90deg,var(--gold),var(--gold) 4px,var(--gold2) 4px,var(--gold2) 8px);
   border-radius:0;transition:width .5s steps(25);
 }
+.overall-goals{position:relative;height:18px;margin-top:-3px;margin-bottom:4px}
+.og{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center}
+.og.og-end{transform:translateX(-100%)}
+.og-tick{width:2px;height:5px;background:var(--gold3);margin-bottom:2px}
+.og-lbl{font-size:8px;color:var(--gray);white-space:nowrap}
+.og.og-done .og-tick{background:var(--gold)}
+.og.og-done .og-lbl{color:var(--gold)}
 .overall-detail{
   display:flex;justify-content:space-between;font-size:10px;color:var(--gray);
   gap:6px;flex-wrap:wrap;

@@ -518,6 +518,11 @@ function updateOverallProgress() {
   const pct = grand > 0 ? Math.floor((grandFound / grand) * 100) : 0;
   $id('overall-pct').textContent = pct + '%';
   $id('overall-fill').style.width = pct + '%';
+  const GOALS = [{p:25,l:'Collector'},{p:50,l:'Veteran'},{p:75,l:'Expert'},{p:100,l:'Master'}];
+  $id('overall-goals').innerHTML = GOALS.map((g, i) =>
+    `<div class="og${pct >= g.p ? ' og-done' : ''}${i === GOALS.length - 1 ? ' og-end' : ''}" style="left:${g.p}%">` +
+    `<div class="og-tick"></div><div class="og-lbl">${g.l}</div></div>`
+  ).join('');
   $id('overall-detail').innerHTML =
     '<span>Items: <strong>' + foundItems + '/' + totalItems + '</strong></span>' +
     '<span>Stages: <strong>' + doneStages + '/' + totalStages + '</strong></span>' +
