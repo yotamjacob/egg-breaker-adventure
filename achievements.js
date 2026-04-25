@@ -97,7 +97,6 @@ function checkAchievements() {
     // Daily login
     streak_5:     () => G.consecutiveDays >= 5,
     daily_10:     () => (G.totalDailyClaims || 0) >= 10,
-    daily_100:    () => (G.totalDailyClaims || 0) >= 100,
     // Shopping
     buy_hammer:   () => G.ownedHammers.length > 1,
     buy_hat:      () => G.ownedHats.length > 1,

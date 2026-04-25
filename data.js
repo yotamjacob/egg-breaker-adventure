@@ -544,7 +544,6 @@ const ACHIEVEMENT_DATA = [
   // -- Daily login --
   { id:'streak_5',     name:'On a Roll',           desc:'5-day login streak',            icon:'📅', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
   { id:'daily_10',     name:'Regular',             desc:'Claim daily bonus 10 times',    icon:'📆', reward:{type:'gold',val:500,      label:'+500 gold'} },
-  { id:'daily_100',    name:'Centurion',           desc:'Claim daily bonus 100 times',   icon:'💯', reward:{type:'gold',val:5000,     label:'+5,000 gold'} },
   // -- Shopping --
   { id:'buy_hammer',   name:'Tool Upgrade',        desc:'Buy a special hammer',          icon:'🔨', reward:{type:'gold',val:200,      label:'+200 gold'} },
   { id:'buy_hat',      name:'Hat Collector',       desc:'Buy a hat',                     icon:'🎩', reward:{type:'gold',val:200,      label:'+200 gold'} },
