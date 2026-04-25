@@ -513,8 +513,12 @@ function updateOverallProgress() {
     + (G.ownedHats || []).filter(id => id !== 'none').length
     + SHOP_SUPPLIES.filter(s => s.unique).reduce((n, s) => n + ((s.id === 'fastregen' ? G.fastRegen : G['owned_' + s.id]) ? 1 : 0), 0);
 
-  const grand = totalItems + totalShop;
-  const grandFound = foundItems + ownedShop;
+  const achIds = new Set(ACHIEVEMENT_DATA.map(a => a.id));
+  const totalGoals = ACHIEVEMENT_DATA.length;
+  const doneGoals = (G.achieved || []).filter(id => achIds.has(id)).length;
+
+  const grand = totalItems + totalShop + totalGoals;
+  const grandFound = foundItems + ownedShop + doneGoals;
   const pct = grand > 0 ? Math.floor((grandFound / grand) * 100) : 0;
   $id('overall-pct').textContent = pct + '%';
   $id('overall-fill').style.width = pct + '%';
@@ -527,7 +531,8 @@ function updateOverallProgress() {
     '<span>Items: <strong>' + foundItems + '/' + totalItems + '</strong></span>' +
     '<span>Stages: <strong>' + doneStages + '/' + totalStages + '</strong></span>' +
     '<span>Monkeys: <strong>' + unlockedMonkeys + '/' + MONKEY_DATA.length + '</strong></span>' +
-    '<span>Shop: <strong>' + ownedShop + '/' + totalShop + '</strong></span>';
+    '<span>Shop: <strong>' + ownedShop + '/' + totalShop + '</strong></span>' +
+    '<span>Goals: <strong>' + doneGoals + '/' + totalGoals + '</strong></span>';
 }
 
 function updateStageBar() {
