@@ -13,7 +13,7 @@ function formatNum(n) {
 }
 
 // ==================== GOLD COUNTER ANIMATION ====================
-let _goldDisplayed = 0;
+let _goldDisplayed = -1;   // -1 = not yet initialized; skip first animation
 let _goldTarget    = 0;
 let _goldAnimId    = null;
 let _goldAnimFrom  = 0;
@@ -21,6 +21,14 @@ let _goldAnimStart = null;
 let _goldAnimDur   = 0;
 
 function animateGoldTo(target) {
+  // First call after page load — set instantly, no animation
+  if (_goldDisplayed < 0) {
+    _goldDisplayed = target;
+    _goldTarget    = target;
+    $id('res-g').textContent = formatNum(target);
+    return;
+  }
+
   if (target === _goldTarget && _goldAnimId !== null) return;
 
   if (target <= _goldDisplayed) {
@@ -34,8 +42,8 @@ function animateGoldTo(target) {
   }
 
   const delta = target - _goldDisplayed;
-  // 350ms for tiny prizes, up to 1100ms for large ones — feels like a satisfying roll
-  const dur = Math.min(1100, Math.max(350, delta * 2.5));
+  // 350ms for small prizes, scales up — 1500ms cap so big jackpots feel dramatic
+  const dur = Math.min(1500, Math.max(350, Math.sqrt(delta) * 18));
 
   if (_goldAnimId !== null) { cancelAnimationFrame(_goldAnimId); _goldAnimId = null; }
 
