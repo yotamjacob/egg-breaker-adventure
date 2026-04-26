@@ -142,6 +142,8 @@ body{
 }
 .res span{font-size:14px;flex-shrink:0}
 .res strong{color:var(--gold);font-size:11px;overflow:hidden;text-overflow:ellipsis}
+#res-g-wrap.gold-counting{border-color:var(--gold);box-shadow:0 0 6px rgba(245,197,66,.45),inset 1px 1px 0 var(--raised)}
+#res-g-wrap.gold-counting strong{color:#ffe87a}
 
 /* Resource tooltips */
 

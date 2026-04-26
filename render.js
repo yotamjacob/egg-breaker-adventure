@@ -12,6 +12,60 @@ function formatNum(n) {
   return String(n);
 }
 
+// ==================== GOLD COUNTER ANIMATION ====================
+let _goldDisplayed = 0;
+let _goldTarget    = 0;
+let _goldAnimId    = null;
+let _goldAnimFrom  = 0;
+let _goldAnimStart = null;
+let _goldAnimDur   = 0;
+
+function animateGoldTo(target) {
+  if (target === _goldTarget && _goldAnimId !== null) return;
+
+  if (target <= _goldDisplayed) {
+    // Decrease or no change — instant update, cancel any running animation
+    if (_goldAnimId !== null) { cancelAnimationFrame(_goldAnimId); _goldAnimId = null; }
+    _goldDisplayed = target;
+    _goldTarget    = target;
+    $id('res-g').textContent = formatNum(target);
+    $id('res-g-wrap').classList.remove('gold-counting');
+    return;
+  }
+
+  const delta = target - _goldDisplayed;
+  // 350ms for tiny prizes, up to 1100ms for large ones — feels like a satisfying roll
+  const dur = Math.min(1100, Math.max(350, delta * 2.5));
+
+  if (_goldAnimId !== null) { cancelAnimationFrame(_goldAnimId); _goldAnimId = null; }
+
+  _goldTarget    = target;
+  _goldAnimFrom  = _goldDisplayed;
+  _goldAnimDur   = dur;
+  _goldAnimStart = null;
+
+  $id('res-g-wrap').classList.add('gold-counting');
+
+  function tick(now) {
+    if (_goldAnimStart === null) _goldAnimStart = now;
+    const t      = Math.min(1, (now - _goldAnimStart) / _goldAnimDur);
+    const eased  = 1 - Math.pow(1 - t, 3);   // ease-out cubic
+    const current = Math.round(_goldAnimFrom + (_goldTarget - _goldAnimFrom) * eased);
+    _goldDisplayed = current;
+    $id('res-g').textContent = formatNum(current);
+    if (t < 1) {
+      _goldAnimId = requestAnimationFrame(tick);
+    } else {
+      _goldDisplayed = _goldTarget;
+      $id('res-g').textContent = formatNum(_goldTarget);
+      _goldAnimId = null;
+      $id('res-g-wrap').classList.remove('gold-counting');
+    }
+  }
+
+  _goldAnimId = requestAnimationFrame(tick);
+}
+
 // ==================== EGG RENDERING (16-bit pixel style) ====================
 // damage: 0 = pristine, 1 = light cracks, 2 = heavy cracks, 3+ = broken
 function makeEggSVG(type, damage) {
@@ -461,7 +515,7 @@ function updateStarBtn() {
 
 // ==================== UI RENDERING ====================
 function updateResources() {
-  $id('res-g').textContent = formatNum(G.gold);
+  animateGoldTo(G.gold);
   $id('res-b').textContent = G.crystalBananas;
   $id('res-f').textContent = G.feathers;
   $id('res-b-wrap').style.display = G.crystalBananas > 0 ? '' : 'none';
