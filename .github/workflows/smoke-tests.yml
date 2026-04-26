@@ -57,7 +57,7 @@ jobs:
           EXPECTED_PATCH=$(ver_patch "$EXPECTED")
           for i in $(seq 1 18); do
             LIVE=$(curl -sf https://egg-breaker-adventures.vercel.app/sw.js | grep -o "CACHE_VERSION = '[^']*'" | grep -o "'[^']*'" | tr -d "'" || echo "err")
-            BUNDLE=$(curl -sf https://egg-breaker-adventures.vercel.app/bundle.min.js | grep -o "VERSION='[^']*'" | grep -o "'[^']*'" | tr -d "'" || echo "err")
+            BUNDLE=$(curl -sf https://egg-breaker-adventures.vercel.app/bundle.min.js | grep -o 'VERSION="[^"]*"' | grep -o '"[^"]*"' | tr -d '"' || echo "err")
             echo "  attempt $i: sw.js=$LIVE bundle.min.js=$BUNDLE expected=$EXPECTED"
             LIVE_PATCH=$(ver_patch "$LIVE")
             BUNDLE_PATCH=$(ver_patch "$BUNDLE")
