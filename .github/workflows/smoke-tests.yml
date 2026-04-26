@@ -57,10 +57,13 @@ jobs:
           EXPECTED_PATCH=$(ver_patch "$EXPECTED")
           for i in $(seq 1 18); do
             LIVE=$(curl -sf https://egg-breaker-adventures.vercel.app/sw.js | grep -o "CACHE_VERSION = '[^']*'" | grep -o "'[^']*'" | tr -d "'" || echo "err")
-            echo "  attempt $i: live=$LIVE expected=$EXPECTED"
+            BUNDLE=$(curl -sf https://egg-breaker-adventures.vercel.app/bundle.min.js | grep -o "VERSION='[^']*'" | grep -o "'[^']*'" | tr -d "'" || echo "err")
+            echo "  attempt $i: sw.js=$LIVE bundle.min.js=$BUNDLE expected=$EXPECTED"
             LIVE_PATCH=$(ver_patch "$LIVE")
-            if echo "$LIVE_PATCH" | grep -qE '^[0-9]+$' && [ "$LIVE_PATCH" -ge "$EXPECTED_PATCH" ]; then
-              echo "Deployment ready (live=$LIVE)." && exit 0
+            BUNDLE_PATCH=$(ver_patch "$BUNDLE")
+            if echo "$LIVE_PATCH" | grep -qE '^[0-9]+$' && [ "$LIVE_PATCH" -ge "$EXPECTED_PATCH" ] && \
+               echo "$BUNDLE_PATCH" | grep -qE '^[0-9]+$' && [ "$BUNDLE_PATCH" -ge "$EXPECTED_PATCH" ]; then
+              echo "Deployment ready (sw.js=$LIVE bundle.min.js=$BUNDLE)." && exit 0
             fi
             sleep 10
           done
