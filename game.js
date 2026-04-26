@@ -81,6 +81,7 @@ const DEFAULT_STATE = {
   // Shop upgrades (unique one-time purchases)
   owned_spyglass: false, owned_luckycharm: false, owned_goldmagnet: false,
   owned_eggradar: false, owned_doubledaily: false, owned_starsaver: false, owned_cleanse: false,
+  doubledailyRetroApplied: false,
   _spyglassHintShown: false,
   // Secrets
   _secretFlip: false, _secretOuch: false, _secretChicken: false, _secretStrikes: false,
@@ -317,6 +318,42 @@ function claimDaily() {
   saveGame();
 }
 
+
+// Retroactively grant the bonus half of every previously-claimed daily reward.
+// Called once when Double Daily is first purchased (guarded by doubledailyRetroApplied).
+function applyDoubleDailyRetroBonus() {
+  if (G.doubledailyRetroApplied) return;
+  G.doubledailyRetroApplied = true;
+
+  // Days already claimed: 1..(consecutiveDays-1) always, plus consecutiveDays if dailyClaimed
+  const claimedUpTo = G.dailyClaimed ? G.consecutiveDays : G.consecutiveDays - 1;
+  if (claimedUpTo <= 0) return;
+
+  let bonusGold = 0, bonusHammers = 0, bonusFeathers = 0, bonusMaxH = 0, bonusBananas = 0;
+  for (let d = 1; d <= Math.min(claimedUpTo, 100); d++) {
+    const r = DAILY_REWARDS[d - 1];
+    if (!r) continue;
+    if (r.type === 'gold')     bonusGold     += r.val;
+    if (r.type === 'hammers')  bonusHammers  += r.val;
+    if (r.type === 'feathers') bonusFeathers += r.val;
+    if (r.type === 'maxH')     bonusMaxH     += r.val;
+    if (r.type === 'banana')   bonusBananas  += r.val;
+  }
+
+  if (bonusGold)     { G.gold     += bonusGold;     G.totalGold     += bonusGold; }
+  if (bonusHammers)  { G.hammers  += bonusHammers;  G.dailyHammerTotal = (G.dailyHammerTotal || 0) + bonusHammers; }
+  if (bonusFeathers) { G.feathers += bonusFeathers; G.totalFeathers += bonusFeathers; }
+  if (bonusMaxH)     { G.maxH     += bonusMaxH; }
+  if (bonusBananas)  { G.crystalBananas += bonusBananas; }
+
+  const parts = [];
+  if (bonusGold)     parts.push(bonusGold.toLocaleString() + ' 🪙');
+  if (bonusHammers)  parts.push(bonusHammers + ' 🔨');
+  if (bonusFeathers) parts.push(bonusFeathers + ' 🪶');
+  if (bonusMaxH)     parts.push('+' + bonusMaxH + ' max 🔨');
+  if (bonusBananas)  parts.push(bonusBananas + ' 🍌');
+  if (parts.length)  msg('📅 Double Daily retro bonus (' + claimedUpTo + ' days): ' + parts.join(' + '), 'prizes');
+}
 
 // ==================== HELPERS ====================
 function $id(id) { return document.getElementById(id); }

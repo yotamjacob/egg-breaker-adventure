@@ -1172,10 +1172,28 @@ function renderAchievements() {
 }
 
 // ==================== DAILY CALENDAR ====================
+function _dailyLabel(r) {
+  if (!G.owned_doubledaily) return r.label;
+  const v = r.val * 2;
+  switch (r.type) {
+    case 'gold':     return '+' + v.toLocaleString() + ' gold';
+    case 'hammers':  return '+' + v + ' hammers';
+    case 'feathers': return '+' + v + ' feathers';
+    case 'maxH':     return '+' + v + ' max 🔨';
+    case 'banana':   return '+' + v + (v === 1 ? ' banana' : ' bananas');
+    default:         return r.label;
+  }
+}
+
 function renderDailyCalendar() {
   $id('daily-day').textContent = G.consecutiveDays;
   const cal = $id('daily-calendar');
   if (!cal) return;
+
+  // Show 2× badge in header when Double Daily is active
+  const hdr = $id('daily-header-badge');
+  if (hdr) hdr.style.display = G.owned_doubledaily ? '' : 'none';
+
   const currentDay = G.consecutiveDays;
 
   let html = '';
@@ -1184,6 +1202,7 @@ function renderDailyCalendar() {
     const day = r.day;
     let cls = 'daily-cell';
     if (r.type === 'banana') cls += ' banana';
+    if (G.owned_doubledaily) cls += ' doubled';
 
     if (day < currentDay) {
       cls += ' claimed';
@@ -1199,7 +1218,7 @@ function renderDailyCalendar() {
       (clickable ? ' onclick="claimDaily()" style="cursor:pointer"' : '') + '>' +
       '<span class="dc-day">Day ' + day + '</span>' +
       '<span class="dc-icon">' + (isClaimed ? '✅' : r.icon) + '</span>' +
-      '<span class="dc-label">' + r.label + '</span>' +
+      '<span class="dc-label">' + _dailyLabel(r) + '</span>' +
       '</div>';
   }
   cal.innerHTML = html;

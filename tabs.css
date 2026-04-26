@@ -55,6 +55,10 @@
 .daily-cell.locked{opacity:.3}
 .daily-cell.banana{border-color:var(--amber)}
 .daily-cell.banana.claimed{border-color:var(--green)}
+.daily-cell.doubled.current{border-color:#ffe87a}
+.daily-cell.doubled .dc-label{color:#ffe87a}
+.daily-cell.doubled.locked .dc-label{color:inherit}
+.daily-2x-badge{background:var(--gold);color:#000;font-size:10px;font-weight:bold;padding:1px 5px;border-radius:2px;font-family:var(--px);vertical-align:middle}
 @keyframes pulse-daily{0%,100%{box-shadow:0 0 0 transparent}50%{box-shadow:0 0 6px rgba(245,197,66,.5)}}
 
 /* ---------- Album tab ---------- */

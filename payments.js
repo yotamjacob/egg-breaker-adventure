@@ -192,6 +192,7 @@ function applyPurchaseReward(productId, reward = {}) {
   // Premium upgrades: set owned flag by boughtKey
   const prod = PREMIUM_PRODUCTS.find(p => p.id === productId);
   if (prod && prod.boughtKey) G[prod.boughtKey] = true;
+  if (productId === 'doubledaily') applyDoubleDailyRetroBonus();
   // Batch products declare quantity > 1 — count each unit as a separate purchase
   const qty = (prod && prod.quantity) || 1;
   G.premiumPurchases = (G.premiumPurchases || 0) + qty;
