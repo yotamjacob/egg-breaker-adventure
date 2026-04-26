@@ -58,7 +58,19 @@
 .daily-cell.doubled.current{border-color:#ffe87a}
 .daily-cell.doubled .dc-label{color:#ffe87a}
 .daily-cell.doubled.locked .dc-label{color:inherit}
-.daily-2x-badge{background:var(--gold);color:#000;font-size:10px;font-weight:bold;padding:1px 5px;border-radius:2px;font-family:var(--px);vertical-align:middle}
+.daily-2x-badge{
+  display:inline-block;vertical-align:middle;
+  background:linear-gradient(160deg,#ffe87a 0%,#f5c542 40%,#d4a017 100%);
+  color:#5a3800;
+  font-size:10px;font-weight:bold;font-family:var(--px);
+  padding:2px 7px;border-radius:3px;
+  border:1px solid #a67c00;
+  box-shadow:0 1px 0 #fff6 inset, 0 0 6px rgba(245,197,66,.6), 1px 1px 0 #5a3800;
+  text-shadow:0 1px 0 rgba(255,255,255,.4);
+  letter-spacing:1px;
+  animation:badge-shimmer 2.4s ease-in-out infinite;
+}
+@keyframes badge-shimmer{0%,100%{box-shadow:0 1px 0 #fff6 inset,0 0 6px rgba(245,197,66,.6),1px 1px 0 #5a3800}50%{box-shadow:0 1px 0 #fffa inset,0 0 12px rgba(245,197,66,.9),1px 1px 0 #5a3800}}
 @keyframes pulse-daily{0%,100%{box-shadow:0 0 0 transparent}50%{box-shadow:0 0 6px rgba(245,197,66,.5)}}
 
 /* ---------- Album tab ---------- */
