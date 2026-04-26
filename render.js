@@ -74,6 +74,66 @@ function animateGoldTo(target) {
   _goldAnimId = requestAnimationFrame(tick);
 }
 
+// ==================== FLYING COIN ANIMATION ====================
+function spawnCoinFly(cx, cy, amount) {
+  const wrap   = $id('egg-tray-wrap');
+  const chipEl = $id('res-g-wrap');
+  if (!wrap || !chipEl) return;
+
+  const wrapRect = wrap.getBoundingClientRect();
+  const fromX    = wrapRect.left + cx;
+  const fromY    = wrapRect.top  + cy;
+
+  const chipRect = chipEl.getBoundingClientRect();
+  const toX = chipRect.left + chipRect.width  / 2;
+  const toY = chipRect.top  + chipRect.height / 2;
+
+  const count = amount <=  15 ? 1
+              : amount <=  50 ? 2
+              : amount <= 150 ? 4
+              : amount <= 500 ? 7
+              : amount <= 2000 ? 10 : 12;
+
+  // Shared bezier control point — arcs above both endpoints
+  const baseCtrlX = fromX + (toX - fromX) * 0.35;
+  const baseCtrlY = Math.min(fromY, toY) - 80;
+
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const coin = document.createElement('div');
+      coin.textContent = '🪙';
+      coin.style.cssText = 'position:fixed;left:0;top:0;font-size:15px;pointer-events:none;z-index:9999;will-change:transform,opacity;user-select:none';
+      document.body.appendChild(coin);
+
+      // Randomise arc slightly so coins don't stack
+      const cX  = baseCtrlX + (Math.random() - 0.5) * 50;
+      const cY  = baseCtrlY + (Math.random() - 0.5) * 30;
+      const dur = 380 + Math.random() * 100;
+      const t0  = performance.now();
+
+      function step(now) {
+        const t  = Math.min(1, (now - t0) / dur);
+        const it = 1 - t;
+        const x  = it * it * fromX + 2 * it * t * cX + t * t * toX;
+        const y  = it * it * fromY + 2 * it * t * cY + t * t * toY;
+        const sc = 1 - t * 0.55;
+        const op = t > 0.8 ? (1 - t) / 0.2 : 1;
+        coin.style.transform = `translate(${x - 8}px,${y - 8}px) scale(${sc})`;
+        coin.style.opacity   = op;
+        if (t < 1) {
+          requestAnimationFrame(step);
+        } else {
+          coin.remove();
+          chipEl.classList.remove('gold-coin-land');
+          void chipEl.offsetWidth;  // force reflow so re-adding restarts animation
+          chipEl.classList.add('gold-coin-land');
+        }
+      }
+      requestAnimationFrame(step);
+    }, i * 75);
+  }
+}
+
 // ==================== EGG RENDERING (16-bit pixel style) ====================
 // damage: 0 = pristine, 1 = light cracks, 2 = heavy cracks, 3+ = broken
 function makeEggSVG(type, damage) {

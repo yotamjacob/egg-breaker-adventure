@@ -701,6 +701,7 @@ function applyPrize(prize, cx, cy) {
     SFX.play('coin');
     const sparkCount = prize.value >= 300 ? 22 : prize.value >= 80 ? 14 : 6;
     Particles.sparkle(cx, cy, sparkCount, '#FFD700');
+    spawnCoinFly(cx, cy, prize.value);
   }
 
   if (prize.type === 'star') {
