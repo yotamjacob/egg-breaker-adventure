@@ -108,7 +108,7 @@ function spawnCoinFly(cx, cy, amount) {
       // Randomise arc slightly so coins don't stack
       const cX  = baseCtrlX + (Math.random() - 0.5) * 50;
       const cY  = baseCtrlY + (Math.random() - 0.5) * 30;
-      const dur = 380 + Math.random() * 100;
+      const dur = 520 + Math.random() * 100;
       const t0  = performance.now();
 
       function step(now) {
