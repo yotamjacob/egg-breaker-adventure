@@ -163,7 +163,11 @@ function saveGame() {
   }
   const json = JSON.stringify(d);
   const compressed = 'lz:' + LZString.compressToUTF16(json);
-  localStorage.setItem(SAVE_KEY, compressed);
+  try {
+    localStorage.setItem(SAVE_KEY, compressed);
+  } catch (e) {
+    _pushError('saveGame storage error: ' + (e && e.message || e), e && e.stack);
+  }
 }
 
 function migrateSave(state) {
@@ -215,7 +219,11 @@ function loadGame() {
       }
       G.monkeys = fresh;
     }
-  } catch (_) {}
+  } catch (e) {
+    // Save data unreadable — start fresh but warn the player
+    _pushError('loadGame parse error: ' + (e && e.message || e), e && e.stack);
+    setTimeout(() => showShopSnack('⚠️ Save data unreadable — starting fresh. Use Report Issue if this repeats.', 6000), 1500);
+  }
   migrateSave(G);
   loadPremium(); // premium store always wins — survives save corruption or wipes
 }
