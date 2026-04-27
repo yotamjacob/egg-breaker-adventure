@@ -1198,11 +1198,15 @@ function reportIssue() {
   const url = 'mailto:yotamjacob@gmail.com'
     + '?subject=' + encodeURIComponent('Egg Smash Adventures — Issue Report')
     + '&body='    + encodeURIComponent(body);
-  const a = document.createElement('a');
-  a.href = url;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  if (window.AndroidBridge && typeof window.AndroidBridge.openMailto === 'function') {
+    window.AndroidBridge.openMailto(url);
+  } else {
+    const a = document.createElement('a');
+    a.href = url;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 }
 
 function showPlayInfo() {
