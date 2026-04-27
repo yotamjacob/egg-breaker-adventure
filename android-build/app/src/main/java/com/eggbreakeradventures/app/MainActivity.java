@@ -146,6 +146,20 @@ public class MainActivity extends Activity {
                 });
             }
 
+            // Called from JS to open a mailto: URL in the system email app.
+            // shouldOverrideUrlLoading is unreliable for non-HTTPS schemes in Chrome WebView;
+            // a direct JavascriptInterface call is the only guaranteed path.
+            @JavascriptInterface
+            public void openMailto(final String mailtoUrl) {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(mailtoUrl));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    jsLog("openMailto failed: " + e.getMessage());
+                }
+            }
+
             // Fetches the FCM registration token and delivers it to JS via window.onFcmToken(token).
             // Called from JS when the user enables push notifications on Android.
             @JavascriptInterface
@@ -168,14 +182,6 @@ public class MainActivity extends Activity {
                 if (url.contains("supabase.co/auth") || url.contains("accounts.google.com")) {
                     new CustomTabsIntent.Builder().build()
                         .launchUrl(MainActivity.this, Uri.parse(url));
-                    return true;
-                }
-                // Let the system handle mailto: links (opens Gmail / email app)
-                if (url.startsWith("mailto:")) {
-                    Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(url));
-                    if (intent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(intent);
-                    }
                     return true;
                 }
                 return false;
