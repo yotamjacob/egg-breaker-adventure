@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.4.44';
+const VERSION = '2.4.45';
 
 const CONFIG = {
 
@@ -67,7 +67,7 @@ const CONFIG = {
       goldMult: 10, featherMult: 5, starPieces: 7,
       colors: { f:'#1a1a1a', s:'#000000', h:'#3a3a3a', sh:'#0a0a0a' },
       particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
-      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:72, star:22, mult:16, feather:11, item:10, hammers:15, maxHammers:3, banana:2 },
+      prizes: { empty:0, gold_s:0, gold_m:0, gold_l:72, star:22, mult:16, feather:11, item:10, hammers:15, maxHammers:3, banana:0 },
       desc: 'Stage 9. 20 hits, 10x gold, best rewards in the game',
     },
     {

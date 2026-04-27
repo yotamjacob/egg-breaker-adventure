@@ -104,6 +104,7 @@
           <div class="stage-complete-banner hidden" id="stage-complete-banner">stage complete — tap to advance</div>
           <div class="egg-tray" id="egg-tray"></div>
           <button class="god-btn hidden" id="god-btn" onclick="godMode()">⚡</button>
+          <button class="tray-info-btn" onclick="showPlayInfo()" title="How to play">ℹ️</button>
           <div class="reward-log" id="reward-log">
             <div class="rlog-title">Log</div>
           </div>
@@ -272,6 +273,9 @@
           </div>
           <button class="settings-menu-btn settings-danger-btn" onclick="resetGame()">
             <span class="btn-label">Reset All Progress</span>
+          </button>
+          <button class="settings-menu-btn settings-report-btn" onclick="reportIssue()">
+            <span class="btn-label">✉️ Report an Issue</span>
           </button>
         </div>
         <div class="settings-version" id="version-tag"></div>

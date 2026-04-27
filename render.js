@@ -586,7 +586,8 @@ function updateResources() {
   animateGoldTo(G.gold);
   $id('res-b').textContent = G.crystalBananas;
   $id('res-f').textContent = G.feathers;
-  $id('res-b-wrap').style.display = G.crystalBananas > 0 ? '' : 'none';
+  if (G.crystalBananas > 0) G._bananasEverShown = true;
+  $id('res-b-wrap').style.display = G._bananasEverShown ? '' : 'none';
   $id('res-f-wrap').style.display = G.monkeys?.[0]?.completed ? '' : 'none';
 
   // Hammer row with color + timer

@@ -82,6 +82,7 @@ const DEFAULT_STATE = {
   owned_spyglass: false, owned_luckycharm: false, owned_goldmagnet: false,
   owned_eggradar: false, owned_doubledaily: false, owned_starsaver: false, owned_cleanse: false,
   doubledailyRetroApplied: false,
+  _bananasEverShown: false,
   _spyglassHintShown: false,
   // Secrets
   _secretFlip: false, _secretOuch: false, _secretChicken: false, _secretStrikes: false,
@@ -761,8 +762,8 @@ function checkCollectionComplete(suppressFlash) {
             'Go to Album'
           ), 800);
         }
-        // Check if ALL unlocked monkeys are now complete
-        const allMonkeysDone = G.monkeys.every((mp, mi) => !mp.unlocked || mp.completed);
+        // Check if ALL monkeys (including locked ones) are now complete
+        const allMonkeysDone = G.monkeys.every(mp => mp.completed === true);
         if (allMonkeysDone && !G._allMonkeysCongratsSeen) {
           G._allMonkeysCongratsSeen = true;
           setTimeout(() => {
@@ -1180,6 +1181,39 @@ function openSubModal(id, renderFn) {
   closeOverlay('overlay-settings');
   if (renderFn) renderFn();
   document.getElementById(id).classList.remove('hidden');
+}
+
+function reportIssue() {
+  closeOverlay('overlay-settings');
+  const body = [
+    'Version: ' + VERSION,
+    'Day streak: ' + G.consecutiveDays,
+    'Active monkey: ' + (MONKEY_DATA[G.activeMonkey]?.name || G.activeMonkey),
+    'Device: ' + navigator.userAgent.substring(0, 150),
+    '',
+    'Describe the issue below:',
+    '',
+    '',
+  ].join('\n');
+  window.location.href = 'mailto:yotam@exacti.us'
+    + '?subject=' + encodeURIComponent('Egg Smash Adventures — Issue Report')
+    + '&body='    + encodeURIComponent(body);
+}
+
+function showPlayInfo() {
+  showConfirm('ℹ️', 'How to Play',
+    '<b>Basics</b><br>' +
+    '🥚 Tap an egg to smash it — costs 1 hammer<br>' +
+    '🪙 Collect all stage items to unlock tiers<br>' +
+    '⭐ Fill the star meter (7 pieces) for Starfall<br>' +
+    '🍌 Complete all stage items for a Crystal Banana<br>' +
+    '🔨 Hammers regenerate automatically over time<br><br>' +
+    '<b>Settings ⚙️</b><br>' +
+    '☁️ Cloud Save — sync your progress across devices<br>' +
+    '📊 Overall Progress — track your total completion<br>' +
+    '📖 Lexicon — full in-game guide',
+    null, 'Got it'
+  );
 }
 
 
