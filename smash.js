@@ -38,12 +38,17 @@ function newRound() {
     available.push({ type: def.id, weight: w });
   }
   const spawnTotal = available.reduce((s, e) => s + e.weight, 0);
+  let centuryUsedThisRound = false;
   for (let i = 0; i < count; i++) {
     let r = Math.random() * spawnTotal;
     let type = 'normal';
     for (const e of available) {
       r -= e.weight;
       if (r <= 0) { type = e.type; break; }
+    }
+    if (type === 'century') {
+      if (centuryUsedThisRound) type = 'gold';
+      else centuryUsedThisRound = true;
     }
     const hp = EGG_HP[type];
     // Egg effects unlock progressively through Mr. Monkey stages

@@ -50,11 +50,14 @@ const Particles = (() => {
     }
     _tryStart();
   }
-  function resume() { _tryStart(); }
+  function resume() { running = false; _tryStart(); }
   function _tryStart() {
     if (ps.length === 0 || document.hidden) return;
     if (!running || performance.now() - _lastTick > 500) { running = false; loop(); }
   }
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) resume();
+  });
   function loop() {
     running = true;
     _lastTick = performance.now();
