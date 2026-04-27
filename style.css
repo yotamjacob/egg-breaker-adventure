@@ -134,12 +134,13 @@ body{
 .tray-info-btn{
   position:absolute;bottom:7px;right:7px;z-index:10;
   width:22px;height:22px;border-radius:50%;
-  background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);
-  color:rgba(255,255,255,.55);font-size:12px;
+  background:var(--panel2);border:1px solid var(--purple);
+  color:var(--purple);font-size:12px;
   cursor:pointer;display:flex;align-items:center;justify-content:center;
-  line-height:1;padding:0;transition:opacity .15s;
+  line-height:1;padding:0;box-shadow:1px 1px 0 var(--dark);
+  transition:background .1s,color .1s;
 }
-.tray-info-btn:hover{opacity:1;border-color:rgba(255,255,255,.5);color:#fff}
+.tray-info-btn:hover{background:var(--purple);color:var(--white)}
 
 .resource-bar{display:flex;gap:4px}
 .res{
