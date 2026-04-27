@@ -1195,7 +1195,7 @@ function reportIssue() {
     '',
     '',
   ].join('\n');
-  window.location.href = 'mailto:yotam@exacti.us'
+  window.location.href = 'mailto:yotamjacob@gmail.com'
     + '?subject=' + encodeURIComponent('Egg Smash Adventures — Issue Report')
     + '&body='    + encodeURIComponent(body);
 }

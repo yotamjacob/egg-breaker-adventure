@@ -170,6 +170,14 @@ public class MainActivity extends Activity {
                         .launchUrl(MainActivity.this, Uri.parse(url));
                     return true;
                 }
+                // Let the system handle mailto: links (opens Gmail / email app)
+                if (url.startsWith("mailto:")) {
+                    Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(url));
+                    if (intent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(intent);
+                    }
+                    return true;
+                }
                 return false;
             }
         });
