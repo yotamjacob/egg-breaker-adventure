@@ -1195,9 +1195,14 @@ function reportIssue() {
     '',
     '',
   ].join('\n');
-  window.location.href = 'mailto:yotamjacob@gmail.com'
+  const url = 'mailto:yotamjacob@gmail.com'
     + '?subject=' + encodeURIComponent('Egg Smash Adventures — Issue Report')
     + '&body='    + encodeURIComponent(body);
+  const a = document.createElement('a');
+  a.href = url;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function showPlayInfo() {
