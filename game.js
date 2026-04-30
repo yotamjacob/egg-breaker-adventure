@@ -1228,7 +1228,7 @@ function showPlayInfo() {
     '<b>Settings ⚙️</b><br>' +
     '☁️ Cloud Save — sync your progress across devices<br>' +
     '📊 Overall Progress — track your total completion<br>' +
-    '📖 Lexicon — full in-game guide',
+    '',
     null, 'Got it'
   );
 }
@@ -1258,7 +1258,6 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (name === 'monkeys') renderMonkeys();
   if (name === 'shop') { tab.classList.remove('shop-nudge'); renderShop(); updateAutoBuyBtn(); }
   if (name === 'stats') renderStats();
-  if (name === 'lexicon') renderLexicon();
   if (name === 'daily') renderDailyCalendar();
   if (name === 'achieve') renderAchievements();
   if (name === 'premium') {

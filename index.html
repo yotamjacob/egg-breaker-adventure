@@ -159,8 +159,6 @@
     <!-- ===== STATS TAB (locked — content in Settings) ===== -->
     <section class="tab-panel" id="panel-stats"></section>
 
-    <!-- ===== LEXICON TAB (locked — content in Settings) ===== -->
-    <section class="tab-panel" id="panel-lexicon"></section>
 
     <!-- ===== DAILY TAB ===== -->
     <section class="tab-panel" id="panel-daily">
@@ -260,9 +258,6 @@
           <button class="settings-menu-btn" onclick="openSubModal('overlay-lifestats',renderStats)">
             <span class="btn-label">Lifetime Stats</span>
           </button>
-          <button class="settings-menu-btn" onclick="openSubModal('overlay-lexicon',renderLexicon)">
-            <span class="btn-label">Lexicon</span>
-          </button>
           <button class="settings-menu-btn" onclick="openCloudSaveModal()">
             <span class="btn-label">☁️ Cloud Save</span>
           </button>
@@ -359,18 +354,6 @@
       </div>
     </div>
 
-    <!-- ===== LEXICON MODAL ===== -->
-    <div class="overlay hidden" id="overlay-lexicon" onclick="if(event.target===this){closeOverlay('overlay-lexicon');openSettings();}">
-      <div class="popup pop-submodal pop-submodal-wide">
-        <div class="submodal-header">
-          <span class="submodal-title">Lexicon</span>
-          <button class="submodal-close" onclick="closeOverlay('overlay-lexicon');openSettings()">✕</button>
-        </div>
-        <div class="submodal-body">
-          <div class="lex-content" id="lex-content"></div>
-        </div>
-      </div>
-    </div>
 
     <!-- ===== ALL MONKEYS COMPLETE MODAL ===== -->
     <div class="overlay hidden" id="overlay-congrats">
