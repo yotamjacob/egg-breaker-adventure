@@ -307,6 +307,75 @@ function makeHammerSVG(hammerId) {
       <ellipse cx="22" cy="66" rx="18" ry="22" fill="#3060e0" opacity=".08"/>
     </svg>`;
 
+    // ---- JUDGE GAVEL: Dark mahogany mallet, gold collar & nameplate, scales of justice ----
+    case 'gavel': return `<svg width="40" height="90" viewBox="0 0 44 100" ${S}>
+      <defs>
+        <linearGradient id="gv-wood" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#3a1a08"/><stop offset="40%" stop-color="#6b2e10"/><stop offset="70%" stop-color="#5a2410"/><stop offset="100%" stop-color="#2e1006"/>
+        </linearGradient>
+        <linearGradient id="gv-head" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#2a1008"/><stop offset="35%" stop-color="#4e1e0c"/><stop offset="65%" stop-color="#3c1808"/><stop offset="100%" stop-color="#1a0804"/>
+        </linearGradient>
+        <linearGradient id="gv-gold" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f0c850"/><stop offset="50%" stop-color="#c89820"/><stop offset="100%" stop-color="#a07010"/>
+        </linearGradient>
+      </defs>
+      <!-- Mahogany handle -->
+      <rect x="18" y="0" width="8" height="52" rx="1" fill="url(#gv-wood)" stroke="#1a0804" stroke-width="1"/>
+      <!-- Wood grain lines on handle -->
+      <line x1="20" y1="2"  x2="20" y2="50" stroke="#7a3818" stroke-width=".5" opacity=".5"/>
+      <line x1="23" y1="4"  x2="23" y2="48" stroke="#3a1608" stroke-width=".5" opacity=".4"/>
+      <line x1="25" y1="6"  x2="25" y2="46" stroke="#7a3818" stroke-width=".5" opacity=".3"/>
+      <!-- Subtle knot on handle -->
+      <ellipse cx="22" cy="22" rx="3" ry="2" fill="none" stroke="#1e0a04" stroke-width=".5" opacity=".5"/>
+      <!-- Gold ferrule collar -->
+      <rect x="15" y="50" width="14" height="7" rx="1" fill="url(#gv-gold)" stroke="#886010" stroke-width="1"/>
+      <rect x="16" y="51" width="12" height="2" fill="#f8e080" opacity=".4"/>
+      <rect x="15" y="55" width="14" height="2" fill="#806010" opacity=".5"/>
+      <!-- MALLET HEAD — wide dark mahogany block -->
+      <rect x="2" y="57" width="40" height="36" rx="2" fill="url(#gv-head)" stroke="#100402" stroke-width="1.5"/>
+      <!-- Top face bevel -->
+      <rect x="2" y="57" width="40" height="5" rx="2" fill="#6a2c10"/>
+      <rect x="4" y="58" width="36" height="2" fill="#8a4020" opacity=".4"/>
+      <!-- Vertical wood grain on head -->
+      <line x1="9"  y1="57" x2="9"  y2="93" stroke="#1e0c04" stroke-width="1" opacity=".5"/>
+      <line x1="16" y1="57" x2="16" y2="93" stroke="#5a2010" stroke-width=".5" opacity=".4"/>
+      <line x1="22" y1="57" x2="22" y2="93" stroke="#1e0c04" stroke-width=".5" opacity=".3"/>
+      <line x1="28" y1="57" x2="28" y2="93" stroke="#5a2010" stroke-width=".5" opacity=".4"/>
+      <line x1="35" y1="57" x2="35" y2="93" stroke="#1e0c04" stroke-width="1" opacity=".5"/>
+      <!-- Gold center nameplate band -->
+      <rect x="2" y="71" width="40" height="8" fill="url(#gv-gold)" stroke="#886010" stroke-width=".5"/>
+      <rect x="3" y="72" width="38" height="1" fill="#f8e080" opacity=".35"/>
+      <!-- Scales of justice engraving on nameplate -->
+      <line x1="22" y1="72" x2="22" y2="79" stroke="#60380a" stroke-width="1.5"/>
+      <line x1="14" y1="73" x2="30" y2="73" stroke="#60380a" stroke-width="1.5"/>
+      <line x1="14" y1="73" x2="10" y2="77" stroke="#60380a" stroke-width="1"/>
+      <line x1="10" y1="77" x2="18" y2="77" stroke="#60380a" stroke-width="1"/>
+      <line x1="30" y1="73" x2="26" y2="77" stroke="#60380a" stroke-width="1"/>
+      <line x1="26" y1="77" x2="34" y2="77" stroke="#60380a" stroke-width="1"/>
+      <!-- Nameplate gold glint -->
+      <rect x="5" y="73" width="6" height="1" fill="#f8e090" opacity=".5"/>
+      <rect x="32" y="73" width="5" height="1" fill="#f8e090" opacity=".4"/>
+      <!-- Bottom striking face — worn & dark -->
+      <rect x="2" y="88" width="40" height="5" rx="1" fill="#180804"/>
+      <!-- Strike wear marks at bottom -->
+      <line x1="8"  y1="89" x2="12" y2="91" stroke="#5a2010" stroke-width=".5" opacity=".6"/>
+      <line x1="18" y1="88" x2="22" y2="90" stroke="#3a1408" stroke-width=".5" opacity=".5"/>
+      <line x1="28" y1="89" x2="32" y2="91" stroke="#5a2010" stroke-width=".5" opacity=".6"/>
+      <line x1="10" y1="91" x2="14" y2="93" stroke="#2a1008" stroke-width=".5" opacity=".4"/>
+      <line x1="30" y1="90" x2="25" y2="92" stroke="#2a1008" stroke-width=".5" opacity=".4"/>
+      <!-- Gold sparkle accents -->
+      <rect x="4"  y="60" width="2" height="2" fill="#f0c840" opacity=".7"/>
+      <rect x="37" y="62" width="2" height="2" fill="#f0c840" opacity=".6"/>
+      <rect x="4"  y="84" width="2" height="2" fill="#d4a020" opacity=".6"/>
+      <rect x="37" y="85" width="2" height="2" fill="#d4a020" opacity=".5"/>
+      <!-- Corner inlays on head -->
+      <rect x="3"  y="58" width="3" height="3" rx=".5" fill="#c89020" opacity=".6"/>
+      <rect x="38" y="58" width="3" height="3" rx=".5" fill="#c89020" opacity=".5"/>
+      <rect x="3"  y="86" width="3" height="3" rx=".5" fill="#a07010" opacity=".5"/>
+      <rect x="38" y="86" width="3" height="3" rx=".5" fill="#a07010" opacity=".4"/>
+    </svg>`;
+
     // ---- DEFAULT: Basic wooden hammer ----
     default: return `<svg width="40" height="90" viewBox="0 0 44 100" ${S}>
       <!-- Wooden handle -->
