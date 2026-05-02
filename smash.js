@@ -92,6 +92,12 @@ function multEquation(base, multVals, result, unit, balloonMult, customPrefix) {
 
 // ==================== PRIZE ROLLING ====================
 function rollPrize(eggType) {
+  // Sun Wukong: 72 Transformations — 15% chance to roll prizes from the next egg tier up
+  if (hasBonus('wukong') && Math.random() < 0.15) {
+    const order = ['normal','silver','gold','crystal','ruby','black'];
+    const idx = order.indexOf(eggType);
+    if (idx >= 0 && idx < order.length - 1) eggType = order[idx + 1];
+  }
   const w = { ...PRIZE_WEIGHTS[eggType] };
   const monkey = curMonkey();
   const prog = curProgress();
