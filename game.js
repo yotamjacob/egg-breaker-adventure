@@ -1431,11 +1431,12 @@ document.addEventListener('keydown', (e) => {
 })();
 
 function godMode() {
-  G.hammers = G.maxH;
-  msg('Hammers refilled!');
-  SFX.play('tier');
-  updateResources();
-  saveGame();
+  // disabled for release — re-enable by uncommenting the body
+  // G.hammers = G.maxH;
+  // msg('Hammers refilled!');
+  // SFX.play('tier');
+  // updateResources();
+  // saveGame();
 }
 
 
