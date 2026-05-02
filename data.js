@@ -429,8 +429,8 @@ const MONKEY_DATA = [
     ]
   },
   {
-    id: 'sun_wukong', name: 'Sun Wukong, the Monkey King', emoji: '🐒', img: 'img/wukong_nohat.jpeg',
-    hatImgs: { chef:'img/wukong_chef.jpeg', crown:'img/wukong_crown.jpeg', wizard:'img/wukong_wizard.jpeg', tophat:'img/wukong_tophat.jpeg', pirate:'img/wukong_pirate.jpeg' },
+    id: 'sun_wukong', name: 'Sun Wukong, the Monkey King', emoji: '🐒', img: 'img/wukong_nohat.png',
+    hatImgs: { chef:'img/wukong_chef.png', crown:'img/wukong_crown.png', wizard:'img/wukong_wizard.png', tophat:'img/wukong_tophat.png', pirate:'img/wukong_pirate.png' },
     cost: 9, goldScale: 0.90,
     unlockRequires: { monkeys: ['steampunk', 'princess', 'space', 'odin'], totalEggs: 50000, hint: 'Complete the journeys of all four monkeys and smash 50,000 eggs to summon the Monkey King' },
     perk: 'wukong', perkDesc: '72 Transformations: 15% chance to get next-tier egg prizes',
