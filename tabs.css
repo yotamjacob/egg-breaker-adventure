@@ -237,8 +237,8 @@
   background:#143d2b;border:2px solid var(--green);border-radius:2px;
   padding:6px 14px;font-family:var(--px);font-size:10px;color:#86efac;
   z-index:1000;box-shadow:3px 3px 0 var(--dark);
-  transition:transform .15s ease;white-space:nowrap;
-  max-width:320px;text-align:center;pointer-events:none;
+  transition:transform .15s ease;white-space:normal;word-break:break-word;
+  width:max-content;max-width:calc(100vw - 24px);text-align:center;pointer-events:none;
 }
 .shop-snack.show{transform:translateX(-50%) translateY(0)}
 .shop-card.just-bought{animation:shop-flash .2s ease}
