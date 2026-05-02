@@ -432,7 +432,7 @@ const MONKEY_DATA = [
     id: 'sun_wukong', name: 'Sun Wukong, the Monkey King', emoji: '🐒', img: 'img/wukong_nohat.jpeg',
     hatImgs: { chef:'img/wukong_chef.jpeg', crown:'img/wukong_crown.jpeg', wizard:'img/wukong_wizard.jpeg', tophat:'img/wukong_tophat.jpeg', pirate:'img/wukong_pirate.jpeg' },
     cost: 9, goldScale: 0.90,
-    unlockRequires: { monkeys: ['steampunk', 'princess', 'space', 'odin'], hint: 'Complete the journeys of all four monkeys to summon the Monkey King' },
+    unlockRequires: { monkeys: ['steampunk', 'princess', 'space', 'odin'], totalEggs: 50000, hint: 'Complete the journeys of all four monkeys and smash 50,000 eggs to summon the Monkey King' },
     perk: 'wukong', perkDesc: '72 Transformations: 15% chance to get next-tier egg prizes',
     stages: [
       { name: 'Flower Fruit Mountain', eggs: 3, collection: { name: 'Mountain Treasures', items: [
@@ -575,6 +575,7 @@ const ACHIEVEMENT_DATA = [
   { id:'smash_1000',   name:'Egg Annihilator',     desc:'Break 1,000 eggs',              icon:'💥', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
   { id:'smash_5000',   name:'Egg Apocalypse',      desc:'Break 5,000 eggs',              icon:'☄️', reward:{type:'gold',val:5000,     label:'+5,000 gold'} },
   { id:'smash_10000',  name:'Egg Extinction',      desc:'Break 10,000 eggs',             icon:'🌋', reward:{type:'maxH',val:10,       label:'+10 max hammers'} },
+  { id:'smash_50000',  name:'You Did It!',         desc:'Break 50,000 eggs',             icon:'🐒', reward:{type:'goldPct',val:20,    label:'+20% gold from eggs'} },
   // -- Gold earned --
   { id:'gold_1000',    name:'Coin Collector',      desc:'Earn 1,000 total gold',         icon:'🪙', reward:{type:'gold',val:100,      label:'+100 gold'} },
   { id:'gold_50000',   name:'Rich Monkey',         desc:'Earn 50,000 total gold',        icon:'💰', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
@@ -603,6 +604,7 @@ const ACHIEVEMENT_DATA = [
   { id:'stage_9',      name:'World Champion',      desc:'Complete 9 stages',             icon:'🏆', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'stage_18',     name:'Double Trouble',      desc:'Complete 18 stages',            icon:'⚡', reward:{type:'gold',val:8000,     label:'+8,000 gold'} },
   { id:'stage_36',     name:'Grand Master',        desc:'Complete all 36 stages',        icon:'👑', reward:{type:'goldPct',val:15,    label:'+15% gold from eggs'} },
+  { id:'stage_all',    name:'True Grand Master',   desc:'Complete all 53 stages',        icon:'🐒', reward:{type:'goldPct',val:20,    label:'+20% gold from eggs'} },
   // -- Monkeys --
   { id:'monkey_2',     name:'New Friend',          desc:'Unlock a second monkey',        icon:'🐒', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'monkey_all',   name:'Monkey Business',     desc:'Unlock all monkeys',            icon:'🐵', reward:{type:'goldPct',val:10,    label:'+10% gold from eggs'} },

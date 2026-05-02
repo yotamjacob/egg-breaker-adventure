@@ -875,20 +875,39 @@ function renderMonkeys() {
     const isActive = i === G.activeMonkey;
     const card = document.createElement('div');
 
-    // Check if unlock requirements are met
+    // Check if unlock requirements are met (split: monkey-list req vs egg-count req)
     const req = m.unlockRequires;
-    const reqMet = !req ||
+    const monkeyReqMet = !req ||
       (!req.hammer || G.ownedHammers.includes(req.hammer)) &&
       (!req.monkey || (() => { const ri = MONKEY_DATA.findIndex(x => x.id === req.monkey); return ri !== -1 && G.monkeys[ri]?.unlocked; })()) &&
       (!req.monkeys || req.monkeys.every(id => { const ri = MONKEY_DATA.findIndex(x => x.id === id); return ri !== -1 && G.monkeys[ri]?.unlocked; }));
+    const eggsReqMet = !req?.totalEggs || (G.totalEggs || 0) >= req.totalEggs;
+    const reqMet = monkeyReqMet && eggsReqMet;
 
-    // Mystery card — requirements not met and not yet unlocked
-    if (!mp.unlocked && !reqMet) {
+    // Mystery card — monkey requirements not met and not yet unlocked
+    if (!mp.unlocked && !monkeyReqMet) {
       card.className = 'monkey-card mystery';
       card.innerHTML =
         '<span class="m-emoji">❓</span>' +
         '<span class="m-name">???</span>' +
         '<span class="m-perk mystery-hint">' + (req.hint || 'Hidden monkey') + '</span>';
+      grid.appendChild(card);
+      return;
+    }
+
+    // Egg-milestone card — monkeys unlocked but egg count not reached yet
+    if (!mp.unlocked && monkeyReqMet && !eggsReqMet) {
+      const eggPct = Math.min(100, Math.floor((G.totalEggs || 0) / req.totalEggs * 100));
+      card.className = 'monkey-card egg-milestone';
+      let eggInner = m.img
+        ? '<div class="m-emoji m-avatar-wrap"><img src="' + m.img + '" alt="' + m.name + '"></div>'
+        : '<span class="m-emoji">' + m.emoji + '</span>';
+      eggInner += '<span class="m-name">' + m.name + '</span>';
+      eggInner += '<span class="m-perk">' + m.perkDesc + '</span>';
+      eggInner += '<span class="m-progress">🥚 ' + (G.totalEggs || 0).toLocaleString() + ' / ' + req.totalEggs.toLocaleString() + ' eggs smashed</span>';
+      eggInner += '<div class="m-prog-track"><div class="m-prog-fill" style="width:' + eggPct + '%"></div></div>';
+      eggInner += '<span class="m-cost">' + m.cost + ' 🍌 Crystal Bananas</span>';
+      card.innerHTML = eggInner;
       grid.appendChild(card);
       return;
     }

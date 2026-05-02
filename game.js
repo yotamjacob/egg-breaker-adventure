@@ -983,6 +983,11 @@ function unlockMonkey(index) {
       return;
     }
   }
+  if (req && req.totalEggs && (G.totalEggs || 0) < req.totalEggs) {
+    showAlert('🥚', 'Smash ' + req.totalEggs.toLocaleString() + ' eggs first! (' + (G.totalEggs || 0).toLocaleString() + ' so far)');
+    SFX.play('err');
+    return;
+  }
   const cost = MONKEY_DATA[index].cost;
   if (G.crystalBananas < cost) {
     showAlert('🍌', 'Need ' + cost + ' Crystal Bananas! (have ' + G.crystalBananas + ')');

@@ -41,6 +41,7 @@ function checkAchievements() {
     smash_1000:   () => G.totalEggs >= 1000,
     smash_5000:   () => G.totalEggs >= 5000,
     smash_10000:  () => G.totalEggs >= 10000,
+    smash_50000:  () => G.totalEggs >= 50000,
     // Gold earned
     gold_1000:    () => G.totalGold >= 1000,
     gold_50000:   () => G.totalGold >= 50000,
@@ -69,6 +70,7 @@ function checkAchievements() {
     stage_9:      () => G.stagesCompleted >= 9,
     stage_18:     () => G.stagesCompleted >= 18,
     stage_36:     () => G.stagesCompleted >= 36,
+    stage_all:    () => G.stagesCompleted >= 53,
     // Monkeys
     monkey_2:     () => G.monkeys.filter(m => m.unlocked).length >= 2,
     monkey_all:   () => G.monkeys.every(m => m.unlocked),

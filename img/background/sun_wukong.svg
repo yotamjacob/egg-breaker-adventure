@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <defs>
+    <pattern id="wukong" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+      <!-- Ruyi cloud (top area) — 3 overlapping circles -->
+      <circle cx="50" cy="10" r="7"  fill="none" stroke="#d47830" stroke-width="1.5" opacity="0.65"/>
+      <circle cx="42" cy="15" r="6"  fill="none" stroke="#d47830" stroke-width="1.5" opacity="0.55"/>
+      <circle cx="58" cy="15" r="6"  fill="none" stroke="#d47830" stroke-width="1.5" opacity="0.55"/>
+      <path d="M35,18 Q28,24 30,28 L70,28 Q72,24 65,18" fill="none" stroke="#d47830" stroke-width="1.5" opacity="0.45"/>
+      <!-- Ruyi Jingu Bang (staff) — diagonal with orb heads -->
+      <line x1="8" y1="60" x2="36" y2="32" stroke="#b88030" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+      <circle cx="8"  cy="60" r="5" fill="none" stroke="#b88030" stroke-width="2" opacity="0.55"/>
+      <circle cx="36" cy="32" r="5" fill="none" stroke="#b88030" stroke-width="2" opacity="0.55"/>
+      <!-- Chinese coin (yuanbao) — circle with square hole -->
+      <circle cx="76" cy="68" r="11" fill="none" stroke="#c8a840" stroke-width="1.5" opacity="0.5"/>
+      <rect   x="72"  y="64" width="8" height="8" fill="none" stroke="#c8a840" stroke-width="1.5" opacity="0.5"/>
+      <!-- Small ruyi cloud (bottom-right) -->
+      <circle cx="72" cy="90" r="5"  fill="none" stroke="#d47830" stroke-width="1" opacity="0.35"/>
+      <circle cx="65" cy="94" r="4"  fill="none" stroke="#d47830" stroke-width="1" opacity="0.3"/>
+      <circle cx="79" cy="94" r="4"  fill="none" stroke="#d47830" stroke-width="1" opacity="0.3"/>
+      <!-- Peach silhouette (left side) -->
+      <path d="M18,78 Q14,70 20,66 Q26,70 22,78 Z" fill="none" stroke="#e06878" stroke-width="1.5" opacity="0.4"/>
+      <line x1="20" y1="78" x2="20" y2="82" stroke="#a06040" stroke-width="1" opacity="0.35"/>
+      <!-- Flame wisps (accent) -->
+      <path d="M54,50 Q58,44 56,52 Q60,46 58,54" fill="none" stroke="#e08030" stroke-width="1" opacity="0.3"/>
+      <!-- Dot accents -->
+      <circle cx="40" cy="56" r="1.5" fill="#c8a840" opacity="0.3"/>
+      <circle cx="88" cy="40" r="1.5" fill="#c8a840" opacity="0.3"/>
+      <circle cx="12" cy="40" r="1.5" fill="#d47830" opacity="0.25"/>
+      <!-- Border lines -->
+      <rect x="0" y="0" width="100" height="2" fill="#6a2010" opacity="0.4"/>
+      <rect x="0" y="0" width="2"   height="100" fill="#6a2010" opacity="0.4"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="300" fill="#1a0608"/>
+  <rect width="400" height="300" fill="url(#wukong)"/>
+</svg>
