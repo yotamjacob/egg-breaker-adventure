@@ -1,18 +1,9 @@
-(premium) exclusive cosmetic(s) — premium-only items never available through gold grind: e.g. special monkey skin variant, animated egg trail, limited-edition hat design. purely cosmetic, no gameplay advantage.
 gavel - judge hammer
-stop hammer time?
-famous monkeys - Sun Wukong, Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
+famous monkeys - Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 Prestige?
 item Combos - dark egg and bat give bonus? odin + muijlnir?
-add a thank you for playing modal after X eggs - please review us, please consider purchasing a premium item to supports the devs
 monkey craze - automatically use all hammers2
-new monkey/content - after breaking 100k eggs?
 super sayan
 
 ## android (play store)
 [ ] apply for production access → go live
-
---bugs--
-[ ] Google OAuth consent screen shows raw Supabase URL to users ("Continue to hhpikvqeopscjdzuhbfk.supabase.co") — fix: set up own Google OAuth credentials in Google Cloud Console, paste Client ID+Secret into Supabase Dashboard → Auth → Providers → Google. Makes it show "Egg Smash Adventures" instead.
-
- can think of ways to break-test the game?
