@@ -376,6 +376,7 @@ function popBalloonEgg(index, slot) {
   egg.hp = 0;
   G.totalEggs++;
   G.balloonPopped = (G.balloonPopped || 0) + 1;
+  checkReviewPrompt();
 
   if (egg.type !== 'normal') G[egg.type + 'Smashed'] = (G[egg.type + 'Smashed'] || 0) + 1;
 
@@ -572,6 +573,7 @@ function smashEgg(index) {
   // === Egg broken! ===
   egg.broken = true;
   G.totalEggs++;
+  checkReviewPrompt();
   if (egg.effects && egg.effects.includes('runny')) G.runnySmashed = (G.runnySmashed || 0) + 1;
   if (egg.effects && egg.effects.includes('timer')) {
     G.timerSmashed = (G.timerSmashed || 0) + 1;

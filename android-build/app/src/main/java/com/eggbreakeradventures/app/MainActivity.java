@@ -146,6 +146,18 @@ public class MainActivity extends Activity {
                 });
             }
 
+            // Opens any URL externally (Play Store, mailto, etc.) via system intent.
+            @JavascriptInterface
+            public void openUrl(final String url) {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    jsLog("openUrl failed: " + e.getMessage());
+                }
+            }
+
             // Called from JS to open a mailto: URL in the system email app.
             // shouldOverrideUrlLoading is unreliable for non-HTTPS schemes in Chrome WebView;
             // a direct JavascriptInterface call is the only guaranteed path.

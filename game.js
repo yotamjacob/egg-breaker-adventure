@@ -85,6 +85,7 @@ const DEFAULT_STATE = {
   _bananasEverShown: false,
   _spyglassHintShown: false,
   // Secrets
+  _reviewPromptShown: false,
   _secretFlip: false, _secretOuch: false, _secretChicken: false, _secretStrikes: false,
   _secret42: false, _secretMidnight: false, _secretLeet: false, _secretChef: false, _secretOmelette: false,
   _midnightToday: null,
@@ -1189,6 +1190,28 @@ function openSubModal(id, renderFn) {
   closeOverlay('overlay-settings');
   if (renderFn) renderFn();
   document.getElementById(id).classList.remove('hidden');
+}
+
+function openExternalUrl(url) {
+  if (window.AndroidBridge && typeof window.AndroidBridge.openUrl === 'function') {
+    window.AndroidBridge.openUrl(url);
+  } else {
+    window.open(url, '_blank');
+  }
+}
+
+function checkReviewPrompt() {
+  if (G._reviewPromptShown) return;
+  if ((G.totalEggs || 0) < 1000) return;
+  G._reviewPromptShown = true;
+  saveGame();
+  setTimeout(() => {
+    showConfirm('🥚', 'You smashed 1000 eggs!',
+      'Enjoying the game so far? A quick review means the world to us 🙏',
+      () => openExternalUrl('https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app'),
+      '⭐ Rate Now', 'Maybe Later'
+    );
+  }, 1000);
 }
 
 function reportIssue() {
