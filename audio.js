@@ -110,6 +110,7 @@ const MUSIC = (() => {
     princess:   'audio/princess.mp3',
     space:      'audio/space.mp3',
     odin:       'audio/odin.mp3',
+    sun_wukong: 'audio/wukong.mp3',
   };
 
   // Per-track volume overrides (multiplier relative to VOLUME)
