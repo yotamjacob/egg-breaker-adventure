@@ -153,6 +153,7 @@ function resolvePrize(type, eggType) {
     if (hasBonus('goldBoost15')) base *= 1.15;
     if (hasBonus('goldBoost25')) base *= 1.25;
     if (hasBonus('goldBoost40')) base *= 1.40;
+    if (hasBonus('goldBoost50')) base *= 1.50;
     const ab = getAchievementBonuses();
     if (ab.goldPct > 0) base *= (1 + ab.goldPct / 100);
     const _mk = curMonkey();
@@ -548,6 +549,21 @@ function smashEgg(index) {
     msg('⚡ Mjǫllnir strikes! +7 star pieces', 'mjolnir');
   }
 
+  // Judge Gavel: SMASH! SMASH! text on every hit
+  if (hasBonus('gavelVerdict')) {
+    const zone = $id('prize-zone');
+    spawnFloat(zone, 'SMASH!', '#e53030', 'smash-shout', cx, cy - 10);
+    setTimeout(() => spawnFloat(zone, 'SMASH!', '#c0392b', 'smash-shout', cx + 18, cy - 28), 140);
+  }
+
+  // Judge Gavel: Order! — 4% chance: instant verdict, egg breaks immediately
+  if (hasBonus('gavelVerdict') && egg.hp > 0 && Math.random() < 0.04) {
+    egg.hp = 0;
+    spawnFloat($id('prize-zone'), '⚖️ ORDER!', '#e53030', 'mega', cx, cy - 50);
+    msg('⚖️ Order! Verdict: Guilty — egg sentenced to break!', 'specials');
+    SFX.play('crunch');
+  }
+
   const particleCount = isSpecial
     ? 18 + (egg.maxHp - egg.hp) * 7
     : 8 + (egg.maxHp - egg.hp) * 5;
@@ -634,6 +650,7 @@ function smashEgg(index) {
       if (hasBonus('moreGold'))  gVal = Math.round(gVal * 1.2);
       if (hasBonus('goldBoost')) gVal = Math.round(gVal * 1.1);
       if (hasBonus('allfather')) gVal = Math.round(gVal * 1.1);
+      if (hasBonus('goldBoost50')) gVal = Math.round(gVal * 1.50);
       const _ab = getAchievementBonuses();
       if (_ab.goldPct > 0) gVal = Math.round(gVal * (1 + _ab.goldPct / 100));
       if (G.stagesCompleted > 0) gVal = Math.round(gVal * (1 + Math.min(G.stagesCompleted * 0.02, 0.30)));
