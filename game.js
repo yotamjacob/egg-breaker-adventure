@@ -451,7 +451,7 @@ function renderFullLog() {
     }).join('');
     return;
   }
-  const _SPECIALS_CATS = new Set(['specials', 'cucumber', 'mjolnir', 'freehit']);
+  const _SPECIALS_CATS = new Set(['specials', 'cucumber', 'mjolnir', 'freehit', 'gavel']);
   const entries = _logFilter
     ? _fullLog.filter(e => _logFilter === 'specials' ? _SPECIALS_CATS.has(e.cat) : e.cat === _logFilter)
     : _fullLog;
