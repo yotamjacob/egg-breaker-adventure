@@ -75,6 +75,8 @@ const DEFAULT_STATE = {
   skillsUnlockSeen: false,
   skillUpgrades: [0, 0, 0],
   skillLastUsedAt: [-999, -999, -999],
+  showFloats: true,
+  showLog: true,
   _welcomeDone: false,
   _firstRareSeen: false,
   _starfallTipSeen: false,
@@ -418,6 +420,7 @@ function msg(text, cat) {
 function renderLog() {
   const el = $id('reward-log');
   if (!el) return;
+  el.style.display = (typeof G !== 'undefined' && G.showLog === false) ? 'none' : '';
   el.innerHTML = '<div class="rlog-title">Log</div>' +
     _logLines.map(function(l) {
       var cls = 'log-line';
@@ -504,6 +507,7 @@ document.addEventListener('click', e => {
 });
 
 function spawnFloat(zone, text, color, cls, cx, cy) {
+  if (typeof G !== 'undefined' && G.showFloats === false) return;
   const el = document.createElement('div');
   el.className = 'prize-float' + (cls ? ' ' + cls : '');
   el.style.color = color;
@@ -1410,9 +1414,32 @@ function toggleMusic() {
   saveGame();
 }
 
+function _syncFloatsUI(on) {
+  const label = $id('floats-toggle-label');
+  if (label) { label.textContent = on ? 'ON' : 'OFF'; label.classList.toggle('on', on); }
+}
+function toggleFloats() {
+  G.showFloats = !G.showFloats;
+  _syncFloatsUI(G.showFloats);
+  saveGame();
+}
+function _syncLogUI(on) {
+  const label = $id('log-toggle-label');
+  if (label) { label.textContent = on ? 'ON' : 'OFF'; label.classList.toggle('on', on); }
+  const log = $id('reward-log');
+  if (log) log.style.display = on ? '' : 'none';
+}
+function toggleLog() {
+  G.showLog = !G.showLog;
+  _syncLogUI(G.showLog);
+  saveGame();
+}
+
 // ==================== SETTINGS ====================
 function openSettings() {
   _syncSoundUI(SFX.isOn());
+  _syncFloatsUI(G.showFloats !== false);
+  _syncLogUI(G.showLog !== false);
   const el = document.getElementById('overlay-settings');
   if (el) el.classList.remove('hidden');
 }
@@ -1488,6 +1515,12 @@ function showPlayInfo() {
         '<div class="info-row"><span class="info-row-icon">🎯</span><span>Save big mults for Gold &amp; Crystal eggs!</span></div>' +
       '</div>' +
       '<div class="info-block">' +
+        '<span class="info-block-title">⚡ skills</span>' +
+        '<div class="info-row"><span class="info-row-icon">🐒</span><span>Unlock Skills after completing <span class="info-highlight">2 monkeys</span></span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🔥</span><span><span class="info-highlight">Monkey Rage</span> — spend all hammers, smash every egg across stages</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">⏳</span><span>Each skill has a cooldown — ready every <span class="info-highlight">200 eggs</span> (upgradeable)</span></div>' +
+      '</div>' +
+      '<div class="info-block">' +
         '<span class="info-block-title">🍌 progression</span>' +
         '<div class="info-row"><span class="info-row-icon">🐵</span><span>Each monkey has unique stages &amp; perks</span></div>' +
         '<div class="info-row"><span class="info-row-icon">✅</span><span>Unlocked monkey perks stack — always active</span></div>' +
@@ -1496,6 +1529,11 @@ function showPlayInfo() {
     '</div>',
     null, 'Got it!'
   );
+  const box = $id('overlay-confirm').querySelector('.popup');
+  if (box) box.classList.add('pop-info');
+  const yesBtn = $id('confirm-yes');
+  const prev = yesBtn.onclick;
+  yesBtn.onclick = function() { if (box) box.classList.remove('pop-info'); prev && prev.call(this); };
 }
 
 
@@ -1709,6 +1747,8 @@ checkSkillsUnlock();
 initCloudSave();
 _startCloudAutoSave();
 _initNotifBtn();
+_syncFloatsUI(G.showFloats !== false);
+_syncLogUI(G.showLog !== false);
 
 // Once per session: warn in the log if not synced to cloud
 let _noSyncWarned = false;

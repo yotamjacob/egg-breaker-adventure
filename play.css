@@ -302,15 +302,15 @@
 
 /* ---------- Prize floats ---------- */
 .prize-float{
-  position:absolute;pointer-events:none;font-size:15px;font-weight:bold;
+  position:absolute;pointer-events:none;font-size:12px;font-weight:bold;
   font-family:var(--px);
   z-index:30;text-align:center;
   white-space:nowrap;
   text-shadow:2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 10px rgba(0,0,0,1);
   animation:float-up-retro 2.2s steps(22) forwards;
 }
-.prize-float.big{font-size:16px;animation:float-up-retro-big 2.6s steps(26) forwards;white-space:normal;max-width:160px;word-break:normal;overflow-wrap:break-word;line-height:1.4}
-.prize-float.mega{font-size:18px;animation:float-up-retro-mega 3.2s steps(30) forwards;white-space:normal;max-width:180px;word-break:normal;overflow-wrap:break-word;line-height:1.4}
+.prize-float.big{font-size:13px;animation:float-up-retro-big 2.6s steps(26) forwards;white-space:normal;max-width:160px;word-break:normal;overflow-wrap:break-word;line-height:1.4}
+.prize-float.mega{font-size:15px;animation:float-up-retro-mega 3.2s steps(30) forwards;white-space:normal;max-width:180px;word-break:normal;overflow-wrap:break-word;line-height:1.4}
 
 /* ---------- Screen shake ---------- */
 .shake-sm{animation:shake-sm .2s steps(4)}
