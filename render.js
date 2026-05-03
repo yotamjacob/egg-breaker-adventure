@@ -1291,7 +1291,7 @@ function _dailyLabel(r) {
 // ==================== SKILLS ====================
 const _SKILL_DEFS = [
   {
-    icon: '🐒💢',
+    icon: '<img src="img/rage_monkey.png" class="skill-rage-img" alt="Monkey Rage">',
     name: 'Monkey Rage',
     desc: 'Unleash Monkey Rage to use up all current hammers and smash every egg until depleted.',
   },

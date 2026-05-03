@@ -198,6 +198,23 @@
   transition:opacity 0.6s ease;
 }
 
+/* Monkey Rage active — rage monkey background + red border pulse */
+.egg-tray-wrap.rage-tray-active{
+  border-color:#cc2222;
+  animation:rage-border-pulse .8s ease-in-out infinite;
+}
+.egg-tray-wrap.rage-tray-active::after{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:url('img/rage_monkey.png') center/cover no-repeat;
+  opacity:.16;
+  animation:rage-bg-pulse .8s ease-in-out infinite;
+}
+@keyframes rage-bg-pulse{0%,100%{opacity:.10}50%{opacity:.22}}
+@keyframes rage-border-pulse{
+  0%,100%{box-shadow:inset 3px 3px 0 var(--inset),4px 4px 0 var(--dark),0 0 14px rgba(200,20,20,.45)}
+  50%{box-shadow:inset 3px 3px 0 var(--inset),4px 4px 0 var(--dark),0 0 28px rgba(255,50,50,.8)}
+}
+
 /* Egg tray — taps handled by document-level touchstart, not z-index */
 .egg-tray{
   position:relative;z-index:1;

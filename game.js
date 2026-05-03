@@ -718,6 +718,8 @@ function activateMonkeyRage() {
       if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
       G.skillLastUsedAt[0] = G.totalEggs;
       _rageActive = true;
+      const _trayWrap = $id('egg-tray-wrap');
+      if (_trayWrap) _trayWrap.classList.add('rage-tray-active');
       updateResources();
       msg('🐒💢 MONKEY RAGE! ' + _rageHammersLeft + ' hammers unleashed!', 'specials');
       SFX.play('starfall');
@@ -823,6 +825,8 @@ function _doRageBatch() {
 function _finishRage() {
   _rageActive = false;
   _rageHammersLeft = 0;
+  const _trayWrap = $id('egg-tray-wrap');
+  if (_trayWrap) _trayWrap.classList.remove('rage-tray-active');
   updateResources();
   checkAchievements();
   if (typeof regenInt !== 'undefined' && !regenInt && G.hammers < G.maxH) startRegen();
@@ -1021,7 +1025,7 @@ function updateRageBtn() {
     btn.disabled = true;
   } else {
     btn.classList.remove('rage-cooldown');
-    btn.innerHTML = '🐒💢';
+    btn.innerHTML = '<img src="img/rage_monkey.png" class="rage-btn-img" alt="">';
     btn.disabled = G.hammers < 1 || _rageActive;
   }
 }
