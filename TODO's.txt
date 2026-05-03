@@ -1,6 +1,5 @@
 famous monkeys - Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 Prestige?
-item Combos - dark egg and bat give bonus? odin + muijlnir?
 
 ## android (play store)
 [ ] apply for production access → go live

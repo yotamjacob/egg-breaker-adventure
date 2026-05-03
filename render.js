@@ -1296,12 +1296,12 @@ const _SKILL_DEFS = [
     desc: 'Unleash Monkey Rage to use up all current hammers and smash every egg until depleted.',
   },
   {
-    icon: '<span class="skill-emoji-icon">🥚✨</span>',
+    icon: '<img src="img/golden_goose.png" class="skill-rage-img" alt="Golden Goose">',
     name: 'Golden Goose',
     desc: 'For the next 50 eggs, all rewards are tripled (except Century eggs).',
   },
   {
-    icon: '<span class="skill-emoji-icon">🍌🔨</span>',
+    icon: '<img src="img/banana_shake.png" class="skill-rage-img" alt="Banana Shake">',
     name: 'Banana Shake',
     desc: 'Instantly refills all hammers to maximum.',
   },

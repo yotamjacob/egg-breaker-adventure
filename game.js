@@ -1172,7 +1172,7 @@ function updateGooseBtn() {
   btn.classList.remove('hidden');
   if (_gooseActive) {
     btn.classList.remove('skill-btn-cd');
-    btn.innerHTML = `<div class="rage-running-wrap"><span style="font-size:11px;pointer-events:none">🥚✨</span><span class="rage-running-count">${_gooseEggsLeft}</span></div>`;
+    btn.innerHTML = `<div class="rage-running-wrap"><img src="img/golden_goose.png" class="rage-btn-img rage-btn-dim" alt=""><span class="rage-running-count">${_gooseEggsLeft}</span></div>`;
     btn.disabled = true;
     return;
   }
@@ -1183,7 +1183,7 @@ function updateGooseBtn() {
     btn.disabled = true;
   } else {
     btn.classList.remove('skill-btn-cd');
-    btn.innerHTML = '🥚✨';
+    btn.innerHTML = '<img src="img/golden_goose.png" class="rage-btn-img" alt="">';
     btn.disabled = false;
   }
 }
@@ -1200,7 +1200,7 @@ function updateBananaBtn() {
     btn.disabled = true;
   } else {
     btn.classList.remove('skill-btn-cd');
-    btn.innerHTML = '🍌';
+    btn.innerHTML = '<img src="img/banana_shake.png" class="rage-btn-img" alt="">';
     btn.disabled = false;
   }
 }
