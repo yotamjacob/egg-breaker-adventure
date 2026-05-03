@@ -682,6 +682,21 @@ const ACHIEVEMENT_DATA = [
   { id:'premium_first',     name:'High Roller',       desc:'Make your first premium purchase',  icon:'💎', reward:{type:'feathers',val:20,   label:'+20 feathers'} },
   { id:'premium_starter',   name:'Ready to Roll',     desc:'Purchase the Starter Pack',          icon:'🎁', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'premium_supporter', name:'True Supporter',    desc:'Make 3 premium purchases',           icon:'👑', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
+  // -- Skills --
+  { id:'skill_first',   name:'Power Awakened',        desc:'Unlock your first skill',            icon:'⚡', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  { id:'skill_all',     name:'Triple Threat',         desc:'Unlock all 3 skills',                icon:'🌟', reward:{type:'feathers',val:20,   label:'+20 feathers'} },
+  { id:'rage_first',    name:'Banana Goes Crazy',     desc:'Unleash Monkey Rage for the first time', icon:'🐒', reward:{type:'gold',val:500,  label:'+500 gold'} },
+  { id:'rage_10',       name:'On A Rampage',          desc:'Use Monkey Rage 10 times',           icon:'🔥', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
+  { id:'rage_50',       name:'Rage Machine',          desc:'Use Monkey Rage 50 times',           icon:'💢', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
+  { id:'rage_upgrade1', name:'Focused Fury',          desc:'Upgrade Monkey Rage',                icon:'⚙️', reward:{type:'feathers',val:8,    label:'+8 feathers'} },
+  { id:'rage_maxed',    name:'Maximum Rage',          desc:'Fully upgrade Monkey Rage',          icon:'🦍', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  { id:'goose_first',   name:'Golden Hour',           desc:'Activate Golden Goose for the first time', icon:'🥚', reward:{type:'gold',val:500, label:'+500 gold'} },
+  { id:'goose_10',      name:'Goose on the Loose',    desc:'Activate Golden Goose 10 times',     icon:'✨', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
+  { id:'goose_upgrade', name:'Gilded Upgrade',        desc:'Upgrade Golden Goose',               icon:'⚙️', reward:{type:'feathers',val:8,    label:'+8 feathers'} },
+  { id:'shake_first',   name:'Shake It Up',           desc:'Use Banana Shake for the first time',icon:'🍌', reward:{type:'gold',val:300,      label:'+300 gold'} },
+  { id:'shake_10',      name:'Blended Master',        desc:'Use Banana Shake 10 times',          icon:'🔨', reward:{type:'maxH',val:2,        label:'+2 max hammers'} },
+  { id:'shake_upgrade', name:'Supercharged Shake',    desc:'Upgrade Banana Shake',               icon:'⚙️', reward:{type:'feathers',val:8,    label:'+8 feathers'} },
+  { id:'skills_maxed',  name:'Fully Loaded',          desc:'Max out all 3 skills',               icon:'👑', reward:{type:'goldPct',val:10,    label:'+10% gold from eggs'} },
 ];
 
 // Secret achievements — hidden until discovered

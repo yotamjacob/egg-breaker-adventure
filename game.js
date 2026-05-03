@@ -76,6 +76,9 @@ const DEFAULT_STATE = {
   skillUpgrades: [0, 0, 0],
   skillLastUsedAt: [-999, -999, -999],
   skillConfirmSkip: [false, false, false],
+  totalRageUses: 0,
+  totalGooseUses: 0,
+  totalShakeUses: 0,
   showFloats: true,
   showLog: true,
   _welcomeDone: false,
@@ -717,6 +720,7 @@ function activateMonkeyRage() {
     _rageHammersLeft = Math.max(0, G.hammers);
     G.hammers = 0;
     _rageActive = true;
+    G.totalRageUses = (G.totalRageUses || 0) + 1;
     const _trayWrap = $id('egg-tray-wrap');
     if (_trayWrap) _trayWrap.classList.add('rage-tray-active');
     updateResources();
@@ -878,6 +882,7 @@ function activateGoldenGoose() {
   const doGoose = () => {
     _gooseActive = true;
     _gooseEggsLeft = 50;
+    G.totalGooseUses = (G.totalGooseUses || 0) + 1;
     updateResources();
     msg('GOLDEN GOOSE! Next 50 eggs give 3× rewards!', 'specials');
     SFX.play('starfall');
@@ -922,6 +927,7 @@ function activateBananaShake() {
   const doShake = () => {
     G.hammers = G.maxH;
     G.regenCD = CONFIG.regenInterval;
+    G.totalShakeUses = (G.totalShakeUses || 0) + 1;
     if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
     G.skillLastUsedAt[2] = G.totalEggs;
     saveGame();
@@ -1254,6 +1260,7 @@ function buySkillUpgrade(skillIdx) {
       saveGame();
       updateResources();
       renderSkills();
+      checkAchievements();
       SFX.play('complete');
     },
     'Upgrade'
@@ -1277,6 +1284,7 @@ function buySkill(idx) {
       updateResources();
       renderSkills();
       updateSkillBtns();
+      checkAchievements();
       SFX.play('complete');
     },
     'Unlock'
