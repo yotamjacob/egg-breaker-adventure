@@ -706,7 +706,7 @@ let _gooseActive = false;
 let _gooseEggsLeft = 0;
 
 function activateMonkeyRage() {
-  if (_rageActive || _starfallActive || _spawningRound) return;
+  if (_rageActive || _gooseActive || _starfallActive || _spawningRound) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[0]) return;
   if (!isSkillReady(0)) return;
   if (G.hammers < 1) { showAlert('🔨', 'No hammers left!'); SFX.play('err'); return; }
@@ -938,7 +938,7 @@ function _finishGoose() {
 // ==================== BANANA SHAKE ====================
 function activateBananaShake() {
   if (_rageActive) { stopMonkeyRage(); return; }
-  if (_starfallActive) return;
+  if (_gooseActive || _starfallActive) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[2]) return;
   if (!isSkillReady(2)) return;
 
@@ -1738,6 +1738,41 @@ function reportIssue() {
   }
 }
 
+function showSkillsInfo() {
+  showConfirm('⚡', 'Skills',
+    '<div class="info-blocks">' +
+      '<div class="info-block">' +
+        '<span class="info-block-title">🔓 unlocking</span>' +
+        '<div class="info-row"><span class="info-row-icon">🐒</span><span>Skills unlock after completing <span class="info-highlight">2 monkeys</span>. Up to 3 skills total.</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🪶</span><span>Each skill costs feathers + gold to unlock.</span></div>' +
+      '</div>' +
+      '<div class="info-block">' +
+        '<span class="info-block-title">⚡ how they work</span>' +
+        '<div class="info-row"><span class="info-row-icon">🐒</span><span><span class="info-highlight">Monkey Rage</span> — spends all hammers smashing eggs. Tap the button to stop early (unused hammers refunded).</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🥚</span><span><span class="info-highlight">Golden Goose</span> — next 50 eggs get a flat +3× base bonus on top of normal rewards.</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🍌</span><span><span class="info-highlight">Banana Shake</span> — instantly refills all hammers to max.</span></div>' +
+      '</div>' +
+      '<div class="info-block">' +
+        '<span class="info-block-title">⏳ cooldown & limits</span>' +
+        '<div class="info-row"><span class="info-row-icon">⏳</span><span>Each skill has a cooldown — tracks eggs smashed, not time.</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🚫</span><span>Only one skill can be active at a time.</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🔘</span><span>Skills are activated from buttons on the egg tray.</span></div>' +
+      '</div>' +
+      '<div class="info-block">' +
+        '<span class="info-block-title">⬆️ upgrades</span>' +
+        '<div class="info-row"><span class="info-row-icon">⚙️</span><span>Each skill can be upgraded twice — reduces cooldown (200 → 150 → 100 eggs).</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🪙</span><span>Each upgrade costs <span class="info-highlight">100 feathers + 100k gold</span>.</span></div>' +
+      '</div>' +
+    '</div>',
+    null, 'Got it!'
+  );
+  const box = $id('overlay-confirm').querySelector('.popup');
+  if (box) box.classList.add('pop-info');
+  const yesBtn = $id('confirm-yes');
+  const prev = yesBtn.onclick;
+  yesBtn.onclick = function() { if (box) box.classList.remove('pop-info'); prev && prev.call(this); };
+}
+
 function showPlayInfo() {
   showConfirm('ℹ️', 'How to Play',
     '<div class="info-blocks">' +
@@ -1756,9 +1791,7 @@ function showPlayInfo() {
       '</div>' +
       '<div class="info-block">' +
         '<span class="info-block-title">⚡ skills</span>' +
-        '<div class="info-row"><span class="info-row-icon">🐒</span><span>Unlock Skills after completing <span class="info-highlight">2 monkeys</span></span></div>' +
-        '<div class="info-row"><span class="info-row-icon">🔥</span><span><span class="info-highlight">Monkey Rage</span> — spend all hammers, smash every egg across stages</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">⏳</span><span>Each skill has a cooldown — ready every <span class="info-highlight">200 eggs</span> (upgradeable)</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">⚡</span><span>Unlock powerful skills after completing <span class="info-highlight">2 monkeys</span> — see the Skills tab for details</span></div>' +
       '</div>' +
       '<div class="info-block">' +
         '<span class="info-block-title">🍌 progression</span>' +

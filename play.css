@@ -215,14 +215,22 @@
   50%{box-shadow:inset 3px 3px 0 var(--inset),4px 4px 0 var(--dark),0 0 28px rgba(255,50,50,.8)}
 }
 
-/* Golden Goose active — gold border glow */
+/* Golden Goose active — gold border glow + inner golden wash */
 .egg-tray-wrap.goose-tray-active{
   border-color:#f5c542;
   animation:goose-border-pulse .9s ease-in-out infinite;
 }
+.egg-tray-wrap.goose-tray-active::after{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 60%,rgba(255,215,0,.18) 0%,rgba(255,180,0,.08) 55%,transparent 80%);
+  animation:goose-inner-pulse .9s ease-in-out infinite;
+}
 @keyframes goose-border-pulse{
-  0%,100%{box-shadow:inset 3px 3px 0 var(--inset),4px 4px 0 var(--dark),0 0 14px rgba(245,197,66,.4)}
-  50%{box-shadow:inset 3px 3px 0 var(--inset),4px 4px 0 var(--dark),0 0 32px rgba(255,220,60,.85)}
+  0%,100%{box-shadow:inset 3px 3px 0 var(--inset),4px 4px 0 var(--dark),0 0 14px rgba(245,197,66,.45)}
+  50%{box-shadow:inset 3px 3px 0 var(--inset),4px 4px 0 var(--dark),0 0 34px rgba(255,220,60,.9)}
+}
+@keyframes goose-inner-pulse{
+  0%,100%{opacity:.7}50%{opacity:1}
 }
 
 /* Banana Shake — long funny wiggle */
