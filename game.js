@@ -849,12 +849,12 @@ function _doRageBatch() {
       if (_rageHammersLeft > 0) {
         setTimeout(_doRageBatch, 450);
       } else {
-        _finishRage();
+        setTimeout(_finishRage, 450);
       }
     } else {
       _finishRage();
     }
-  }, toSmash.length * 140 + 350);
+  }, toProcess.length * 140 + 350);
 }
 
 function _finishRage() {
