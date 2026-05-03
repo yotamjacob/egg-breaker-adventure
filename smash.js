@@ -697,6 +697,16 @@ function smashEgg(index) {
 }
 
 function applyPrize(prize, cx, cy) {
+  // Golden Goose: 3× rewards for next 50 eggs (except century)
+  if (typeof _gooseActive !== 'undefined' && _gooseActive && typeof _prizeEggType !== 'undefined' && _prizeEggType !== 'century') {
+    if (prize.type === 'gold' || prize.type === 'feather' || prize.type === 'star' || prize.type === 'hammers') {
+      prize = { ...prize, value: prize.value * 3, baseVal: (prize.baseVal || prize.value) * 3,
+        label: prize.label.replace(/\+(\d+)/, (_, n) => '+' + (parseInt(n) * 3)) };
+    }
+    _gooseEggsLeft--;
+    if (_gooseEggsLeft <= 0) setTimeout(_finishGoose, 100);
+  }
+
   const zone = $id('prize-zone');
 
   if (prize.type === 'empty') {

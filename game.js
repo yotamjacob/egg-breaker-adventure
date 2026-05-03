@@ -75,6 +75,7 @@ const DEFAULT_STATE = {
   skillsUnlockSeen: false,
   skillUpgrades: [0, 0, 0],
   skillLastUsedAt: [-999, -999, -999],
+  skillConfirmSkip: [false, false, false],
   showFloats: true,
   showLog: true,
   _welcomeDone: false,
@@ -697,6 +698,8 @@ function _doStarfall(message, cat) {
 // ==================== MONKEY RAGE ====================
 let _rageActive = false;
 let _rageHammersLeft = 0;
+let _gooseActive = false;
+let _gooseEggsLeft = 0;
 
 function activateMonkeyRage() {
   if (_rageActive || _starfallActive || _spawningRound) return;
@@ -708,21 +711,32 @@ function activateMonkeyRage() {
   if (!unbroken.length) { showAlert('🐒', 'No eggs to smash!'); return; }
 
   const hammersNow = G.hammers;
+  const doRage = () => {
+    if (_rageActive || _starfallActive || _spawningRound) return;
+    if (G.hammers < 1) { showAlert('🔨', 'No hammers left!'); SFX.play('err'); return; }
+    _rageHammersLeft = Math.max(0, G.hammers);
+    G.hammers = 0;
+    _rageActive = true;
+    const _trayWrap = $id('egg-tray-wrap');
+    if (_trayWrap) _trayWrap.classList.add('rage-tray-active');
+    updateResources();
+    msg('MONKEY RAGE! ' + _rageHammersLeft + ' hammers unleashed!', 'specials');
+    SFX.play('starfall');
+    spawnFloat($id('prize-zone'), 'MONKEY RAGE!!', '#ff3333', 'mega');
+    _doRageBatch();
+  };
+
+  if ((G.skillConfirmSkip || [])[0]) { doRage(); return; }
+
   showConfirm('', 'Monkey Rage!',
-    'Will consume <b style="color:#ffaaaa">' + hammersNow + ' hammers</b> — smashing every egg across stages until empty.',
+    'Will consume <b style="color:#ffaaaa">' + hammersNow + ' hammers</b> — smashing every egg across stages until empty.<br><br><label class="skill-skip-label"><input type="checkbox" id="skill-skip-0"> Don\'t show me again</label>',
     () => {
-      if (_rageActive || _starfallActive || _spawningRound) return;
-      if (G.hammers < 1) { showAlert('🔨', 'No hammers left!'); SFX.play('err'); return; }
-      _rageHammersLeft = Math.max(0, G.hammers);
-      G.hammers = 0;
-      _rageActive = true;
-      const _trayWrap = $id('egg-tray-wrap');
-      if (_trayWrap) _trayWrap.classList.add('rage-tray-active');
-      updateResources();
-      msg('MONKEY RAGE! ' + _rageHammersLeft + ' hammers unleashed!', 'specials');
-      SFX.play('starfall');
-      spawnFloat($id('prize-zone'), 'MONKEY RAGE!!', '#ff3333', 'mega');
-      _doRageBatch();
+      if (document.getElementById('skill-skip-0')?.checked) {
+        if (!G.skillConfirmSkip) G.skillConfirmSkip = [false,false,false];
+        G.skillConfirmSkip[0] = true;
+        saveGame();
+      }
+      doRage();
     },
     'Unleash', 'Cancel'
   );
@@ -853,6 +867,89 @@ function _finishRage() {
   updateResources();
   checkAchievements();
   if (typeof regenInt !== 'undefined' && !regenInt && G.hammers < G.maxH) startRegen();
+}
+
+// ==================== GOLDEN GOOSE ====================
+function activateGoldenGoose() {
+  if (_gooseActive || _rageActive || _starfallActive) return;
+  if (!G.skillsUnlocked || !G.skillsUnlocked[1]) return;
+  if (!isSkillReady(1)) return;
+
+  const doGoose = () => {
+    _gooseActive = true;
+    _gooseEggsLeft = 50;
+    updateResources();
+    msg('GOLDEN GOOSE! Next 50 eggs give 3× rewards!', 'specials');
+    SFX.play('starfall');
+    spawnFloat($id('prize-zone'), 'GOLDEN GOOSE!', '#FFD700', 'mega');
+    renderSkills();
+  };
+
+  if ((G.skillConfirmSkip || [])[1]) { doGoose(); return; }
+
+  showConfirm('🥚', 'Golden Goose!',
+    'Next <b>50 eggs</b> give <b style="color:#FFD700">3× rewards</b> (gold, feathers, stars, hammers). Century eggs excluded.<br><br><label class="skill-skip-label"><input type="checkbox" id="skill-skip-1"> Don\'t show me again</label>',
+    () => {
+      if (document.getElementById('skill-skip-1')?.checked) {
+        if (!G.skillConfirmSkip) G.skillConfirmSkip = [false,false,false];
+        G.skillConfirmSkip[1] = true;
+        saveGame();
+      }
+      doGoose();
+    },
+    'Activate', 'Cancel'
+  );
+}
+
+function _finishGoose() {
+  _gooseActive = false;
+  _gooseEggsLeft = 0;
+  if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
+  G.skillLastUsedAt[1] = G.totalEggs;
+  msg('Golden Goose ended — cooldown started.', 'specials');
+  updateResources();
+  renderSkills();
+}
+
+// ==================== BANANA SHAKE ====================
+function activateBananaShake() {
+  if (_rageActive || _starfallActive) return;
+  if (!G.skillsUnlocked || !G.skillsUnlocked[2]) return;
+  if (!isSkillReady(2)) return;
+
+  const doShake = () => {
+    G.hammers = G.maxH;
+    G.regenCD = CONFIG.regenInterval;
+    if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
+    G.skillLastUsedAt[2] = G.totalEggs;
+    saveGame();
+    updateResources();
+    SFX.play('complete');
+    spawnFloat($id('prize-zone'), 'BANANA SHAKE!', '#FFD700', 'mega');
+    msg('BANANA SHAKE! Hammers refilled!', 'specials');
+    renderSkills();
+  };
+
+  if ((G.skillConfirmSkip || [])[2]) { doShake(); return; }
+
+  showConfirm('🍌', 'Banana Shake!',
+    'Instantly refills all hammers to maximum (<b>' + G.maxH + ' 🔨</b>).<br><br><label class="skill-skip-label"><input type="checkbox" id="skill-skip-2"> Don\'t show me again</label>',
+    () => {
+      if (document.getElementById('skill-skip-2')?.checked) {
+        if (!G.skillConfirmSkip) G.skillConfirmSkip = [false,false,false];
+        G.skillConfirmSkip[2] = true;
+        saveGame();
+      }
+      doShake();
+    },
+    'Shake!', 'Cancel'
+  );
+}
+
+function activateSkill(i) {
+  if (i === 0) activateMonkeyRage();
+  else if (i === 1) activateGoldenGoose();
+  else if (i === 2) activateBananaShake();
 }
 
 // ==================== COLLECTION / STAGE ====================
@@ -1069,12 +1166,18 @@ const _SKILL_COSTS = [
   { feathers: 750,  gold: 250000 },
   { feathers: 1000, gold: 400000 },
 ];
-const _SKILL_COOLDOWNS     = [200, 150, 100]; // eggs between uses, indexed by upgrade level
-const _SKILL_UPGRADE_COSTS = [100000, 100000]; // gold cost per upgrade tier (100k each)
+// Per-skill cooldown arrays [base, upgrade1, upgrade2]
+const _SKILL_COOLDOWNS = [
+  [200, 150, 100],  // Monkey Rage
+  [200, 150, 100],  // Golden Goose
+  [300, 250, 200],  // Banana Shake
+];
+const _SKILL_UPGRADE_COSTS = { gold: [100000, 100000], feathers: [100, 100] };
 
 function skillCooldownThreshold(idx) {
   const level = Math.min(2, (G.skillUpgrades || [0,0,0])[idx] || 0);
-  return _SKILL_COOLDOWNS[level];
+  const cds = _SKILL_COOLDOWNS[idx] || _SKILL_COOLDOWNS[0];
+  return cds[level];
 }
 function skillEggsUntilReady(idx) {
   const cd   = skillCooldownThreshold(idx);
@@ -1086,13 +1189,17 @@ function isSkillReady(idx) { return skillEggsUntilReady(idx) === 0; }
 function buySkillUpgrade(skillIdx) {
   const level = (G.skillUpgrades || [0,0,0])[skillIdx] || 0;
   if (level >= 2) return;
-  const cost = _SKILL_UPGRADE_COSTS[level];
-  const newCd = _SKILL_COOLDOWNS[level + 1];
-  if (G.gold < cost) { showAlert('🪙', 'Need ' + formatNum(cost) + ' gold!'); SFX.play('err'); return; }
+  const goldCost    = _SKILL_UPGRADE_COSTS.gold[level];
+  const featherCost = _SKILL_UPGRADE_COSTS.feathers[level];
+  const cds = _SKILL_COOLDOWNS[skillIdx] || _SKILL_COOLDOWNS[0];
+  const newCd = cds[level + 1];
+  if (G.gold < goldCost) { showAlert('🪙', 'Need ' + formatNum(goldCost) + ' gold!'); SFX.play('err'); return; }
+  if (G.feathers < featherCost) { showAlert('🪶', 'Need ' + featherCost + ' feathers!'); SFX.play('err'); return; }
   showConfirm('⚡', 'Upgrade Skill?',
-    'Reduce cooldown to ' + newCd + ' eggs • ' + formatNum(cost) + ' 🪙',
+    'Reduce cooldown to ' + newCd + ' eggs<br>' + featherCost + ' 🪶 + ' + formatNum(goldCost) + ' 🪙',
     () => {
-      G.gold -= cost;
+      G.gold -= goldCost;
+      G.feathers -= featherCost;
       if (!G.skillUpgrades) G.skillUpgrades = [0,0,0];
       G.skillUpgrades[skillIdx]++;
       saveGame();

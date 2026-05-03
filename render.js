@@ -1295,8 +1295,16 @@ const _SKILL_DEFS = [
     name: 'Monkey Rage',
     desc: 'Unleash Monkey Rage to use up all current hammers and smash every egg until depleted.',
   },
-  { icon: '🔒', name: '???', desc: 'Mystery skill — unlock to reveal.' },
-  { icon: '🔒', name: '???', desc: 'Mystery skill — unlock to reveal.' },
+  {
+    icon: '<span class="skill-emoji-icon">🥚✨</span>',
+    name: 'Golden Goose',
+    desc: 'For the next 50 eggs, all rewards are tripled (except Century eggs).',
+  },
+  {
+    icon: '<span class="skill-emoji-icon">🍌🔨</span>',
+    name: 'Banana Shake',
+    desc: 'Instantly refills all hammers to maximum.',
+  },
 ];
 
 function renderSkills() {
@@ -1310,28 +1318,45 @@ function renderSkills() {
     const def = _SKILL_DEFS[i];
     if (unlocked) {
       const level = (G.skillUpgrades || [0,0,0])[i] || 0;
-      const cdValues = [200, 150, 100];
-      const cd = cdValues[Math.min(2, level)];
+      const cds = _SKILL_COOLDOWNS[i] || _SKILL_COOLDOWNS[0];
+      const cd = cds[Math.min(2, level)];
       const maxed = level >= 2;
+      const ready = isSkillReady(i);
+      const eggsLeft = skillEggsUntilReady(i);
+      const isGooseRunning = (i === 1 && typeof _gooseActive !== 'undefined' && _gooseActive);
+
+      // Activate button / status
+      let activateHtml = '';
+      if (isGooseRunning) {
+        activateHtml = `<div class="skill-running-badge">✨ Active — ${typeof _gooseEggsLeft !== 'undefined' ? _gooseEggsLeft : 0} eggs left</div>`;
+      } else if (ready) {
+        activateHtml = `<button class="skill-activate-btn" onclick="activateSkill(${i})">Activate</button>`;
+      } else {
+        activateHtml = `<div class="skill-cd-status">Ready in ${eggsLeft} eggs</div>`;
+      }
+
+      // Upgrade section
       let upgradeHtml = '';
       if (!maxed) {
-        const nextCd = cdValues[level + 1];
-        const cost = _SKILL_UPGRADE_COSTS[level];
-        const canAff = G.gold >= cost;
+        const nextCd = cds[level + 1];
+        const goldCost = _SKILL_UPGRADE_COSTS.gold[level];
+        const featherCost = _SKILL_UPGRADE_COSTS.feathers[level];
+        const canAff = G.gold >= goldCost && G.feathers >= featherCost;
         upgradeHtml = `<div class="skill-upgrade-row">
           <div class="skill-upgrade-label">Upgrade: ${nextCd} egg cooldown</div>
-          <button class="skill-upgrade-btn${canAff ? '' : ' skill-btn-dim'}" onclick="buySkillUpgrade(${i})"${canAff ? '' : ' disabled'}>${formatNum(cost)} 🪙</button>
+          <button class="skill-upgrade-btn${canAff ? '' : ' skill-btn-dim'}" onclick="buySkillUpgrade(${i})"${canAff ? '' : ' disabled'}>${featherCost} 🪶 + ${formatNum(goldCost)} 🪙</button>
         </div>`;
       } else {
         upgradeHtml = `<div class="skill-maxed-badge">⚡ MAX</div>`;
       }
+
       return `<div class="skill-block skill-unlocked" id="skill-block-${i}">
         <div class="skill-block-inner">
           <div class="skill-icon-wrap skill-rage-icon">${def.icon}</div>
           <div class="skill-name">${def.name}</div>
           <div class="skill-desc">${def.desc}</div>
           <div class="skill-cd-label">Cooldown: ${cd} eggs${level > 0 ? ' ⚡' : ''}</div>
-          <div class="skill-active-badge">✓ Active</div>
+          ${activateHtml}
           ${upgradeHtml}
         </div>
       </div>`;
