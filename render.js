@@ -1025,7 +1025,7 @@ function renderMonkeys() {
     // Attach handlers AFTER innerHTML — only button clicks trigger selection (no card onclick)
     if (mp.unlocked && !isActive) {
       const enterBtn = card.querySelector('.monkey-enter-btn');
-      if (enterBtn) enterBtn.onclick = function(e) { e.stopPropagation(); switchMonkey(i); };
+      if (enterBtn) enterBtn.onclick = function(e) { e.stopPropagation(); switchMonkey(i); document.querySelector('[data-tab="play"]').click(); };
     }
     if (!mp.unlocked) {
       const btn = card.querySelector('.monkey-unlock-btn');
