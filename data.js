@@ -432,7 +432,7 @@ const MONKEY_DATA = [
     id: 'sun_wukong', name: 'Sun Wukong, the Monkey King', emoji: '🐒', img: 'img/wukong_nohat.png',
     hatImgs: { chef:'img/wukong_chef.png', crown:'img/wukong_crown.png', wizard:'img/wukong_wizard.png', tophat:'img/wukong_tophat.png', pirate:'img/wukong_pirate.png' },
     cost: 9, goldScale: 0.90,
-    unlockRequires: { monkeys: ['steampunk', 'princess', 'space', 'odin'], totalEggs: 35000, hint: 'Complete the journeys of all four monkeys and smash 35,000 eggs to summon the Monkey King' },
+    unlockRequires: { monkeys: ['steampunk', 'princess', 'space', 'odin'], totalEggs: 30000, hint: 'Complete the journeys of all four monkeys and smash 30,000 eggs to summon the Monkey King' },
     perk: 'wukong', perkDesc: '72 Transformations: 15% chance to get next-tier egg prizes',
     stages: [
       { name: 'Flower Fruit Mountain', eggs: 3, collection: { name: 'Mountain Treasures', items: [
@@ -527,7 +527,7 @@ const SHOP_HAMMERS = [
   { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% items, +15% gold',       cost: 220000, currency: 'gold', bonus: ['moreItems', 'goldBoost15'] },
   { id: 'cucumber',   name: 'Cucumber Hammer',   emoji: '🥒', desc: '5% double hit, +25% gold',   cost: 300000, currency: 'gold', bonus: ['doubleHit', 'goldBoost25'] },
   { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% chance: full Starfall + 7 star pieces, +40% gold', cost: 420000, currency: 'gold', bonus: ['mjolnirStarfall', 'goldBoost40'] },
-  { id: 'gavel',     name: 'Judge Gavel',        emoji: '⚖️', desc: 'Order! 4% chance: instant verdict — breaks any egg immediately regardless of HP. +50% gold.', cost: 850000, currency: 'gold', bonus: ['gavelVerdict', 'goldBoost50'] },
+  { id: 'gavel',     name: 'Judge Gavel',        emoji: '⚖️', desc: 'Order! 4% chance: instant verdict — breaks any egg immediately regardless of HP. +50% gold.', cost: 1000000, currency: 'gold', bonus: ['gavelVerdict', 'goldBoost50'] },
 ];
 
 const SHOP_HATS = [
@@ -576,7 +576,7 @@ const ACHIEVEMENT_DATA = [
   { id:'smash_1000',   name:'Egg Annihilator',     desc:'Break 1,000 eggs',              icon:'💥', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
   { id:'smash_5000',   name:'Egg Apocalypse',      desc:'Break 5,000 eggs',              icon:'☄️', reward:{type:'gold',val:5000,     label:'+5,000 gold'} },
   { id:'smash_10000',  name:'Egg Extinction',      desc:'Break 10,000 eggs',             icon:'🌋', reward:{type:'maxH',val:10,       label:'+10 max hammers'} },
-  { id:'smash_50000',  name:'You Did It!',         desc:'Break 35,000 eggs',             icon:'🐒', reward:{type:'goldPct',val:20,    label:'+20% gold from eggs'} },
+  { id:'smash_50000',  name:'You Did It!',         desc:'Break 30,000 eggs',             icon:'🐒', reward:{type:'goldPct',val:20,    label:'+20% gold from eggs'} },
   // -- Gold earned --
   { id:'gold_1000',    name:'Coin Collector',      desc:'Earn 1,000 total gold',         icon:'🪙', reward:{type:'gold',val:100,      label:'+100 gold'} },
   { id:'gold_50000',   name:'Rich Monkey',         desc:'Earn 50,000 total gold',        icon:'💰', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },

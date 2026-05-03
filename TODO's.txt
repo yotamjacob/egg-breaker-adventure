@@ -6,9 +6,3 @@ super sayan
 
 ## android (play store)
 [ ] apply for production access → go live
-
-
-Can show a small version of the hammer in the shop?
-Gavel skill.has special log
-Replace float text with order when skill is activated
-getting bananas in daily doesn't make sense, replace it, and reduce the dailies to 30 days
