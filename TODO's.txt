@@ -5,3 +5,8 @@ super sayan
 
 ## android (play store)
 [ ] apply for production access → go live
+
+
+how to play menu needs to be mroe readable - make the font bigger and modal wider, add explanation on skills
+make float texts a bit smaller
+add a toggle for the float texts and the mini logs on the egg tray in the settings

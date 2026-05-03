@@ -1309,12 +1309,30 @@ function renderSkills() {
   el.innerHTML = skills.map((unlocked, i) => {
     const def = _SKILL_DEFS[i];
     if (unlocked) {
+      const level = (G.skillUpgrades || [0,0,0])[i] || 0;
+      const cdValues = [200, 150, 100];
+      const cd = cdValues[Math.min(2, level)];
+      const maxed = level >= 2;
+      let upgradeHtml = '';
+      if (!maxed) {
+        const nextCd = cdValues[level + 1];
+        const cost = _SKILL_UPGRADE_COSTS[level];
+        const canAff = G.gold >= cost;
+        upgradeHtml = `<div class="skill-upgrade-row">
+          <div class="skill-upgrade-label">Upgrade: ${nextCd} egg cooldown</div>
+          <button class="skill-upgrade-btn${canAff ? '' : ' skill-btn-dim'}" onclick="buySkillUpgrade(${i})"${canAff ? '' : ' disabled'}>${formatNum(cost)} 🪙</button>
+        </div>`;
+      } else {
+        upgradeHtml = `<div class="skill-maxed-badge">⚡ MAX</div>`;
+      }
       return `<div class="skill-block skill-unlocked" id="skill-block-${i}">
         <div class="skill-block-inner">
           <div class="skill-icon-wrap skill-rage-icon">${def.icon}</div>
           <div class="skill-name">${def.name}</div>
           <div class="skill-desc">${def.desc}</div>
+          <div class="skill-cd-label">Cooldown: ${cd} eggs${level > 0 ? ' ⚡' : ''}</div>
           <div class="skill-active-badge">✓ Active</div>
+          ${upgradeHtml}
         </div>
       </div>`;
     }

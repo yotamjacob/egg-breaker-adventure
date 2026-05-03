@@ -73,6 +73,8 @@ const DEFAULT_STATE = {
   autoBuy: false,
   skillsUnlocked: [false, false, false],
   skillsUnlockSeen: false,
+  skillUpgrades: [0, 0, 0],
+  skillLastUsedAt: [-999, -999, -999],
   _welcomeDone: false,
   _firstRareSeen: false,
   _starfallTipSeen: false,
@@ -690,30 +692,54 @@ function _doStarfall(message, cat) {
 
 // ==================== MONKEY RAGE ====================
 let _rageActive = false;
+let _rageHammersLeft = 0;
 
 function activateMonkeyRage() {
   if (_rageActive || _starfallActive || _spawningRound) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[0]) return;
+  if (!isSkillReady(0)) return;
   if (G.hammers < 1) { showAlert('🔨', 'No hammers left!'); SFX.play('err'); return; }
   if (!G.roundEggs) return;
+  const unbroken = G.roundEggs.filter(e => !e.broken && !e.expired);
+  if (!unbroken.length) { showAlert('🐒', 'No eggs to smash!'); return; }
 
-  const unbroken = G.roundEggs.reduce((a, e, i) => {
+  _rageHammersLeft = G.hammers;
+  G.hammers = 0;
+  if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
+  G.skillLastUsedAt[0] = G.totalEggs;
+  _rageActive = true;
+  updateResources();
+  msg('🐒💢 MONKEY RAGE! ' + _rageHammersLeft + ' hammers unleashed!', 'specials');
+  SFX.play('starfall');
+  _doRageBatch();
+}
+
+function _doRageBatch() {
+  if (_rageHammersLeft <= 0) { _finishRage(); return; }
+  if (!G.roundEggs) { _finishRage(); return; }
+
+  const unbrokenIdxs = G.roundEggs.reduce((a, e, i) => {
     if (!e.broken && !e.expired) a.push(i);
     return a;
   }, []);
-  if (!unbroken.length) { showAlert('🐒', 'No eggs to smash!'); return; }
 
-  const hammersSpent = G.hammers;
-  G.hammers = 0;
-  _rageActive = true;
-  updateResources();
-  msg('🐒💢 MONKEY RAGE! ' + hammersSpent + ' hammers unleashed!', 'specials');
-  SFX.play('starfall');
+  if (!unbrokenIdxs.length) {
+    // Round cleared — advance and keep going if hammers remain
+    G.roundClears++;
+    checkCollectionComplete(true);
+    checkAchievements();
+    newRound();
+    setTimeout(_doRageBatch, 450);
+    return;
+  }
+
+  const toSmash = unbrokenIdxs.slice(0, _rageHammersLeft);
+  _rageHammersLeft -= toSmash.length;
 
   const wrap = $id('egg-tray-wrap');
   const hammerEl = $id('hammer');
 
-  unbroken.forEach((idx, i) => {
+  toSmash.forEach((idx, i) => {
     setTimeout(() => {
       const egg = G.roundEggs[idx];
       if (!egg || egg.broken) return;
@@ -729,7 +755,6 @@ function activateMonkeyRage() {
       const cx = rect.left - wrapRect.left + rect.width / 2;
       const cy = rect.top - wrapRect.top + rect.height / 2;
 
-      // Animate hammer to this egg
       clearTimeout(hammerEl._hideTimer);
       hammerEl.style.transition = 'none';
       hammerEl.style.left = (cx - 20) + 'px';
@@ -762,16 +787,26 @@ function activateMonkeyRage() {
     }, i * 140);
   });
 
+  // After this batch: either continue to next round or finish
   setTimeout(() => {
-    _rageActive = false;
-    updateResources();
-    checkAchievements();
-    if (!regenInt && G.hammers < G.maxH) startRegen();
-    if (!G.roundEggs || G.roundEggs.every(e => e.broken || e.expired)) {
+    if (_rageHammersLeft > 0 && G.roundEggs.every(e => e.broken || e.expired)) {
       G.roundClears++;
-      setTimeout(() => newRound(), 600);
+      checkCollectionComplete(true);
+      checkAchievements();
+      newRound();
+      setTimeout(_doRageBatch, 450);
+    } else {
+      _finishRage();
     }
-  }, unbroken.length * 140 + 400);
+  }, toSmash.length * 140 + 350);
+}
+
+function _finishRage() {
+  _rageActive = false;
+  _rageHammersLeft = 0;
+  updateResources();
+  checkAchievements();
+  if (typeof regenInt !== 'undefined' && !regenInt && G.hammers < G.maxH) startRegen();
 }
 
 // ==================== COLLECTION / STAGE ====================
@@ -959,7 +994,17 @@ function updateRageBtn() {
   if (!btn) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[0]) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
-  btn.disabled = G.hammers < 1 || _rageActive;
+  const ready = isSkillReady(0);
+  if (!ready) {
+    const left = skillEggsUntilReady(0);
+    btn.classList.add('rage-cooldown');
+    btn.innerHTML = `<span class="rage-cd-count">${left}</span>`;
+    btn.disabled = true;
+  } else {
+    btn.classList.remove('rage-cooldown');
+    btn.innerHTML = '🐒💢';
+    btn.disabled = G.hammers < 1 || _rageActive;
+  }
 }
 
 function goToSkills() {
@@ -972,6 +1017,40 @@ const _SKILL_COSTS = [
   { feathers: 750,  gold: 250000 },
   { feathers: 1000, gold: 400000 },
 ];
+const _SKILL_COOLDOWNS     = [200, 150, 100]; // eggs between uses, indexed by upgrade level
+const _SKILL_UPGRADE_COSTS = [50000, 100000]; // gold cost per upgrade tier
+
+function skillCooldownThreshold(idx) {
+  const level = Math.min(2, (G.skillUpgrades || [0,0,0])[idx] || 0);
+  return _SKILL_COOLDOWNS[level];
+}
+function skillEggsUntilReady(idx) {
+  const cd   = skillCooldownThreshold(idx);
+  const last = ((G.skillLastUsedAt || [-999,-999,-999])[idx] ?? -999);
+  return Math.max(0, cd - (G.totalEggs - last));
+}
+function isSkillReady(idx) { return skillEggsUntilReady(idx) === 0; }
+
+function buySkillUpgrade(skillIdx) {
+  const level = (G.skillUpgrades || [0,0,0])[skillIdx] || 0;
+  if (level >= 2) return;
+  const cost = _SKILL_UPGRADE_COSTS[level];
+  const newCd = _SKILL_COOLDOWNS[level + 1];
+  if (G.gold < cost) { showAlert('🪙', 'Need ' + formatNum(cost) + ' gold!'); SFX.play('err'); return; }
+  showConfirm('⚡', 'Upgrade Skill?',
+    'Reduce cooldown to ' + newCd + ' eggs • ' + formatNum(cost) + ' 🪙',
+    () => {
+      G.gold -= cost;
+      if (!G.skillUpgrades) G.skillUpgrades = [0,0,0];
+      G.skillUpgrades[skillIdx]++;
+      saveGame();
+      updateResources();
+      renderSkills();
+      SFX.play('complete');
+    },
+    'Upgrade'
+  );
+}
 
 function buySkill(idx) {
   if ((G.skillsUnlocked || [])[idx]) return;
