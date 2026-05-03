@@ -99,6 +99,7 @@ function rollPrize(eggType) {
     if (idx >= 0 && idx < order.length - 1) {
       eggType = order[idx + 1];
       spawnFloat($id('prize-zone'), '🐒 72 Transformations!', '#f5c542', 'big');
+      msg('🐒 72 Transformations! ' + eggType.charAt(0).toUpperCase() + eggType.slice(1) + ' egg prizes!', 'specials');
     }
   }
   const w = { ...PRIZE_WEIGHTS[eggType] };

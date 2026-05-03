@@ -226,6 +226,7 @@
 }
 .monkey-enter-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dark)}
 .monkey-enter-btn:active{transform:translate(1px,1px);box-shadow:none}
+.monkey-btn-active{background:var(--amber);border-color:#c07020;opacity:.85}
 
 /* ---------- Shop tab ---------- */
 .auto-buy-row{

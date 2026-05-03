@@ -1011,9 +1011,8 @@ function renderMonkeys() {
         (isDone ? '✅ ' : '') + 'Stage ' + stageNum + '/' + m.stages.length + ' — ' + pct + '%</span>';
       inner += '<div class="m-prog-track"><div class="m-prog-fill' + (isDone ? ' done' : '') + '" style="width:' + pct + '%"></div></div>';
       if (i === 0 && !mp.completed) inner += '<span class="m-monkey-note">Complete stages to unlock features</span>';
-      if (!isActive) {
-        inner += '<button class="monkey-enter-btn" data-enter="' + i + '">▶ Play</button>';
-      }
+      inner += '<button class="monkey-enter-btn' + (isActive ? ' monkey-btn-active' : '') + '" data-enter="' + i + '">' +
+        (isActive ? '▶ Playing' : '▶ Play') + '</button>';
     } else {
       inner += '<span class="m-cost">' + m.cost + ' 🍌 Crystal Bananas</span>';
       inner += '<button class="monkey-unlock-btn" data-unlock="' + i + '">Unlock</button>';
@@ -1022,9 +1021,13 @@ function renderMonkeys() {
     card.innerHTML = inner;
 
     // Attach handlers AFTER innerHTML — only button clicks trigger selection (no card onclick)
-    if (mp.unlocked && !isActive) {
+    if (mp.unlocked) {
       const enterBtn = card.querySelector('.monkey-enter-btn');
-      if (enterBtn) enterBtn.onclick = function(e) { e.stopPropagation(); switchMonkey(i); document.querySelector('[data-tab="play"]').click(); };
+      if (enterBtn) enterBtn.onclick = function(e) {
+        e.stopPropagation();
+        if (!isActive) switchMonkey(i);
+        document.querySelector('[data-tab="play"]').click();
+      };
     }
     if (!mp.unlocked) {
       const btn = card.querySelector('.monkey-unlock-btn');
