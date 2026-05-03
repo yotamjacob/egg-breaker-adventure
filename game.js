@@ -2076,30 +2076,11 @@ document.addEventListener('keydown', (e) => {
 });
 
 
-// ==================== GOD MODE ====================
 (() => {
-  let taps = 0, lastTap = 0;
   $id('monkey-avatar').addEventListener('click', () => {
-    const now = Date.now();
-    if (now - lastTap > 800) taps = 0;
-    lastTap = now;
-    taps++;
-    if (taps >= 10) {
-      $id('god-btn').classList.toggle('hidden');
-      taps = 0;
-    }
     document.querySelector('.nav-tab[data-tab="monkeys"]').click();
   });
 })();
-
-function godMode() {
-  // disabled for release — re-enable by uncommenting the body
-  // G.hammers = G.maxH;
-  // msg('Hammers refilled!');
-  // SFX.play('tier');
-  // updateResources();
-  // saveGame();
-}
 
 
 // ==================== INIT ====================
