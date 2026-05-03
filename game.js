@@ -80,6 +80,7 @@ const DEFAULT_STATE = {
   totalGooseUses: 0,
   totalShakeUses: 0,
   _gooseEggsLeft: 0,
+  _rageHammersLeft: 0,
   showFloats: true,
   showLog: true,
   _welcomeDone: false,
@@ -703,6 +704,7 @@ function activateMonkeyRage() {
     if (_rageActive || _starfallActive || _spawningRound) return;
     if (G.hammers < 1) { showAlert('🔨', 'No hammers left!'); SFX.play('err'); return; }
     _rageHammersLeft = Math.max(0, G.hammers);
+    G._rageHammersLeft = _rageHammersLeft;
     G.hammers = 0;
     _rageActive = true;
     G.totalRageUses = (G.totalRageUses || 0) + 1;
@@ -767,6 +769,7 @@ function _doRageBatch() {
     }
   }
   _rageHammersLeft = hammersLeft;
+  G._rageHammersLeft = _rageHammersLeft;
   updateRageBtn();
 
   const wrap = $id('egg-tray-wrap');
@@ -849,6 +852,7 @@ function _doRageBatch() {
 function _finishRage() {
   _rageActive = false;
   _rageHammersLeft = 0;
+  G._rageHammersLeft = 0;
   if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
   G.skillLastUsedAt[0] = G.totalEggs; // cooldown starts from when rage ends
   const _trayWrap = $id('egg-tray-wrap');
@@ -2086,6 +2090,15 @@ MUSIC.play(curMonkey().id);
 Particles.init($id('particle-canvas'));
 
 if (!G.roundEggs || G.roundEggs.length === 0) newRound();
+
+// Restore Monkey Rage interruption — refund remaining hammers and start cooldown
+if ((G._rageHammersLeft || 0) > 0) {
+  const _rageRefund = Math.min(G._rageHammersLeft, G.maxH - G.hammers);
+  if (_rageRefund > 0) G.hammers = Math.min(G.maxH, G.hammers + _rageRefund);
+  G._rageHammersLeft = 0;
+  if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
+  if (G.skillLastUsedAt[0] === -999) G.skillLastUsedAt[0] = G.totalEggs;
+}
 
 // Restore Golden Goose mid-session state
 if ((G._gooseEggsLeft || 0) > 0) {
