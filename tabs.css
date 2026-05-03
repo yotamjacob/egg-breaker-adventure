@@ -29,6 +29,7 @@
   font-size:14px;color:var(--gray);gap:6px;margin-top:6px;
 }
 .overall-detail span{white-space:nowrap;text-align:center}
+.overall-detail-full{white-space:normal!important;width:100%;text-align:center}
 .overall-detail strong{color:var(--gold)}
 .overall-quote{
   margin-top:10px;padding:7px 8px;

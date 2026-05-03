@@ -636,7 +636,6 @@ const _OVERALL_QUOTES = [
   '🥚 Eggcelent work. Absolutely eggcelent.',
   '🏆 Collecting glory, one smash at a time.',
 ];
-let _quoteTimer = null;
 let _lastQuoteIdx = -1;
 
 function _nextQuote() {
@@ -644,17 +643,6 @@ function _nextQuote() {
   do { idx = Math.floor(Math.random() * _OVERALL_QUOTES.length); } while (idx === _lastQuoteIdx);
   _lastQuoteIdx = idx;
   return _OVERALL_QUOTES[idx];
-}
-
-function _startQuoteRotation(el) {
-  if (_quoteTimer) return;
-  el.textContent = _nextQuote();
-  _quoteTimer = setInterval(() => {
-    const q = $id('overall-quote');
-    if (!q) { clearInterval(_quoteTimer); _quoteTimer = null; return; }
-    q.style.opacity = '0';
-    setTimeout(() => { q.textContent = _nextQuote(); q.style.opacity = '1'; }, 300);
-  }, 4000);
 }
 
 function updateOverallProgress() {
@@ -706,17 +694,16 @@ function updateOverallProgress() {
     '<span>Monkeys: <strong>' + unlockedMonkeys + '/' + MONKEY_DATA.length + '</strong></span>' +
     '<span>Shop: <strong>' + ownedShop + '/' + totalShop + '</strong></span>' +
     '<span>Goals: <strong>' + doneGoals + '/' + totalGoals + '</strong></span>' +
-    '<span>Skills mastered: <strong>' + masteredSkills + '/' + totalSkills + '</strong></span>';
+    '<span class="overall-detail-full">Skills mastered: <strong>' + masteredSkills + '/' + totalSkills + '</strong></span>';
 
   const quoteEl = $id('overall-quote');
   if (quoteEl) {
     if (pct >= 100) {
-      if (_quoteTimer) { clearInterval(_quoteTimer); _quoteTimer = null; }
       quoteEl.classList.add('thank-you');
       quoteEl.textContent = '🏆 You did it. Every egg smashed, every stage mastered, every monkey unlocked. This is no small thing — thank you for playing, and for making this little tribute mean something.';
     } else {
       quoteEl.classList.remove('thank-you');
-      _startQuoteRotation(quoteEl);
+      quoteEl.textContent = _nextQuote();
     }
   }
 }
