@@ -1246,10 +1246,17 @@ function updateRageBtn() {
   if (!G.skillsUnlocked || !G.skillsUnlocked[0]) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
   if (_gooseActive) {
-    btn.classList.remove('rage-cooldown', 'skill-glow-red');
+    btn.classList.remove('skill-glow-red');
     btn.classList.add('skill-btn-blocked');
-    btn.innerHTML = '<img src="img/rage_monkey.png" class="rage-btn-img" alt="">';
-    btn.disabled = false;
+    if (!isSkillReady(0)) {
+      btn.classList.add('rage-cooldown');
+      btn.innerHTML = `<span class="rage-cd-count">${skillEggsUntilReady(0)}</span>`;
+      btn.disabled = true;
+    } else {
+      btn.classList.remove('rage-cooldown');
+      btn.innerHTML = '<img src="img/rage_monkey.png" class="rage-btn-img" alt="">';
+      btn.disabled = false;
+    }
     btn.title = 'Monkey Rage (skill active)';
     return;
   }
@@ -1283,10 +1290,17 @@ function updateGooseBtn() {
   if (!G.skillsUnlocked || !G.skillsUnlocked[1]) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
   if (_rageActive) {
-    btn.classList.remove('skill-btn-cd', 'skill-glow-gold');
+    btn.classList.remove('skill-glow-gold');
     btn.classList.add('skill-btn-blocked');
-    btn.innerHTML = '<img src="img/golden_goose.png" class="rage-btn-img" alt="">';
-    btn.disabled = false;
+    if (!isSkillReady(1)) {
+      btn.classList.add('skill-btn-cd');
+      btn.innerHTML = `<span class="rage-cd-count">${skillEggsUntilReady(1)}</span>`;
+      btn.disabled = true;
+    } else {
+      btn.classList.remove('skill-btn-cd');
+      btn.innerHTML = '<img src="img/golden_goose.png" class="rage-btn-img" alt="">';
+      btn.disabled = false;
+    }
     return;
   }
   btn.classList.remove('skill-btn-blocked');
@@ -1316,10 +1330,16 @@ function updateBananaBtn() {
   if (!G.skillsUnlocked || !G.skillsUnlocked[2]) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
   if (_rageActive || _gooseActive) {
-    btn.classList.remove('skill-btn-cd');
     btn.classList.add('skill-btn-blocked');
-    btn.innerHTML = '<img src="img/banana_shake.png" class="rage-btn-img" alt="">';
-    btn.disabled = false;
+    if (!isSkillReady(2)) {
+      btn.classList.add('skill-btn-cd');
+      btn.innerHTML = `<span class="rage-cd-count">${skillEggsUntilReady(2)}</span>`;
+      btn.disabled = true;
+    } else {
+      btn.classList.remove('skill-btn-cd');
+      btn.innerHTML = '<img src="img/banana_shake.png" class="rage-btn-img" alt="">';
+      btn.disabled = false;
+    }
     return;
   }
   btn.classList.remove('skill-btn-blocked');
