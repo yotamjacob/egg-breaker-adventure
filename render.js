@@ -758,19 +758,22 @@ function updateStageBar() {
       banner.classList.add('hidden');
     } else {
       const showBanner = prog.completed || tier >= 3;
-      clearTimeout(_allStagesBannerTimer);
-      _allStagesBannerTimer = null;
-      banner.classList.toggle('hidden', !showBanner);
-      if (showBanner) {
-        if (prog.completed) {
-          banner.textContent = 'all stages complete — unlock a new monkey';
+      if (prog.completed) {
+        // Show once and start a single timer — never reset it on subsequent taps
+        banner.classList.remove('hidden');
+        banner.textContent = 'all stages complete — unlock a new monkey';
+        if (!_allStagesBannerTimer) {
           _allStagesBannerTimer = setTimeout(() => {
             banner.classList.add('hidden');
             _completedBannerDismissedForMonkey = G.activeMonkey;
+            _allStagesBannerTimer = null;
           }, 60000);
-        } else {
-          banner.textContent = 'stage complete — tap to continue';
         }
+      } else {
+        clearTimeout(_allStagesBannerTimer);
+        _allStagesBannerTimer = null;
+        banner.classList.toggle('hidden', !showBanner);
+        if (showBanner) banner.textContent = 'stage complete — tap to continue';
       }
     }
   }
