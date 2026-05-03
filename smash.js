@@ -711,6 +711,7 @@ function applyPrize(prize, cx, cy) {
       prize = { ...prize, value: newVal, label: prize.label.replace(/\+(\d+)/, '+' + newVal) };
     }
     _gooseEggsLeft--;
+    G._gooseEggsLeft = _gooseEggsLeft;
     if (_gooseEggsLeft <= 0) setTimeout(_finishGoose, 100);
   }
 

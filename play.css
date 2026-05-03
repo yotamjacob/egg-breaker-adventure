@@ -47,6 +47,7 @@
   80%{ transform:translateX(2px) }
 }
 .egg-tray-wrap.tray-wiggle{ animation:tray-wiggle .35s ease-in-out; }
+.egg-tray-wrap.goose-tray-active.tray-wiggle{ animation:tray-wiggle .35s ease-in-out; }
 
 @keyframes egg-crunch {
   0%  { transform:scale(1) }

@@ -79,6 +79,7 @@ const DEFAULT_STATE = {
   totalRageUses: 0,
   totalGooseUses: 0,
   totalShakeUses: 0,
+  _gooseEggsLeft: 0,
   showFloats: true,
   showLog: true,
   _welcomeDone: false,
@@ -880,6 +881,7 @@ function activateGoldenGoose() {
   const doGoose = () => {
     _gooseActive = true;
     _gooseEggsLeft = 50;
+    G._gooseEggsLeft = 50;
     G.totalGooseUses = (G.totalGooseUses || 0) + 1;
     const _gt = $id('egg-tray-wrap'); if (_gt) _gt.classList.add('goose-tray-active');
     updateResources();
@@ -910,6 +912,7 @@ function activateGoldenGoose() {
 function _finishGoose() {
   _gooseActive = false;
   _gooseEggsLeft = 0;
+  G._gooseEggsLeft = 0;
   const _gt2 = $id('egg-tray-wrap'); if (_gt2) _gt2.classList.remove('goose-tray-active');
   if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
   G.skillLastUsedAt[1] = G.totalEggs;
@@ -2082,6 +2085,13 @@ MUSIC.play(curMonkey().id);
 Particles.init($id('particle-canvas'));
 
 if (!G.roundEggs || G.roundEggs.length === 0) newRound();
+
+// Restore Golden Goose mid-session state
+if ((G._gooseEggsLeft || 0) > 0) {
+  _gooseActive = true;
+  _gooseEggsLeft = G._gooseEggsLeft;
+  const _gt = $id('egg-tray-wrap'); if (_gt) _gt.classList.add('goose-tray-active');
+}
 
 renderAll();
 checkSkillsUnlock();
