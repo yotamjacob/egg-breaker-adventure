@@ -322,6 +322,27 @@ function noHammerMsg() {
 function _maybeStuckHint() {
   if (G.hammersDepleted % 5 !== 0) return;
   if (curProgress().completed) return;
+
+  // "Almost there" — ≤5 items from next tier: targeted purchase nudge
+  try {
+    const si = curActiveStage();
+    const prog = curProgress();
+    const stage = curStage();
+    const tier = (prog.tiers || [])[si] || 0;
+    if (tier < 2) {
+      const found = (prog.collections[si] || []).filter(Boolean).length;
+      const total = stage.collection.items.length;
+      const tt = CONFIG.tierThresholds;
+      const nextThresh = Math.ceil(total * [tt.bronze, tt.silver][tier]);
+      const needed = nextThresh - found;
+      const tierName = tier === 0 ? 'Silver' : 'Gold';
+      if (needed > 0 && needed <= 5) {
+        msg('⚡ ' + needed + (needed === 1 ? ' item' : ' items') + ' from ' + tierName + ' tier — a Hammer Pack would get you there!', 'tiers');
+        return;
+      }
+    }
+  } catch (_) {}
+
   if (Math.floor(G.hammersDepleted / 5) % 2 === 1) {
     msg('💡 Tip: grind Mr. Monkey stage 9 for gold & upgrades, then come back stronger!', 'tiers');
   } else {

@@ -1272,7 +1272,7 @@ function renderAchievements() {
 
 // ==================== DAILY CALENDAR ====================
 function _dailyLabel(r) {
-  if (!G.owned_doubledaily) return r.label;
+  if (!G.owned_doubledaily || r.type === 'goldmagnet') return r.label;
   const v = r.val * 2;
   switch (r.type) {
     case 'gold':     return '+' + v.toLocaleString() + ' gold';

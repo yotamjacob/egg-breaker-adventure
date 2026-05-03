@@ -337,12 +337,16 @@ function claimDaily() {
   const reward = DAILY_REWARDS[dayIdx];
   if (!reward) return;
 
-  // Apply reward (Double Daily doubles the value)
+  // Apply reward (Double Daily doubles the value, except premium items)
   const dv = G['owned_doubledaily'] ? reward.val * 2 : reward.val;
-  if (reward.type === 'gold')     { G.gold += dv; G.totalGold += dv; }
-  if (reward.type === 'hammers')  { G.hammers += dv; G.dailyHammerTotal = (G.dailyHammerTotal || 0) + dv; }
-  if (reward.type === 'maxH')     { G.maxH += dv; if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + dv); }
-  if (reward.type === 'feathers') { G.feathers += dv; G.totalFeathers += dv; }
+  if (reward.type === 'gold')       { G.gold += dv; G.totalGold += dv; }
+  if (reward.type === 'hammers')    { G.hammers += dv; G.dailyHammerTotal = (G.dailyHammerTotal || 0) + dv; }
+  if (reward.type === 'maxH')       { G.maxH += dv; if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + dv); }
+  if (reward.type === 'feathers')   { G.feathers += dv; G.totalFeathers += dv; }
+  if (reward.type === 'goldmagnet') {
+    if (!G.owned_goldmagnet) { G.owned_goldmagnet = true; savePremium(); }
+    else { G.gold += 2000; G.totalGold += 2000; } // consolation if already purchased
+  }
 
   G.dailyClaimed = true;
   updateDailyGlow();
@@ -1356,9 +1360,9 @@ function goToSkills() {
 }
 
 const _SKILL_COSTS = [
-  { feathers: 500,  gold: 150000 },
-  { feathers: 750,  gold: 250000 },
-  { feathers: 1000, gold: 400000 },
+  { feathers: 350, gold: 100000 },
+  { feathers: 550, gold: 175000 },
+  { feathers: 750, gold: 300000 },
 ];
 // Per-skill cooldown arrays [base, upgrade1, upgrade2]
 const _SKILL_COOLDOWNS = [
@@ -1366,7 +1370,7 @@ const _SKILL_COOLDOWNS = [
   [300, 250, 200],  // Golden Goose
   [400, 350, 300],  // Banana Shake
 ];
-const _SKILL_UPGRADE_COSTS = { gold: [200000, 200000], feathers: [200, 200] };
+const _SKILL_UPGRADE_COSTS = { gold: [140000, 140000], feathers: [150, 150] };
 
 function skillCooldownThreshold(idx) {
   const level = Math.min(2, (G.skillUpgrades || [0,0,0])[idx] || 0);
@@ -1867,7 +1871,7 @@ function showSkillsInfo() {
       '</div>' +
       '<div class="info-block">' +
         '<span class="info-block-title">Upgrades</span>' +
-        '<div class="info-row"><span>Each skill upgrades twice — reduces cooldown (300 → 250 → 200 eggs). Costs <span class="info-highlight">200 feathers + 200k gold</span> per upgrade.</span></div>' +
+        '<div class="info-row"><span>Each skill upgrades twice — reduces cooldown (300 → 250 → 200 eggs). Costs <span class="info-highlight">150 feathers + 140k gold</span> per upgrade.</span></div>' +
       '</div>' +
     '</div>',
     null, 'Got it!'

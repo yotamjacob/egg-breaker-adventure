@@ -527,7 +527,7 @@ const SHOP_HAMMERS = [
   { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% items, +15% gold',       cost: 220000, currency: 'gold', bonus: ['moreItems', 'goldBoost15'] },
   { id: 'cucumber',   name: 'Cucumber Hammer',   emoji: '🥒', desc: '5% double hit, +25% gold',   cost: 300000, currency: 'gold', bonus: ['doubleHit', 'goldBoost25'] },
   { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% chance: full Starfall + 7 star pieces, +40% gold', cost: 420000, currency: 'gold', bonus: ['mjolnirStarfall', 'goldBoost40'] },
-  { id: 'gavel',     name: 'Judge Gavel',        emoji: '⚖️', desc: 'Order! 4% chance: instant verdict — breaks any egg immediately regardless of HP. +50% gold.', cost: 1000000, currency: 'gold', bonus: ['gavelVerdict', 'goldBoost50'] },
+  { id: 'gavel',     name: 'Judge Gavel',        emoji: '⚖️', desc: 'Order! 4% chance: instant verdict — breaks any egg immediately regardless of HP. +50% gold.', cost: 700000, currency: 'gold', bonus: ['gavelVerdict', 'goldBoost50'] },
 ];
 
 const SHOP_HATS = [
@@ -545,7 +545,6 @@ const SHOP_SUPPLIES = [
   { id: 'star1',      name: 'Star Piece',       emoji: '⭐', cost: 3000,   currency: 'gold', type: 'consumable' },
   { id: 'mult5',      name: 'x5 Multiplier',    emoji: '✖️', cost: 5000,   currency: 'gold', type: 'consumable' },
   { id: 'spyglass',   name: 'Spyglass',         emoji: '🔍', desc: 'Reveal egg names & HP', cost: 5000, currency: 'gold', type: 'upgrade', unique: true },
-  { id: 'maxhammers', name: '+5 Hammer Cap',    emoji: '📦', desc: 'Increase max hammers by 5', cost: 8000, currency: 'gold', type: 'upgrade' },
   { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', desc: 'Hammers regen 1.5x faster', cost: 25000, currency: 'gold', type: 'upgrade', unique: true },
   { id: 'cleanse',    name: 'Cleanse',          emoji: '🌿', desc: 'Hex immunity',               cost: 150000, currency: 'gold', type: 'upgrade', unique: true },
 ];
@@ -735,6 +734,10 @@ function generateDailyRewards() {
     else if (d % 2 === 0) {
       const gv = Math.round((1000 + d * 40) / 100) * 100;
       rewards.push({ day: d, type: 'gold', val: gv, icon: '🪙', label: '+' + gv.toLocaleString() + ' gold' });
+    }
+    // Day 7 milestone: Gold Magnet (free premium upgrade)
+    else if (d === 7) {
+      rewards.push({ day: d, type: 'goldmagnet', val: 1, icon: '🧲', label: 'Gold Magnet!' });
     }
     // Hammers on odd days — starts at 45, +5 every ~7 days
     else {

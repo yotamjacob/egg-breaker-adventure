@@ -16,11 +16,11 @@ const PREMIUM_PRODUCTS = [
   { id: 'hammers',      name: 'Hammer Pack',    emoji: '🔨', price: '$0.99', desc: '100 hammers' },
   { id: 'bananas',      name: 'Monkey Key',     emoji: '🍌', price: '$1.99', desc: '9 Crystal Bananas — unlock any monkey instantly', oneTime: false },
   // ── Premium upgrades (moved from gold shop — too long to grind) ──────────
-  { id: 'luckycharm',  name: 'Lucky Charm',    emoji: '🍀', price: '$2.99', desc: '2x uncommon & rare item drop rates', oneTime: true, boughtKey: 'owned_luckycharm' },
-  { id: 'eggradar',    name: 'Egg Radar',       emoji: '📡', price: '$3.99', desc: '+50% rare egg spawns',    oneTime: true, boughtKey: 'owned_eggradar' },
-  { id: 'doubledaily', name: 'Double Daily',    emoji: '📅', price: '$3.99', desc: '2x daily login rewards',  oneTime: true, boughtKey: 'owned_doubledaily' },
-  { id: 'starsaver',   name: 'Star Saver',      emoji: '✨', price: '$2.99', desc: 'Starfall costs 6 stars instead of 7', oneTime: true, boughtKey: 'owned_starsaver' },
-  { id: 'goldmagnet',  name: 'Golden Magnet',   emoji: '🧲', price: '$1.99', desc: '+20% gold from all egg drops', oneTime: true, boughtKey: 'owned_goldmagnet' },
+  { id: 'luckycharm',  name: 'Lucky Charm',    emoji: '🍀', price: '$2.99', desc: '2x uncommon & rare item drops — ~20% fewer hammers per stage', oneTime: true, boughtKey: 'owned_luckycharm' },
+  { id: 'eggradar',    name: 'Egg Radar',       emoji: '📡', price: '$3.99', desc: '+50% crystal, ruby & black egg spawns — way more premium egg rewards', oneTime: true, boughtKey: 'owned_eggradar' },
+  { id: 'doubledaily', name: 'Double Daily',    emoji: '📅', price: '$3.99', desc: '2x daily login rewards — doubles your 45–100 daily hammers', oneTime: true, boughtKey: 'owned_doubledaily' },
+  { id: 'starsaver',   name: 'Star Saver',      emoji: '✨', price: '$2.99', desc: 'Starfall costs 6 stars instead of 7 — triggers ~17% more often', oneTime: true, boughtKey: 'owned_starsaver' },
+  { id: 'goldmagnet',  name: 'Golden Magnet',   emoji: '🧲', price: '$1.99', desc: '+20% gold from all eggs — ~900 extra gold per stage', oneTime: true, boughtKey: 'owned_goldmagnet' },
 ];
 
 function getDeviceId() {

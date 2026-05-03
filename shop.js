@@ -102,7 +102,6 @@ function doBuyShopItem(category, id) {
     if (id === 'hammers20') { G.hammers = Math.min(G.maxH, G.hammers + 20); G.shopHammers20 = (G.shopHammers20 || 0) + 1; showShopSnack('+20 hammers purchased!'); }
     if (id === 'star1') { G.starPieces++; G.totalStarPieces++; updateStarBtn(); showShopSnack('+1 star piece purchased!'); }
     if (id === 'mult5') { if (G.multQueue.length < 50) { G.multQueue.push(5); G.shopMult5 = (G.shopMult5 || 0) + 1; } renderMultQueue(); showShopSnack('x5 multiplier purchased!'); }
-    if (id === 'maxhammers') { G.maxH += 5; if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + 5); showShopSnack('+5 max hammers + 5 hammers!'); }
     if (id === 'fastregen') { G.fastRegen = true; showShopSnack('Fast Regen unlocked!'); }
     if (id === 'spyglass') { G['owned_spyglass'] = true; renderEggTray(); showShopSnack('Spyglass unlocked!'); }
     if (id === 'cleanse') { G['owned_cleanse'] = true; showShopSnack('Cleanse unlocked — hex immunity active!'); }

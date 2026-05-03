@@ -34,3 +34,8 @@ Prestige?
 [ ] 8. FEATHER LATE-GAME UTILITY — feathers go dead in late stages. Two options:
       a) Feather→Gold exchange: 10f = 800g
       b) "Lucky Pull": 5f = roll 3 random items from any stage, keep one
+
+
+
+      sunwokung doesn't have the play button after unlocking, make sure other monkeys fixed the same way
+      sun wokong skill should be in the logs and in specials
