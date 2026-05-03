@@ -714,6 +714,7 @@ function updateOverallProgress() {
 }
 
 let _allStagesBannerTimer = null;
+let _completedBannerDismissedForMonkey = -1;
 
 function updateStageBar() {
   const prog = curProgress();
@@ -749,16 +750,26 @@ function updateStageBar() {
 
   const banner = $id('stage-complete-banner');
   if (banner) {
-    const showBanner = prog.completed || tier >= 3;
-    clearTimeout(_allStagesBannerTimer);
-    _allStagesBannerTimer = null;
-    banner.classList.toggle('hidden', !showBanner);
-    if (showBanner) {
-      if (prog.completed) {
-        banner.textContent = 'all stages complete — unlock a new monkey';
-        _allStagesBannerTimer = setTimeout(() => banner.classList.add('hidden'), 60000);
-      } else {
-        banner.textContent = 'stage complete — tap to continue';
+    const alreadyDismissed = prog.completed && _completedBannerDismissedForMonkey === G.activeMonkey;
+    if (alreadyDismissed) {
+      clearTimeout(_allStagesBannerTimer);
+      _allStagesBannerTimer = null;
+      banner.classList.add('hidden');
+    } else {
+      const showBanner = prog.completed || tier >= 3;
+      clearTimeout(_allStagesBannerTimer);
+      _allStagesBannerTimer = null;
+      banner.classList.toggle('hidden', !showBanner);
+      if (showBanner) {
+        if (prog.completed) {
+          banner.textContent = 'all stages complete — unlock a new monkey';
+          _allStagesBannerTimer = setTimeout(() => {
+            banner.classList.add('hidden');
+            _completedBannerDismissedForMonkey = G.activeMonkey;
+          }, 60000);
+        } else {
+          banner.textContent = 'stage complete — tap to continue';
+        }
       }
     }
   }

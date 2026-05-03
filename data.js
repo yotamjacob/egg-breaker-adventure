@@ -359,7 +359,7 @@ const MONKEY_DATA = [
     id: 'odin', name: 'Odin Grímnir, the All-Father', emoji: '🧙', img: 'img/odin_nohat.jpeg',
     hatImgs: { chef:'img/odin_chef.jpeg', crown:'img/odin_crown.jpeg', wizard:'img/odin_wizard.jpeg', tophat:'img/odin_tophat.jpeg', pirate:'img/odin_pirate.jpeg' },
     cost: 9, goldScale: 1.0,
-    unlockRequires: { monkeys: ['steampunk', 'princess', 'space'], hint: 'Unlock all three monkeys to reveal the All-Father' },
+    unlockRequires: { monkeys: ['steampunk', 'princess', 'space'], hint: 'Complete any 3 monkeys to reveal the All-Father' },
     perk: 'allfather', perkDesc: "+10% gold, stars & feathers",
     stages: [
       { name: 'Asgard, the Golden Realm', eggs: 3, collection: { name: 'Aesir Treasures', items: [
@@ -432,7 +432,7 @@ const MONKEY_DATA = [
     id: 'sun_wukong', name: 'Sun Wukong, the Monkey King', emoji: '🐒', img: 'img/wukong_nohat.png',
     hatImgs: { chef:'img/wukong_chef.png', crown:'img/wukong_crown.png', wizard:'img/wukong_wizard.png', tophat:'img/wukong_tophat.png', pirate:'img/wukong_pirate.png' },
     cost: 9, goldScale: 0.90,
-    unlockRequires: { monkeys: ['steampunk', 'princess', 'space', 'odin'], totalEggs: 30000, hint: 'Complete the journeys of all four monkeys and smash 30,000 eggs to summon the Monkey King' },
+    unlockRequires: { monkeys: ['steampunk', 'princess', 'space', 'odin'], totalEggs: 30000, hint: 'Complete all 5 monkeys to reveal the Monkey King' },
     perk: 'wukong', perkDesc: '72 Transformations: 15% chance to get next-tier egg prizes',
     stages: [
       { name: 'Flower Fruit Mountain', eggs: 3, collection: { name: 'Mountain Treasures', items: [

@@ -142,7 +142,7 @@ body{
 }
 .tray-info-btn:hover{background:var(--purple);color:var(--white)}
 .info-arrow{
-  position:absolute;bottom:31px;right:10px;z-index:11;
+  position:absolute;bottom:34px;right:13px;z-index:20;
   font-size:16px;color:var(--purple);pointer-events:none;
   text-shadow:0 0 6px rgba(150,80,240,.7),1px 1px 0 var(--dark);
   animation:info-arrow-pulse .5s steps(3) infinite alternate;
