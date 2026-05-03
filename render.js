@@ -1054,7 +1054,7 @@ function renderShop() {
     card.className = 'shop-card' + (owned ? ' owned' : '') + (isCursor ? ' equipped' : '') + (!owned && G.gold >= h.cost ? ' can-afford' : '');
     card.dataset.id = h.id;
     card.innerHTML =
-      '<span class="s-emoji">' + h.emoji + '</span>' +
+      '<span class="s-hammer">' + makeHammerSVG(h.id) + '</span>' +
       '<span class="s-name">' + h.name + '</span>' +
       '<span class="s-desc">' + h.desc + '</span>' +
       (owned

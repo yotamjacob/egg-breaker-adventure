@@ -304,7 +304,7 @@ function checkDaily() {
 
 function claimDaily() {
   if (G.dailyClaimed) return;
-  const dayIdx = Math.min(G.consecutiveDays, 100) - 1;
+  const dayIdx = Math.min(G.consecutiveDays, 30) - 1;
   const reward = DAILY_REWARDS[dayIdx];
   if (!reward) return;
 
@@ -314,7 +314,6 @@ function claimDaily() {
   if (reward.type === 'hammers')  { G.hammers += dv; G.dailyHammerTotal = (G.dailyHammerTotal || 0) + dv; }
   if (reward.type === 'maxH')     { G.maxH += dv; if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + dv); }
   if (reward.type === 'feathers') { G.feathers += dv; G.totalFeathers += dv; }
-  if (reward.type === 'banana')   { G.crystalBananas += dv; }
 
   G.dailyClaimed = true;
   updateDailyGlow();
@@ -339,29 +338,26 @@ function applyDoubleDailyRetroBonus() {
   const claimedUpTo = G.dailyClaimed ? G.consecutiveDays : G.consecutiveDays - 1;
   if (claimedUpTo <= 0) return;
 
-  let bonusGold = 0, bonusHammers = 0, bonusFeathers = 0, bonusMaxH = 0, bonusBananas = 0;
-  for (let d = 1; d <= Math.min(claimedUpTo, 100); d++) {
+  let bonusGold = 0, bonusHammers = 0, bonusFeathers = 0, bonusMaxH = 0;
+  for (let d = 1; d <= Math.min(claimedUpTo, 30); d++) {
     const r = DAILY_REWARDS[d - 1];
     if (!r) continue;
     if (r.type === 'gold')     bonusGold     += r.val;
     if (r.type === 'hammers')  bonusHammers  += r.val;
     if (r.type === 'feathers') bonusFeathers += r.val;
     if (r.type === 'maxH')     bonusMaxH     += r.val;
-    if (r.type === 'banana')   bonusBananas  += r.val;
   }
 
   if (bonusGold)     { G.gold     += bonusGold;     G.totalGold     += bonusGold; }
   if (bonusHammers)  { G.hammers  += bonusHammers;  G.dailyHammerTotal = (G.dailyHammerTotal || 0) + bonusHammers; }
   if (bonusFeathers) { G.feathers += bonusFeathers; G.totalFeathers += bonusFeathers; }
   if (bonusMaxH)     { G.maxH     += bonusMaxH; }
-  if (bonusBananas)  { G.crystalBananas += bonusBananas; }
 
   const parts = [];
   if (bonusGold)     parts.push(bonusGold.toLocaleString() + ' 🪙');
   if (bonusHammers)  parts.push(bonusHammers + ' 🔨');
   if (bonusFeathers) parts.push(bonusFeathers + ' 🪶');
   if (bonusMaxH)     parts.push('+' + bonusMaxH + ' max 🔨');
-  if (bonusBananas)  parts.push(bonusBananas + ' 🍌');
   if (parts.length)  msg('📅 Double Daily retro bonus (' + claimedUpTo + ' days): ' + parts.join(' + '), 'prizes');
 }
 

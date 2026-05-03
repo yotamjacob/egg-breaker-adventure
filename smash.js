@@ -549,16 +549,11 @@ function smashEgg(index) {
     msg('⚡ Mjǫllnir strikes! +7 star pieces', 'mjolnir');
   }
 
-  // Judge Gavel: SMASH! text on every hit
-  if (hasBonus('gavelVerdict')) {
-    spawnFloat($id('prize-zone'), 'SMASH!', '#e53030', 'big', cx, cy - 10);
-  }
-
   // Judge Gavel: Order! — 4% chance: instant verdict, egg breaks immediately (not on century)
   if (hasBonus('gavelVerdict') && egg.hp > 0 && egg.type !== 'century' && Math.random() < 0.04) {
     egg.hp = 0;
-    spawnFloat($id('prize-zone'), '⚖️ ORDER!', '#e53030', 'mega', cx, cy - 50);
-    msg('⚖️ Order! Verdict: Guilty — egg sentenced to break!', 'specials');
+    spawnFloat($id('prize-zone'), 'Order!', '#e53030', 'mega', cx, cy - 50);
+    msg('⚖️ Order! Verdict: Guilty. The egg is sentenced to break.', 'gavel');
     SFX.play('crunch');
   }
 

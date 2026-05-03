@@ -697,25 +697,25 @@ const SECRET_ACHIEVEMENTS = [
   { id:'secret_chef',     name:'Could\'ve Been a Chef', desc:'Break 10,000 normal eggs',         icon:'👨‍🍳', reward:{type:'maxH',val:5,    label:'+5 max hammers'} },
 ];
 
-// Daily rewards for 100 days. type: gold, hammers, maxH, feathers, banana
+// Daily rewards for 30 days. type: gold, hammers, maxH, feathers
 function generateDailyRewards() {
   const rewards = [];
-  for (let d = 1; d <= 100; d++) {
-    // Banana on milestone days
-    if (d === 30 || d === 60 || d === 100) {
-      rewards.push({ day: d, type: 'banana', val: 1, icon: '🍌', label: '+1 banana' });
-    }
-    // Max hammers on bi-weekly milestones
-    else if (d % 14 === 0) {
+  for (let d = 1; d <= 30; d++) {
+    // Max hammers on bi-weekly milestones (day 14, 28)
+    if (d % 14 === 0) {
       const mv = 3 + Math.floor(d / 20);
       rewards.push({ day: d, type: 'maxH', val: mv, icon: '📦', label: '+' + mv + ' max hammers' });
+    }
+    // Day 30 finale: big feather haul
+    else if (d === 30) {
+      rewards.push({ day: d, type: 'feathers', val: 50, icon: '🪶', label: '+50 feathers' });
     }
     // Feathers every 5 days — starts at 10, +5 every 10 days
     else if (d % 5 === 0) {
       const fv = 10 + Math.floor(d / 10) * 5;
       rewards.push({ day: d, type: 'feathers', val: fv, icon: '🪶', label: '+' + fv + ' feathers' });
     }
-    // Gold on even days — starts at ~1 000, scales to ~5 000 by day 100
+    // Gold on even days — starts at ~1 000, scales to ~2 200 by day 30
     else if (d % 2 === 0) {
       const gv = Math.round((1000 + d * 40) / 100) * 100;
       rewards.push({ day: d, type: 'gold', val: gv, icon: '🪙', label: '+' + gv.toLocaleString() + ' gold' });

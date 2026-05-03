@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '2.4.66';
+const VERSION = '2.4.67';
 
 const CONFIG = {
 
@@ -210,6 +210,7 @@ const CONFIG = {
     noHammers:  true,   // snarky no-hammer messages
     freeHit:    true,   // "Free hit! (Chef's Hat)" — kept for backwards compat
     specials:   true,   // Chef free hit, Mjolnir starfall, special abilities
+    gavel:      true,   // Judge Gavel: Order! verdict activations
   },
 
   // ----------------------------------------------------------
