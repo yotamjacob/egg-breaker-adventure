@@ -690,8 +690,13 @@ function updateOverallProgress() {
   const totalGoals = ACHIEVEMENT_DATA.length;
   const doneGoals = (G.achieved || []).filter(id => achIds.has(id)).length;
 
-  const grand = totalItems + totalShop + totalGoals;
-  const grandFound = foundItems + ownedShop + doneGoals;
+  const totalSkills = 3;
+  const masteredSkills = [0, 1, 2].filter(i =>
+    (G.skillsUnlocked || [])[i] && ((G.skillUpgrades || [0,0,0])[i] || 0) >= 2
+  ).length;
+
+  const grand = totalItems + totalShop + totalGoals + totalSkills;
+  const grandFound = foundItems + ownedShop + doneGoals + masteredSkills;
   const pct = grand > 0 ? Math.floor((grandFound / grand) * 100) : 0;
   $id('overall-pct').textContent = pct + '%';
   $id('overall-fill').style.width = pct + '%';
@@ -700,7 +705,8 @@ function updateOverallProgress() {
     '<span>Stages: <strong>' + doneStages + '/' + totalStages + '</strong></span>' +
     '<span>Monkeys: <strong>' + unlockedMonkeys + '/' + MONKEY_DATA.length + '</strong></span>' +
     '<span>Shop: <strong>' + ownedShop + '/' + totalShop + '</strong></span>' +
-    '<span>Goals: <strong>' + doneGoals + '/' + totalGoals + '</strong></span>';
+    '<span>Goals: <strong>' + doneGoals + '/' + totalGoals + '</strong></span>' +
+    '<span>Skills mastered: <strong>' + masteredSkills + '/' + totalSkills + '</strong></span>';
 
   const quoteEl = $id('overall-quote');
   if (quoteEl) {
@@ -1170,15 +1176,6 @@ function renderStats() {
     ['Mults dropped', G.multDropped || 0],
     ['Mults used', G.multUsed || 0],
     ['x5 mults bought', G.shopMult5 || 0],
-    ['— skills —', ''],
-    ['Skills unlocked', ((G.skillsUnlocked || []).filter(Boolean).length) + ' / 3'],
-    ...[0, 1, 2].filter(i => (G.skillsUnlocked || [])[i]).map(i => {
-      const names = ['Monkey Rage', 'Golden Goose', 'Banana Shake'];
-      const uses  = [G.totalRageUses || 0, G.totalGooseUses || 0, G.totalShakeUses || 0];
-      const lvl   = (G.skillUpgrades || [0,0,0])[i] || 0;
-      const tier  = lvl >= 2 ? 'MAX' : lvl === 1 ? 'Lv 2' : 'Lv 1';
-      return [names[i], uses[i] + ' uses · ' + tier];
-    }),
     ['— per 100 eggs —', ''],
     ['Items / 100', per100(G.totalItems)],
     ['Silver / 100', per100(G.silverSmashed)],
