@@ -890,7 +890,7 @@ function stopMonkeyRage() {
 
 // ==================== GOLDEN GOOSE ====================
 function activateGoldenGoose() {
-  if (_rageActive) { stopMonkeyRage(); return; }
+  if (_rageActive) { _skillBump($id('goose-btn')); return; }
   if (_gooseActive || _starfallActive) return;
   // blocked by banana? (banana is instant so never truly "active")
   if (!G.skillsUnlocked || !G.skillsUnlocked[1]) return;
@@ -940,8 +940,7 @@ function _finishGoose() {
 
 // ==================== BANANA SHAKE ====================
 function activateBananaShake() {
-  if (_rageActive) { stopMonkeyRage(); return; }
-  if (_gooseActive) { _skillBump($id('banana-btn')); return; }
+  if (_rageActive || _gooseActive) { _skillBump($id('banana-btn')); return; }
   if (_starfallActive) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[2]) return;
   if (!isSkillReady(2)) return;
