@@ -715,8 +715,6 @@ function activateMonkeyRage() {
       if (G.hammers < 1) { showAlert('🔨', 'No hammers left!'); SFX.play('err'); return; }
       _rageHammersLeft = Math.max(0, G.hammers);
       G.hammers = 0;
-      if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
-      G.skillLastUsedAt[0] = G.totalEggs;
       _rageActive = true;
       const _trayWrap = $id('egg-tray-wrap');
       if (_trayWrap) _trayWrap.classList.add('rage-tray-active');
@@ -826,6 +824,8 @@ function _doRageBatch() {
 function _finishRage() {
   _rageActive = false;
   _rageHammersLeft = 0;
+  if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
+  G.skillLastUsedAt[0] = G.totalEggs; // cooldown starts from when rage ends
   const _trayWrap = $id('egg-tray-wrap');
   if (_trayWrap) _trayWrap.classList.remove('rage-tray-active');
   updateResources();
@@ -1018,6 +1018,13 @@ function updateRageBtn() {
   if (!btn) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[0]) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
+  if (_rageActive) {
+    // Rage running — show image, no counter yet
+    btn.classList.remove('rage-cooldown');
+    btn.innerHTML = '<img src="img/rage_monkey.png" class="rage-btn-img" alt="">';
+    btn.disabled = true;
+    return;
+  }
   const ready = isSkillReady(0);
   if (!ready) {
     const left = skillEggsUntilReady(0);
@@ -1027,7 +1034,7 @@ function updateRageBtn() {
   } else {
     btn.classList.remove('rage-cooldown');
     btn.innerHTML = '<img src="img/rage_monkey.png" class="rage-btn-img" alt="">';
-    btn.disabled = G.hammers < 1 || _rageActive;
+    btn.disabled = G.hammers < 1;
   }
 }
 
