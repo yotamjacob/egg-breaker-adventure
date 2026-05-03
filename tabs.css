@@ -371,14 +371,14 @@
 .skills-header-sub{font-size:9px;color:var(--gray)}
 #panel-skills{display:flex;flex-direction:column}
 .skills-grid{display:flex;flex-direction:column;flex:1;gap:8px;padding:10px 12px;min-height:0;overflow-y:auto}
-.skill-block{display:flex;flex-direction:column;flex:1;border-radius:10px;overflow:hidden;min-height:80px}
+.skill-block{display:flex;flex-direction:column;flex:0 0 auto;border-radius:10px;overflow:visible;min-height:80px}
 .skill-block.skill-locked{background:rgba(15,52,96,.55);border:1px solid rgba(255,255,255,.1)}
 .skill-block.skill-unlocked{background:rgba(15,52,96,.8);border:1px solid rgba(245,197,66,.35);box-shadow:0 0 14px rgba(245,197,66,.12)}
-.skill-block-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:14px 10px;gap:7px;text-align:center}
+.skill-block-inner{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;flex:0 0 auto;padding:14px 10px;gap:7px;text-align:center}
 .skill-icon-wrap{font-size:30px;line-height:1}
 .skill-name{font-family:var(--px);font-size:11px;color:var(--white);letter-spacing:.5px}
 .skill-locked .skill-name{color:var(--gray)}
-.skill-desc{font-size:10px;color:var(--gray);line-height:1.5;max-width:220px}
+.skill-desc{font-size:10px;color:var(--gray);line-height:1.5;max-width:260px}
 .skill-tbd{font-style:italic;color:rgba(255,255,255,.3)}
 .skill-cost-row{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--px)}
 .skill-cost-ok{color:var(--green)}
