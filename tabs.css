@@ -204,6 +204,13 @@
 }
 .monkey-unlock-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dark)}
 .monkey-unlock-btn:active{transform:translate(1px,1px);box-shadow:none}
+.monkey-enter-btn{
+  margin-top:6px;background:var(--green);color:#fff;border:2px solid #27ae60;
+  border-radius:2px;padding:5px 14px;font-size:11px;font-family:var(--px);
+  cursor:pointer;box-shadow:2px 2px 0 var(--dark);transition:all .08s;letter-spacing:.5px;
+}
+.monkey-enter-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dark)}
+.monkey-enter-btn:active{transform:translate(1px,1px);box-shadow:none}
 
 /* ---------- Shop tab ---------- */
 .auto-buy-row{

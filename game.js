@@ -1231,7 +1231,7 @@ function reportIssue() {
     '',
     '',
   ].join('\n');
-  const url = 'mailto:yotamjacob@gmail.com'
+  const url = 'mailto:yotameggbreaker@gmail.com'
     + '?subject=' + encodeURIComponent('Egg Smash Adventures — Issue Report')
     + '&body='    + encodeURIComponent(body);
   if (window.AndroidBridge && typeof window.AndroidBridge.openMailto === 'function') {

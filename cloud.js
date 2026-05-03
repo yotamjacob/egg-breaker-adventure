@@ -105,6 +105,7 @@ function clearOauthDebugLog() {
 // ────────────────────────────────────────────────────────────────────────────
 
 let _cloudHealthy = null; // null=no operation yet, true=last op ok, false=last op failed
+let _pendingReconnect = false; // true when session was lost offline and we're waiting to retry
 
 function initCloudSave() {
   if (typeof supabase === 'undefined') { _oauthLog('INIT: supabase SDK not loaded'); return; }
@@ -139,6 +140,24 @@ function initCloudSave() {
     }
     // Cache the full session — gives us a fresh access_token without any network calls.
     // onAuthStateChange fires on TOKEN_REFRESHED too, so _cloudSession stays current.
+    // Also cache refresh token under our own key so we can recover from offline SIGNED_OUT.
+    if (session?.refresh_token) {
+      try { localStorage.setItem('_cloudRefTok', session.refresh_token); } catch (e) {}
+    }
+    // SIGNED_OUT fired unexpectedly (SDK token refresh failed while offline) — attempt
+    // silent reconnect using our cached refresh token rather than immediately dropping the user.
+    if (event === 'SIGNED_OUT' && !_cloudUnlinking) {
+      const lp = (() => { try { return localStorage.getItem('_cloudLinkPref'); } catch (e) { return null; } })();
+      if (lp === 'linked') {
+        _oauthLog('AUTH: unexpected SIGNED_OUT, pref=linked — scheduling silent reconnect');
+        _cloudSession = null; _cloudUser = null;
+        _pendingReconnect = true;
+        _renderCloudModal();
+        setTimeout(() => _attemptSilentReconnect(), 2000);
+        return;
+      }
+    }
+    if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') _pendingReconnect = false;
     _cloudSession = session || null;
     _cloudUser = session ? session.user : null;
     _renderCloudModal();
@@ -223,6 +242,9 @@ function _renderCloudModal() {
   if (linked) {
     linkBtn.classList.add('cloud-link-linked');
     $id('cloud-link-label').textContent = '✓ ' + _cloudUser.email;
+  } else if (_pendingReconnect) {
+    linkBtn.classList.remove('cloud-link-linked');
+    $id('cloud-link-label').textContent = '⟳ Reconnecting…';
   } else {
     linkBtn.classList.remove('cloud-link-linked');
     $id('cloud-link-label').textContent = 'Link Google Account';
@@ -314,6 +336,44 @@ async function _refreshCloudSession() {
     _cloudLog('REFRESH: SDK err=' + e.message);
   }
   return false;
+}
+
+// Try to silently restore a cloud session that was dropped when the SDK's
+// auto-refresh failed (most common cause: device offline for >1 hour). Uses the
+// refresh token cached in localStorage under our own key — Supabase clears its own
+// key when it fires SIGNED_OUT, but ours persists until intentional unlink.
+async function _attemptSilentReconnect() {
+  const refreshToken = (() => { try { return localStorage.getItem('_cloudRefTok'); } catch (e) { return null; } })();
+  _oauthLog('RECONNECT: start hasToken=' + !!refreshToken + ' sbClient=' + !!_sbClient);
+  if (!refreshToken || !_sbClient) {
+    _pendingReconnect = false;
+    _renderCloudModal();
+    return;
+  }
+  try {
+    const resp = await Promise.race([
+      fetch(_SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+        method:  'POST',
+        headers: { 'apikey': _SUPABASE_ANON, 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ refresh_token: refreshToken }),
+      }),
+      new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 8000)),
+    ]);
+    if (resp.ok) {
+      const d = await resp.json();
+      if (d.access_token) {
+        _oauthLog('RECONNECT: ok — restoring session via setSession');
+        // setSession fires onAuthStateChange(SIGNED_IN) which clears _pendingReconnect
+        await _sbClient.auth.setSession({ access_token: d.access_token, refresh_token: d.refresh_token || refreshToken });
+        return;
+      }
+    }
+    _oauthLog('RECONNECT: HTTP ' + resp.status + ' — will retry on next foreground');
+  } catch (e) {
+    _oauthLog('RECONNECT: err=' + e.message + ' — will retry on next foreground');
+  }
+  // Still offline or server error — stay in pendingReconnect state; visibilitychange will retry
+  _renderCloudModal();
 }
 
 function _stopCloudAutoSave() {
@@ -700,14 +760,26 @@ window.onFcmToken = async function(token) {
 
 // On foreground resume: proactively refresh a stale/expired cloud session so
 // the first save attempt after a long break doesn't need a mid-save refresh.
+// Also retries silent reconnect if we lost the session while offline.
 // On background: sync hammers_full_at for push notification scheduling.
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) {
-    if (_cloudSession && _sbClient) {
-      const expIn = _cloudSession.expires_at ? _cloudSession.expires_at - Date.now() / 1000 : null;
-      if (expIn === null || expIn < 5 * 60) {
-        _cloudLog('RESUME: token stale (exp_in=' + (expIn !== null ? Math.round(expIn) + 's' : 'none') + ') — proactive refresh');
-        _refreshCloudSession().catch(e => _cloudLog('RESUME refresh err: ' + e.message));
+    if (_sbClient) {
+      if (!_cloudSession || _pendingReconnect) {
+        // Session was lost (e.g. device offline >1h) — try to silently restore it
+        const lp = (() => { try { return localStorage.getItem('_cloudLinkPref'); } catch (e) { return null; } })();
+        if (lp === 'linked') {
+          _cloudLog('RESUME: no session, pref=linked — retrying reconnect');
+          _attemptSilentReconnect();
+          return;
+        }
+      }
+      if (_cloudSession) {
+        const expIn = _cloudSession.expires_at ? _cloudSession.expires_at - Date.now() / 1000 : null;
+        if (expIn === null || expIn < 5 * 60) {
+          _cloudLog('RESUME: token stale (exp_in=' + (expIn !== null ? Math.round(expIn) + 's' : 'none') + ') — proactive refresh');
+          _refreshCloudSession().catch(e => _cloudLog('RESUME refresh err: ' + e.message));
+        }
       }
     }
   } else {

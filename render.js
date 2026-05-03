@@ -653,6 +653,8 @@ function updateOverallProgress() {
     '<span>Goals: <strong>' + doneGoals + '/' + totalGoals + '</strong></span>';
 }
 
+let _allStagesBannerTimer = null;
+
 function updateStageBar() {
   const prog = curProgress();
   const si = curActiveStage();
@@ -688,11 +690,16 @@ function updateStageBar() {
   const banner = $id('stage-complete-banner');
   if (banner) {
     const showBanner = prog.completed || tier >= 3;
+    clearTimeout(_allStagesBannerTimer);
+    _allStagesBannerTimer = null;
     banner.classList.toggle('hidden', !showBanner);
     if (showBanner) {
-      banner.textContent = prog.completed
-        ? 'all stages complete — unlock a new monkey'
-        : 'stage complete — tap to continue';
+      if (prog.completed) {
+        banner.textContent = 'all stages complete — unlock a new monkey';
+        _allStagesBannerTimer = setTimeout(() => banner.classList.add('hidden'), 60000);
+      } else {
+        banner.textContent = 'stage complete — tap to continue';
+      }
     }
   }
 }
@@ -913,7 +920,6 @@ function renderMonkeys() {
     }
 
     card.className = 'monkey-card' + (isActive ? ' active' : '');
-    if (mp.unlocked && !isActive) card.setAttribute('data-monkey', String(i));
 
     let inner = m.img
       ? '<div class="m-emoji m-avatar-wrap"><img src="' + m.img + '" alt="' + m.name + '"></div>'
@@ -934,6 +940,9 @@ function renderMonkeys() {
         (isDone ? '✅ ' : '') + 'Stage ' + stageNum + '/' + m.stages.length + ' — ' + pct + '%</span>';
       inner += '<div class="m-prog-track"><div class="m-prog-fill' + (isDone ? ' done' : '') + '" style="width:' + pct + '%"></div></div>';
       if (i === 0 && !mp.completed) inner += '<span class="m-monkey-note">Complete stages to unlock features</span>';
+      if (!isActive) {
+        inner += '<button class="monkey-enter-btn" data-enter="' + i + '">▶ Play</button>';
+      }
     } else {
       inner += '<span class="m-cost">' + m.cost + ' 🍌 Crystal Bananas</span>';
       inner += '<button class="monkey-unlock-btn" data-unlock="' + i + '">Unlock</button>';
@@ -941,11 +950,10 @@ function renderMonkeys() {
 
     card.innerHTML = inner;
 
-    // Attach handlers AFTER innerHTML
+    // Attach handlers AFTER innerHTML — only button clicks trigger selection (no card onclick)
     if (mp.unlocked && !isActive) {
-      card.onclick = function() { switchMonkey(i); };
-    } else if (isActive && mp.unlocked) {
-      card.onclick = function() { document.querySelector('[data-tab="play"]').click(); };
+      const enterBtn = card.querySelector('.monkey-enter-btn');
+      if (enterBtn) enterBtn.onclick = function(e) { e.stopPropagation(); switchMonkey(i); };
     }
     if (!mp.unlocked) {
       const btn = card.querySelector('.monkey-unlock-btn');
