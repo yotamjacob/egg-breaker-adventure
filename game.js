@@ -1246,20 +1246,46 @@ function reportIssue() {
 }
 
 function showPlayInfo() {
+  try { localStorage.setItem('_infoSeen', '1'); } catch (e) {}
+  const arrow = $id('info-arrow');
+  if (arrow) arrow.classList.add('hidden');
   showConfirm('ℹ️', 'How to Play',
-    '<b>Basics</b><br>' +
-    '🥚 Tap an egg to smash it — costs 1 hammer<br>' +
-    '🪙 Collect all stage items to unlock tiers<br>' +
-    '⭐ Fill the star meter (7 pieces) for Starfall<br>' +
-    '🍌 Complete all stage items for a Crystal Banana<br>' +
-    '🔨 Hammers regenerate automatically over time<br><br>' +
-    '<b>Settings ⚙️</b><br>' +
-    '☁️ Cloud Save — sync your progress across devices<br>' +
-    '📊 Overall Progress — track your total completion<br>' +
-    '',
-    null, 'Got it'
+    '<div class="info-blocks">' +
+      '<div class="info-block">' +
+        '<span class="info-block-title">🥚 basics</span>' +
+        '<div class="info-row"><span class="info-row-icon">🔨</span><span>Tap an egg to smash it — costs <span class="info-highlight">1 hammer</span></span></div>' +
+        '<div class="info-row"><span class="info-row-icon">📦</span><span>Collect all items in a stage to advance tiers</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">⭐</span><span>Fill <span class="info-highlight">7 star pieces</span> to trigger Starfall</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🍌</span><span>100% stage items = Crystal Banana reward</span></div>' +
+      '</div>' +
+      '<div class="info-block">' +
+        '<span class="info-block-title">💡 multipliers</span>' +
+        '<div class="info-row"><span class="info-row-icon">➕</span><span>Tap a chip to activate — chips <span class="info-highlight">add</span>: x2+x3 = x5</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">💰</span><span>Boosts gold, stars &amp; feathers — not items</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🎯</span><span>Save big mults for Gold &amp; Crystal eggs!</span></div>' +
+      '</div>' +
+      '<div class="info-block">' +
+        '<span class="info-block-title">🍌 progression</span>' +
+        '<div class="info-row"><span class="info-row-icon">🐵</span><span>Each monkey has unique stages &amp; perks</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">✅</span><span>Unlocked monkey perks stack — always active</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">☁️</span><span>Cloud Save syncs progress across devices</span></div>' +
+      '</div>' +
+    '</div>',
+    null, 'Got it!'
   );
 }
+
+// Show info arrow for new players until they tap the info button
+(function() {
+  try {
+    if (!localStorage.getItem('_infoSeen') && G.totalEggs === 0) {
+      setTimeout(() => {
+        const arrow = $id('info-arrow');
+        if (arrow) arrow.classList.remove('hidden');
+      }, 5500);
+    }
+  } catch (e) {}
+})();
 
 
 

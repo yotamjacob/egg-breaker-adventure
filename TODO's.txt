@@ -8,15 +8,6 @@ super sayan
 [ ] apply for production access → go live
 
 
-Add enter button for each monkey after unlocked
-Google is disconnected after a day
-All stages complete dissappear after a minute
-Change to my non personal mail
-For new player info icon will has pointy arrow until I clicked
-Make info modal more beautiful divided into blocks and add mult
-Over all progress
-Show a rotating funny egg or monkey related quote 
-When 100%, add a personal thank you note
 Can show a small version of the hammer in the shop?
 Gavel skill.has special log
 Replace float text with order when skill is activated
