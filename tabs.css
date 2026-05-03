@@ -275,7 +275,7 @@
 .shop-card.equipped{border-color:var(--gold);box-shadow:0 0 8px rgba(245,197,66,.3),3px 3px 0 var(--dark)}
 .shop-card .s-emoji{font-size:24px}
 .shop-card .s-hammer{display:flex;width:22px;height:50px;margin:1px auto;align-items:center;justify-content:center;overflow:hidden}
-.shop-card .s-hammer svg{width:22px!important;height:50px!important;display:block;flex-shrink:0}
+.shop-card .s-hammer svg{width:22px!important;height:50px!important;display:block;flex-shrink:0;transform:rotate(180deg)}
 .shop-card .s-name{font-size:11px;color:var(--white);text-shadow:1px 1px 0 var(--dark)}
 .shop-card .s-desc{font-size:10px;color:var(--gray)}
 .shop-card .s-cost{font-size:11px;color:var(--gold);margin-top:2px}
