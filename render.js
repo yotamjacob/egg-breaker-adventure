@@ -1344,7 +1344,7 @@ function renderSkills() {
           <div class="skill-icon-wrap skill-rage-icon">${def.icon}</div>
           <div class="skill-name">${def.name}</div>
           <div class="skill-desc">${def.desc}</div>
-          <div class="skill-cd-label">Cooldown: ${cd} eggs${level > 0 ? ' ⚡' : ''}</div>
+          <div class="skill-cd-label">Cooldown: ${cd} eggs${level > 0 ? ' (upgraded)' : ''}</div>
           ${upgradeHtml}
         </div>
       </div>`;

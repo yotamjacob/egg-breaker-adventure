@@ -706,7 +706,8 @@ let _gooseActive = false;
 let _gooseEggsLeft = 0;
 
 function activateMonkeyRage() {
-  if (_rageActive || _gooseActive || _starfallActive || _spawningRound) return;
+  if (_gooseActive) { _skillBump($id('rage-btn')); return; }
+  if (_rageActive || _starfallActive || _spawningRound) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[0]) return;
   if (!isSkillReady(0)) return;
   if (G.hammers < 1) { showAlert('🔨', 'No hammers left!'); SFX.play('err'); return; }
@@ -891,6 +892,7 @@ function stopMonkeyRage() {
 function activateGoldenGoose() {
   if (_rageActive) { stopMonkeyRage(); return; }
   if (_gooseActive || _starfallActive) return;
+  // blocked by banana? (banana is instant so never truly "active")
   if (!G.skillsUnlocked || !G.skillsUnlocked[1]) return;
   if (!isSkillReady(1)) return;
 
@@ -909,8 +911,8 @@ function activateGoldenGoose() {
 
   if ((G.skillConfirmSkip || [])[1]) { doGoose(); return; }
 
-  showConfirm('🥚', 'Golden Goose!',
-    'Next <b>50 eggs</b> give <b style="color:#FFD700">3× rewards</b> (gold, feathers, stars, hammers). Century eggs excluded.<br><br><label class="skill-skip-label"><input type="checkbox" id="skill-skip-1"> Don\'t show me again</label>',
+  showConfirm('', 'Golden Goose',
+    'Next <b>50 eggs</b> give a flat <b style="color:#FFD700">+3× base bonus</b> on top of normal rewards. Century eggs excluded.<br><br><label class="skill-skip-label"><input type="checkbox" id="skill-skip-1"> Don\'t show me again</label>',
     () => {
       if (document.getElementById('skill-skip-1')?.checked) {
         if (!G.skillConfirmSkip) G.skillConfirmSkip = [false,false,false];
@@ -921,6 +923,7 @@ function activateGoldenGoose() {
     },
     'Activate', 'Cancel'
   );
+  $id('confirm-icon').innerHTML = '<img src="img/golden_goose.png" class="rage-confirm-img" alt="">';
 }
 
 function _finishGoose() {
@@ -938,7 +941,8 @@ function _finishGoose() {
 // ==================== BANANA SHAKE ====================
 function activateBananaShake() {
   if (_rageActive) { stopMonkeyRage(); return; }
-  if (_gooseActive || _starfallActive) return;
+  if (_gooseActive) { _skillBump($id('banana-btn')); return; }
+  if (_starfallActive) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[2]) return;
   if (!isSkillReady(2)) return;
 
@@ -963,8 +967,8 @@ function activateBananaShake() {
 
   if ((G.skillConfirmSkip || [])[2]) { doShake(); return; }
 
-  showConfirm('🍌', 'Banana Shake!',
-    'Instantly refills all hammers to maximum (<b>' + G.maxH + ' 🔨</b>).<br><br><label class="skill-skip-label"><input type="checkbox" id="skill-skip-2"> Don\'t show me again</label>',
+  showConfirm('', 'Banana Shake',
+    'Instantly refills all hammers to maximum (<b>' + G.maxH + ' hammers</b>).<br><br><label class="skill-skip-label"><input type="checkbox" id="skill-skip-2"> Don\'t show me again</label>',
     () => {
       if (document.getElementById('skill-skip-2')?.checked) {
         if (!G.skillConfirmSkip) G.skillConfirmSkip = [false,false,false];
@@ -973,8 +977,9 @@ function activateBananaShake() {
       }
       doShake();
     },
-    'Shake!', 'Cancel'
+    'Activate', 'Cancel'
   );
+  $id('confirm-icon').innerHTML = '<img src="img/banana_shake.png" class="rage-confirm-img" alt="">';
 }
 
 function activateSkill(i) {
@@ -1163,11 +1168,28 @@ function checkSkillsUnlock() {
   updateSkillBtns();
 }
 
+function _skillBump(el) {
+  if (!el) return;
+  el.classList.remove('skill-btn-bump');
+  void el.offsetWidth;
+  el.classList.add('skill-btn-bump');
+  setTimeout(() => el.classList.remove('skill-btn-bump'), 400);
+}
+
 function updateRageBtn() {
   const btn = $id('rage-btn');
   if (!btn) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[0]) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
+  if (_gooseActive) {
+    btn.classList.remove('rage-cooldown', 'skill-glow-red');
+    btn.classList.add('skill-btn-blocked');
+    btn.innerHTML = '<img src="img/rage_monkey.png" class="rage-btn-img" alt="">';
+    btn.disabled = false;
+    btn.title = 'Monkey Rage (skill active)';
+    return;
+  }
+  btn.classList.remove('skill-btn-blocked');
   if (_rageActive) {
     btn.classList.remove('rage-cooldown');
     btn.classList.add('skill-glow-red');
@@ -1196,6 +1218,14 @@ function updateGooseBtn() {
   if (!btn) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[1]) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
+  if (_rageActive) {
+    btn.classList.remove('skill-btn-cd', 'skill-glow-gold');
+    btn.classList.add('skill-btn-blocked');
+    btn.innerHTML = '<img src="img/golden_goose.png" class="rage-btn-img" alt="">';
+    btn.disabled = false;
+    return;
+  }
+  btn.classList.remove('skill-btn-blocked');
   if (_gooseActive) {
     btn.classList.remove('skill-btn-cd');
     btn.classList.add('skill-glow-gold');
@@ -1221,6 +1251,14 @@ function updateBananaBtn() {
   if (!btn) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[2]) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
+  if (_rageActive || _gooseActive) {
+    btn.classList.remove('skill-btn-cd');
+    btn.classList.add('skill-btn-blocked');
+    btn.innerHTML = '<img src="img/banana_shake.png" class="rage-btn-img" alt="">';
+    btn.disabled = false;
+    return;
+  }
+  btn.classList.remove('skill-btn-blocked');
   const ready = isSkillReady(2);
   if (!ready) {
     btn.classList.add('skill-btn-cd');
@@ -1742,26 +1780,22 @@ function showSkillsInfo() {
   showConfirm('⚡', 'Skills',
     '<div class="info-blocks">' +
       '<div class="info-block">' +
-        '<span class="info-block-title">🔓 unlocking</span>' +
-        '<div class="info-row"><span class="info-row-icon">🐒</span><span>Skills unlock after completing <span class="info-highlight">2 monkeys</span>. Up to 3 skills total.</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">🪶</span><span>Each skill costs feathers + gold to unlock.</span></div>' +
+        '<span class="info-block-title">Unlocking</span>' +
+        '<div class="info-row"><span>Skills unlock after completing <span class="info-highlight">2 monkeys</span>. Up to 3 skills total, each costs feathers + gold.</span></div>' +
       '</div>' +
       '<div class="info-block">' +
-        '<span class="info-block-title">⚡ how they work</span>' +
-        '<div class="info-row"><span class="info-row-icon">🐒</span><span><span class="info-highlight">Monkey Rage</span> — spends all hammers smashing eggs. Tap the button to stop early (unused hammers refunded).</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">🥚</span><span><span class="info-highlight">Golden Goose</span> — next 50 eggs get a flat +3× base bonus on top of normal rewards.</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">🍌</span><span><span class="info-highlight">Banana Shake</span> — instantly refills all hammers to max.</span></div>' +
+        '<span class="info-block-title">How they work</span>' +
+        '<div class="info-row"><span><span class="info-highlight">Monkey Rage</span> — spends all hammers smashing eggs. Tap button to stop early (unused hammers refunded).</span></div>' +
+        '<div class="info-row"><span><span class="info-highlight">Golden Goose</span> — next 50 eggs get a flat +3× base bonus on top of normal rewards.</span></div>' +
+        '<div class="info-row"><span><span class="info-highlight">Banana Shake</span> — instantly refills all hammers to max.</span></div>' +
       '</div>' +
       '<div class="info-block">' +
-        '<span class="info-block-title">⏳ cooldown & limits</span>' +
-        '<div class="info-row"><span class="info-row-icon">⏳</span><span>Each skill has a cooldown — tracks eggs smashed, not time.</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">🚫</span><span>Only one skill can be active at a time.</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">🔘</span><span>Skills are activated from buttons on the egg tray.</span></div>' +
+        '<span class="info-block-title">Cooldown & limits</span>' +
+        '<div class="info-row"><span>Each skill has an egg-count cooldown. Only one skill active at a time. Activate from tray buttons.</span></div>' +
       '</div>' +
       '<div class="info-block">' +
-        '<span class="info-block-title">⬆️ upgrades</span>' +
-        '<div class="info-row"><span class="info-row-icon">⚙️</span><span>Each skill can be upgraded twice — reduces cooldown (200 → 150 → 100 eggs).</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">🪙</span><span>Each upgrade costs <span class="info-highlight">100 feathers + 100k gold</span>.</span></div>' +
+        '<span class="info-block-title">Upgrades</span>' +
+        '<div class="info-row"><span>Each skill upgrades twice — reduces cooldown (200 → 150 → 100 eggs). Costs <span class="info-highlight">100 feathers + 100k gold</span> per upgrade.</span></div>' +
       '</div>' +
     '</div>',
     null, 'Got it!'

@@ -180,6 +180,10 @@ body{
 .rage-stop-hint{position:absolute;top:1px;right:2px;font-size:7px;color:rgba(255,255,255,.65);line-height:1;pointer-events:none;text-shadow:0 0 3px #000}
 .rage-btn.rage-cooldown{background:rgba(20,20,70,.9);border-color:#5555bb;box-shadow:0 0 8px rgba(80,80,200,.35),1px 1px 0 var(--dark);cursor:not-allowed}
 .rage-btn.rage-cooldown:hover{transform:none;background:rgba(20,20,70,.9)}
+.skill-btn-blocked{opacity:.35;filter:grayscale(.6);cursor:not-allowed}
+.skill-btn-blocked:hover{transform:none !important}
+.skill-btn-bump{animation:skill-bump .35s ease}
+@keyframes skill-bump{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .skill-glow-red{animation:skill-glow-r 0.9s ease-in-out infinite}
 .skill-glow-gold{animation:skill-glow-g 0.9s ease-in-out infinite}
 .skill-glow-blue{animation:skill-glow-b 1.6s ease-out forwards}
