@@ -615,7 +615,7 @@ function smashEgg(index) {
 
   // Effect eggs get bonus rewards
   const fx = egg.effects || [];
-  if (fx.includes('runny') || fx.includes('timer')) {
+  if (prize && (fx.includes('runny') || fx.includes('timer'))) {
     const chipTotal = G.activeMult > 1 ? G.activeMult : 0;
     if (prize.type === 'mult') {
       // Multiply count, not face value — value must stay a valid MULT_BADGE_VALUES entry

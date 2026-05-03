@@ -94,6 +94,7 @@ const DEFAULT_STATE = {
   doubledailyRetroApplied: false,
   _bananasEverShown: false,
   _spyglassHintShown: false,
+  _allMonkeysCongratsSeen: false,
   // Secrets
   _reviewPromptShown: false,
   _secretOuch: false, _secretChicken: false, _secretStrikes: false,
@@ -178,13 +179,14 @@ function saveGame() {
   try {
     localStorage.setItem(SAVE_KEY, compressed);
   } catch (e) {
-    _pushError('saveGame storage error: ' + (e && e.message || e), e && e.stack);
+    console.error('saveGame storage error:', e);
   }
 }
 
 function migrateSave(state) {
   if (state.monkeys) {
     state.monkeys.forEach((mp, mi) => {
+      if (!MONKEY_DATA[mi]) return; // guard against downgrade/corrupt extra entries
       if (!mp.tiers) {
         mp.tiers = MONKEY_DATA[mi].stages.map((_, si) => {
           if (si < mp.stage) return 3;
@@ -193,6 +195,12 @@ function migrateSave(state) {
         });
       }
       if (mp.activeStage === undefined) mp.activeStage = mp.stage;
+      // Extend collections array if new stages were added in a patch
+      if (!Array.isArray(mp.collections)) mp.collections = [];
+      while (mp.collections.length < MONKEY_DATA[mi].stages.length) {
+        const stageItems = MONKEY_DATA[mi].stages[mp.collections.length].collection.items;
+        mp.collections.push(stageItems.map(() => false));
+      }
     });
   }
   if (state.roundEggs) {
@@ -203,7 +211,14 @@ function migrateSave(state) {
       }
       delete egg._smashing;
     });
+    // If every egg is already broken/expired (app killed mid-round-clear), discard the tray
+    // so newRound() spawns fresh eggs instead of leaving the player stuck.
+    if (state.roundEggs.every(e => e.broken || e.expired)) {
+      state.roundEggs = null;
+    }
   }
+  // Guard out-of-bounds activeMonkey (corrupt save or downgrade)
+  if (state.activeMonkey >= MONKEY_DATA.length) state.activeMonkey = 0;
 }
 
 function loadGame() {
@@ -231,12 +246,13 @@ function loadGame() {
       }
       G.monkeys = fresh;
     }
+    migrateSave(G);
   } catch (e) {
     // Save data unreadable — start fresh but warn the player
-    _pushError('loadGame parse error: ' + (e && e.message || e), e && e.stack);
+    console.error('loadGame parse error:', e);
+    G = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null };
     setTimeout(() => showShopSnack('⚠️ Save data unreadable — starting fresh. Use Report Issue if this repeats.', 6000), 1500);
   }
-  migrateSave(G);
   loadPremium(); // premium store always wins — survives save corruption or wipes
 }
 
@@ -1028,7 +1044,7 @@ function checkCollectionComplete(suppressFlash) {
   // Ensure tiers array exists (save migration)
   if (!prog.tiers) prog.tiers = curMonkey().stages.map(() => 0);
 
-  const tier = prog.tiers[si];
+  let tier = prog.tiers[si];
   const tt = CONFIG.tierThresholds;
   const thresholds = [
     Math.ceil(total * tt.bronze),
@@ -1036,8 +1052,9 @@ function checkCollectionComplete(suppressFlash) {
     Math.ceil(total * tt.gold),
   ];
 
-  if (tier < 3 && found >= thresholds[tier]) {
+  while (tier < 3 && found >= thresholds[tier]) {
     prog.tiers[si]++;
+    tier = prog.tiers[si];
     const newTier = prog.tiers[si];
     SFX.play('tier');
 
