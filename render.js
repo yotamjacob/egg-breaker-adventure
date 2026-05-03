@@ -1329,10 +1329,6 @@ function renderSkills() {
       let activateHtml = '';
       if (isGooseRunning) {
         activateHtml = `<div class="skill-running-badge">✨ Active — ${typeof _gooseEggsLeft !== 'undefined' ? _gooseEggsLeft : 0} eggs left</div>`;
-      } else if (!ready) {
-        activateHtml = `<div class="skill-cd-status">Ready in ${eggsLeft} eggs</div>`;
-      } else {
-        activateHtml = `<div class="skill-cd-status skill-cd-ready">Ready</div>`;
       }
 
       // Upgrade section
