@@ -605,6 +605,7 @@ function updateResources() {
   updateStarBtn();
   updateOverallProgress();
   if (typeof checkSpyglassHint === 'function') checkSpyglassHint();
+  if (typeof updateRageBtn === 'function') updateRageBtn();
 }
 
 const _OVERALL_QUOTES = [
@@ -1285,6 +1286,16 @@ function _dailyLabel(r) {
 }
 
 // ==================== SKILLS ====================
+const _SKILL_DEFS = [
+  {
+    icon: '🐒💢',
+    name: 'Monkey Rage',
+    desc: 'Spend ALL your hammers to unleash the monkey — every egg on screen gets smashed instantly.',
+  },
+  { icon: '🔒', name: '???', desc: 'Mystery skill — unlock to reveal.' },
+  { icon: '🔒', name: '???', desc: 'Mystery skill — unlock to reveal.' },
+];
+
 function renderSkills() {
   const el = $id('skills-grid');
   if (!el) return;
@@ -1293,12 +1304,13 @@ function renderSkills() {
   const nextCost = owned < 3 ? _SKILL_COSTS[owned] : null;
 
   el.innerHTML = skills.map((unlocked, i) => {
+    const def = _SKILL_DEFS[i];
     if (unlocked) {
       return `<div class="skill-block skill-unlocked" id="skill-block-${i}">
         <div class="skill-block-inner">
-          <div class="skill-icon-wrap">⚡</div>
-          <div class="skill-name">Skill ${i + 1}</div>
-          <div class="skill-desc skill-tbd">Coming soon…</div>
+          <div class="skill-icon-wrap skill-rage-icon">${def.icon}</div>
+          <div class="skill-name">${def.name}</div>
+          <div class="skill-desc">${def.desc}</div>
           <div class="skill-active-badge">✓ Active</div>
         </div>
       </div>`;
@@ -1309,9 +1321,9 @@ function renderSkills() {
     const gOk = c && G.gold >= c.gold;
     return `<div class="skill-block skill-locked" id="skill-block-${i}">
       <div class="skill-block-inner">
-        <div class="skill-icon-wrap">🔒</div>
-        <div class="skill-name">???</div>
-        <div class="skill-desc">Unlock to reveal this skill</div>
+        <div class="skill-icon-wrap">${def.icon}</div>
+        <div class="skill-name">${def.name}</div>
+        <div class="skill-desc">${def.desc}</div>
         <div class="skill-cost-row">
           <span class="${fOk ? 'skill-cost-ok' : 'skill-cost-no'}">${c ? c.feathers : '—'} 🪶</span>
           <span class="skill-cost-sep">+</span>

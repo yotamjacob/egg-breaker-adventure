@@ -688,6 +688,92 @@ function _doStarfall(message, cat) {
 }
 
 
+// ==================== MONKEY RAGE ====================
+let _rageActive = false;
+
+function activateMonkeyRage() {
+  if (_rageActive || _starfallActive || _spawningRound) return;
+  if (!G.skillsUnlocked || !G.skillsUnlocked[0]) return;
+  if (G.hammers < 1) { showAlert('🔨', 'No hammers left!'); SFX.play('err'); return; }
+  if (!G.roundEggs) return;
+
+  const unbroken = G.roundEggs.reduce((a, e, i) => {
+    if (!e.broken && !e.expired) a.push(i);
+    return a;
+  }, []);
+  if (!unbroken.length) { showAlert('🐒', 'No eggs to smash!'); return; }
+
+  const hammersSpent = G.hammers;
+  G.hammers = 0;
+  _rageActive = true;
+  updateResources();
+  msg('🐒💢 MONKEY RAGE! ' + hammersSpent + ' hammers unleashed!', 'specials');
+  SFX.play('starfall');
+
+  const wrap = $id('egg-tray-wrap');
+  const hammerEl = $id('hammer');
+
+  unbroken.forEach((idx, i) => {
+    setTimeout(() => {
+      const egg = G.roundEggs[idx];
+      if (!egg || egg.broken) return;
+
+      egg.hp = 0;
+      egg.broken = true;
+      G.totalEggs++;
+
+      const slots = $id('egg-tray').children;
+      const slot = slots[idx];
+      const rect = slot.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      const cx = rect.left - wrapRect.left + rect.width / 2;
+      const cy = rect.top - wrapRect.top + rect.height / 2;
+
+      // Animate hammer to this egg
+      clearTimeout(hammerEl._hideTimer);
+      hammerEl.style.transition = 'none';
+      hammerEl.style.left = (cx - 20) + 'px';
+      hammerEl.style.top = (cy - 10) + 'px';
+      hammerEl.style.opacity = '1';
+      hammerEl.classList.remove('hammer-anim');
+      void hammerEl.offsetWidth;
+      hammerEl.classList.add('hammer-anim');
+      hammerEl._hideTimer = setTimeout(() => {
+        hammerEl.style.opacity = '0';
+        hammerEl.style.transition = '';
+      }, 130);
+
+      const isSpecial = ['crystal','ruby','black','century'].includes(egg.type);
+      SFX.play(isSpecial ? 'crunch' : 'hit');
+      shake(slot, 'lg');
+      slot.classList.add('smashing');
+      setTimeout(() => slot.classList.remove('smashing'), 250);
+      Particles.emit(cx, cy, egg.type, 18);
+
+      const prize = rollPrize(egg.type);
+      setTimeout(() => {
+        applyPrize(prize, cx, cy);
+        slot.classList.add('broken');
+        slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + eggLabel(egg.type, 0, egg.maxHp, true);
+        updateResources();
+        updateStageBar();
+        saveGame();
+      }, 120);
+    }, i * 140);
+  });
+
+  setTimeout(() => {
+    _rageActive = false;
+    updateResources();
+    checkAchievements();
+    if (!regenInt && G.hammers < G.maxH) startRegen();
+    if (!G.roundEggs || G.roundEggs.every(e => e.broken || e.expired)) {
+      G.roundClears++;
+      setTimeout(() => newRound(), 600);
+    }
+  }, unbroken.length * 140 + 400);
+}
+
 // ==================== COLLECTION / STAGE ====================
 function checkCollectionComplete(suppressFlash) {
   const prog = curProgress();
@@ -863,7 +949,17 @@ function checkSkillsUnlock() {
   if (done >= 2) {
     btn.disabled = false;
     btn.classList.remove('locked');
+    btn.textContent = 'Skills';
   }
+  updateRageBtn();
+}
+
+function updateRageBtn() {
+  const btn = $id('rage-btn');
+  if (!btn) return;
+  if (!G.skillsUnlocked || !G.skillsUnlocked[0]) { btn.classList.add('hidden'); return; }
+  btn.classList.remove('hidden');
+  btn.disabled = G.hammers < 1 || _rageActive;
 }
 
 function goToSkills() {
@@ -893,6 +989,7 @@ function buySkill(idx) {
       saveGame();
       updateResources();
       renderSkills();
+      updateRageBtn();
       SFX.play('complete');
     },
     'Unlock'

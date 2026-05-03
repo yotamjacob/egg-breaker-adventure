@@ -388,3 +388,5 @@
 .skill-unlock-btn:hover:not(.skill-btn-dim){opacity:.85}
 .skill-unlock-btn.skill-btn-dim{background:rgba(255,255,255,.12);color:rgba(255,255,255,.35);cursor:not-allowed}
 .skill-active-badge{font-size:9px;color:var(--green);font-family:var(--px);letter-spacing:.5px}
+.skill-rage-icon{animation:rage-pulse 1.4s ease-in-out infinite}
+@keyframes rage-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18) rotate(-4deg)}}

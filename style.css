@@ -132,7 +132,7 @@ body{
 .god-btn.hidden{visibility:hidden}
 @keyframes god-pulse{0%,100%{box-shadow:2px 2px 0 var(--dark)}50%{box-shadow:2px 2px 0 var(--dark),0 0 8px rgba(231,76,60,.5)}}
 .tray-info-btn{
-  position:absolute;bottom:7px;right:7px;z-index:10;
+  position:absolute;top:7px;right:7px;z-index:10;
   width:22px;height:22px;border-radius:50%;
   background:var(--panel2);border:1px solid var(--purple);
   color:var(--purple);font-size:12px;
@@ -141,6 +141,19 @@ body{
   transition:background .1s,color .1s;
 }
 .tray-info-btn:hover{background:var(--purple);color:var(--white)}
+.rage-btn{
+  position:absolute;bottom:7px;right:7px;z-index:10;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(160,20,20,.88);border:2px solid #ff5555;
+  font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 10px rgba(255,60,60,.55),1px 1px 0 var(--dark);
+  transition:background .1s,transform .1s;
+  line-height:1;padding:0;
+}
+.rage-btn:hover:not(:disabled){background:rgba(210,30,30,.95);transform:scale(1.08)}
+.rage-btn:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.5)}
+.rage-btn.hidden{display:none}
 
 /* ---------- Info modal blocks ---------- */
 .info-blocks{text-align:left;width:100%;display:flex;flex-direction:column;gap:0}
