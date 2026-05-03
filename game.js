@@ -708,8 +708,8 @@ function activateMonkeyRage() {
   if (!unbroken.length) { showAlert('🐒', 'No eggs to smash!'); return; }
 
   const hammersNow = G.hammers;
-  showConfirm('🐒💢', 'Monkey Rage!',
-    'Will consume <b style="color:#ffaaaa">' + hammersNow + ' 🔨 hammers</b> — smashing every egg across stages until empty.',
+  showConfirm('', 'Monkey Rage!',
+    'Will consume <b style="color:#ffaaaa">' + hammersNow + ' hammers</b> — smashing every egg across stages until empty.',
     () => {
       if (_rageActive || _starfallActive || _spawningRound) return;
       if (G.hammers < 1) { showAlert('🔨', 'No hammers left!'); SFX.play('err'); return; }
@@ -721,13 +721,14 @@ function activateMonkeyRage() {
       const _trayWrap = $id('egg-tray-wrap');
       if (_trayWrap) _trayWrap.classList.add('rage-tray-active');
       updateResources();
-      msg('🐒💢 MONKEY RAGE! ' + _rageHammersLeft + ' hammers unleashed!', 'specials');
+      msg('MONKEY RAGE! ' + _rageHammersLeft + ' hammers unleashed!', 'specials');
       SFX.play('starfall');
       spawnFloat($id('prize-zone'), 'MONKEY RAGE!!', '#ff3333', 'mega');
       _doRageBatch();
     },
-    '🐒 Unleash!', 'Cancel'
+    'Unleash', 'Cancel'
   );
+  $id('confirm-icon').innerHTML = '<img src="img/rage_monkey.png" class="rage-confirm-img" alt="">';
 }
 
 function _doRageBatch() {
