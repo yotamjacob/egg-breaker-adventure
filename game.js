@@ -801,14 +801,19 @@ function _doRageBatch() {
     }, i * 140);
   });
 
-  // After this batch: either continue to next round or finish
+  // After this batch: spawn new round if cleared, then continue or finish
   setTimeout(() => {
-    if (_rageHammersLeft > 0 && G.roundEggs.every(e => e.broken || e.expired)) {
+    const roundCleared = G.roundEggs.every(e => e.broken || e.expired);
+    if (roundCleared) {
       G.roundClears++;
       checkCollectionComplete(true);
       checkAchievements();
-      newRound();
-      setTimeout(_doRageBatch, 450);
+      newRound(); // always repopulate eggs when round is cleared
+      if (_rageHammersLeft > 0) {
+        setTimeout(_doRageBatch, 450);
+      } else {
+        _finishRage();
+      }
     } else {
       _finishRage();
     }
