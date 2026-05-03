@@ -179,6 +179,12 @@ body{
 .rage-confirm-img{width:56px;height:56px;object-fit:cover;border-radius:6px;image-rendering:pixelated;border:2px solid rgba(200,40,40,.6)}
 .rage-btn.rage-cooldown{background:rgba(20,20,70,.9);border-color:#5555bb;box-shadow:0 0 8px rgba(80,80,200,.35),1px 1px 0 var(--dark);cursor:not-allowed}
 .rage-btn.rage-cooldown:hover{transform:none;background:rgba(20,20,70,.9)}
+.skill-glow-red{animation:skill-glow-r 0.9s ease-in-out infinite}
+.skill-glow-gold{animation:skill-glow-g 0.9s ease-in-out infinite}
+.skill-glow-blue{animation:skill-glow-b 1.6s ease-out forwards}
+@keyframes skill-glow-r{0%,100%{box-shadow:0 0 12px rgba(255,60,60,.7),1px 1px 0 var(--dark)}50%{box-shadow:0 0 26px rgba(255,60,60,1),0 0 8px rgba(255,100,100,.6),1px 1px 0 var(--dark)}}
+@keyframes skill-glow-g{0%,100%{box-shadow:0 0 12px rgba(255,215,0,.7),1px 1px 0 var(--dark)}50%{box-shadow:0 0 26px rgba(255,215,0,1),0 0 8px rgba(255,230,80,.6),1px 1px 0 var(--dark)}}
+@keyframes skill-glow-b{0%{box-shadow:0 0 28px rgba(100,200,255,1),0 0 10px rgba(120,220,255,.8),1px 1px 0 var(--dark)}100%{box-shadow:0 0 6px rgba(100,200,255,.15),1px 1px 0 var(--dark)}}
 .rage-cd-count{font-family:var(--px);font-size:9px;color:#8888ee;line-height:1;pointer-events:none}
 
 /* ---------- Info modal blocks ---------- */

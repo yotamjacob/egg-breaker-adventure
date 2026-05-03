@@ -937,6 +937,8 @@ function activateBananaShake() {
     msg('BANANA SHAKE! Hammers refilled!', 'specials');
     renderSkills();
     updateBananaBtn();
+    const _bb = $id('banana-btn');
+    if (_bb) { _bb.classList.add('skill-glow-blue'); setTimeout(() => _bb.classList.remove('skill-glow-blue'), 1600); }
   };
 
   if ((G.skillConfirmSkip || [])[2]) { doShake(); return; }
@@ -1148,10 +1150,12 @@ function updateRageBtn() {
   btn.classList.remove('hidden');
   if (_rageActive) {
     btn.classList.remove('rage-cooldown');
+    btn.classList.add('skill-glow-red');
     btn.innerHTML = `<div class="rage-running-wrap"><img src="img/rage_monkey.png" class="rage-btn-img rage-btn-dim" alt=""><span class="rage-running-count">${_rageHammersLeft}</span></div>`;
     btn.disabled = true;
     return;
   }
+  btn.classList.remove('skill-glow-red');
   const ready = isSkillReady(0);
   if (!ready) {
     const left = skillEggsUntilReady(0);
@@ -1172,10 +1176,12 @@ function updateGooseBtn() {
   btn.classList.remove('hidden');
   if (_gooseActive) {
     btn.classList.remove('skill-btn-cd');
+    btn.classList.add('skill-glow-gold');
     btn.innerHTML = `<div class="rage-running-wrap"><img src="img/golden_goose.png" class="rage-btn-img rage-btn-dim" alt=""><span class="rage-running-count">${_gooseEggsLeft}</span></div>`;
     btn.disabled = true;
     return;
   }
+  btn.classList.remove('skill-glow-gold');
   const ready = isSkillReady(1);
   if (!ready) {
     btn.classList.add('skill-btn-cd');
