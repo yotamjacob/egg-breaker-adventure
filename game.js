@@ -96,8 +96,8 @@ const DEFAULT_STATE = {
   _spyglassHintShown: false,
   // Secrets
   _reviewPromptShown: false,
-  _secretFlip: false, _secretOuch: false, _secretChicken: false, _secretStrikes: false,
-  _secret42: false, _secretMidnight: false, _secretLeet: false, _secretChef: false, _secretOmelette: false,
+  _secretOuch: false, _secretChicken: false, _secretStrikes: false,
+  _secret42: false, _secretMidnight: false, _secretLeet: false, _secretChef: false,
   _midnightToday: null,
   // Cloud save
   _savedAt: 0,

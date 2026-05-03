@@ -701,8 +701,6 @@ const ACHIEVEMENT_DATA = [
 
 // Secret achievements — hidden until discovered
 const SECRET_ACHIEVEMENTS = [
-  { id:'secret_flip',     name:'Topsy Turvy',           desc:'Flip the eggs upside down',        icon:'🙃', reward:{type:'gold',val:500,  label:'+500 gold'} },
-  { id:'secret_omelette', name:'Omelette du Fromage',   desc:'Type the secret word',             icon:'🍳', reward:{type:'gold',val:500,  label:'+500 gold'} },
   { id:'secret_42',       name:'Meaning of Life',       desc:'42 eggs broken without gold',      icon:'🌌', reward:{type:'gold',val:420,  label:'+420 gold'} },
   { id:'secret_ouch',     name:'Sorry Little Egg',      desc:'An egg said ouch',                 icon:'🥺', reward:{type:'gold',val:100,  label:'+100 gold'} },
   { id:'secret_chicken',  name:'Why Did It Cross?',     desc:'Spot the runaway chicken',         icon:'🐔', reward:{type:'gold',val:200,  label:'+200 gold'} },
