@@ -883,6 +883,7 @@ function activateGoldenGoose() {
     SFX.play('starfall');
     spawnFloat($id('prize-zone'), 'GOLDEN GOOSE!', '#FFD700', 'mega');
     renderSkills();
+    updateGooseBtn();
   };
 
   if ((G.skillConfirmSkip || [])[1]) { doGoose(); return; }
@@ -909,6 +910,7 @@ function _finishGoose() {
   msg('Golden Goose ended — cooldown started.', 'specials');
   updateResources();
   renderSkills();
+  updateGooseBtn();
 }
 
 // ==================== BANANA SHAKE ====================
@@ -928,6 +930,7 @@ function activateBananaShake() {
     spawnFloat($id('prize-zone'), 'BANANA SHAKE!', '#FFD700', 'mega');
     msg('BANANA SHAKE! Hammers refilled!', 'specials');
     renderSkills();
+    updateBananaBtn();
   };
 
   if ((G.skillConfirmSkip || [])[2]) { doShake(); return; }
@@ -1129,7 +1132,7 @@ function checkSkillsUnlock() {
     btn.classList.remove('locked');
     btn.textContent = 'Skills';
   }
-  updateRageBtn();
+  updateSkillBtns();
 }
 
 function updateRageBtn() {
@@ -1154,6 +1157,52 @@ function updateRageBtn() {
     btn.innerHTML = '<img src="img/rage_monkey.png" class="rage-btn-img" alt="">';
     btn.disabled = G.hammers < 1;
   }
+}
+
+function updateGooseBtn() {
+  const btn = $id('goose-btn');
+  if (!btn) return;
+  if (!G.skillsUnlocked || !G.skillsUnlocked[1]) { btn.classList.add('hidden'); return; }
+  btn.classList.remove('hidden');
+  if (_gooseActive) {
+    btn.classList.remove('skill-btn-cd');
+    btn.innerHTML = `<div class="rage-running-wrap"><span style="font-size:11px;pointer-events:none">🥚✨</span><span class="rage-running-count">${_gooseEggsLeft}</span></div>`;
+    btn.disabled = true;
+    return;
+  }
+  const ready = isSkillReady(1);
+  if (!ready) {
+    btn.classList.add('skill-btn-cd');
+    btn.innerHTML = `<span class="rage-cd-count">${skillEggsUntilReady(1)}</span>`;
+    btn.disabled = true;
+  } else {
+    btn.classList.remove('skill-btn-cd');
+    btn.innerHTML = '🥚✨';
+    btn.disabled = false;
+  }
+}
+
+function updateBananaBtn() {
+  const btn = $id('banana-btn');
+  if (!btn) return;
+  if (!G.skillsUnlocked || !G.skillsUnlocked[2]) { btn.classList.add('hidden'); return; }
+  btn.classList.remove('hidden');
+  const ready = isSkillReady(2);
+  if (!ready) {
+    btn.classList.add('skill-btn-cd');
+    btn.innerHTML = `<span class="rage-cd-count">${skillEggsUntilReady(2)}</span>`;
+    btn.disabled = true;
+  } else {
+    btn.classList.remove('skill-btn-cd');
+    btn.innerHTML = '🍌';
+    btn.disabled = false;
+  }
+}
+
+function updateSkillBtns() {
+  updateRageBtn();
+  updateGooseBtn();
+  updateBananaBtn();
 }
 
 function goToSkills() {
@@ -1227,7 +1276,7 @@ function buySkill(idx) {
       saveGame();
       updateResources();
       renderSkills();
-      updateRageBtn();
+      updateSkillBtns();
       SFX.play('complete');
     },
     'Unlock'

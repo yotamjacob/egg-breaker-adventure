@@ -605,7 +605,7 @@ function updateResources() {
   updateStarBtn();
   updateOverallProgress();
   if (typeof checkSpyglassHint === 'function') checkSpyglassHint();
-  if (typeof updateRageBtn === 'function') updateRageBtn();
+  if (typeof updateSkillBtns === 'function') updateSkillBtns();
 }
 
 const _OVERALL_QUOTES = [
@@ -1325,14 +1325,14 @@ function renderSkills() {
       const eggsLeft = skillEggsUntilReady(i);
       const isGooseRunning = (i === 1 && typeof _gooseActive !== 'undefined' && _gooseActive);
 
-      // Activate button / status
+      // Status (no activate button — skills are activated from the egg tray)
       let activateHtml = '';
       if (isGooseRunning) {
         activateHtml = `<div class="skill-running-badge">✨ Active — ${typeof _gooseEggsLeft !== 'undefined' ? _gooseEggsLeft : 0} eggs left</div>`;
-      } else if (ready) {
-        activateHtml = `<button class="skill-activate-btn" onclick="activateSkill(${i})">Activate</button>`;
-      } else {
+      } else if (!ready) {
         activateHtml = `<div class="skill-cd-status">Ready in ${eggsLeft} eggs</div>`;
+      } else {
+        activateHtml = `<div class="skill-cd-status skill-cd-ready">Ready</div>`;
       }
 
       // Upgrade section
