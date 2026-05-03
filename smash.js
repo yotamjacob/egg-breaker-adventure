@@ -165,7 +165,7 @@ function resolvePrize(type, eggType) {
     const baseVal = Math.round(base);   // round once
     const val = baseVal * G.activeMult; // exact — no rounding drift
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
-    return { type: 'gold', value: val, baseVal, usedMult, label: '+' + val + ' 🪙', color: '#d97706' };
+    return { type: 'gold', value: val, baseVal, rawBase, usedMult, label: '+' + val + ' 🪙', color: '#d97706' };
   }
 
   if (type === 'feather') {
@@ -698,11 +698,14 @@ function smashEgg(index) {
 }
 
 function applyPrize(prize, cx, cy) {
-  // Golden Goose: 3× rewards for next 50 eggs (except century)
+  // Golden Goose: adds base×3 as a flat bonus on top of normal rewards (not ×3 on final)
+  // e.g. ruby 10g × 10 = 100g → 100g + 10g×3 = 130g, not 300g
   if (typeof _gooseActive !== 'undefined' && _gooseActive && typeof _prizeEggType !== 'undefined' && _prizeEggType !== 'century') {
     if (prize.type === 'gold' || prize.type === 'feather' || prize.type === 'star' || prize.type === 'hammers') {
-      prize = { ...prize, value: prize.value * 3, baseVal: (prize.baseVal || prize.value) * 3,
-        label: prize.label.replace(/\+(\d+)/, (_, n) => '+' + (parseInt(n) * 3)) };
+      const gooseBase = prize.type === 'gold' ? (prize.rawBase || prize.baseVal) : prize.baseVal;
+      const bonus = gooseBase * 3;
+      const newVal = prize.value + bonus;
+      prize = { ...prize, value: newVal, label: prize.label.replace(/\+(\d+)/, '+' + newVal) };
     }
     _gooseEggsLeft--;
     if (_gooseEggsLeft <= 0) setTimeout(_finishGoose, 100);
