@@ -426,6 +426,7 @@ function renderLog() {
       else if (l.cat === 'cucumber') cls += ' log-cucumber';
       else if (l.cat === 'mjolnir') cls += ' log-mjolnir';
       else if (l.cat === 'freehit') cls += ' log-freehit';
+      else if (l.cat === 'gavel') cls += ' log-gavel';
       return '<div class="' + cls + '">' + l.text + '</div>';
     }).join('');
 }
@@ -477,6 +478,7 @@ function renderFullLog() {
               : e.cat === 'cucumber'                         ? 'log-cucumber'
               : e.cat === 'mjolnir'                          ? 'log-mjolnir'
               : e.cat === 'freehit'                          ? 'log-freehit'
+              : e.cat === 'gavel'                           ? 'log-gavel'
               : '';
     let prefix = '';
     if (e.eggType) {
