@@ -1293,7 +1293,7 @@ const _SKILL_DEFS = [
   {
     icon: '🐒💢',
     name: 'Monkey Rage',
-    desc: 'Spend ALL your hammers to unleash the monkey — every egg on screen gets smashed instantly.',
+    desc: 'Unleash Monkey Rage to use up all current hammers and smash every egg until depleted.',
   },
   { icon: '🔒', name: '???', desc: 'Mystery skill — unlock to reveal.' },
   { icon: '🔒', name: '???', desc: 'Mystery skill — unlock to reveal.' },
