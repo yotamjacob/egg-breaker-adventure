@@ -323,10 +323,6 @@ body{
 .log-controls{display:flex;gap:5px;flex-wrap:wrap;padding:6px 10px 4px;flex-shrink:0}
 .log-filter-btn{font-size:10px;padding:3px 8px;border-radius:10px;border:1px solid var(--gold3);background:transparent;color:var(--gold3);cursor:pointer}
 .log-filter-btn.active{background:var(--gold3);color:#000}
-.log-filter-errors{border-color:var(--red);color:var(--red)}
-.log-filter-errors.active{background:var(--red);color:#fff}
-.flog-errcnt{font-size:8px;color:var(--red);margin-left:3px}
-.flog-errtext{font-size:10px;word-break:break-all}
 .full-log-list{flex:1;overflow-y:auto;padding:4px 10px 10px;display:flex;flex-direction:column;gap:3px}
 .flog-empty{color:var(--gray);font-size:12px;text-align:center;margin-top:20px}
 .flog-row{display:flex;gap:8px;align-items:baseline;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)}
