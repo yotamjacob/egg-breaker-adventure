@@ -391,11 +391,13 @@
 .skill-active-badge{font-size:9px;color:var(--green);font-family:var(--px);letter-spacing:.5px}
 .skill-cd-label{font-size:9px;color:rgba(255,255,255,.4);font-family:var(--px);letter-spacing:.3px}
 .skill-upgrade-row{display:flex;flex-direction:column;align-items:center;gap:5px;width:100%;margin-top:4px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08)}
-.skill-upgrade-label{font-size:9px;color:var(--gray)}
-.skill-upgrade-btn{background:rgba(245,197,66,.18);color:var(--gold);border:1px solid rgba(245,197,66,.35);border-radius:6px;padding:6px 16px;font-family:var(--px);font-size:9px;cursor:pointer;transition:opacity .15s,background .1s;letter-spacing:.5px}
-.skill-upgrade-btn:hover:not(.skill-btn-dim){background:rgba(245,197,66,.32)}
-.skill-upgrade-btn.skill-btn-dim{background:rgba(255,255,255,.06);color:rgba(255,255,255,.25);border-color:rgba(255,255,255,.1);cursor:not-allowed}
-.skill-maxed-badge{font-size:9px;color:#ffe033;font-family:var(--px);letter-spacing:.5px;margin-top:4px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);width:100%;text-align:center}
+.skill-upgrade-label{font-size:9px;color:rgba(255,255,255,.6);font-family:var(--px);letter-spacing:.3px}
+.skill-upgrade-btn{background:linear-gradient(180deg,#c8980e,#8a6600);color:#fff8dc;border:2px solid #f5c542;border-radius:6px;padding:7px 18px;font-family:var(--px);font-size:9px;cursor:pointer;letter-spacing:.5px;box-shadow:0 0 8px rgba(245,197,66,.4),2px 2px 0 #3a2800;text-shadow:0 1px 0 rgba(0,0,0,.5);transition:filter .12s,transform .1s}
+.skill-upgrade-btn:hover:not(.skill-btn-dim){filter:brightness(1.2);transform:translateY(-1px);box-shadow:0 0 14px rgba(245,197,66,.6),2px 2px 0 #3a2800}
+.skill-upgrade-btn:active:not(.skill-btn-dim){transform:translateY(1px);box-shadow:0 0 4px rgba(245,197,66,.3),1px 1px 0 #3a2800}
+.skill-upgrade-btn.skill-btn-dim{background:rgba(255,255,255,.06);color:rgba(255,255,255,.25);border-color:rgba(255,255,255,.1);cursor:not-allowed;box-shadow:none;text-shadow:none}
+.skill-maxed-badge{font-family:var(--px);font-size:10px;letter-spacing:1px;color:#ffe033;text-align:center;text-shadow:0 0 8px rgba(255,215,0,.9);margin-top:4px;padding:7px 14px;border:2px solid rgba(245,197,66,.7);border-radius:6px;background:linear-gradient(180deg,rgba(200,154,16,.28),rgba(90,60,0,.28));box-shadow:0 0 12px rgba(245,197,66,.3),inset 0 1px 0 rgba(255,255,255,.08);width:100%;animation:maxed-glow 2.5s ease-in-out infinite}
+@keyframes maxed-glow{0%,100%{box-shadow:0 0 10px rgba(245,197,66,.28),inset 0 1px 0 rgba(255,255,255,.08)}50%{box-shadow:0 0 20px rgba(245,197,66,.55),inset 0 1px 0 rgba(255,255,255,.12)}}
 .skill-cd-status{font-size:9px;color:rgba(255,255,255,.4);font-family:var(--px);letter-spacing:.3px}
 .skill-cd-ready{color:var(--green)}
 .skill-running-badge{font-size:9px;color:#FFD700;font-family:var(--px);letter-spacing:.3px;animation:rage-pulse 1.4s ease-in-out infinite}

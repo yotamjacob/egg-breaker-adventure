@@ -1347,7 +1347,7 @@ function renderSkills() {
           <button class="skill-upgrade-btn${canAff ? '' : ' skill-btn-dim'}" onclick="buySkillUpgrade(${i})"${canAff ? '' : ' disabled'}>${featherCost} 🪶 + ${formatNum(goldCost)} 🪙</button>
         </div>`;
       } else {
-        upgradeHtml = `<div class="skill-maxed-badge">⚡ MAX</div>`;
+        upgradeHtml = `<div class="skill-maxed-badge">★ MAX LEVEL ★</div>`;
       }
 
       return `<div class="skill-block skill-unlocked" id="skill-block-${i}">
