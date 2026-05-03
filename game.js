@@ -1587,8 +1587,7 @@ function showAlbumInfo() {
   showConfirm('🪶', 'Album & Feathers',
     '1. Collect items by smashing eggs<br>' +
     '2. 🪶 Feathers buy missing items instantly<br>' +
-    '3. Complete a stage to earn 🍌 &amp; progress<br>' +
-    '4. Buy more feathers in the Premium shop',
+    '3. Complete a stage to earn 🍌 &amp; progress',
     null, 'Got it!'
   );
 }
