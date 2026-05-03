@@ -528,6 +528,7 @@ function smashEgg(index) {
 
   if (hasBonus('freeEgg') && Math.random() < 0.03) {
     G.hammers = Math.min(G.maxH, G.hammers + 1);
+    spawnFloat($id('prize-zone'), 'Free hit!', '#b0bec5', 'big', cx, cy - 30);
     msg('Free hit! (Chef\'s Hat)', 'freehit');
   }
 
@@ -538,6 +539,7 @@ function smashEgg(index) {
   // Cucumber double hit: 5% chance for a bonus hit
   if (hasBonus('doubleHit') && Math.random() < 0.05 && egg.hp > 0) {
     egg.hp -= 1;
+    spawnFloat($id('prize-zone'), '🥒 Double hit!', '#4ade80', 'big', cx, cy - 30);
     msg('🥒 Cucumbah! Double hit!', 'cucumber');
   }
 
@@ -546,13 +548,14 @@ function smashEgg(index) {
     G.starPieces += 7;
     G.totalStarPieces += 7;
     updateStarBtn();
+    spawnFloat($id('prize-zone'), '⚡ +7 ✦', '#ffe033', 'big', cx, cy - 30);
     msg('⚡ Mjǫllnir strikes! +7 star pieces', 'mjolnir');
   }
 
   // Judge Gavel: Order! — 4% chance: instant verdict, egg breaks immediately (not on century)
   if (hasBonus('gavelVerdict') && egg.hp > 0 && egg.type !== 'century' && Math.random() < 0.04) {
     egg.hp = 0;
-    spawnFloat($id('prize-zone'), 'Order!', '#e53030', 'mega', cx, cy - 50);
+    spawnFloat($id('prize-zone'), 'Order!', '#d8a0ff', 'mega', cx, cy - 50);
     msg('⚖️ Order! Verdict: Guilty. The egg is sentenced to break.', 'gavel');
     SFX.play('crunch');
   }
