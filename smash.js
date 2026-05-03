@@ -96,7 +96,10 @@ function rollPrize(eggType) {
   if (hasBonus('wukong') && Math.random() < 0.15) {
     const order = ['normal','silver','gold','crystal','ruby','black'];
     const idx = order.indexOf(eggType);
-    if (idx >= 0 && idx < order.length - 1) eggType = order[idx + 1];
+    if (idx >= 0 && idx < order.length - 1) {
+      eggType = order[idx + 1];
+      spawnFloat($id('prize-zone'), '🐒 72 Transformations!', '#f5c542', 'big');
+    }
   }
   const w = { ...PRIZE_WEIGHTS[eggType] };
   const monkey = curMonkey();
