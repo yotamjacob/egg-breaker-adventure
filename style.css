@@ -141,15 +141,6 @@ body{
   transition:background .1s,color .1s;
 }
 .tray-info-btn:hover{background:var(--purple);color:var(--white)}
-.info-arrow{
-  position:absolute;bottom:34px;right:13px;z-index:20;
-  font-size:16px;color:var(--purple);pointer-events:none;
-  text-shadow:0 0 6px rgba(150,80,240,.7),1px 1px 0 var(--dark);
-  animation:info-arrow-pulse .5s steps(3) infinite alternate;
-  filter:drop-shadow(0 0 4px rgba(150,80,240,.6));
-}
-.info-arrow.hidden{display:none}
-@keyframes info-arrow-pulse{0%{transform:translateY(0) scale(1)}100%{transform:translateY(5px) scale(1.15)}}
 
 /* ---------- Info modal blocks ---------- */
 .info-blocks{text-align:left;width:100%;display:flex;flex-direction:column;gap:0}

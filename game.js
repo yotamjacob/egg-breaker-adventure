@@ -1296,9 +1296,6 @@ function reportIssue() {
 }
 
 function showPlayInfo() {
-  try { localStorage.setItem('_infoSeen', '1'); } catch (e) {}
-  const arrow = $id('info-arrow');
-  if (arrow) arrow.classList.add('hidden');
   showConfirm('ℹ️', 'How to Play',
     '<div class="info-blocks">' +
       '<div class="info-block">' +
@@ -1325,17 +1322,6 @@ function showPlayInfo() {
   );
 }
 
-// Show info arrow for new players until they tap the info button
-(function() {
-  try {
-    if (!localStorage.getItem('_infoSeen') && G.totalEggs === 0) {
-      setTimeout(() => {
-        const arrow = $id('info-arrow');
-        if (arrow) arrow.classList.remove('hidden');
-      }, 5500);
-    }
-  } catch (e) {}
-})();
 
 
 
