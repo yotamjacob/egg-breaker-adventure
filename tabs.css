@@ -176,7 +176,7 @@
 .rarity-3{background:#4a2800;color:var(--gold);border-color:var(--gold3)}
 
 /* ---------- Monkey tab ---------- */
-.monkey-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
+.monkey-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;padding-bottom:12px}
 .monkey-card{
   background:var(--panel);border:3px solid var(--gray);border-radius:2px;
   padding:12px 8px 22px;text-align:center;cursor:pointer;
