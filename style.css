@@ -356,6 +356,35 @@ body{
 .flog-row.log-gavel    .flog-text{color:#d8a0ff;text-shadow:0 0 7px #a855f7,0 0 14px #7c3aed}
 .flog-row.log-trophy   .flog-text{color:#fde68a;text-shadow:0 0 6px #fbbf24,0 0 12px #f59e0b}
 
+/* ---------- Flying hammer animation (Banana Shake) ---------- */
+.flying-hammer {
+  position: fixed;
+  pointer-events: none;
+  font-size: 22px;
+  z-index: 9999;
+  will-change: transform, opacity;
+  line-height: 1;
+}
+
+.hammer-arrive {
+  animation: hammer-arrive .32s ease-out;
+}
+@keyframes hammer-arrive {
+  0%   { transform: scale(1);    filter: brightness(1); }
+  40%  { transform: scale(1.35); filter: brightness(2) drop-shadow(0 0 6px #60a5fa); }
+  100% { transform: scale(1);    filter: brightness(1); }
+}
+
+.hammer-fill-complete {
+  animation: hammer-fill-complete .5s ease-out;
+}
+@keyframes hammer-fill-complete {
+  0%   { transform: scale(1);    filter: brightness(1); }
+  30%  { transform: scale(1.5);  filter: brightness(2.5) drop-shadow(0 0 10px #93c5fd); }
+  70%  { transform: scale(1.25); filter: brightness(1.8) drop-shadow(0 0 7px #60a5fa); }
+  100% { transform: scale(1);    filter: brightness(1); }
+}
+
 /* ---------- Very small screens ---------- */
 @media(max-width:340px){
   .nav-play{font-size:10px}

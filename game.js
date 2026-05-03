@@ -963,6 +963,7 @@ function activateBananaShake() {
     if (_bb) { _bb.classList.add('skill-glow-blue'); setTimeout(() => _bb.classList.remove('skill-glow-blue'), 1600); }
     const _tw = $id('egg-tray-wrap');
     if (_tw) { _tw.classList.add('shake-tray-wiggle'); setTimeout(() => _tw.classList.remove('shake-tray-wiggle'), 1100); }
+    flyHammers();
   };
 
   if ((G.skillConfirmSkip || [])[2]) { doShake(); return; }
@@ -980,6 +981,69 @@ function activateBananaShake() {
     'Activate', 'Cancel'
   );
   $id('confirm-icon').innerHTML = '<img src="img/banana_shake.png" class="rage-confirm-img" alt="">';
+}
+
+function flyHammers() {
+  const srcEl  = $id('banana-btn');
+  const dstEl  = $id('hammer-row');
+  if (!srcEl || !dstEl) return;
+
+  const srcR = srcEl.getBoundingClientRect();
+  const dstR = dstEl.getBoundingClientRect();
+  const sx   = srcR.left + srcR.width  / 2;
+  const sy   = srcR.top  + srcR.height / 2;
+  const dx   = dstR.left + dstR.width  / 2;
+  const dy   = dstR.top  + dstR.height / 2;
+
+  const COUNT   = 10;
+  const STAGGER = 65;   // ms between launches
+
+  for (let i = 0; i < COUNT; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className  = 'flying-hammer';
+      el.textContent = '🔨';
+      el.style.left = sx + 'px';
+      el.style.top  = sy + 'px';
+      document.body.appendChild(el);
+
+      // random control-point arc above/below
+      const spread = (Math.random() - 0.5) * 140;
+      const cpx = (sx + dx) / 2 + spread;
+      const cpy = Math.min(sy, dy) - 80 - Math.random() * 60;
+
+      const dur = 520 + i * 18;
+      let start = null;
+
+      const tick = (now) => {
+        if (!start) start = now;
+        const t  = Math.min(1, (now - start) / dur);
+        const e  = 1 - Math.pow(1 - t, 2);   // ease-out quad
+        // quadratic bezier
+        const bx = (1-e)*(1-e)*sx + 2*(1-e)*e*cpx + e*e*dx;
+        const by = (1-e)*(1-e)*sy + 2*(1-e)*e*cpy + e*e*dy;
+        const sc = 0.6 + 0.8 * Math.sin(t * Math.PI);   // grow then shrink
+        el.style.transform = `translate(-50%,-50%) scale(${sc})`;
+        el.style.left = bx + 'px';
+        el.style.top  = by + 'px';
+        el.style.opacity = t < 0.85 ? '1' : String(1 - (t - 0.85) / 0.15);
+        if (t < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          el.remove();
+          dstEl.classList.add('hammer-arrive');
+          setTimeout(() => dstEl.classList.remove('hammer-arrive'), 320);
+          if (i === COUNT - 1) {
+            setTimeout(() => {
+              dstEl.classList.add('hammer-fill-complete');
+              setTimeout(() => dstEl.classList.remove('hammer-fill-complete'), 500);
+            }, 60);
+          }
+        }
+      };
+      requestAnimationFrame(tick);
+    }, i * STAGGER);
+  }
 }
 
 function activateSkill(i) {
