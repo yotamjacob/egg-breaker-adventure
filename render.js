@@ -767,7 +767,7 @@ function updateStageBar() {
             banner.classList.add('hidden');
             _completedBannerDismissedForMonkey = G.activeMonkey;
             _allStagesBannerTimer = null;
-          }, 60000);
+          }, 15000);
         }
       } else {
         clearTimeout(_allStagesBannerTimer);

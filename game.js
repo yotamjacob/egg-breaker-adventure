@@ -707,15 +707,25 @@ function activateMonkeyRage() {
   const unbroken = G.roundEggs.filter(e => !e.broken && !e.expired);
   if (!unbroken.length) { showAlert('🐒', 'No eggs to smash!'); return; }
 
-  _rageHammersLeft = G.hammers;
-  G.hammers = 0;
-  if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
-  G.skillLastUsedAt[0] = G.totalEggs;
-  _rageActive = true;
-  updateResources();
-  msg('🐒💢 MONKEY RAGE! ' + _rageHammersLeft + ' hammers unleashed!', 'specials');
-  SFX.play('starfall');
-  _doRageBatch();
+  const hammersNow = G.hammers;
+  showConfirm('🐒💢', 'Monkey Rage!',
+    'Will consume <b style="color:#ffaaaa">' + hammersNow + ' 🔨 hammers</b> — smashing every egg across stages until empty.',
+    () => {
+      if (_rageActive || _starfallActive || _spawningRound) return;
+      if (G.hammers < 1) { showAlert('🔨', 'No hammers left!'); SFX.play('err'); return; }
+      _rageHammersLeft = Math.max(0, G.hammers);
+      G.hammers = 0;
+      if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
+      G.skillLastUsedAt[0] = G.totalEggs;
+      _rageActive = true;
+      updateResources();
+      msg('🐒💢 MONKEY RAGE! ' + _rageHammersLeft + ' hammers unleashed!', 'specials');
+      SFX.play('starfall');
+      spawnFloat($id('prize-zone'), 'MONKEY RAGE!!', '#ff3333', 'mega');
+      _doRageBatch();
+    },
+    '🐒 Unleash!', 'Cancel'
+  );
 }
 
 function _doRageBatch() {
@@ -1022,7 +1032,7 @@ const _SKILL_COSTS = [
   { feathers: 1000, gold: 400000 },
 ];
 const _SKILL_COOLDOWNS     = [200, 150, 100]; // eggs between uses, indexed by upgrade level
-const _SKILL_UPGRADE_COSTS = [50000, 100000]; // gold cost per upgrade tier
+const _SKILL_UPGRADE_COSTS = [100000, 100000]; // gold cost per upgrade tier (100k each)
 
 function skillCooldownThreshold(idx) {
   const level = Math.min(2, (G.skillUpgrades || [0,0,0])[idx] || 0);
