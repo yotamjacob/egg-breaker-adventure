@@ -1980,14 +1980,7 @@ document.addEventListener('mouseup', () => {
 
 // ==================== EASTER EGGS ====================
 
-// Speed Demon: track last 5 egg-break timestamps
 let _smashTimes = [];
-
-// 5. "ouch!" — 1 in 1000 chance on egg break
-// 6. Chicken run — 1 in 500 chance
-// 7. Midnight bonus
-// 8. l33t gold
-// 9. Empty streak (3 in a row)
 let _emptyStreak = 0;
 
 // Hook into applyPrize for easter eggs
@@ -1995,13 +1988,13 @@ const _origApplyPrize = applyPrize;
 applyPrize = function(prize, cx, cy) {
   const zone = $id('prize-zone');
 
-  // #5: rare "ouch!" before prize
+  // rare "ouch!" before prize
   if (Math.random() < CONFIG.secretOuchChance) {
     spawnFloat(zone, 'ouch!', '#fca5a5', '', cx, cy - 25);
     G._secretOuch = true; checkAchievements(); saveGame();
   }
 
-  // #6: rare chicken run
+  // rare chicken run
   if (Math.random() < CONFIG.secretChickenChance) {
     const chicken = document.createElement('div');
     chicken.className = 'chicken-run';
@@ -2026,7 +2019,7 @@ applyPrize = function(prize, cx, cy) {
     setTimeout(() => { if (chicken.parentNode) chicken.remove(); }, 2500);
   }
 
-  // #9: Empty streak tracking
+  // empty streak tracking
   if (prize.type === 'empty') {
     _emptyStreak++;
     if (_emptyStreak >= 3) {
@@ -2046,7 +2039,7 @@ applyPrize = function(prize, cx, cy) {
   // Call original
   _origApplyPrize(prize, cx, cy);
 
-  // #7: Midnight bonus
+  // midnight bonus
   const hour = new Date().getHours();
   if (hour === 0 && !G._midnightToday) {
     G._midnightToday = new Date().toISOString().slice(0, 10);
@@ -2058,7 +2051,7 @@ applyPrize = function(prize, cx, cy) {
     updateStarBtn();
   }
 
-  // #8: l33t gold check
+  // l33t gold check
   if (G.gold === 1337) {
     msg('l33t h4ck3r detected', 'discovery');
     G._secretLeet = true; checkAchievements(); saveGame();
