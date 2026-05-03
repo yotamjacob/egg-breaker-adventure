@@ -1353,11 +1353,11 @@ const _SKILL_COSTS = [
 ];
 // Per-skill cooldown arrays [base, upgrade1, upgrade2]
 const _SKILL_COOLDOWNS = [
-  [200, 150, 100],  // Monkey Rage
-  [200, 150, 100],  // Golden Goose
-  [300, 250, 200],  // Banana Shake
+  [300, 250, 200],  // Monkey Rage
+  [300, 250, 200],  // Golden Goose
+  [400, 350, 300],  // Banana Shake
 ];
-const _SKILL_UPGRADE_COSTS = { gold: [100000, 100000], feathers: [100, 100] };
+const _SKILL_UPGRADE_COSTS = { gold: [200000, 200000], feathers: [200, 200] };
 
 function skillCooldownThreshold(idx) {
   const level = Math.min(2, (G.skillUpgrades || [0,0,0])[idx] || 0);
@@ -1859,7 +1859,7 @@ function showSkillsInfo() {
       '</div>' +
       '<div class="info-block">' +
         '<span class="info-block-title">Upgrades</span>' +
-        '<div class="info-row"><span>Each skill upgrades twice — reduces cooldown (200 → 150 → 100 eggs). Costs <span class="info-highlight">100 feathers + 100k gold</span> per upgrade.</span></div>' +
+        '<div class="info-row"><span>Each skill upgrades twice — reduces cooldown (300 → 250 → 200 eggs). Costs <span class="info-highlight">200 feathers + 200k gold</span> per upgrade.</span></div>' +
       '</div>' +
     '</div>',
     null, 'Got it!'
