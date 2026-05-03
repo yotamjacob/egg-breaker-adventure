@@ -71,6 +71,8 @@ const DEFAULT_STATE = {
   soundOn: true,
   musicOn: true,
   autoBuy: false,
+  skillsUnlocked: [false, false, false],
+  skillsUnlockSeen: false,
   _welcomeDone: false,
   _firstRareSeen: false,
   _starfallTipSeen: false,
@@ -769,6 +771,13 @@ function checkCollectionComplete(suppressFlash) {
             'Go to Album'
           ), 800);
         }
+        // Skills unlock: any 2 monkeys completed
+        const completedCount = G.monkeys.filter(m => m.completed).length;
+        if (completedCount >= 2 && !G.skillsUnlockSeen) {
+          G.skillsUnlockSeen = true;
+          checkSkillsUnlock();
+          setTimeout(() => $id('overlay-skills-unlock').classList.remove('hidden'), 1800);
+        }
         // Check if ALL monkeys (including locked ones) are now complete
         const allMonkeysDone = G.monkeys.every(mp => mp.completed === true);
         if (allMonkeysDone && !G._allMonkeysCongratsSeen) {
@@ -845,6 +854,49 @@ function _nextItemToast() {
 
 function closeOverlay(id) {
   $id(id).classList.add('hidden');
+}
+
+function checkSkillsUnlock() {
+  const done = (G.monkeys || []).filter(m => m.completed).length;
+  const btn = $id('nav-skills');
+  if (!btn) return;
+  if (done >= 2) {
+    btn.disabled = false;
+    btn.classList.remove('locked');
+  }
+}
+
+function goToSkills() {
+  closeOverlay('overlay-skills-unlock');
+  document.querySelector('[data-tab="skills"]').click();
+}
+
+const _SKILL_COSTS = [
+  { feathers: 500,  gold: 150000 },
+  { feathers: 750,  gold: 250000 },
+  { feathers: 1000, gold: 400000 },
+];
+
+function buySkill(idx) {
+  if ((G.skillsUnlocked || [])[idx]) return;
+  const owned = (G.skillsUnlocked || []).filter(Boolean).length;
+  if (owned >= 3) return;
+  const cost = _SKILL_COSTS[owned];
+  if (G.feathers < cost.feathers) { showAlert('🪶', 'Need ' + cost.feathers + ' feathers! (have ' + G.feathers + ')'); SFX.play('err'); return; }
+  if (G.gold < cost.gold) { showAlert('🪙', 'Need ' + formatNum(cost.gold) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
+  showConfirm('⚡', 'Unlock Skill?',
+    cost.feathers + ' 🪶 + ' + formatNum(cost.gold) + ' 🪙',
+    () => {
+      G.feathers -= cost.feathers;
+      G.gold -= cost.gold;
+      G.skillsUnlocked[idx] = true;
+      saveGame();
+      updateResources();
+      renderSkills();
+      SFX.play('complete');
+    },
+    'Unlock'
+  );
 }
 
 
@@ -1320,6 +1372,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
     }
   }
   if (name === 'log') renderFullLog();
+  if (name === 'skills') renderSkills();
 });
 
 // ==================== BALLOON DESKTOP HANDLERS ====================
@@ -1490,6 +1543,7 @@ Particles.init($id('particle-canvas'));
 if (!G.roundEggs || G.roundEggs.length === 0) newRound();
 
 renderAll();
+checkSkillsUnlock();
 initCloudSave();
 _startCloudAutoSave();
 _initNotifBtn();

@@ -363,3 +363,28 @@
 .restore-btn{background:none;border:none;color:var(--gray);font-size:10px;cursor:pointer;text-decoration:underline;letter-spacing:.5px}
 .restore-btn:active{opacity:.6}
 .pay-debug-btn{margin-left:12px;opacity:.45}
+
+/* ==================== SKILLS TAB ==================== */
+.skills-header{display:flex;align-items:center;gap:10px;padding:12px 14px 10px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.skills-header-icon{font-size:24px}
+.skills-header-title{font-family:var(--px);font-size:10px;color:var(--gold);margin-bottom:3px}
+.skills-header-sub{font-size:9px;color:var(--gray)}
+#panel-skills{display:flex;flex-direction:column}
+.skills-grid{display:flex;flex-direction:column;flex:1;gap:8px;padding:10px 12px;min-height:0;overflow-y:auto}
+.skill-block{display:flex;flex-direction:column;flex:1;border-radius:10px;overflow:hidden;min-height:80px}
+.skill-block.skill-locked{background:rgba(15,52,96,.55);border:1px solid rgba(255,255,255,.1)}
+.skill-block.skill-unlocked{background:rgba(15,52,96,.8);border:1px solid rgba(245,197,66,.35);box-shadow:0 0 14px rgba(245,197,66,.12)}
+.skill-block-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:14px 10px;gap:7px;text-align:center}
+.skill-icon-wrap{font-size:30px;line-height:1}
+.skill-name{font-family:var(--px);font-size:11px;color:var(--white);letter-spacing:.5px}
+.skill-locked .skill-name{color:var(--gray)}
+.skill-desc{font-size:10px;color:var(--gray);line-height:1.5;max-width:220px}
+.skill-tbd{font-style:italic;color:rgba(255,255,255,.3)}
+.skill-cost-row{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--px)}
+.skill-cost-ok{color:var(--green)}
+.skill-cost-no{color:var(--red)}
+.skill-cost-sep{color:var(--gray);font-size:9px}
+.skill-unlock-btn{background:var(--gold);color:var(--dark);border:none;border-radius:6px;padding:8px 22px;font-family:var(--px);font-size:9px;cursor:pointer;transition:opacity .15s;letter-spacing:.5px}
+.skill-unlock-btn:hover:not(.skill-btn-dim){opacity:.85}
+.skill-unlock-btn.skill-btn-dim{background:rgba(255,255,255,.12);color:rgba(255,255,255,.35);cursor:not-allowed}
+.skill-active-badge{font-size:9px;color:var(--green);font-family:var(--px);letter-spacing:.5px}

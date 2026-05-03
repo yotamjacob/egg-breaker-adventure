@@ -6,3 +6,7 @@ super sayan
 
 ## android (play store)
 [ ] apply for production access → go live
+
+
+- on locked odin should say complete any 3 monkeys, not the current message
+- i can't see the pointing arrow on the info button as a new player

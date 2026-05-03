@@ -1273,6 +1273,45 @@ function _dailyLabel(r) {
   }
 }
 
+// ==================== SKILLS ====================
+function renderSkills() {
+  const el = $id('skills-grid');
+  if (!el) return;
+  const skills = G.skillsUnlocked || [false, false, false];
+  const owned = skills.filter(Boolean).length;
+  const nextCost = owned < 3 ? _SKILL_COSTS[owned] : null;
+
+  el.innerHTML = skills.map((unlocked, i) => {
+    if (unlocked) {
+      return `<div class="skill-block skill-unlocked" id="skill-block-${i}">
+        <div class="skill-block-inner">
+          <div class="skill-icon-wrap">⚡</div>
+          <div class="skill-name">Skill ${i + 1}</div>
+          <div class="skill-desc skill-tbd">Coming soon…</div>
+          <div class="skill-active-badge">✓ Active</div>
+        </div>
+      </div>`;
+    }
+    const c = nextCost;
+    const canAfford = c && G.feathers >= c.feathers && G.gold >= c.gold;
+    const fOk = c && G.feathers >= c.feathers;
+    const gOk = c && G.gold >= c.gold;
+    return `<div class="skill-block skill-locked" id="skill-block-${i}">
+      <div class="skill-block-inner">
+        <div class="skill-icon-wrap">🔒</div>
+        <div class="skill-name">???</div>
+        <div class="skill-desc">Unlock to reveal this skill</div>
+        <div class="skill-cost-row">
+          <span class="${fOk ? 'skill-cost-ok' : 'skill-cost-no'}">${c ? c.feathers : '—'} 🪶</span>
+          <span class="skill-cost-sep">+</span>
+          <span class="${gOk ? 'skill-cost-ok' : 'skill-cost-no'}">${c ? formatNum(c.gold) : '—'} 🪙</span>
+        </div>
+        <button class="skill-unlock-btn${canAfford ? '' : ' skill-btn-dim'}" onclick="buySkill(${i})"${canAfford ? '' : ' disabled'}>Unlock</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderDailyCalendar() {
   $id('daily-day').textContent = G.consecutiveDays;
   const cal = $id('daily-calendar');

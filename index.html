@@ -73,7 +73,7 @@
         <button class="nav-tab" data-tab="log">Log</button>
         <button class="nav-tab" data-tab="daily">Daily</button>
         <button class="nav-tab" data-tab="achieve">Trophies</button>
-        <button class="nav-tab locked" disabled>?</button>
+        <button class="nav-tab locked" id="nav-skills" data-tab="skills" disabled>?</button>
       </div>
     </nav>
 
@@ -192,6 +192,18 @@
       <div class="achieve-grid" id="secrets-grid"></div>
     </section>
 
+    <!-- ===== SKILLS TAB ===== -->
+    <section class="tab-panel" id="panel-skills">
+      <div class="skills-header">
+        <span class="skills-header-icon">⚡</span>
+        <div class="skills-header-text">
+          <div class="skills-header-title">Skills</div>
+          <div class="skills-header-sub">Permanent upgrades · unlock forever</div>
+        </div>
+      </div>
+      <div class="skills-grid" id="skills-grid"></div>
+    </section>
+
     <!-- ===== POPUPS ===== -->
 
 
@@ -210,6 +222,18 @@
         <strong id="pop-level-title"></strong>
         <span class="pop-sub" id="pop-level-detail"></span>
         <button class="pop-btn" onclick="closeOverlay('overlay-levelup')">Let's go!</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="overlay-skills-unlock" onclick="if(event.target===this)closeOverlay('overlay-skills-unlock')">
+      <div class="popup pop-skills-unlock">
+        <div class="pop-icon">⚡</div>
+        <strong>Skills Unlocked!</strong>
+        <span class="pop-sub">Two monkey adventures complete — powerful new abilities await.</span>
+        <div class="confirm-btns">
+          <button class="pop-btn confirm-yes" onclick="goToSkills()">Let's take a look!</button>
+          <button class="pop-btn confirm-no" onclick="closeOverlay('overlay-skills-unlock')">Later</button>
+        </div>
       </div>
     </div>
 
