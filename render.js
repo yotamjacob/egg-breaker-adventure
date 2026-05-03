@@ -544,6 +544,7 @@ function renderMultQueue() {
       (bottomLabel ? '<span class="mc-count">' + bottomLabel + '</span>' : '');
     if (owned > 0) {
       badge.addEventListener('click', () => {
+        if (typeof _rageActive !== 'undefined' && _rageActive) { if (typeof stopMonkeyRage === 'function') stopMonkeyRage(); return; }
         if (!G._selectedCounts[val]) G._selectedCounts[val] = 0;
         if (G._selectedCounts[val] < owned) {
           G._selectedCounts[val]++;

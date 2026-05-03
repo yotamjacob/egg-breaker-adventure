@@ -458,6 +458,7 @@ function popBalloonEgg(index, slot) {
 // ==================== SMASH EGG ====================
 function smashEgg(index) {
   if (!G.roundEggs || G.roundEggs[index].broken || G.roundEggs[index].expired) return;
+  if (typeof _rageActive !== 'undefined' && _rageActive) { if (typeof stopMonkeyRage === 'function') stopMonkeyRage(); return; }
   const egg = G.roundEggs[index];
   if (egg.effects && egg.effects.includes('balloon')) return; // balloon eggs use long-press
   if (egg._smashing) return;

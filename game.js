@@ -605,6 +605,7 @@ function useStarfall() {
   if (!isStarfallUnlocked()) return;
   const cost = starfallCost();
   if (G.starPieces < cost || !G.roundEggs) return;
+  if (_rageActive) { stopMonkeyRage(); return; }
   G.starPieces -= cost;
   _doStarfall('STARFALL! All eggs smashed!');
 }
@@ -888,7 +889,8 @@ function stopMonkeyRage() {
 
 // ==================== GOLDEN GOOSE ====================
 function activateGoldenGoose() {
-  if (_gooseActive || _rageActive || _starfallActive) return;
+  if (_rageActive) { stopMonkeyRage(); return; }
+  if (_gooseActive || _starfallActive) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[1]) return;
   if (!isSkillReady(1)) return;
 
@@ -935,7 +937,8 @@ function _finishGoose() {
 
 // ==================== BANANA SHAKE ====================
 function activateBananaShake() {
-  if (_rageActive || _starfallActive) return;
+  if (_rageActive) { stopMonkeyRage(); return; }
+  if (_starfallActive) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[2]) return;
   if (!isSkillReady(2)) return;
 
@@ -1785,6 +1788,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
   if (!tab || tab.disabled) return;
   if (tab.classList.contains('active')) return;
   const name = tab.dataset.tab;
+  if (name !== 'play' && _rageActive) stopMonkeyRage();
   document.querySelectorAll('.nav-tab, .nav-play').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   tab.classList.add('active');
