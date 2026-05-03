@@ -1321,15 +1321,7 @@ function renderSkills() {
       const cds = _SKILL_COOLDOWNS[i] || _SKILL_COOLDOWNS[0];
       const cd = cds[Math.min(2, level)];
       const maxed = level >= 2;
-      const ready = isSkillReady(i);
-      const eggsLeft = skillEggsUntilReady(i);
-      const isGooseRunning = (i === 1 && typeof _gooseActive !== 'undefined' && _gooseActive);
 
-      // Status (no activate button — skills are activated from the egg tray)
-      let activateHtml = '';
-      if (isGooseRunning) {
-        activateHtml = `<div class="skill-running-badge">✨ Active — ${typeof _gooseEggsLeft !== 'undefined' ? _gooseEggsLeft : 0} eggs left</div>`;
-      }
 
       // Upgrade section
       let upgradeHtml = '';
@@ -1352,7 +1344,6 @@ function renderSkills() {
           <div class="skill-name">${def.name}</div>
           <div class="skill-desc">${def.desc}</div>
           <div class="skill-cd-label">Cooldown: ${cd} eggs${level > 0 ? ' ⚡' : ''}</div>
-          ${activateHtml}
           ${upgradeHtml}
         </div>
       </div>`;
