@@ -493,6 +493,7 @@ document.addEventListener('click', e => {
 });
 
 function spawnFloat(zone, text, color, cls, cx, cy) {
+  if (!zone || !zone.isConnected) return;
   if (typeof G !== 'undefined' && G.showFloats === false) return;
   const el = document.createElement('div');
   el.className = 'prize-float' + (cls ? ' ' + cls : '');

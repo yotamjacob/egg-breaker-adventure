@@ -228,6 +228,7 @@ let _trayNeedsRender = false;
 // ── Idle egg wiggle ─────────────────────────────────────────
 const _wiggleTimers = {};
 function _scheduleWiggle(slot, idx) {
+  if (_wiggleTimers[idx]) clearTimeout(_wiggleTimers[idx]);
   _wiggleTimers[idx] = setTimeout(() => {
     delete _wiggleTimers[idx];
     if (!slot.isConnected) return;
@@ -413,6 +414,7 @@ function startRunnyDrift(runnySlots, trayW, trayH) {
   }
 
   function tick() {
+    if (document.hidden) { _runnyRAF = null; return; }
     let anyAlive = false;
     for (const r of runnySlots) {
       const egg = G.roundEggs && G.roundEggs[r.idx];

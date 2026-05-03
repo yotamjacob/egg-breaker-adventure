@@ -59,6 +59,7 @@ const Particles = (() => {
     if (!document.hidden) resume();
   });
   function loop() {
+    if (document.hidden) { running = false; return; }
     running = true;
     _lastTick = performance.now();
     const w = canvas.width / (window.devicePixelRatio || 1);
