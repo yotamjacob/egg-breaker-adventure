@@ -705,7 +705,7 @@ function updateOverallProgress() {
     if (pct >= 100) {
       if (_quoteTimer) { clearInterval(_quoteTimer); _quoteTimer = null; }
       quoteEl.classList.add('thank-you');
-      quoteEl.textContent = '🏆 You did it. Every egg smashed, every stage mastered, every monkey unlocked. This is no small thing — thank you for playing, and for making this little tribute mean something. — Yotam';
+      quoteEl.textContent = '🏆 You did it. Every egg smashed, every stage mastered, every monkey unlocked. This is no small thing — thank you for playing, and for making this little tribute mean something.';
     } else {
       quoteEl.classList.remove('thank-you');
       _startQuoteRotation(quoteEl);
