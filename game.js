@@ -883,6 +883,7 @@ function activateGoldenGoose() {
     _gooseActive = true;
     _gooseEggsLeft = 50;
     G.totalGooseUses = (G.totalGooseUses || 0) + 1;
+    const _gt = $id('egg-tray-wrap'); if (_gt) _gt.classList.add('goose-tray-active');
     updateResources();
     msg('GOLDEN GOOSE! Next 50 eggs give 3× rewards!', 'specials');
     SFX.play('starfall');
@@ -910,6 +911,7 @@ function activateGoldenGoose() {
 function _finishGoose() {
   _gooseActive = false;
   _gooseEggsLeft = 0;
+  const _gt2 = $id('egg-tray-wrap'); if (_gt2) _gt2.classList.remove('goose-tray-active');
   if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
   G.skillLastUsedAt[1] = G.totalEggs;
   msg('Golden Goose ended — cooldown started.', 'specials');
@@ -939,6 +941,8 @@ function activateBananaShake() {
     updateBananaBtn();
     const _bb = $id('banana-btn');
     if (_bb) { _bb.classList.add('skill-glow-blue'); setTimeout(() => _bb.classList.remove('skill-glow-blue'), 1600); }
+    const _tw = $id('egg-tray-wrap');
+    if (_tw) { _tw.classList.add('shake-tray-wiggle'); setTimeout(() => _tw.classList.remove('shake-tray-wiggle'), 1100); }
   };
 
   if ((G.skillConfirmSkip || [])[2]) { doShake(); return; }
