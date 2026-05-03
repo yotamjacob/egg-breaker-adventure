@@ -432,7 +432,7 @@ const MONKEY_DATA = [
     id: 'sun_wukong', name: 'Sun Wukong, the Monkey King', emoji: '🐒', img: 'img/wukong_nohat.png',
     hatImgs: { chef:'img/wukong_chef.png', crown:'img/wukong_crown.png', wizard:'img/wukong_wizard.png', tophat:'img/wukong_tophat.png', pirate:'img/wukong_pirate.png' },
     cost: 9, goldScale: 0.90,
-    unlockRequires: { monkeys: ['steampunk', 'princess', 'space', 'odin'], totalEggs: 30000, hint: 'Complete all 5 monkeys to reveal the Monkey King' },
+    unlockRequires: { monkeys: ['steampunk', 'princess', 'space', 'odin'], totalEggs: 25000, hint: 'Complete all 5 monkeys to reveal the Monkey King' },
     perk: 'wukong', perkDesc: '72 Transformations: 15% chance to get next-tier egg prizes',
     stages: [
       { name: 'Flower Fruit Mountain', eggs: 3, collection: { name: 'Mountain Treasures', items: [

@@ -3,3 +3,34 @@ Prestige?
 
 ## android (play store)
 [ ] apply for production access → go live
+
+
+## balance & monetization (from simulator analysis)
+
+[ ] 1. SKILL COSTS — slash to make skills feel like rewards not gold sinks
+      unlock:  skill 1: 200f+50k → skill 2: 350f+100k → skill 3: 500f+200k
+      upgrade: 100f + 80k per level (was 200f + 200k)
+
+[ ] 2. GAVEL — decide: move to premium shop at $5.99-$7.99 (recommended)
+      OR cut to 500,000 gold. Currently 1M is unreachable in normal play (whole game earns ~705k).
+
+[ ] 3. "ALMOST THERE" HOOK — when hammers hit 0 and player is ≤5 items from next tier,
+      show a nudge: "4 items from Silver — a Hammer Pack would get you there!"
+      (check smash.js when G.hammers hits 0)
+
+[ ] 4. WEEKLY LOGIN MILESTONE — 7-day streak = 1 Crystal Banana, 30-day streak = 1 premium upgrade choice
+      (Lucky Charm or Gold Magnet). Creates weekly appointment mechanic.
+
+[ ] 5. SUN WUKONG THRESHOLD — DONE: lowered 30k → 25k. Players finish all 45 stages at ~21k, so ~3,500 eggs of extra play (~6-10 days casual) before unlock.
+      [ ] Add visible progress bar in Monkeys tab: "Sun Wukong: 18,547 / 25,000 eggs"
+
+[ ] 6. PREMIUM SHOP — add concrete impact lines under each item desc:
+      Lucky Charm: "~20% fewer hammers per stage" / Egg Radar: "+50% crystal, ruby & black spawns"
+      Gold Magnet: "+~900 gold per stage avg" / Double Daily: "Double your 45-100 daily hammers"
+
+[ ] 7. LATE-GAME GOLD SCALING — stages 6-9 get a progressive gold bonus so late game feels rewarding:
+      S6: +20% / S7: +30% / S8: +45% / S9: +60%
+
+[ ] 8. FEATHER LATE-GAME UTILITY — feathers go dead in late stages. Two options:
+      a) Feather→Gold exchange: 10f = 800g
+      b) "Lucky Pull": 5f = roll 3 random items from any stage, keep one
