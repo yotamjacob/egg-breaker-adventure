@@ -232,6 +232,14 @@
 @keyframes goose-inner-pulse{
   0%,100%{opacity:.7}50%{opacity:1}
 }
+.goose-tray-active .egg-slot{
+  filter:drop-shadow(0 0 7px rgba(255,210,0,.55));
+  animation:goose-egg-glow .9s ease-in-out infinite;
+}
+@keyframes goose-egg-glow{
+  0%,100%{filter:drop-shadow(0 0 5px rgba(255,210,0,.35))}
+  50%{filter:drop-shadow(0 0 12px rgba(255,220,50,.85))}
+}
 
 /* Banana Shake — long funny wiggle */
 .egg-tray-wrap.shake-tray-wiggle{animation:shake-wiggle 1.1s ease-in-out}
