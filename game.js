@@ -748,23 +748,35 @@ function _doRageBatch() {
     return;
   }
 
-  const toSmash = unbrokenIdxs.slice(0, _rageHammersLeft);
-  _rageHammersLeft -= toSmash.length;
+  // Assign hammer cost per egg (full break or partial damage)
+  const toProcess = [];
+  let hammersLeft = _rageHammersLeft;
+  for (const idx of unbrokenIdxs) {
+    if (hammersLeft <= 0) break;
+    const egg = G.roundEggs[idx];
+    const cost = egg.hp;
+    if (hammersLeft >= cost) {
+      toProcess.push({ idx, fullyBroken: true });
+      hammersLeft -= cost;
+    } else {
+      toProcess.push({ idx, fullyBroken: false, dmg: hammersLeft });
+      hammersLeft = 0;
+    }
+  }
+  _rageHammersLeft = hammersLeft;
+  updateRageBtn();
 
   const wrap = $id('egg-tray-wrap');
   const hammerEl = $id('hammer');
 
-  toSmash.forEach((idx, i) => {
+  toProcess.forEach(({ idx, fullyBroken, dmg }, i) => {
     setTimeout(() => {
       const egg = G.roundEggs[idx];
       if (!egg || egg.broken) return;
 
-      egg.hp = 0;
-      egg.broken = true;
-      G.totalEggs++;
-
       const slots = $id('egg-tray').children;
       const slot = slots[idx];
+      if (!slot) return;
       const rect = slot.getBoundingClientRect();
       const wrapRect = wrap.getBoundingClientRect();
       const cx = rect.left - wrapRect.left + rect.width / 2;
@@ -785,16 +797,26 @@ function _doRageBatch() {
 
       const isSpecial = ['crystal','ruby','black','century'].includes(egg.type);
       SFX.play(isSpecial ? 'crunch' : 'hit');
-      shake(slot, 'lg');
+      shake(slot, fullyBroken ? 'lg' : 'md');
       slot.classList.add('smashing');
       setTimeout(() => slot.classList.remove('smashing'), 250);
-      Particles.emit(cx, cy, egg.type, 18);
+      Particles.emit(cx, cy, egg.type, fullyBroken ? 18 : Math.max(4, (dmg || 1) * 3));
 
-      const prize = rollPrize(egg.type);
       setTimeout(() => {
-        applyPrize(prize, cx, cy);
-        slot.classList.add('broken');
-        slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + eggLabel(egg.type, 0, egg.maxHp, true);
+        if (fullyBroken) {
+          egg.hp = 0;
+          egg.broken = true;
+          G.totalEggs++;
+          const prize = rollPrize(egg.type);
+          applyPrize(prize, cx, cy);
+          slot.classList.add('broken');
+          slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + eggLabel(egg.type, 0, egg.maxHp, true);
+        } else {
+          // Partial damage — show cracks, egg survives
+          egg.hp -= dmg;
+          const damage = egg.maxHp - egg.hp;
+          slot.innerHTML = makeEggSVG(egg.type, damage) + eggLabel(egg.type, egg.hp, egg.maxHp, false);
+        }
         updateResources();
         updateStageBar();
         saveGame();
@@ -1019,9 +1041,8 @@ function updateRageBtn() {
   if (!G.skillsUnlocked || !G.skillsUnlocked[0]) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
   if (_rageActive) {
-    // Rage running — show image, no counter yet
     btn.classList.remove('rage-cooldown');
-    btn.innerHTML = '<img src="img/rage_monkey.png" class="rage-btn-img" alt="">';
+    btn.innerHTML = `<div class="rage-running-wrap"><img src="img/rage_monkey.png" class="rage-btn-img rage-btn-dim" alt=""><span class="rage-running-count">${_rageHammersLeft}</span></div>`;
     btn.disabled = true;
     return;
   }

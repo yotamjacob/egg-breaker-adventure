@@ -1,14 +1,6 @@
 famous monkeys - Rafiki, Mojo Jojo, The Wizard of Oz Flying Monkeys
 Prestige?
 item Combos - dark egg and bat give bonus? odin + muijlnir?
-super sayan
 
 ## android (play store)
 [ ] apply for production access → go live
-
-
-'all stages unclock' snackbar to dissapear aftr 15 seconds, not 60
-monkey rage - will run as long as player has hammers left, cannot go below zero hammers
-monkey rage - when activating skill, show confimartions modal 'monkey rage will consume N hammer, confirm?' 
-mokney rage - show upgrade skill button in the skills menu. upgrade will reduce needed eggs to activate from 200 -> 150 -> 100. each upgrade costs 100k gold.
-mokney rage - activating the skill (and clickinf confirm) - show a float large red text 'MONKEY RAGE!!'
