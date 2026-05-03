@@ -446,6 +446,7 @@ function popBalloonEgg(index, slot) {
     if (G.roundEggs.every(e => e.broken || e.expired) && !_roundPending) {
       _roundPending = true;
       G.roundClears++;
+      if (!G._secretSweep && G.roundEggs.every(e => e.broken)) { G._secretSweep = true; checkAchievements(); }
       checkAchievements();
       setTimeout(() => newRound(), 600);
     }
@@ -529,6 +530,7 @@ function smashEgg(index) {
 
   // Now do logic
   G.hammers -= 1;
+  if (G.hammers === 0 && !G._secretWire) { G._secretWire = true; checkAchievements(); saveGame(); }
 
   if (hasBonus('freeEgg') && Math.random() < 0.03) {
     G.hammers = Math.min(G.maxH, G.hammers + 1);
@@ -678,6 +680,7 @@ function smashEgg(index) {
     if (G.roundEggs.every(e => e.broken || e.expired) && !_roundPending) {
       _roundPending = true;
       G.roundClears++;
+      if (!G._secretSweep && G.roundEggs.every(e => e.broken)) { G._secretSweep = true; checkAchievements(); }
       checkAchievements();
       setTimeout(() => newRound(), 600);
     }

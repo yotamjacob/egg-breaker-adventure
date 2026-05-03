@@ -701,7 +701,10 @@ const ACHIEVEMENT_DATA = [
 
 // Secret achievements — hidden until discovered
 const SECRET_ACHIEVEMENTS = [
-  { id:'secret_42',       name:'Meaning of Life',       desc:'42 eggs broken without gold',      icon:'🌌', reward:{type:'gold',val:420,  label:'+420 gold'} },
+  { id:'secret_wire',  name:'Down to the Wire', desc:'Smash an egg with your last hammer',  icon:'🎯', reward:{type:'gold',    val:200,  label:'+200 gold'} },
+  { id:'secret_speed', name:'Speed Demon',       desc:'Smash 5 eggs in under 5 seconds',    icon:'⚡', reward:{type:'gold',    val:300,  label:'+300 gold'} },
+  { id:'secret_broke', name:'Broke',             desc:'Spend every last coin',              icon:'💸', reward:{type:'gold',    val:500,  label:'+500 gold'} },
+  { id:'secret_sweep', name:'Clean Sweep',       desc:'Break every egg in a round',         icon:'🧹', reward:{type:'feathers',val:10,   label:'+10 feathers'} },
   { id:'secret_ouch',     name:'Sorry Little Egg',      desc:'An egg said ouch',                 icon:'🥺', reward:{type:'gold',val:100,  label:'+100 gold'} },
   { id:'secret_chicken',  name:'Why Did It Cross?',     desc:'Spot the runaway chicken',         icon:'🐔', reward:{type:'gold',val:200,  label:'+200 gold'} },
   { id:'secret_midnight', name:'Night Owl',             desc:'Break eggs at midnight',           icon:'🌙', reward:{type:'starPieces',val:3, label:'+3 star pieces'} },

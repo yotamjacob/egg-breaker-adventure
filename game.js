@@ -97,7 +97,8 @@ const DEFAULT_STATE = {
   // Secrets
   _reviewPromptShown: false,
   _secretOuch: false, _secretChicken: false, _secretStrikes: false,
-  _secret42: false, _secretMidnight: false, _secretLeet: false, _secretChef: false,
+  _secretWire: false, _secretSpeed: false, _secretBroke: false, _secretSweep: false,
+  _secretMidnight: false, _secretLeet: false, _secretChef: false,
   _midnightToday: null,
   // Cloud save
   _savedAt: 0,
@@ -1959,8 +1960,8 @@ document.addEventListener('mouseup', () => {
 
 // ==================== EASTER EGGS ====================
 
-// 3. Track consecutive no-gold streaks
-let _noGoldStreak = 0;
+// Speed Demon: track last 5 egg-break timestamps
+let _smashTimes = [];
 
 // 5. "ouch!" — 1 in 1000 chance on egg break
 // 6. Chicken run — 1 in 500 chance
@@ -2015,16 +2016,11 @@ applyPrize = function(prize, cx, cy) {
     _emptyStreak = 0;
   }
 
-  // #3: No-gold streak
-  if (prize.type === 'gold') {
-    _noGoldStreak = 0;
-  } else {
-    _noGoldStreak++;
-    if (_noGoldStreak >= 15) {
-      spawnFloat(zone, 'The meaning of life is... not gold apparently', '#c084fc', 'big', cx, cy);
-      G._secret42 = true; checkAchievements(); saveGame();
-      _noGoldStreak = 0;
-    }
+  // Speed Demon: 5 eggs in under 5 seconds
+  _smashTimes.push(Date.now());
+  if (_smashTimes.length > 5) _smashTimes.shift();
+  if (!G._secretSpeed && _smashTimes.length === 5 && _smashTimes[4] - _smashTimes[0] < 5000) {
+    G._secretSpeed = true; checkAchievements(); saveGame();
   }
 
   // Call original

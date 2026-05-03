@@ -159,7 +159,10 @@ function checkAchievements() {
     shake_upgrade:  () => ((G.skillUpgrades || [0,0,0])[2] || 0) >= 1,
     skills_maxed:   () => (G.skillsUnlocked || []).every(Boolean) && (G.skillUpgrades || [0,0,0]).every(u => u >= 2),
     // Secrets
-    secret_42:       () => G._secret42,
+    secret_wire:     () => G._secretWire,
+    secret_speed:    () => G._secretSpeed,
+    secret_broke:    () => G._secretBroke,
+    secret_sweep:    () => G._secretSweep,
     secret_ouch:     () => G._secretOuch,
     secret_chicken:  () => G._secretChicken,
     secret_midnight: () => G._secretMidnight,
