@@ -873,6 +873,19 @@ function _finishRage() {
   if (typeof regenInt !== 'undefined' && !regenInt && G.hammers < G.maxH) startRegen();
 }
 
+function stopMonkeyRage() {
+  if (!_rageActive) return;
+  const refund = Math.min(_rageHammersLeft, G.maxH - G.hammers);
+  _rageHammersLeft = 0; // causes _doRageBatch to call _finishRage after current batch
+  if (refund > 0) {
+    G.hammers = Math.min(G.maxH, G.hammers + refund);
+    msg('Rage stopped — ' + refund + ' hammers refunded.', 'specials');
+  } else {
+    msg('Rage stopped.', 'specials');
+  }
+  updateResources();
+}
+
 // ==================== GOLDEN GOOSE ====================
 function activateGoldenGoose() {
   if (_gooseActive || _rageActive || _starfallActive) return;
@@ -1155,10 +1168,12 @@ function updateRageBtn() {
   if (_rageActive) {
     btn.classList.remove('rage-cooldown');
     btn.classList.add('skill-glow-red');
-    btn.innerHTML = `<div class="rage-running-wrap"><img src="img/rage_monkey.png" class="rage-btn-img rage-btn-dim" alt=""><span class="rage-running-count">${_rageHammersLeft}</span></div>`;
-    btn.disabled = true;
+    btn.innerHTML = `<div class="rage-running-wrap"><img src="img/rage_monkey.png" class="rage-btn-img rage-btn-dim" alt=""><span class="rage-running-count">${_rageHammersLeft}</span><span class="rage-stop-hint">✕</span></div>`;
+    btn.disabled = false;
+    btn.title = 'Stop Rage (refunds remaining hammers)';
     return;
   }
+  btn.title = 'Monkey Rage';
   btn.classList.remove('skill-glow-red');
   const ready = isSkillReady(0);
   if (!ready) {

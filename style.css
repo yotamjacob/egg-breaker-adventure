@@ -177,6 +177,7 @@ body{
 .rage-btn-dim{opacity:.4}
 .rage-running-count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--px);font-size:9px;color:#fff;text-shadow:1px 1px 0 #000,-1px -1px 0 #000,0 0 4px #000;pointer-events:none;line-height:1}
 .rage-confirm-img{width:56px;height:56px;object-fit:cover;border-radius:6px;image-rendering:pixelated;border:2px solid rgba(200,40,40,.6)}
+.rage-stop-hint{position:absolute;top:1px;right:2px;font-size:7px;color:rgba(255,255,255,.65);line-height:1;pointer-events:none;text-shadow:0 0 3px #000}
 .rage-btn.rage-cooldown{background:rgba(20,20,70,.9);border-color:#5555bb;box-shadow:0 0 8px rgba(80,80,200,.35),1px 1px 0 var(--dark);cursor:not-allowed}
 .rage-btn.rage-cooldown:hover{transform:none;background:rgba(20,20,70,.9)}
 .skill-glow-red{animation:skill-glow-r 0.9s ease-in-out infinite}
