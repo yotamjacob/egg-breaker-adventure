@@ -371,6 +371,14 @@ async function _attemptSilentReconnect() {
         return;
       }
     }
+    // 4xx = token is definitively expired/invalid — give up and let user re-link
+    if (resp.status >= 400 && resp.status < 500) {
+      _oauthLog('RECONNECT: token invalid (HTTP ' + resp.status + ') — clearing reconnect state');
+      _pendingReconnect = false;
+      try { localStorage.removeItem('_cloudRefTok'); } catch (e) {}
+      _renderCloudModal();
+      return;
+    }
     _oauthLog('RECONNECT: HTTP ' + resp.status + ' — will retry on next foreground');
   } catch (e) {
     _oauthLog('RECONNECT: err=' + e.message + ' — will retry on next foreground');
@@ -395,6 +403,7 @@ function linkGoogleAccount() {
   _oauthLog('LINK called user=' + (_cloudUser ? _cloudUser.email : 'null') +
             ' _cloudUnlinking=' + _cloudUnlinking + ' sbClient=' + !!_sbClient);
   _cloudUnlinking = false; // defensive reset — clears any race condition from a prior unlink
+  _pendingReconnect = false; // clear stuck reconnect state so fresh link can proceed
   if (!_sbClient) { showShopSnack('⚠️ Service not connected — reload the app'); return; }
   if (_cloudUser) {
     // overlay-confirm has z-index:950, overlay-cloudsave has z-index:900 —
