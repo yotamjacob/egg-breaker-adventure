@@ -1197,14 +1197,20 @@ function renderPremiumShop() {
     '<div class="premium-grid">' +
     PREMIUM_PRODUCTS.map(function(p) {
       const bought = p.oneTime && (p.boughtKey ? G[p.boughtKey] : G['premium_' + p.id]);
+      const hasToggle = bought && p.id === 'eggradar';
+      const isOn = G.eggradar_on !== false;
       return (
-        '<div class="premium-card' + (p.featured ? ' featured' : '') + (bought ? ' bought' : '') + '">' +
+        '<div class="premium-card' + (p.featured ? ' featured' : '') + (bought && !hasToggle ? ' bought' : '') + '">' +
           '<div class="premium-emoji">' + p.emoji + '</div>' +
           '<div class="premium-name">' + p.name + (p.oneTime ? ' <span class="one-time-badge">ONCE</span>' : '') + '</div>' +
           '<div class="premium-desc">' + p.desc + '</div>' +
           '<div class="premium-price">' + p.price + '</div>' +
           '<div class="premium-divider"></div>' +
-          (bought
+          (hasToggle
+            ? '<div class="premium-owned">✓ Purchased</div>' +
+              '<button class="premium-toggle' + (isOn ? ' on' : ' off') + '" onclick="toggleEggradar()">' +
+              (isOn ? '📡 ON' : '📡 OFF') + '</button>'
+            : bought
             ? '<div class="premium-owned">✓ Purchased</div><div class="premium-active-desc">' + p.desc + '</div>'
             : '<div id="buy-slot-' + p.id + '" class="buy-slot-wrap"></div>'
           ) +

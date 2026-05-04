@@ -350,6 +350,9 @@
 .premium-price{font-size:13px;color:var(--gold);margin-top:6px;letter-spacing:1px;text-shadow:1px 1px 0 var(--dark)}
 .premium-divider{width:80%;height:2px;background:var(--gold3);margin:6px 0;opacity:.5}
 .premium-owned{font-size:10px;color:var(--green);padding:8px 0}
+.premium-toggle{display:block;width:80%;margin:6px auto 0;padding:7px 0;font-size:11px;font-weight:700;border-radius:4px;border:2px solid;cursor:pointer;letter-spacing:1px;pointer-events:all}
+.premium-toggle.on{background:var(--green);border-color:#1a9e50;color:#fff}
+.premium-toggle.off{background:#444;border-color:#555;color:#aaa}
 .one-time-badge{
   display:inline-block;background:var(--gold);color:var(--dark);
   font-size:7px;padding:2px 5px;border-radius:2px;margin-left:4px;vertical-align:middle;
