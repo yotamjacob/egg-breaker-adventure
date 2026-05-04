@@ -93,7 +93,7 @@ const DEFAULT_STATE = {
   // Shop upgrades (unique one-time purchases)
   owned_spyglass: false, owned_luckycharm: false, owned_goldmagnet: false,
   owned_eggradar: false, owned_doubledaily: false, owned_starsaver: false, owned_cleanse: false,
-  eggradar_on: true,
+  spyglass_on: true,
   doubledailyRetroApplied: false,
   _bananasEverShown: false,
   _spyglassHintShown: false,
@@ -395,10 +395,11 @@ function applyDoubleDailyRetroBonus() {
   if (parts.length)  msg('📅 Double Daily retro bonus (' + claimedUpTo + ' days): ' + parts.join(' + '), 'prizes');
 }
 
-function toggleEggradar() {
-  G.eggradar_on = !G.eggradar_on;
+function toggleSpyglass() {
+  G.spyglass_on = !G.spyglass_on;
   saveGame();
-  renderPremiumShop();
+  renderShop();
+  renderEggTray();
 }
 
 // ==================== HELPERS ====================

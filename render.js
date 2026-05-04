@@ -218,7 +218,7 @@ function makeEggSVG(type, damage) {
 }
 
 function eggLabel(type, hp, maxHp, broken) {
-  if (!G['owned_spyglass']) return '';
+  if (!G['owned_spyglass'] || G.spyglass_on === false) return '';
   if (broken) return '<span class="egg-label">' + type + '</span>';
   return '<span class="egg-label">' + type + '<br>' + hp + '/' + maxHp + '</span>';
 }
@@ -1110,6 +1110,8 @@ function renderShop() {
   SHOP_SUPPLIES.forEach(s => {
     const isOwned = s.unique && (s.id === 'fastregen' ? G.fastRegen : G['owned_' + s.id]);
     const isFree = s.id === 'hammers20' && !G.shopHammers20;
+    const hasToggle = isOwned && s.id === 'spyglass';
+    const isOn = G.spyglass_on !== false;
     const card = document.createElement('div');
     card.className = 'shop-card' + (isOwned ? ' owned' : '') + (!isOwned && (isFree || G.gold >= s.cost) ? ' can-afford' : '');
     card.dataset.id = s.id;
@@ -1117,11 +1119,13 @@ function renderShop() {
       '<span class="s-emoji">' + s.emoji + '</span>' +
       '<span class="s-name">' + s.name + '</span>' +
       (s.desc ? '<span class="s-desc">' + s.desc + '</span>' : '') +
-      (isOwned
-        ? '<span class="s-status">OWNED</span>'
-        : isFree
-          ? '<span class="s-cost" style="color:var(--green)">Free!</span>'
-          : '<span class="s-cost">' + formatNum(s.cost) + ' 🪙</span>');
+      (hasToggle
+        ? '<button class="shop-toggle ' + (isOn ? 'on' : 'off') + '" onclick="event.stopPropagation();toggleSpyglass()">' + (isOn ? '🔍 ON' : '🔍 OFF') + '</button>'
+        : isOwned
+          ? '<span class="s-status">OWNED</span>'
+          : isFree
+            ? '<span class="s-cost" style="color:var(--green)">Free!</span>'
+            : '<span class="s-cost">' + formatNum(s.cost) + ' 🪙</span>');
     if (!isOwned) card.addEventListener('click', () => buyShopItem('supply', s.id));
     (s.unique ? uGrid : cGrid).appendChild(card);
   });
@@ -1197,20 +1201,14 @@ function renderPremiumShop() {
     '<div class="premium-grid">' +
     PREMIUM_PRODUCTS.map(function(p) {
       const bought = p.oneTime && (p.boughtKey ? G[p.boughtKey] : G['premium_' + p.id]);
-      const hasToggle = bought && p.id === 'eggradar';
-      const isOn = G.eggradar_on !== false;
       return (
-        '<div class="premium-card' + (p.featured ? ' featured' : '') + (bought && !hasToggle ? ' bought' : '') + '">' +
+        '<div class="premium-card' + (p.featured ? ' featured' : '') + (bought ? ' bought' : '') + '">' +
           '<div class="premium-emoji">' + p.emoji + '</div>' +
           '<div class="premium-name">' + p.name + (p.oneTime ? ' <span class="one-time-badge">ONCE</span>' : '') + '</div>' +
           '<div class="premium-desc">' + p.desc + '</div>' +
           '<div class="premium-price">' + p.price + '</div>' +
           '<div class="premium-divider"></div>' +
-          (hasToggle
-            ? '<div class="premium-owned">✓ Purchased</div>' +
-              '<button class="premium-toggle' + (isOn ? ' on' : ' off') + '" onclick="toggleEggradar()">' +
-              (isOn ? '📡 ON' : '📡 OFF') + '</button>'
-            : bought
+          (bought
             ? '<div class="premium-owned">✓ Purchased</div><div class="premium-active-desc">' + p.desc + '</div>'
             : '<div id="buy-slot-' + p.id + '" class="buy-slot-wrap"></div>'
           ) +

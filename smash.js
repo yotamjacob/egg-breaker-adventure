@@ -34,7 +34,7 @@ function newRound() {
     }
     let w = def.spawnWeight;
     // Egg Radar: +50% spawn weight for rare eggs
-    if (G['owned_eggradar'] && G.eggradar_on !== false && def.id !== 'normal' && def.id !== 'silver') w *= 1.5;
+    if (G['owned_eggradar'] && def.id !== 'normal' && def.id !== 'silver') w *= 1.5;
     available.push({ type: def.id, weight: w });
   }
   const spawnTotal = available.reduce((s, e) => s + e.weight, 0);
