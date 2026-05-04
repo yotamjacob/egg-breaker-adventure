@@ -7,9 +7,9 @@
 // ============================================================
 
 function formatNum(n) {
-  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-  if (n >= 10000) return (n / 1000).toFixed(1) + 'K';
-  return String(n);
+  if (n >= 1000000) return (Math.floor(n / 100000) / 10).toFixed(1) + 'M';
+  if (n >= 10000)   return (Math.floor(n / 100)    / 10).toFixed(1) + 'K';
+  return String(Math.floor(n));
 }
 
 // ==================== GOLD COUNTER ANIMATION ====================
