@@ -43,7 +43,6 @@ function doBuyShopItem(category, id) {
     }
     if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
     G.gold -= item.cost;
-    if (G.gold === 0 && !G._secretBroke) { G._secretBroke = true; checkAchievements(); saveGame(); }
     G.ownedHammers.push(id);
     invalidateBonusCache();
     G.hammer = id;
@@ -68,7 +67,6 @@ function doBuyShopItem(category, id) {
     }
     if (G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
     G.gold -= item.cost;
-    if (G.gold === 0 && !G._secretBroke) { G._secretBroke = true; checkAchievements(); saveGame(); }
     G.ownedHats.push(id);
     invalidateBonusCache();
     G.hat = id;
@@ -94,7 +92,6 @@ function doBuyShopItem(category, id) {
     const isFreeHammers20 = id === 'hammers20' && !G.shopHammers20;
     if (!isFreeHammers20 && G.gold < item.cost) { showAlert('🪙', 'Need ' + formatNum(item.cost) + ' gold! (have ' + formatNum(G.gold) + ')'); SFX.play('err'); return; }
     if (!isFreeHammers20) G.gold -= item.cost;
-    if (G.gold === 0 && !G._secretBroke) { G._secretBroke = true; checkAchievements(); saveGame(); }
     G.purchases = (G.purchases || 0) + 1;
     track('shop-purchase', { item: item.name, category: item.type });
 

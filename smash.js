@@ -552,8 +552,6 @@ function smashEgg(index) {
 
   // Now do logic
   G.hammers -= 1;
-  if (G.hammers === 0 && !G._secretWire) { G._secretWire = true; checkAchievements(); saveGame(); }
-
   if (hasBonus('freeEgg') && Math.random() < 0.03) {
     G.hammers = Math.min(G.maxH, G.hammers + 1);
     spawnFloat($id('prize-zone'), 'Free hit!', '#b0bec5', 'big', cx, cy - 30);

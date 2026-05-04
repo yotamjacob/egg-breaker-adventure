@@ -100,7 +100,7 @@ const DEFAULT_STATE = {
   // Secrets
   _reviewPromptShown: false,
   _secretOuch: false, _secretChicken: false, _secretStrikes: false,
-  _secretWire: false, _secretSpeed: false, _secretBroke: false, _secretSweep: false,
+  _secretSpeed: false, _secretSweep: false,
   _secretMidnight: false, _secretLeet: false, _secretChef: false,
   _midnightToday: null,
   // Cloud save

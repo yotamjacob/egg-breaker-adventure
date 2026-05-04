@@ -41,7 +41,7 @@ function checkAchievements() {
     smash_1000:   () => G.totalEggs >= 1000,
     smash_5000:   () => G.totalEggs >= 5000,
     smash_10000:  () => G.totalEggs >= 10000,
-    smash_50000:  () => G.totalEggs >= 30000,
+    smash_50000:  () => G.totalEggs >= 25000,
     // Gold earned
     gold_1000:    () => G.totalGold >= 1000,
     gold_50000:   () => G.totalGold >= 50000,
@@ -98,7 +98,7 @@ function checkAchievements() {
     black_10:     () => (G.blackSmashed || 0) >= 10,
     // Daily login
     streak_5:     () => G.consecutiveDays >= 5,
-    daily_10:     () => (G.totalDailyClaims || 0) >= 10,
+    daily_10:     () => G.consecutiveDays >= 7,
     // Shopping
     buy_hammer:   () => G.ownedHammers.length > 1,
     buy_hat:      () => G.ownedHats.length > 1,
@@ -120,7 +120,6 @@ function checkAchievements() {
     empty_50:     () => (G.totalEmpties || 0) >= 50,
     empty_200:    () => (G.totalEmpties || 0) >= 200,
     empty_500:    () => (G.totalEmpties || 0) >= 500,
-    empty_1000:   () => (G.totalEmpties || 0) >= 1000,
     // Egg effects
     runny_1:      () => (G.runnySmashed || 0) >= 1,
     runny_25:     () => (G.runnySmashed || 0) >= 25,
@@ -148,7 +147,6 @@ function checkAchievements() {
     skill_all:      () => (G.skillsUnlocked || []).every(Boolean),
     rage_first:     () => (G.totalRageUses  || 0) >= 1,
     rage_10:        () => (G.totalRageUses  || 0) >= 10,
-    rage_50:        () => (G.totalRageUses  || 0) >= 50,
     rage_upgrade1:  () => ((G.skillUpgrades || [0,0,0])[0] || 0) >= 1,
     rage_maxed:     () => ((G.skillUpgrades || [0,0,0])[0] || 0) >= 2,
     goose_first:    () => (G.totalGooseUses || 0) >= 1,
@@ -159,9 +157,7 @@ function checkAchievements() {
     shake_upgrade:  () => ((G.skillUpgrades || [0,0,0])[2] || 0) >= 1,
     skills_maxed:   () => (G.skillsUnlocked || []).every(Boolean) && (G.skillUpgrades || [0,0,0]).every(u => u >= 2),
     // Secrets
-    secret_wire:     () => G._secretWire,
     secret_speed:    () => G._secretSpeed,
-    secret_broke:    () => G._secretBroke,
     secret_sweep:    () => G._secretSweep,
     secret_ouch:     () => G._secretOuch,
     secret_chicken:  () => G._secretChicken,

@@ -575,7 +575,7 @@ const ACHIEVEMENT_DATA = [
   { id:'smash_1000',   name:'Egg Annihilator',     desc:'Break 1,000 eggs',              icon:'💥', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
   { id:'smash_5000',   name:'Egg Apocalypse',      desc:'Break 5,000 eggs',              icon:'☄️', reward:{type:'gold',val:5000,     label:'+5,000 gold'} },
   { id:'smash_10000',  name:'Egg Extinction',      desc:'Break 10,000 eggs',             icon:'🌋', reward:{type:'maxH',val:10,       label:'+10 max hammers'} },
-  { id:'smash_50000',  name:'You Did It!',         desc:'Break 30,000 eggs',             icon:'🐒', reward:{type:'goldPct',val:20,    label:'+20% gold from eggs'} },
+  { id:'smash_50000',  name:'You Did It!',         desc:'Break 25,000 eggs',             icon:'🐒', reward:{type:'goldPct',val:20,    label:'+20% gold from eggs'} },
   // -- Gold earned --
   { id:'gold_1000',    name:'Coin Collector',      desc:'Earn 1,000 total gold',         icon:'🪙', reward:{type:'gold',val:100,      label:'+100 gold'} },
   { id:'gold_50000',   name:'Rich Monkey',         desc:'Earn 50,000 total gold',        icon:'💰', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
@@ -633,7 +633,7 @@ const ACHIEVEMENT_DATA = [
   { id:'black_10',     name:'Dark Matter',         desc:'Break 10 black eggs',           icon:'⚫', reward:{type:'goldPct',val:10,    label:'+10% gold from eggs'} },
   // -- Daily login --
   { id:'streak_5',     name:'On a Roll',           desc:'5-day login streak',            icon:'📅', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
-  { id:'daily_10',     name:'Regular',             desc:'Claim daily bonus 10 times',    icon:'📆', reward:{type:'gold',val:500,      label:'+500 gold'} },
+  { id:'daily_10',     name:'Regular',             desc:'Log in 7 days in a row',        icon:'📆', reward:{type:'gold',val:500,      label:'+500 gold'} },
   // -- Shopping --
   { id:'buy_hammer',   name:'Tool Upgrade',        desc:'Buy a special hammer',          icon:'🔨', reward:{type:'gold',val:200,      label:'+200 gold'} },
   { id:'buy_hat',      name:'Hat Collector',       desc:'Buy a hat',                     icon:'🎩', reward:{type:'gold',val:200,      label:'+200 gold'} },
@@ -655,7 +655,6 @@ const ACHIEVEMENT_DATA = [
   { id:'empty_50',     name:'Consistently Unlucky',desc:'Get 50 empties',                 icon:'🕳️', reward:{type:'gold',val:150,      label:'+150 gold'} },
   { id:'empty_200',    name:'Professional Loser',  desc:'Get 200 empties',                icon:'🤡', reward:{type:'gold',val:500,      label:'+500 gold'} },
   { id:'empty_500',    name:'Empty Inside',        desc:'Get 500 empties',                icon:'👻', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
-  { id:'empty_1000',   name:'Void Master',         desc:'Get 1,000 empties. Yay?',        icon:'🌀', reward:{type:'gold',val:2000,     label:'+2,000 gold'} },
   // -- Egg effects --
   { id:'runny_1',      name:'Catch Me!',           desc:'Smash a runny egg',              icon:'🏃', reward:{type:'gold',val:100,      label:'+100 gold'} },
   { id:'runny_25',     name:'Egg Chaser',          desc:'Smash 25 runny eggs',            icon:'💨', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
@@ -686,7 +685,6 @@ const ACHIEVEMENT_DATA = [
   { id:'skill_all',     name:'Triple Threat',         desc:'Unlock all 3 skills',                icon:'🌟', reward:{type:'feathers',val:20,   label:'+20 feathers'} },
   { id:'rage_first',    name:'Banana Goes Crazy',     desc:'Unleash Monkey Rage for the first time', icon:'🐒', reward:{type:'gold',val:500,  label:'+500 gold'} },
   { id:'rage_10',       name:'On A Rampage',          desc:'Use Monkey Rage 10 times',           icon:'🔥', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
-  { id:'rage_50',       name:'Rage Machine',          desc:'Use Monkey Rage 50 times',           icon:'💢', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
   { id:'rage_upgrade1', name:'Focused Fury',          desc:'Upgrade Monkey Rage',                icon:'⚙️', reward:{type:'feathers',val:8,    label:'+8 feathers'} },
   { id:'rage_maxed',    name:'Maximum Rage',          desc:'Fully upgrade Monkey Rage',          icon:'🦍', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'goose_first',   name:'Golden Hour',           desc:'Activate Golden Goose for the first time', icon:'🥚', reward:{type:'gold',val:500, label:'+500 gold'} },
@@ -700,9 +698,7 @@ const ACHIEVEMENT_DATA = [
 
 // Secret achievements — hidden until discovered
 const SECRET_ACHIEVEMENTS = [
-  { id:'secret_wire',  name:'Down to the Wire', desc:'Smash an egg with your last hammer',  icon:'🎯', reward:{type:'gold',    val:200,  label:'+200 gold'} },
   { id:'secret_speed', name:'Speed Demon',       desc:'Smash 5 eggs in under 5 seconds',    icon:'⚡', reward:{type:'gold',    val:300,  label:'+300 gold'} },
-  { id:'secret_broke', name:'Broke',             desc:'Spend every last coin',              icon:'💸', reward:{type:'gold',    val:500,  label:'+500 gold'} },
   { id:'secret_sweep', name:'Clean Sweep',       desc:'Break every egg in a round',         icon:'🧹', reward:{type:'feathers',val:10,   label:'+10 feathers'} },
   { id:'secret_ouch',     name:'Sorry Little Egg',      desc:'An egg said ouch',                 icon:'🥺', reward:{type:'gold',val:100,  label:'+100 gold'} },
   { id:'secret_chicken',  name:'Why Did It Cross?',     desc:'Spot the runaway chicken',         icon:'🐔', reward:{type:'gold',val:200,  label:'+200 gold'} },
