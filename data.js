@@ -540,8 +540,8 @@ const SHOP_HATS = [
 ];
 
 const SHOP_SUPPLIES = [
-  { id: 'hammers5',   name: '+5 Hammers',      emoji: '🔨', cost: 300,    currency: 'gold', type: 'consumable' },
-  { id: 'hammers20',  name: '+20 Hammers',      emoji: '🔨', cost: 1000,   currency: 'gold', type: 'consumable' },
+  { id: 'hammers5',   name: '+5 Hammers',      emoji: '🔨', cost: 1500,   currency: 'gold', type: 'consumable' },
+  { id: 'hammers20',  name: '+20 Hammers',      emoji: '🔨', cost: 5000,   currency: 'gold', type: 'consumable' },
   { id: 'star1',      name: 'Star Piece',       emoji: '⭐', cost: 3000,   currency: 'gold', type: 'consumable' },
   { id: 'mult5',      name: 'x5 Multiplier',    emoji: '✖️', cost: 5000,   currency: 'gold', type: 'consumable' },
   { id: 'spyglass',   name: 'Spyglass',         emoji: '🔍', desc: 'Reveal egg names & HP', cost: 5000, currency: 'gold', type: 'upgrade', unique: true },
