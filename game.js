@@ -2123,14 +2123,17 @@ _initNotifBtn();
 _syncFloatsUI(G.showFloats !== false);
 _syncLogUI(G.showLog !== false);
 
-// Once per session: warn in the log if not synced to cloud
+// Once per session: warn in the log if not synced to cloud.
+// Auth resolves asynchronously — wait for _cloudAuthSettled before checking.
+// If still unsettled at 3s (slow network/Android), retry once at 8s.
 let _noSyncWarned = false;
-setTimeout(() => {
-  if (!_noSyncWarned && !_cloudUser) {
-    _noSyncWarned = true;
-    msg('☁️ Not synced — go to ⚙️ Settings → Cloud Save to back up your progress', 'noSync');
-  }
-}, 3000);
+function _maybeWarnNoSync() {
+  if (_cloudUser || _noSyncWarned) return;
+  if (!_cloudAuthSettled) { setTimeout(_maybeWarnNoSync, 5000); return; }
+  _noSyncWarned = true;
+  msg('☁️ Not synced — go to ⚙️ Settings → Cloud Save to back up your progress', 'noSync');
+}
+setTimeout(_maybeWarnNoSync, 3000);
 
 $id('version-tag').textContent = 'Egg Smash Adventures v' + VERSION;
 

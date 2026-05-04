@@ -106,6 +106,7 @@ function clearOauthDebugLog() {
 
 let _cloudHealthy = null; // null=no operation yet, true=last op ok, false=last op failed
 let _pendingReconnect = false; // true when session was lost offline and we're waiting to retry
+let _cloudAuthSettled = false; // true once getSession() or onAuthStateChange has resolved
 
 function initCloudSave() {
   if (typeof supabase === 'undefined') { _oauthLog('INIT: supabase SDK not loaded'); return; }
@@ -120,6 +121,7 @@ function initCloudSave() {
     auth: { persistSession: true, autoRefreshToken: true },
   });
   _sbClient.auth.onAuthStateChange(async (event, session) => {
+    _cloudAuthSettled = true;
     _oauthLog('AUTH event=' + event + ' user=' + (session?.user?.email || 'none'));
     // If we're in the middle of an intentional unlink, ignore any SIGNED_IN that
     // fires (can happen if Supabase auto-refreshes the token immediately after signOut).
@@ -166,10 +168,11 @@ function initCloudSave() {
   // Restore session on page load (handles OAuth redirect-back)
   _sbClient.auth.getSession().then(({ data }) => {
     _oauthLog('getSession user=' + (data?.session?.user?.email || 'none'));
+    _cloudAuthSettled = true;
     _cloudSession = data.session || null;
     _cloudUser = data.session ? data.session.user : null;
     _renderCloudModal();
-  }).catch(e => _oauthLog('getSession ERROR: ' + e.message));
+  }).catch(e => { _cloudAuthSettled = true; _oauthLog('getSession ERROR: ' + e.message); });
 
 }
 
