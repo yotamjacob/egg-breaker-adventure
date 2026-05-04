@@ -3,3 +3,5 @@ Prestige?
 
 ## android (play store)
 [ ] apply for production access → go live
+
+add a leave a review button after the app publishes (make sure the 1000 eggs broken egg modal has the same link)

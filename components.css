@@ -194,7 +194,7 @@
   padding:7px 12px;border-radius:2px;
   border:2px solid var(--gold2);
   box-shadow:3px 3px 0 var(--dark);
-  z-index:500;white-space:nowrap;
+  z-index:9990;white-space:nowrap;
 }
 .update-banner.hidden{display:none}
 #update-reload-btn{
