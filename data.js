@@ -96,7 +96,7 @@ const MONKEY_DATA = [
   },
   {
     id: 'steampunk', name: 'Steampunk Monkey', emoji: '🔧', img: 'img/steampunk_nohat.jpeg',
-    hatImgs: { chef:'img/steampunk_chef.jpeg', crown:'img/steam_crown.jpeg', wizard:'img/steampunk_wizard.jpeg', tophat:'img/steampunk_tophat.jpeg', pirate:'img/steampunk_pirate.jpeg' },
+    hatImgs: { chef:'img/steampunk_chef.jpeg', crown:'img/steampunk_crown.png', wizard:'img/steampunk_wizard.jpeg', tophat:'img/steampunk_tophat.jpeg', pirate:'img/steampunk_pirate.jpeg' },
     cost: 9, goldScale: 0.90,
     perk: 'moreStars', perkDesc: '+15% star piece chance',
     stages: [
