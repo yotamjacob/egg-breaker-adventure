@@ -19,6 +19,7 @@
   border:2px solid;
   width:80px;text-align:center;flex-shrink:0;white-space:nowrap;overflow:hidden;
 }
+.stage-tier.hidden{display:none}
 .stage-tier.bronze{background:#8B4513;color:#FFD700;border-color:#A0522D}
 .stage-tier.silver{background:#708090;color:var(--white);border-color:#A9A9A9}
 .stage-tier.gold{background:var(--gold3);color:var(--gold);border-color:var(--gold)}
