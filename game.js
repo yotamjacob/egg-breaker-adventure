@@ -1085,7 +1085,6 @@ function checkCollectionComplete(suppressFlash) {
       const refill = Math.round(CONFIG.tierRewards.silver.hammerRefill * _tHMult);
       G.hammers += refill;
       G.tierHammerRefills = (G.tierHammerRefills || 0) + refill;
-      msg('⬆️ Silver Tier! ' + stage.name + ' +' + refill + ' 🔨', 'tiers');
 
     } else if (newTier === 2) {
       // Silver → Gold: max hammers + hammers + unlock next stage
@@ -1100,7 +1099,6 @@ function checkCollectionComplete(suppressFlash) {
       }
       const nextName = si < curMonkey().stages.length - 1
         ? curMonkey().stages[si + 1].name : null;
-      msg('🥇 Gold Tier! ' + stage.name + ' +' + refill2 + ' 🔨' + (nextName ? ' — ' + nextName + ' unlocked' : ''), 'tiers');
 
     } else if (newTier >= 3) {
       // Gold → Complete: banana reward + hammers

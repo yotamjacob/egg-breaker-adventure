@@ -728,8 +728,14 @@ function updateStageBar() {
 
   $id('stage-name').textContent = 'Stage ' + (si + 1) + ': ' + stage.name;
   const tierEl = $id('stage-tier');
-  tierEl.textContent = tier >= 3 ? '✅ Done' : tierNames[tierIdx];
-  tierEl.className = 'stage-tier ' + (tier >= 3 ? 'complete' : tierNames[tierIdx].toLowerCase());
+  if (tier >= 3) {
+    tierEl.textContent = '✅ Done';
+    tierEl.className = 'stage-tier complete';
+    tierEl.classList.remove('hidden');
+  } else {
+    tierEl.textContent = '';
+    tierEl.className = 'stage-tier hidden';
+  }
 
   const pct = Math.min(100, (found / total) * 100);
   const fill = $id('stage-fill');
@@ -777,25 +783,20 @@ function updateStageBar() {
 }
 
 function flashTierUp(newTier) {
+  if (newTier < 3) return;
   const fill  = $id('stage-fill');
   const track = fill ? fill.parentElement : null;
   const badge = $id('stage-tier');
   if (!track || !badge) return;
 
-  const glowCls = newTier === 1 ? 'tier-glow-silver'
-                : newTier === 2 ? 'tier-glow-gold'
-                : 'tier-glow-complete';
-
-  // Clear any prior flash in case of rapid tier-ups
-  track.classList.remove('tier-glow-silver', 'tier-glow-gold', 'tier-glow-complete');
+  track.classList.remove('tier-glow-complete');
   badge.classList.remove('tier-badge-pop');
-  // Force reflow so re-adding the class restarts the animation
   void track.offsetWidth;
   void badge.offsetWidth;
 
-  track.classList.add(glowCls);
+  track.classList.add('tier-glow-complete');
   badge.classList.add('tier-badge-pop');
-  track.addEventListener('animationend', () => track.classList.remove(glowCls), { once: true });
+  track.addEventListener('animationend', () => track.classList.remove('tier-glow-complete'), { once: true });
   badge.addEventListener('animationend', () => badge.classList.remove('tier-badge-pop'), { once: true });
 }
 
