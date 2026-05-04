@@ -1801,6 +1801,10 @@ function openSettings() {
 function openSubModal(id, renderFn) {
   closeOverlay('overlay-settings');
   if (renderFn) renderFn();
+  if (id === 'overlay-progress') {
+    _overallQuoteText = _nextQuote();
+    updateOverallProgress();
+  }
   document.getElementById(id).classList.remove('hidden');
 }
 

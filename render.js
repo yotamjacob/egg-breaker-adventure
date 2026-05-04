@@ -639,6 +639,7 @@ const _OVERALL_QUOTES = [
   '🏆 Collecting glory, one smash at a time.',
 ];
 let _lastQuoteIdx = -1;
+let _overallQuoteText = null;  // set once per modal open; null = not yet opened
 
 function _nextQuote() {
   let idx;
@@ -703,9 +704,9 @@ function updateOverallProgress() {
     if (pct >= 100) {
       quoteEl.classList.add('thank-you');
       quoteEl.textContent = '🏆 You did it. Every egg smashed, every stage mastered, every monkey unlocked. This is no small thing — thank you for playing, and for making this little tribute mean something.';
-    } else {
+    } else if (_overallQuoteText !== null) {
       quoteEl.classList.remove('thank-you');
-      quoteEl.textContent = _nextQuote();
+      quoteEl.textContent = _overallQuoteText;
     }
   }
 }
