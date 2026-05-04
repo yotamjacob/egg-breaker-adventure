@@ -1205,7 +1205,7 @@ function renderPremiumShop() {
           '<div class="premium-price">' + p.price + '</div>' +
           '<div class="premium-divider"></div>' +
           (bought
-            ? '<div class="premium-owned">✓ Active</div><div class="premium-active-desc">' + p.desc + '</div>'
+            ? '<div class="premium-owned">✓ Purchased</div><div class="premium-active-desc">' + p.desc + '</div>'
             : '<div id="buy-slot-' + p.id + '" class="buy-slot-wrap"></div>'
           ) +
         '</div>'

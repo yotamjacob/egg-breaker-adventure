@@ -7,7 +7,7 @@ const PLAY_API     = 'https://androidpublisher.googleapis.com/androidpublisher/v
 const CONSUMABLE = new Set(['gold_s', 'gold_m', 'gold_l', 'hammers', 'bananas'])
 
 const REWARDS: Record<string, { gold?: number; hammers?: number; bananas?: number }> = {
-  starter_pack: { gold: 25000, hammers: 50, bananas: 3 },
+  starter_pack: { gold: 50000, hammers: 300 },
   gold_s:       { gold: 10000 },
   gold_m:       { gold: 50000 },
   gold_l:       { gold: 200000 },

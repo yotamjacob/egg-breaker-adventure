@@ -9,7 +9,7 @@
 
 const PREMIUM_PRODUCTS = [
   // ── Packs ────────────────────────────────────────────────────────────────
-  { id: 'starter_pack', name: 'Starter Pack',   emoji: '🎁', price: '$2.99', desc: '25,000 gold + 50 hammers + 3 Crystal Bananas', featured: true, oneTime: true },
+  { id: 'starter_pack', name: 'Starter Pack',   emoji: '🎁', price: '$2.99', desc: '50,000 gold + 300 hammers', featured: true, oneTime: true },
   { id: 'gold_s',       name: 'Gold Pack S',    emoji: '🪙', price: '$0.99', desc: '10,000 gold' },
   { id: 'gold_m',       name: 'Gold Pack M',    emoji: '💰', price: '$2.99', desc: '50,000 gold' },
   { id: 'gold_l',       name: 'Gold Pack L',    emoji: '🏆', price: '$7.99', desc: '200,000 gold' },
