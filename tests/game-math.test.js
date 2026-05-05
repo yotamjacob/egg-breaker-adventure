@@ -18,9 +18,9 @@ const { CONFIG } = new Function(_configSrc + '\nreturn { CONFIG, VERSION };')();
 // ── Pure functions inlined from source (copy must stay in sync) ──────────────
 
 function formatNum(n) {
-  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-  if (n >= 10000) return (n / 1000).toFixed(1) + 'K';
-  return String(n);
+  if (n >= 1000000) return (Math.floor(n / 100000) / 10).toFixed(1) + 'M';
+  if (n >= 10000)   return (Math.floor(n / 100)    / 10).toFixed(1) + 'K';
+  return String(Math.floor(n));
 }
 
 function multEquation(base, multVals, result, unit, balloonMult, customPrefix) {
@@ -59,7 +59,7 @@ describe('formatNum', () => {
   test('10K threshold', () => {
     assert.equal(formatNum(10000), '10.0K');
     assert.equal(formatNum(12500), '12.5K');
-    assert.equal(formatNum(999999), '1000.0K');
+    assert.equal(formatNum(999999), '999.9K');
   });
 
   test('1M threshold', () => {
@@ -300,5 +300,50 @@ describe('secsToFull', () => {
 
   test('never returns negative', () => {
     assert.ok(secsToFull(0, 75, CONFIG.regenInterval, false) > 0);
+  });
+});
+
+// ── formatNum: no rounding up (regression) ───────────────────────────────────
+// Before the floor fix, formatNum(14999) returned '15.0K' instead of '14.9K',
+// causing the chef's hat purchase alert to say "need 15K gold, you have 15K gold"
+// when the player had exactly 14,999 gold.
+
+describe('formatNum: no rounding up', () => {
+  test('14999 → 14.9K (not 15.0K)', () => {
+    assert.equal(formatNum(14999), '14.9K');
+  });
+
+  test('15000 → 15.0K', () => {
+    assert.equal(formatNum(15000), '15.0K');
+  });
+
+  test('999900 → 999.9K (not 1000.0K)', () => {
+    assert.equal(formatNum(999900), '999.9K');
+  });
+});
+
+// ── Shop canAfford check (boundary) ──────────────────────────────────────────
+// The shop gold check is strict-less-than: `G.gold < item.cost`.
+// Exact amount must be sufficient.
+
+function canAffordItem(gold, cost) {
+  return gold >= cost;
+}
+
+describe('shop canAfford check', () => {
+  test('exact gold is sufficient (boundary case)', () => {
+    assert.equal(canAffordItem(15000, 15000), true, '15000 gold should afford 15000 cost');
+  });
+
+  test('one below cost is insufficient', () => {
+    assert.equal(canAffordItem(14999, 15000), false, '14999 gold should not afford 15000 cost');
+  });
+
+  test('surplus gold is sufficient', () => {
+    assert.equal(canAffordItem(20000, 15000), true);
+  });
+
+  test('zero gold cannot afford any cost', () => {
+    assert.equal(canAffordItem(0, 1), false);
   });
 });
