@@ -2135,7 +2135,7 @@ _syncLogUI(G.showLog !== false);
 let _noSyncWarned = false;
 function _maybeWarnNoSync() {
   if (_cloudUser || _noSyncWarned) return;
-  if (!_cloudAuthSettled) { setTimeout(_maybeWarnNoSync, 5000); return; }
+  if (!_cloudAuthSettled || _pendingReconnect) { setTimeout(_maybeWarnNoSync, 5000); return; }
   _noSyncWarned = true;
   msg('☁️ Not synced — go to ⚙️ Settings → Cloud Save to back up your progress', 'noSync');
 }

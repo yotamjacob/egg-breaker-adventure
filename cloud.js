@@ -371,8 +371,9 @@ async function _attemptSilentReconnect() {
         return;
       }
     }
-    // 4xx = token is definitively expired/invalid — give up and let user re-link
-    if (resp.status >= 400 && resp.status < 500) {
+    // 401/403 = token definitively invalid/revoked — give up and let user re-link
+    // Other 4xx (e.g. 429 rate-limit) and 5xx are transient — keep retrying on foreground
+    if (resp.status === 401 || resp.status === 403) {
       _oauthLog('RECONNECT: token invalid (HTTP ' + resp.status + ') — clearing reconnect state');
       _pendingReconnect = false;
       try { localStorage.removeItem('_cloudRefTok'); } catch (e) {}
