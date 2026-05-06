@@ -1366,9 +1366,9 @@ function goToSkills() {
 }
 
 const _SKILL_COSTS = [
-  { feathers: 350, gold: 100000 },
-  { feathers: 550, gold: 175000 },
-  { feathers: 750, gold: 300000 },
+  { feathers: 450, gold: 125000 },
+  { feathers: 700, gold: 220000 },
+  { feathers: 1000, gold: 375000 },
 ];
 // Per-skill cooldown arrays [base, upgrade1, upgrade2]
 const _SKILL_COOLDOWNS = [
@@ -1376,7 +1376,7 @@ const _SKILL_COOLDOWNS = [
   [300, 250, 200],  // Golden Goose
   [400, 350, 300],  // Banana Shake
 ];
-const _SKILL_UPGRADE_COSTS = { gold: [140000, 140000], feathers: [150, 150] };
+const _SKILL_UPGRADE_COSTS = { gold: [175000, 175000], feathers: [200, 200] };
 
 function skillCooldownThreshold(idx) {
   const level = Math.min(2, (G.skillUpgrades || [0,0,0])[idx] || 0);
