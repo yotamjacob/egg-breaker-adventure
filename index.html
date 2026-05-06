@@ -376,6 +376,10 @@
               <input type="checkbox" id="cloud-autosave-cb" onchange="toggleCloudAutoSave(this.checked)" disabled>
               Auto-save every 15 minutes
             </label>
+            <div class="cloud-debug-row hidden" id="cloud-debug-row">
+              <button class="cloud-debug-btn" onclick="showCloudLog()">📋 Cloud Log</button>
+              <button class="cloud-debug-btn" onclick="showOauthDebugLog()">📋 Auth Log</button>
+            </div>
           </div>
         </div>
       </div>

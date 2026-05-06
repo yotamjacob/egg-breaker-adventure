@@ -264,6 +264,9 @@ function _renderCloudModal() {
     cbEl.disabled = !linked;
     cbEl.closest('.cloud-autosave-row').classList.toggle('disabled', !linked);
   }
+  // Show debug log buttons only when there's a connection problem to diagnose
+  const debugRow = $id('cloud-debug-row');
+  if (debugRow) debugRow.classList.toggle('hidden', !_pendingReconnect && _cloudHealthy !== false);
 }
 
 function _startCloudAutoSave() {
