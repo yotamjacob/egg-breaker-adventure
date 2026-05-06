@@ -1947,10 +1947,14 @@ $id('nav-tabs').addEventListener('click', (e) => {
   tab.classList.add('active');
   $id('panel-' + name).classList.add('active');
   // Refresh content when switching tabs
-  if (name === 'play' && (_trayNeedsRender || !$id('egg-tray').children.length)) {
-    // rAF ensures the browser has laid out the panel (display:flex) before
-    // renderEggTray reads offsetWidth/offsetHeight for egg positioning.
-    requestAnimationFrame(renderEggTray);
+  if (name === 'play') {
+    // rAF ensures the browser has laid out the panel before reading dimensions.
+    // Always resize the particle canvas — it may have been zeroed by a window
+    // resize event that fired while the play panel was collapsed (flex:0 0 0).
+    requestAnimationFrame(() => {
+      Particles.resize();
+      if (_trayNeedsRender || !$id('egg-tray').children.length) renderEggTray();
+    });
   }
   if (name === 'album') renderAlbum();
   if (name === 'monkeys') renderMonkeys();

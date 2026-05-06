@@ -11,8 +11,12 @@ const Particles = (() => {
   CONFIG.eggTypes.forEach(function(def) { COLORS[def.id] = def.particles; });
   function init(c) { canvas = c; ctx = c.getContext('2d'); resize(); window.addEventListener('resize', resize); }
   function resize() {
-    if (!canvas.parentElement) return;
+    if (!canvas || !canvas.parentElement) return;
     const r = canvas.parentElement.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    // Panel is collapsed (flex:0 0 0 when tab is hidden) — skip to avoid zeroing the canvas.
+    // Without this guard a window resize while on another tab sets canvas to 0×0 and
+    // particles become invisible when the user returns to the play tab.
+    if (r.width === 0 || r.height === 0) return;
     canvas.width = r.width * dpr; canvas.height = r.height * dpr;
     canvas.style.width = r.width + 'px'; canvas.style.height = r.height + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -50,7 +54,7 @@ const Particles = (() => {
     }
     _tryStart();
   }
-  function resume() { running = false; _tryStart(); }
+  function resume() { resize(); running = false; _tryStart(); }
   function _tryStart() {
     if (ps.length === 0 || document.hidden) return;
     if (!running || performance.now() - _lastTick > 500) { running = false; loop(); }
