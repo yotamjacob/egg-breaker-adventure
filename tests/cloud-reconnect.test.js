@@ -18,10 +18,14 @@ const assert = require('node:assert/strict');
 //   200+access_token = success → restore session
 
 function reconnectGivesUp(status) {
-  return status === 401 || status === 403;
+  return status === 400 || status === 401 || status === 403;
 }
 
 describe('reconnect HTTP status decision', () => {
+  test('400 (invalid_grant — token expired/rotated) → give up permanently', () => {
+    assert.equal(reconnectGivesUp(400), true);
+  });
+
   test('401 (invalid/expired token) → give up permanently', () => {
     assert.equal(reconnectGivesUp(401), true);
   });
