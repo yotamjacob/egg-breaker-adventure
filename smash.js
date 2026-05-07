@@ -310,11 +310,17 @@ const NO_HAMMER_MSGS = [
   'Zero hammers. Infinite sadness.',
   'Patience is a virtue you don\'t have.',
 ];
+function _nudgeShopTab() {
+  const shopTab = document.querySelector('.nav-tab[data-tab="shop"]');
+  if (!shopTab) return;
+  shopTab.classList.add('shop-nudge');
+  setTimeout(() => shopTab.classList.remove('shop-nudge'), 6000);
+}
+
 function noHammerMsg() {
   if (!_shopNudgeDone) {
     _shopNudgeDone = true;
-    const shopTab = document.querySelector('.nav-tab[data-tab="shop"]');
-    if (shopTab) shopTab.classList.add('shop-nudge');
+    _nudgeShopTab();
     return 'Out of hammers — buy more in the Shop!';
   }
   return NO_HAMMER_MSGS[Math.floor(Math.random() * NO_HAMMER_MSGS.length)];
@@ -355,8 +361,7 @@ function checkSpyglassHint() {
   if (!G['owned_spyglass'] && !G._spyglassHintShown && G.gold >= 5000) {
     G._spyglassHintShown = true;
     msg('💰 You have 5,000 gold! Buy the Spyglass 🔍 in the Shop to reveal egg names.', 'discovery');
-    const shopTab = document.querySelector('.nav-tab[data-tab="shop"]');
-    if (shopTab) shopTab.classList.add('shop-nudge');
+    _nudgeShopTab();
     saveGame();
   }
 }
