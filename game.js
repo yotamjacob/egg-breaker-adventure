@@ -1372,9 +1372,9 @@ const _SKILL_COSTS = [
 ];
 // Per-skill cooldown arrays [base, upgrade1, upgrade2]
 const _SKILL_COOLDOWNS = [
-  [300, 250, 200],  // Monkey Rage
-  [300, 250, 200],  // Golden Goose
-  [400, 350, 300],  // Banana Shake
+  [350, 300, 250],  // Monkey Rage
+  [350, 300, 250],  // Golden Goose
+  [450, 400, 350],  // Banana Shake
 ];
 const _SKILL_UPGRADE_COSTS = { gold: [175000, 175000], feathers: [200, 200] };
 
