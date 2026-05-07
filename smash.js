@@ -116,10 +116,13 @@ function rollPrize(eggType) {
   if (hasBonus('allfather'))  { w.star *= 1.1; w.feather *= 1.1; }
 
   // Mr Monkey: more item drops; feathers locked until completed
+  // Odin/Wukon: items a bit rarer (harder late-game collections)
   // All other monkeys: items are rarer (harder to fill later collections)
   if (monkey && monkey.id === 'mr_monkey') {
     w.item *= 1.5;
     if (!G.monkeys[0]?.completed) w.feather = 0;
+  } else if (monkey && (monkey.id === 'odin' || monkey.id === 'sun_wukong')) {
+    w.item *= 0.6;
   } else if (monkey) {
     w.item *= 0.7;
   }

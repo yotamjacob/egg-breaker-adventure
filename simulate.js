@@ -503,7 +503,7 @@ console.log(`  naturalH = sessions × maxH + ${DAILY_LOGIN_AVG} daily login.`);
 console.log(`  Shake gives FREE refill to maxH every shakeCD eggs (NOT from regen budget).`);
 console.log(`  Rage dumps ALL hammers instantly every rageCD eggs → enables cap cycling.\n`);
 
-const WUKONG_EGGS    = 25_000;
+const WUKONG_EGGS    = 30_000;
 const SPEEDRUN_EGGS  = 25_000;  // ~actual eggs from all 54 stages (updated below after run)
 
 for (const player of PLAYER_TYPES) {
