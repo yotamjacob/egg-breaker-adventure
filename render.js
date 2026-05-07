@@ -1335,9 +1335,11 @@ function renderSkills() {
         const goldCost = _SKILL_UPGRADE_COSTS.gold[level];
         const featherCost = _SKILL_UPGRADE_COSTS.feathers[level];
         const canAff = G.gold >= goldCost && G.feathers >= featherCost;
+        const fOk2 = G.feathers >= featherCost;
+        const gOk2 = G.gold >= goldCost;
         upgradeHtml = `<div class="skill-upgrade-row">
           <div class="skill-upgrade-label">Upgrade: ${nextCd} egg cooldown</div>
-          <button class="skill-upgrade-btn${canAff ? '' : ' skill-btn-dim'}" onclick="buySkillUpgrade(${i})"${canAff ? '' : ' disabled'}>${featherCost} 🪶 + ${formatNum(goldCost)} 🪙</button>
+          <button class="skill-upgrade-btn${canAff ? '' : ' skill-btn-dim'}" onclick="buySkillUpgrade(${i})"${canAff ? '' : ' disabled'}><span class="${fOk2 ? 'skill-cost-ok' : 'skill-cost-no'}">${featherCost} 🪶</span> + <span class="${gOk2 ? 'skill-cost-ok' : 'skill-cost-no'}">${formatNum(goldCost)} 🪙</span></button>
         </div>`;
       } else {
         upgradeHtml = `<div class="skill-maxed-badge">★ MAX LEVEL ★</div>`;
