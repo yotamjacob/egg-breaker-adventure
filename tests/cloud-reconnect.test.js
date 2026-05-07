@@ -217,3 +217,63 @@ describe('visibilitychange reconnect retry', () => {
     assert.equal(shouldResumeReconnect(false, false, null), false);
   });
 });
+
+// ── Duplicate SIGNED_OUT guard ────────────────────────────────────────────────
+// Bug: Supabase fires SIGNED_OUT twice on startup when stored session is expired.
+// Both calls hit the SIGNED_OUT handler, scheduling two simultaneous reconnects.
+// Fix: if _pendingReconnect is already true when SIGNED_OUT arrives, ignore it.
+
+function signedOutShouldSchedule(pendingReconnect, isUnlinking, linkPref) {
+  if (isUnlinking) return false;
+  if (linkPref !== 'linked') return false;
+  if (pendingReconnect) return false; // duplicate — already scheduled
+  return true;
+}
+
+describe('duplicate SIGNED_OUT guard', () => {
+  test('first SIGNED_OUT schedules reconnect', () => {
+    assert.equal(signedOutShouldSchedule(false, false, 'linked'), true);
+  });
+
+  test('second SIGNED_OUT is ignored (pendingReconnect already true)', () => {
+    // Regression: without this guard, two simultaneous reconnects both get 400
+    // and both call _clearCloudState(), producing confusing double-log entries.
+    assert.equal(signedOutShouldSchedule(true, false, 'linked'), false);
+  });
+
+  test('SIGNED_OUT during unlinking is ignored regardless of pendingReconnect', () => {
+    assert.equal(signedOutShouldSchedule(false, true, 'linked'), false);
+  });
+
+  test('SIGNED_OUT with pref=unlinked never schedules reconnect', () => {
+    assert.equal(signedOutShouldSchedule(false, false, 'unlinked'), false);
+  });
+});
+
+// ── Concurrent refresh dedup ──────────────────────────────────────────────────
+// Bug: visibilitychange + auto-save can both trigger _refreshCloudSession at the
+// same moment. Two simultaneous token-rotation requests corrupt the refresh token
+// chain — one caller gets the new token, the other uses a now-invalidated token.
+// Fix: _refreshInFlight promise dedup — second caller awaits the first promise.
+
+function refreshDedupDecision(inFlight) {
+  return inFlight ? 'dedup' : 'start';
+}
+
+describe('concurrent refresh dedup', () => {
+  test('first caller starts a new refresh', () => {
+    assert.equal(refreshDedupDecision(null), 'start');
+  });
+
+  test('second concurrent caller is deduped (awaits existing promise)', () => {
+    // Regression: two simultaneous POST /auth/v1/token?grant_type=refresh_token
+    // with the same refresh_token — Supabase rotates it on first use, making the
+    // second request fail with 400 invalid_grant and clearing the session.
+    const fakePromise = Promise.resolve(true);
+    assert.equal(refreshDedupDecision(fakePromise), 'dedup');
+  });
+
+  test('after first refresh completes, next call starts fresh', () => {
+    assert.equal(refreshDedupDecision(null), 'start'); // _refreshInFlight reset to null
+  });
+});

@@ -151,6 +151,10 @@ function initCloudSave() {
     if (event === 'SIGNED_OUT' && !_cloudUnlinking) {
       const lp = (() => { try { return localStorage.getItem('_cloudLinkPref'); } catch (e) { return null; } })();
       if (lp === 'linked') {
+        if (_pendingReconnect) {
+          _oauthLog('AUTH: duplicate SIGNED_OUT — reconnect already pending, ignoring');
+          return;
+        }
         _oauthLog('AUTH: unexpected SIGNED_OUT, pref=linked — scheduling silent reconnect');
         _cloudSession = null; _cloudUser = null;
         _pendingReconnect = true;
@@ -290,7 +294,17 @@ function _startCloudAutoSave() {
 // state machine — more reliable on Android after long background pauses where
 // JS timers were throttled and the SDK's auto-refresh never fired). Falls back
 // to the SDK call if the raw fetch fails.
+// In-flight dedup: if two callers race (e.g. visibilitychange + auto-save), the
+// second awaits the same promise instead of sending a second token-rotation request
+// (which could corrupt the refresh token chain).
+let _refreshInFlight = null;
 async function _refreshCloudSession() {
+  if (_refreshInFlight) { _cloudLog('REFRESH: deduped (refresh already in flight)'); return _refreshInFlight; }
+  _refreshInFlight = _doRefreshCloudSession();
+  _refreshInFlight.finally(() => { _refreshInFlight = null; });
+  return _refreshInFlight;
+}
+async function _doRefreshCloudSession() {
   _cloudLog('REFRESH: start expires_at=' + (_cloudSession?.expires_at || 'none'));
   const refreshToken = _cloudSession?.refresh_token;
 
