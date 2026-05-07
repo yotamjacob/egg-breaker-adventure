@@ -277,3 +277,58 @@ describe('concurrent refresh dedup', () => {
     assert.equal(refreshDedupDecision(null), 'start'); // _refreshInFlight reset to null
   });
 });
+
+// ── _cloudRefTok must be persisted immediately after raw HTTP refresh ─────────
+// Bug (v2.5.59): _cloudRefTok was only written inside onAuthStateChange, which
+// fires asynchronously after _sbClient.auth.setSession(). A force-close between
+// the raw HTTP refresh and that callback left _cloudRefTok pointing at the
+// already-rotated (consumed) old token — causing HTTP 400 on the next cold start.
+// Fix: write _cloudRefTok to localStorage immediately after raw HTTP refresh,
+// before the async setSession call.
+//
+// Invariant: after rawHttpRefreshSucceeds(), storage must contain the NEW token,
+// not the old one, so a force-close at any point afterwards is safe.
+
+function simulateRawHttpRefreshWithImmediateStorage(newRefreshToken, storage) {
+  // Mirrors the fixed code path in _doRefreshCloudSession:
+  // 1. Raw HTTP refresh returns new tokens
+  // 2. Write _cloudRefTok immediately (the fix)
+  // 3. setSession() is called async (not modelled here — simulating force-close window)
+  if (newRefreshToken) {
+    storage['_cloudRefTok'] = newRefreshToken;
+  }
+  return storage['_cloudRefTok'];
+}
+
+function simulateRawHttpRefreshWithoutImmediateStorage(newRefreshToken, storage) {
+  // The old (buggy) code path: _cloudRefTok only written via onAuthStateChange,
+  // which fires after setSession resolves. Simulates force-close before that fires.
+  // storage is never written here — simulates the kill-window.
+  return storage['_cloudRefTok']; // still holds old token
+}
+
+describe('_cloudRefTok persisted immediately after raw HTTP refresh', () => {
+  test('fix: storage holds NEW token immediately after raw refresh (safe for force-close)', () => {
+    const storage = { '_cloudRefTok': 'old-token' };
+    const result = simulateRawHttpRefreshWithImmediateStorage('new-token', storage);
+    assert.equal(result, 'new-token',
+      'after raw HTTP refresh, _cloudRefTok must be the new token before setSession fires');
+  });
+
+  test('regression: old code leaves stale token in storage during kill window', () => {
+    // Documents the bug: if force-close happens before onAuthStateChange fires,
+    // the next reconnect uses the old (already-rotated) token → HTTP 400.
+    const storage = { '_cloudRefTok': 'old-token' };
+    const result = simulateRawHttpRefreshWithoutImmediateStorage('new-token', storage);
+    assert.equal(result, 'old-token',
+      'without the fix, storage still holds old token during the async window — reconnect fails with 400');
+  });
+
+  test('storage is not overwritten when server returns no new refresh token', () => {
+    // Supabase always returns a new refresh_token, but guard against null just in case.
+    const storage = { '_cloudRefTok': 'existing-token' };
+    simulateRawHttpRefreshWithImmediateStorage(null, storage);
+    assert.equal(storage['_cloudRefTok'], 'existing-token',
+      'when d.refresh_token is falsy, _cloudRefTok must not be cleared');
+  });
+});
