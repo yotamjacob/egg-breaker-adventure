@@ -328,6 +328,13 @@ async function _doRefreshCloudSession() {
             expires_at:    Math.floor(Date.now() / 1000) + (d.expires_in || 3600),
             user:          _cloudSession?.user,
           };
+          // Persist the new refresh token immediately — before the async setSession call.
+          // Without this, a force-close between here and the onAuthStateChange callback
+          // leaves _cloudRefTok pointing at the already-rotated (invalid) old token,
+          // causing HTTP 400 on the next silent reconnect attempt.
+          if (d.refresh_token) {
+            try { localStorage.setItem('_cloudRefTok', d.refresh_token); } catch (e) {}
+          }
           // Keep SDK's internal state in sync so autoRefreshToken works going forward.
           _sbClient.auth.setSession({ access_token: d.access_token, refresh_token: d.refresh_token || refreshToken }).catch(() => {});
           _cloudLog('REFRESH: raw HTTP ok expires_in=' + (d.expires_in || '?'));
