@@ -102,7 +102,7 @@ const DEFAULT_STATE = {
   _reviewPromptShown: false,
   _secretOuch: false, _secretChicken: false, _secretStrikes: false,
   _secretSpeed: false, _secretSweep: false,
-  _secretMidnight: false, _secretLeet: false, _secretChef: false,
+  _secretMidnight: false, _secretChef: false,
   _midnightToday: null,
   // Cloud save
   _savedAt: 0,
@@ -2055,12 +2055,6 @@ applyPrize = function(prize, cx, cy) {
     msg('🌙 Night owl! The eggs were sleeping...', 'discovery');
     G._secretMidnight = true; checkAchievements(); saveGame();
     updateStarBtn();
-  }
-
-  // l33t gold check
-  if (G.gold === 1337) {
-    msg('l33t h4ck3r detected', 'discovery');
-    G._secretLeet = true; checkAchievements(); saveGame();
   }
 
   // #10: 10000 normal eggs

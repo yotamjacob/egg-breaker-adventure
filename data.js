@@ -703,7 +703,6 @@ const SECRET_ACHIEVEMENTS = [
   { id:'secret_ouch',     name:'Sorry Little Egg',      desc:'An egg said ouch',                 icon:'🥺', reward:{type:'gold',val:100,  label:'+100 gold'} },
   { id:'secret_chicken',  name:'Why Did It Cross?',     desc:'Spot the runaway chicken',         icon:'🐔', reward:{type:'gold',val:200,  label:'+200 gold'} },
   { id:'secret_midnight', name:'Night Owl',             desc:'Break eggs at midnight',           icon:'🌙', reward:{type:'starPieces',val:3, label:'+3 star pieces'} },
-  { id:'secret_leet',     name:'l33t',                  desc:'Have exactly 1337 gold',           icon:'💻', reward:{type:'gold',val:1337, label:'+1,337 gold'} },
   { id:'secret_strikes',  name:'Three Strikes',         desc:'Get 3 empties in a row',           icon:'⚾', reward:{type:'gold',val:100,  label:'+100 gold'} },
   { id:'secret_chef',     name:'Could\'ve Been a Chef', desc:'Break 10,000 normal eggs',         icon:'👨‍🍳', reward:{type:'maxH',val:5,    label:'+5 max hammers'} },
 ];
