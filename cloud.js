@@ -739,6 +739,7 @@ function _applyCloudSave(saveData) {
     migrateSave(G);
     saveGame();
     renderAll();
+    checkSkillsUnlock();
     MUSIC.play(curMonkey().id);
     // Premium items are stored separately from game progress — re-apply after
     // loading cloud save so items bought on any platform are restored automatically.
