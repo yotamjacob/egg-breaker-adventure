@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Press Kit – Egg Smash Adventures</title>
+  <meta name="description" content="Official press kit for Egg Smash Adventures — a pixel-art idle clicker for Android by YotJac (Yotam Jacob)." />
+  <meta property="og:title" content="Press Kit – Egg Smash Adventures" />
+  <meta property="og:description" content="A pixel-art idle clicker for Android. No ads. No timers. No paywalls." />
+  <meta property="og:image" content="https://egg-breaker-adventures.vercel.app/icon-512.png" />
+  <meta name="robots" content="index, follow" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:     #0d1b2a;
+      --bg2:    #0f2136;
+      --panel:  #0f2944;
+      --border: #1b3554;
+      --gold:   #f5a623;
+      --gold2:  #c47d0e;
+      --green:  #4ade80;
+      --white:  #e8f0fe;
+      --gray:   #7a8fa6;
+      --px: 'Press Start 2P', monospace;
+      --vt: 'VT323', monospace;
+      --body: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* CRT scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,.07) 2px, rgba(0,0,0,.07) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    body {
+      font-family: var(--body);
+      background: var(--bg);
+      color: var(--white);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,27,42,.96);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      padding: .7rem 0;
+    }
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      text-decoration: none;
+    }
+    .nav-logo img {
+      width: 26px;
+      height: 26px;
+      image-rendering: pixelated;
+      border: 1px solid rgba(245,166,35,.4);
+      border-radius: 4px;
+    }
+    .nav-logo span {
+      font-family: var(--px);
+      font-size: .48rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+    }
+    .nav-links a {
+      font-family: var(--px);
+      font-size: .42rem;
+      color: var(--gray);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      transition: color .12s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ── Container ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 4.5rem 0 3.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 55% at 50% 110%, rgba(245,166,35,.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-icon {
+      display: block;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 1.5rem;
+      image-rendering: pixelated;
+      border: 3px solid rgba(245,166,35,.7);
+      border-radius: 18px;
+      box-shadow: 6px 6px 0 rgba(0,0,0,.5), 0 0 32px rgba(245,166,35,.12);
+    }
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--vt);
+      font-size: 1.15rem;
+      color: var(--green);
+      background: rgba(74,222,128,.09);
+      border: 1px solid rgba(74,222,128,.3);
+      padding: .2rem .85rem;
+      letter-spacing: .1em;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-family: var(--px);
+      font-size: clamp(.9rem, 2.5vw, 1.6rem);
+      color: var(--gold);
+      line-height: 1.65;
+      text-shadow: 4px 4px 0 rgba(0,0,0,.5);
+      margin-bottom: .85rem;
+    }
+    .hero-tagline {
+      font-family: var(--body);
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: #9ab3cc;
+      max-width: 480px;
+      margin: 0 auto 2.25rem;
+      line-height: 1.7;
+    }
+    .hero-ctas {
+      display: flex;
+      gap: .85rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── 8-bit Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-family: var(--px);
+      font-size: .5rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: .8rem 1.3rem;
+      border: 2px solid;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .07s, box-shadow .07s;
+      line-height: 1;
+    }
+    .btn:hover { text-decoration: none; transform: translate(-2px, -2px); }
+    .btn:active { transform: translate(2px, 2px); box-shadow: none !important; }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #0d1b2a;
+      border-color: var(--gold2);
+      box-shadow: 4px 4px 0 #6a4000;
+    }
+    .btn-gold:hover { box-shadow: 6px 6px 0 #6a4000; color: #0d1b2a; }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--gold);
+      border-color: rgba(245,166,35,.6);
+      box-shadow: 4px 4px 0 rgba(245,166,35,.18);
+    }
+    .btn-outline:hover { box-shadow: 6px 6px 0 rgba(245,166,35,.18); color: var(--gold); }
+
+    .btn-green {
+      background: transparent;
+      color: var(--green);
+      border-color: rgba(74,222,128,.5);
+      box-shadow: 4px 4px 0 rgba(74,222,128,.15);
+    }
+    .btn-green:hover { box-shadow: 6px 6px 0 rgba(74,222,128,.15); color: var(--green); }
+
+    .btn-sm {
+      font-size: .4rem;
+      padding: .55rem .9rem;
+      box-shadow: 2px 2px 0 rgba(245,166,35,.2);
+    }
+    .btn-sm:hover { box-shadow: 4px 4px 0 rgba(245,166,35,.2) !important; }
+
+    /* ── Two-column body ── */
+    .press-body {
+      display: grid;
+      grid-template-columns: 1fr 272px;
+      gap: 2.5rem;
+      align-items: start;
+      padding: 3rem 0 5rem;
+    }
+
+    /* ── Section ── */
+    .section { margin-bottom: 3rem; }
+
+    .section-title {
+      font-family: var(--px);
+      font-size: clamp(.48rem, 1.2vw, .72rem);
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 1.25rem;
+      padding-bottom: .6rem;
+      border-bottom: 2px dashed rgba(245,166,35,.25);
+    }
+
+    p {
+      font-size: 1rem;
+      color: #c8d6e8;
+      margin-bottom: 1rem;
+      line-height: 1.8;
+    }
+    a { color: var(--gold); }
+    a:hover { text-decoration: underline; }
+    strong { color: var(--white); }
+
+    /* ── History callout ── */
+    .callout {
+      border-left: 4px solid var(--gold);
+      background: rgba(245,166,35,.06);
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+    }
+    .callout p {
+      margin: 0;
+      font-style: italic;
+      color: #d4c4a0;
+      font-size: .975rem;
+    }
+
+    /* ── Features ── */
+    .features-list {
+      list-style: none;
+      display: grid;
+      gap: .65rem;
+    }
+    .features-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: .65rem;
+      font-size: .975rem;
+      color: #c8d6e8;
+      line-height: 1.65;
+    }
+    .features-list li::before {
+      content: '▶';
+      color: var(--gold);
+      font-size: .55rem;
+      flex-shrink: 0;
+      margin-top: .38rem;
+    }
+
+    /* ── Video placeholder ── */
+    .video-wrap {
+      background: var(--panel);
+      border: 2px dashed var(--border);
+      aspect-ratio: 16 / 9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .75rem;
+      text-align: center;
+      padding: 2rem;
+    }
+    .video-play {
+      font-size: 3.5rem;
+      opacity: .25;
+      line-height: 1;
+    }
+    .video-label {
+      font-family: var(--vt);
+      font-size: 1.6rem;
+      color: var(--gray);
+      letter-spacing: .08em;
+    }
+    .video-sub {
+      font-size: .9rem;
+      color: var(--gray);
+      margin: 0;
+    }
+
+    /* ── Gallery ── */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .gallery-item {
+      border: 2px solid var(--border);
+      background: var(--panel);
+      overflow: hidden;
+      transition: border-color .15s, transform .1s, box-shadow .1s;
+      cursor: pointer;
+    }
+    .gallery-item:hover {
+      border-color: var(--gold);
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 rgba(245,166,35,.18);
+    }
+    .gallery-item img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .gallery-label {
+      font-family: var(--px);
+      font-size: .38rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: .55rem .75rem;
+      text-align: center;
+    }
+    .gallery-note {
+      margin-top: .85rem;
+      font-size: .875rem;
+      color: var(--gray);
+    }
+
+    /* ── Logo downloads ── */
+    .logo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 1rem;
+    }
+    .logo-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      padding: 1.5rem 1rem 1.25rem;
+      text-align: center;
+      transition: border-color .15s;
+    }
+    .logo-card:hover { border-color: rgba(245,166,35,.4); }
+    .logo-card img {
+      width: 72px;
+      height: 72px;
+      image-rendering: pixelated;
+      margin: 0 auto .85rem;
+      display: block;
+    }
+    .logo-card-name {
+      display: block;
+      font-family: var(--px);
+      font-size: .38rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: .75rem;
+    }
+
+    /* ── Factsheet sidebar ── */
+    .factsheet { position: sticky; top: 58px; }
+    .factsheet-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      padding: 1.5rem;
+    }
+    .fact-group { margin-bottom: 1rem; }
+    .fact-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .2rem .7rem;
+      margin-bottom: .65rem;
+      align-items: start;
+    }
+    .fact-label {
+      font-family: var(--px);
+      font-size: .42rem;
+      color: rgba(245,166,35,.8);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      padding-top: .2rem;
+      white-space: nowrap;
+    }
+    .fact-value {
+      font-size: .9rem;
+      color: #c8d6e8;
+      line-height: 1.5;
+    }
+    .fact-value a { color: var(--gold); word-break: break-all; }
+    .fact-value small { color: var(--gray); font-size: .8rem; display: block; }
+    .fact-divider {
+      border: none;
+      border-top: 1px dashed rgba(245,166,35,.18);
+      margin: 1rem 0;
+    }
+
+    /* ── Contact card ── */
+    .contact-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      padding: 1.75rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .contact-body { flex: 1; min-width: 200px; }
+    .contact-eyebrow {
+      font-family: var(--px);
+      font-size: .45rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: .6rem;
+      display: block;
+    }
+    .contact-email {
+      font-family: var(--vt);
+      font-size: 1.5rem;
+      color: var(--gold);
+      letter-spacing: .04em;
+      text-decoration: none;
+    }
+    .contact-email:hover { text-decoration: underline; }
+    .contact-meta { font-size: .875rem; color: var(--gray); margin-top: .5rem; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 0;
+      text-align: center;
+    }
+    footer p {
+      font-family: var(--px);
+      font-size: .4rem;
+      color: var(--gray);
+      letter-spacing: .05em;
+      margin: 0;
+    }
+    footer a { color: var(--gray); }
+    footer a:hover { color: var(--gold); }
+
+    /* ── Responsive ── */
+    @media (max-width: 800px) {
+      .press-body {
+        grid-template-columns: 1fr;
+      }
+      .factsheet {
+        position: static;
+        order: -1;
+      }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 480px) {
+      .hero { padding: 3rem 0 2.5rem; }
+      .hero-icon { width: 80px; height: 80px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-logo" href="/">
+        <img src="/icon-192.png" alt="Egg Smash Adventures">
+        <span>Press Kit</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#description">About</a></li>
+        <li><a href="#history">History</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#screenshots">Screenshots</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="/">← Game</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <img class="hero-icon" src="/icon-512.png" alt="Egg Smash Adventures app icon">
+      <div class="hero-badge">OFFICIAL PRESS KIT</div>
+      <h1>Egg Smash Adventures</h1>
+      <p class="hero-tagline">A pixel-art idle clicker for Android.<br>No ads. No timers. No paywalls.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-gold" href="https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app" target="_blank" rel="noopener">
+          ▶ Play Store
+        </a>
+        <a class="btn btn-outline" href="#" id="download-kit">
+          ↓ Press Kit ZIP
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Body -->
+  <div class="container">
+    <div class="press-body">
+
+      <!-- Main content -->
+      <main>
+
+        <!-- Description -->
+        <section class="section" id="description">
+          <h2 class="section-title">Description</h2>
+          <p><strong>Egg Smash Adventures</strong> is a pixel-art idle clicker for Android where you smash eggs to discover hundreds of items across six themed monkey worlds. Built by a solo developer with zero ads, no energy timers, and no paywalls — just pure incremental fun the way it used to be.</p>
+          <p>Collect items by cracking eggs ranging from Common to the mythical Century Egg. Unlock monkey companions, equip cosmetic hats for stat bonuses, activate skills, and chase chain multipliers during Starfall events. Progress is offline-friendly, cloud-saved via Google, and entirely self-paced.</p>
+          <p>The premium shop offers cosmetic and convenience upgrades as one-time purchases. Nothing is locked behind a paywall — the full game is free to play.</p>
+        </section>
+
+        <!-- History -->
+        <section class="section" id="history">
+          <h2 class="section-title">History</h2>
+          <p>The original <em>Egg Breaker</em> was a Lab Pixies Facebook game from 2008 that quietly built a cult following over nearly a decade. Players tapped to crack eggs, collected items, and unlocked new worlds — a simple loop that turned out to be oddly compelling. When Lab Pixies shut down around 2016, the game disappeared with no successor and no announcement.</p>
+          <div class="callout">
+            <p>"I played the original constantly as a kid. When it vanished, I figured someone would eventually remake it — nobody did. So in 2025 I built it myself."</p>
+          </div>
+          <p>Egg Smash Adventures is a faithful spiritual successor: the same satisfying core loop, rebuilt from scratch with modern pixel art and six all-new monkey worlds — each with its own theme, lore, and collection. It launched on Android in May 2026.</p>
+          <p>The design philosophy is a direct reaction to what mobile clickers became: no interstitial ads, no eight-hour energy timers, no loot-box paywalls. Just the game.</p>
+        </section>
+
+        <!-- Features -->
+        <section class="section" id="features">
+          <h2 class="section-title">Features</h2>
+          <ul class="features-list">
+            <li><strong>6 monkey companions</strong> — Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir, and Sun Wukong — each with their own world and themed item collection</li>
+            <li>9 stages per monkey, <strong>hundreds of unique items</strong> to discover</li>
+            <li><strong>7 egg tiers</strong> from Normal up to the mythical Century Egg</li>
+            <li>Chain multipliers and <strong>Starfall events</strong> for high-stakes runs</li>
+            <li>3 active skills — <strong>Monkey Rage, Golden Goose, and Banana Shake</strong></li>
+            <li>Permanent shop upgrades and 8 special hammers: Mjölnir, Judge Gavel, Cucumber, Rainbow, Drumstick, Bat, Crystal, and Golden</li>
+            <li><strong>Hat customization</strong> for cosmetic flair and stat bonuses</li>
+            <li>Daily rewards with streak escalation and Double Daily bonus</li>
+            <li><strong>Cloud save via Google</strong> — progress syncs across reinstalls</li>
+            <li>Dozens of achievements plus hidden secrets to uncover</li>
+            <li class="highlight"><strong>No ads · No energy timers · No paywalls</strong></li>
+          </ul>
+        </section>
+
+        <!-- Videos -->
+        <section class="section" id="videos">
+          <h2 class="section-title">Videos</h2>
+          <div class="video-wrap">
+            <div class="video-play">▶</div>
+            <div class="video-label">GAMEPLAY TRAILER</div>
+            <p class="video-sub">Video coming soon — embed will appear here</p>
+            <a class="btn btn-green" href="#" target="_blank" rel="noopener" style="margin-top:.25rem">Watch on YouTube</a>
+          </div>
+        </section>
+
+        <!-- Screenshots -->
+        <section class="section" id="screenshots">
+          <h2 class="section-title">Screenshots</h2>
+          <div class="gallery">
+            <div class="gallery-item">
+              <img src="/screenshots/screen-mobile.png" alt="Egg tray gameplay screen" loading="lazy">
+              <div class="gallery-label">Gameplay</div>
+            </div>
+            <div class="gallery-item">
+              <img src="/screenshots/screen-album.png" alt="Item collection album" loading="lazy">
+              <div class="gallery-label">Album</div>
+            </div>
+            <div class="gallery-item">
+              <img src="/screenshots/screen-shop.png" alt="Upgrade shop" loading="lazy">
+              <div class="gallery-label">Shop</div>
+            </div>
+          </div>
+          <p class="gallery-note">All screenshots are free to use for editorial and review coverage of Egg Smash Adventures.</p>
+        </section>
+
+        <!-- Logo & Icon -->
+        <section class="section" id="logos">
+          <h2 class="section-title">Logo &amp; Icon</h2>
+          <div class="logo-grid">
+            <div class="logo-card">
+              <img src="/icon-512.png" alt="App icon 512px">
+              <span class="logo-card-name">App Icon 512×512</span>
+              <a class="btn btn-outline btn-sm" href="/icon-512.png" download>↓ PNG</a>
+            </div>
+            <div class="logo-card">
+              <img src="/icon-192.png" alt="App icon 192px">
+              <span class="logo-card-name">App Icon 192×192</span>
+              <a class="btn btn-outline btn-sm" href="/icon-192.png" download>↓ PNG</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- About -->
+        <section class="section" id="about">
+          <h2 class="section-title">About the Developer</h2>
+          <p><strong>YotJac</strong> is the solo developer handle of Yotam Jacob, an indie developer based in Israel. Egg Smash Adventures is his first commercial mobile release — designed, coded, and shipped entirely independently, including art direction, pixel graphics, game design, and backend infrastructure (Supabase, Google Play Billing, cloud save).</p>
+          <p>YotJac founded his one-person studio in 2025 with a focus on games that respect the player's time. Egg Smash Adventures launched on Android in May 2026, with an iOS release planned for the future.</p>
+        </section>
+
+        <!-- Contact -->
+        <section class="section" id="contact">
+          <h2 class="section-title">Contact</h2>
+          <div class="contact-card">
+            <div class="contact-body">
+              <span class="contact-eyebrow">Press &amp; Media Enquiries</span>
+              <a class="contact-email" href="mailto:yotamjacob@gmail.com">yotamjacob@gmail.com</a>
+              <p class="contact-meta">Response time: usually within 48 hours.</p>
+            </div>
+            <a class="btn btn-gold" href="mailto:yotamjacob@gmail.com">Send Email</a>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Factsheet sidebar -->
+      <aside>
+        <div class="factsheet">
+          <div class="factsheet-card">
+            <h2 class="section-title">Factsheet</h2>
+
+            <div class="fact-group">
+              <div class="fact-row">
+                <span class="fact-label">Developer</span>
+                <span class="fact-value">YotJac<br><small>Yotam Jacob</small></span>
+              </div>
+              <div class="fact-row">
+                <span class="fact-label">Location</span>
+                <span class="fact-value">Israel</span>
+              </div>
+              <div class="fact-row">
+                <span class="fact-label">Founded</span>
+                <span class="fact-value">2025</span>
+              </div>
+            </div>
+
+            <hr class="fact-divider">
+
+            <div class="fact-group">
+              <div class="fact-row">
+                <span class="fact-label">Release</span>
+                <span class="fact-value">May 2026</span>
+              </div>
+              <div class="fact-row">
+                <span class="fact-label">Platforms</span>
+                <span class="fact-value">Android<small>iOS — planned</small></span>
+              </div>
+              <div class="fact-row">
+                <span class="fact-label">Genre</span>
+                <span class="fact-value">Idle · Clicker<br>Casual · Incremental</span>
+              </div>
+              <div class="fact-row">
+                <span class="fact-label">Price</span>
+                <span class="fact-value">Free<small>Optional premium shop</small></span>
+              </div>
+            </div>
+
+            <hr class="fact-divider">
+
+            <div class="fact-group">
+              <div class="fact-row">
+                <span class="fact-label">Website</span>
+                <span class="fact-value"><a href="https://egg-breaker-adventures.vercel.app" target="_blank" rel="noopener">egg-breaker-adventures<wbr>.vercel.app</a></span>
+              </div>
+              <div class="fact-row">
+                <span class="fact-label">Play Store</span>
+                <span class="fact-value"><a href="https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app" target="_blank" rel="noopener">View listing ↗</a></span>
+              </div>
+              <div class="fact-row">
+                <span class="fact-label">Privacy</span>
+                <span class="fact-value"><a href="/privacy">Privacy policy ↗</a></span>
+              </div>
+            </div>
+
+            <hr class="fact-divider">
+
+            <div class="fact-group">
+              <div class="fact-row">
+                <span class="fact-label">Contact</span>
+                <span class="fact-value"><a href="mailto:yotamjacob@gmail.com">yotamjacob<wbr>@gmail.com</a></span>
+              </div>
+              <div class="fact-row">
+                <span class="fact-label">Social</span>
+                <span class="fact-value" style="color:var(--gray); font-style:italic; font-size:.85rem">Coming soon</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>© 2026 YotJac &nbsp;·&nbsp; <a href="/privacy">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms">Terms</a> &nbsp;·&nbsp; <a href="/">Play the Game</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>
