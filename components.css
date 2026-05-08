@@ -141,6 +141,12 @@
 .settings-menu-btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--dark)}
 .settings-menu-btn:active{transform:translate(1px,1px);box-shadow:none}
 .settings-menu-btn .btn-label{flex:1}
+.settings-play-btn{
+  background:var(--panel)!important;
+  border-color:var(--gold)!important;color:var(--gold)!important;
+  box-shadow:2px 2px 0 var(--dark)!important;
+}
+.settings-play-btn:hover{background:rgba(245,197,66,.1)!important;transform:translate(-1px,-1px);}
 .settings-danger-btn{
   background:var(--panel)!important;
   border-color:var(--red)!important;color:var(--red)!important;
