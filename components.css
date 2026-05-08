@@ -72,7 +72,7 @@
 /* ---------- Settings menu + sub-modals (shared design) ---------- */
 .pop-settings,
 .pop-submodal{
-  width:75%;max-width:405px;max-height:75vh;
+  width:75%;max-width:405px;max-height:88vh;
   padding:0;gap:0;text-align:left;overflow:hidden;
   display:flex;flex-direction:column;align-items:stretch;
 }
