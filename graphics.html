@@ -180,6 +180,53 @@
     .copy-btn:hover { background: rgba(244,114,182,.1); }
     .copy-btn.copied { color: var(--green); border-color: rgba(74,222,128,.4); }
 
+    /* play/pause overlay */
+    .video-wrap { cursor: pointer; }
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.28);
+      transition: opacity .18s;
+    }
+    .video-wrap.playing .play-overlay { opacity: 0; pointer-events: none; }
+    .play-btn {
+      width: 62px; height: 62px;
+      background: rgba(13,27,42,.88);
+      border: 3px solid var(--gold);
+      color: var(--gold);
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 4px 4px 0 rgba(0,0,0,.55);
+      transition: transform .1s;
+      line-height: 1;
+      padding: 0 0 0 4px; /* optical centre for ▶ */
+    }
+    .play-btn:hover { transform: scale(1.08); }
+
+    /* download button */
+    .dl-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      font-family: var(--px);
+      font-size: .35rem;
+      color: var(--gold);
+      border: 1px solid rgba(245,166,35,.4);
+      background: transparent;
+      padding: .35rem .6rem;
+      margin-top: .4rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      text-decoration: none;
+      transition: background .12s;
+    }
+    .dl-btn:hover { background: rgba(245,166,35,.08); color: var(--gold); text-decoration: none; }
+
     .nav-links { list-style: none; display: flex; gap: 1.25rem; }
     .nav-links a {
       font-family: var(--px);
@@ -702,7 +749,7 @@
 
           <!-- 01 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/01-basic-gameplay.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/01-basic-gameplay.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">01 / 26</span>
               <div class="video-title">Tap. Crack. Collect.</div>
@@ -714,7 +761,7 @@
 
           <!-- 02 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/02-item-discovered.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/02-item-discovered.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">02 / 26</span>
               <div class="video-title">New item unlocked!</div>
@@ -726,7 +773,7 @@
 
           <!-- 03 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/03-rare-eggs.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/03-rare-eggs.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">03 / 26</span>
               <div class="video-title">Gold egg just dropped 👀</div>
@@ -738,7 +785,7 @@
 
           <!-- 04 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/04-multiplier-chain.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/04-multiplier-chain.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">04 / 26</span>
               <div class="video-title">x2 + x3 + x5 = x10 combo</div>
@@ -750,7 +797,7 @@
 
           <!-- 05 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/05-starfall.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/05-starfall.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">05 / 26</span>
               <div class="video-title">STARFALL ⭐</div>
@@ -762,7 +809,7 @@
 
           <!-- 06 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/06-monkey-rage.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/06-monkey-rage.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">06 / 26</span>
               <div class="video-title">MONKEY RAGE 🔥</div>
@@ -774,7 +821,7 @@
 
           <!-- 07 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/07-golden-goose.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/07-golden-goose.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">07 / 26</span>
               <div class="video-title">Golden Goose 🪙</div>
@@ -786,7 +833,7 @@
 
           <!-- 08 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/08-banana-shake.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/08-banana-shake.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">08 / 26</span>
               <div class="video-title">Banana Shake 🍌</div>
@@ -798,7 +845,7 @@
 
           <!-- 09 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/09-mr-monkey-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/09-mr-monkey-world.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">09 / 26</span>
               <div class="video-title">Mr. Monkey — Tropical Paradise 🌴</div>
@@ -810,7 +857,7 @@
 
           <!-- 10 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/10-steampunk-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/10-steampunk-world.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">10 / 26</span>
               <div class="video-title">Steampunk — The Workshop ⚙️</div>
@@ -822,7 +869,7 @@
 
           <!-- 11 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/11-princess-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/11-princess-world.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">11 / 26</span>
               <div class="video-title">Princess — The Royal Court 👑</div>
@@ -834,7 +881,7 @@
 
           <!-- 12 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/12-space-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/12-space-world.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">12 / 26</span>
               <div class="video-title">Space Cadette — The Cosmos 🚀</div>
@@ -846,7 +893,7 @@
 
           <!-- 13 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/13-odin-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/13-odin-world.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">13 / 26</span>
               <div class="video-title">Odin Grímnir — Norse Realm ⚡</div>
@@ -858,7 +905,7 @@
 
           <!-- 14 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/14-wukong-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/14-wukong-world.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">14 / 26</span>
               <div class="video-title">Sun Wukong — The Monkey King 🌸</div>
@@ -870,7 +917,7 @@
 
           <!-- 15 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/15-album-stages.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/15-album-stages.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">15 / 26</span>
               <div class="video-title">The Album 📖</div>
@@ -882,7 +929,7 @@
 
           <!-- 16 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/16-album-items.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/16-album-items.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">16 / 26</span>
               <div class="video-title">Gotta collect them all 🗂️</div>
@@ -894,7 +941,7 @@
 
           <!-- 17 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/17-stage-complete.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/17-stage-complete.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">17 / 26</span>
               <div class="video-title">Stage complete! 🎉</div>
@@ -906,7 +953,7 @@
 
           <!-- 18 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/18-trophies.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/18-trophies.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">18 / 26</span>
               <div class="video-title">Achievements 🏆</div>
@@ -918,7 +965,7 @@
 
           <!-- 19 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/19-shop-consumables.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/19-shop-consumables.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">19 / 26</span>
               <div class="video-title">The Shop 🛒</div>
@@ -930,7 +977,7 @@
 
           <!-- 20 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/20-special-hammers.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/20-special-hammers.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">20 / 26</span>
               <div class="video-title">Special Hammers 🔨</div>
@@ -942,7 +989,7 @@
 
           <!-- 21 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/21-premium-shop.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/21-premium-shop.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">21 / 26</span>
               <div class="video-title">Premium Shop 💎</div>
@@ -954,7 +1001,7 @@
 
           <!-- 22 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/22-monkey-selection.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/22-monkey-selection.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">22 / 26</span>
               <div class="video-title">6 Worlds. 6 Monkeys. 🐵</div>
@@ -966,7 +1013,7 @@
 
           <!-- 23 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/23-hat-customization.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/23-hat-customization.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">23 / 26</span>
               <div class="video-title">Choose your hat 🎩</div>
@@ -978,7 +1025,7 @@
 
           <!-- 24 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/24-skills-tab.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/24-skills-tab.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">24 / 26</span>
               <div class="video-title">3 Active Skills ⚡</div>
@@ -990,7 +1037,7 @@
 
           <!-- 25 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/25-daily-rewards.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/25-daily-rewards.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">25 / 26</span>
               <div class="video-title">Daily Rewards 📅</div>
@@ -1002,7 +1049,7 @@
 
           <!-- 26 -->
           <div class="video-card">
-            <div class="video-wrap"><video src="/videos/26-settings.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-wrap"><video src="/videos/26-settings.mp4" muted loop playsinline></video></div>
             <div class="video-body">
               <span class="video-num">26 / 26</span>
               <div class="video-title">Settings ⚙️</div>
@@ -1398,6 +1445,43 @@
         setTimeout(() => { btn.textContent = 'Copy Hook'; btn.classList.remove('copied'); }, 2000);
       });
     }
+
+    // Wire up play/pause overlays and download buttons for every video card
+    document.querySelectorAll('.video-card').forEach(card => {
+      const wrap  = card.querySelector('.video-wrap');
+      const video = wrap.querySelector('video');
+      const body  = card.querySelector('.video-body');
+
+      // ── Play / pause overlay ──────────────────────────
+      const overlay = document.createElement('div');
+      overlay.className = 'play-overlay';
+      overlay.innerHTML = '<button class="play-btn" aria-label="Play">▶</button>';
+      wrap.appendChild(overlay);
+
+      const playBtn = overlay.querySelector('.play-btn');
+
+      function syncBtn() {
+        playBtn.textContent = video.paused ? '▶' : '⏸';
+        wrap.classList.toggle('playing', !video.paused);
+      }
+
+      wrap.addEventListener('click', () => {
+        video.paused ? video.play() : video.pause();
+      });
+      video.addEventListener('play',  syncBtn);
+      video.addEventListener('pause', syncBtn);
+      video.addEventListener('ended', syncBtn);
+
+      // ── Download button ───────────────────────────────
+      const src  = video.getAttribute('src');           // e.g. /videos/01-basic-gameplay.mp4
+      const file = src.split('/').pop();                // 01-basic-gameplay.mp4
+      const a    = document.createElement('a');
+      a.href      = src;
+      a.download  = file;
+      a.className = 'dl-btn';
+      a.textContent = '↓ Download MP4';
+      body.appendChild(a);
+    });
   </script>
 </body>
 </html>
