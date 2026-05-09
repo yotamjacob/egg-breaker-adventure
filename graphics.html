@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator Kit – Egg Smash Adventures</title>
+  <meta name="robots" content="noindex" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:     #0d1b2a;
+      --bg2:    #0f2136;
+      --panel:  #0f2944;
+      --border: #1b3554;
+      --gold:   #f5a623;
+      --gold2:  #c47d0e;
+      --green:  #4ade80;
+      --pink:   #f472b6;
+      --cyan:   #22d3ee;
+      --purple: #a78bfa;
+      --white:  #e8f0fe;
+      --gray:   #7a8fa6;
+      --px: 'Press Start 2P', monospace;
+      --vt: 'VT323', monospace;
+      --body: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,.06) 2px, rgba(0,0,0,.06) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    body {
+      font-family: var(--body);
+      background: var(--bg);
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,27,42,.96);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      padding: .7rem 0;
+    }
+    .nav-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      text-decoration: none;
+    }
+    .nav-logo img {
+      width: 26px; height: 26px;
+      image-rendering: pixelated;
+      border: 1px solid rgba(245,166,35,.4);
+      border-radius: 4px;
+    }
+    .nav-logo span {
+      font-family: var(--px);
+      font-size: .48rem;
+      color: var(--gold);
+    }
+    .nav-links { list-style: none; display: flex; gap: 1.25rem; }
+    .nav-links a {
+      font-family: var(--px);
+      font-size: .42rem;
+      color: var(--gray);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      transition: color .12s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ── Container ── */
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 1.25rem; }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 3.5rem 0 2.75rem;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 110%, rgba(74,222,128,.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--vt);
+      font-size: 1.15rem;
+      color: var(--pink);
+      background: rgba(244,114,182,.09);
+      border: 1px solid rgba(244,114,182,.3);
+      padding: .2rem .85rem;
+      letter-spacing: .1em;
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-family: var(--px);
+      font-size: clamp(.8rem, 2.2vw, 1.4rem);
+      color: var(--gold);
+      line-height: 1.7;
+      text-shadow: 4px 4px 0 rgba(0,0,0,.5);
+      margin-bottom: .75rem;
+    }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: #9ab3cc;
+      max-width: 520px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+    .hero-ctas { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-family: var(--px);
+      font-size: .48rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: .75rem 1.2rem;
+      border: 2px solid;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .07s, box-shadow .07s;
+      line-height: 1;
+    }
+    .btn:hover { text-decoration: none; transform: translate(-2px, -2px); }
+    .btn:active { transform: translate(2px, 2px); box-shadow: none !important; }
+
+    .btn-gold {
+      background: var(--gold); color: #0d1b2a;
+      border-color: var(--gold2);
+      box-shadow: 4px 4px 0 #6a4000;
+    }
+    .btn-gold:hover { box-shadow: 6px 6px 0 #6a4000; color: #0d1b2a; }
+
+    .btn-outline {
+      background: transparent; color: var(--gold);
+      border-color: rgba(245,166,35,.5);
+      box-shadow: 3px 3px 0 rgba(245,166,35,.15);
+    }
+    .btn-outline:hover { box-shadow: 5px 5px 0 rgba(245,166,35,.15); color: var(--gold); }
+
+    .btn-pink {
+      background: transparent; color: var(--pink);
+      border-color: rgba(244,114,182,.5);
+      box-shadow: 3px 3px 0 rgba(244,114,182,.15);
+    }
+    .btn-pink:hover { box-shadow: 5px 5px 0 rgba(244,114,182,.15); color: var(--pink); }
+
+    .btn-sm { font-size: .4rem; padding: .5rem .8rem; box-shadow: 2px 2px 0 rgba(245,166,35,.15); }
+    .btn-sm:hover { box-shadow: 3px 3px 0 rgba(245,166,35,.15) !important; }
+
+    /* ── Sections ── */
+    .sections { padding: 2.5rem 0 5rem; display: flex; flex-direction: column; gap: 4rem; }
+
+    .section-title {
+      font-family: var(--px);
+      font-size: clamp(.5rem, 1.3vw, .72rem);
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 1.5rem;
+      padding-bottom: .6rem;
+      border-bottom: 2px dashed rgba(245,166,35,.25);
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .section-count {
+      font-family: var(--vt);
+      font-size: 1rem;
+      color: var(--gray);
+      letter-spacing: .05em;
+    }
+
+    p { font-size: 1rem; color: #c8d6e8; line-height: 1.75; }
+    a { color: var(--gold); }
+    a:hover { text-decoration: underline; }
+
+    /* ── Screenshot grid ── */
+    .screenshot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .screenshot-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      overflow: hidden;
+      transition: border-color .15s, transform .1s, box-shadow .1s;
+    }
+    .screenshot-card:hover {
+      border-color: var(--gold);
+      transform: translate(-2px,-2px);
+      box-shadow: 4px 4px 0 rgba(245,166,35,.18);
+    }
+    .screenshot-card img { display: block; width: 100%; height: auto; }
+    .screenshot-card .card-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .6rem .85rem;
+    }
+    .card-label {
+      font-family: var(--px);
+      font-size: .4rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    /* ── Character grid ── */
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 1rem;
+    }
+    .char-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      overflow: hidden;
+      text-align: center;
+      transition: border-color .15s, transform .1s, box-shadow .1s;
+      cursor: default;
+    }
+    .char-card:hover {
+      border-color: rgba(245,166,35,.5);
+      transform: translate(-2px,-2px);
+      box-shadow: 4px 4px 0 rgba(245,166,35,.12);
+    }
+    .char-img-wrap {
+      background: linear-gradient(180deg, #0a1e33 0%, #0d2540 100%);
+      padding: .5rem .5rem 0;
+    }
+    .char-card img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 160px;
+      object-fit: contain;
+    }
+    .char-foot {
+      padding: .6rem .75rem;
+      border-top: 1px solid var(--border);
+    }
+    .char-name {
+      display: block;
+      font-family: var(--px);
+      font-size: .4rem;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: .4rem;
+    }
+    .char-hats {
+      font-family: var(--vt);
+      font-size: .9rem;
+      color: var(--gray);
+      letter-spacing: .05em;
+    }
+    .char-dl-row {
+      display: flex;
+      justify-content: center;
+      gap: .4rem;
+      margin-top: .5rem;
+      flex-wrap: wrap;
+    }
+    .hat-chip {
+      font-family: var(--px);
+      font-size: .32rem;
+      color: var(--gray);
+      border: 1px solid var(--border);
+      padding: .2rem .4rem;
+      text-decoration: none;
+      transition: border-color .1s, color .1s;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .hat-chip:hover { color: var(--gold); border-color: rgba(245,166,35,.4); text-decoration: none; }
+
+    /* ── Skill icons ── */
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+    .icon-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      padding: 1.5rem 1rem 1.1rem;
+      text-align: center;
+      transition: border-color .15s, transform .1s, box-shadow .1s;
+    }
+    .icon-card:hover {
+      border-color: rgba(245,166,35,.4);
+      transform: translate(-2px,-2px);
+      box-shadow: 4px 4px 0 rgba(245,166,35,.1);
+    }
+    .icon-card img {
+      display: block;
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      margin: 0 auto .85rem;
+      image-rendering: pixelated;
+    }
+    .icon-name {
+      display: block;
+      font-family: var(--px);
+      font-size: .38rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: .6rem;
+    }
+
+    /* ── Background SVG grid ── */
+    .bg-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .bg-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      overflow: hidden;
+      transition: border-color .15s, transform .1s;
+    }
+    .bg-card:hover {
+      border-color: rgba(74,222,128,.4);
+      transform: translate(-2px,-2px);
+    }
+    .bg-preview {
+      width: 100%;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #071420;
+    }
+    .bg-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .bg-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .55rem .75rem;
+    }
+    .bg-name {
+      font-family: var(--px);
+      font-size: .38rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    /* ── App icon ── */
+    .appicon-row {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .appicon-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      padding: 1.75rem 1.5rem 1.25rem;
+      text-align: center;
+      min-width: 160px;
+      transition: border-color .15s;
+    }
+    .appicon-card:hover { border-color: rgba(245,166,35,.4); }
+    .appicon-card img {
+      display: block;
+      width: 96px;
+      height: 96px;
+      image-rendering: pixelated;
+      margin: 0 auto 1rem;
+      border-radius: 16px;
+      border: 2px solid rgba(245,166,35,.25);
+    }
+    .appicon-name {
+      display: block;
+      font-family: var(--px);
+      font-size: .4rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: .75rem;
+    }
+
+    /* ── Palette ── */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: .85rem;
+    }
+    .swatch {
+      border: 2px solid var(--border);
+      overflow: hidden;
+      transition: transform .1s;
+    }
+    .swatch:hover { transform: translate(-2px,-2px); }
+    .swatch-color { height: 64px; }
+    .swatch-body { padding: .5rem .65rem; background: var(--panel); }
+    .swatch-name {
+      font-family: var(--px);
+      font-size: .35rem;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      display: block;
+      margin-bottom: .2rem;
+    }
+    .swatch-hex {
+      font-family: var(--vt);
+      font-size: .95rem;
+      color: var(--gray);
+      letter-spacing: .05em;
+    }
+
+    /* ── TikTok ideas ── */
+    .ideas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .idea-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .idea-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .idea-card.c-gold::before  { background: var(--gold); }
+    .idea-card.c-green::before { background: var(--green); }
+    .idea-card.c-pink::before  { background: var(--pink); }
+    .idea-card.c-cyan::before  { background: var(--cyan); }
+    .idea-card.c-purple::before { background: var(--purple); }
+    .idea-emoji { font-size: 1.75rem; margin-bottom: .6rem; display: block; }
+    .idea-title {
+      font-family: var(--px);
+      font-size: .45rem;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: .6rem;
+      line-height: 1.7;
+    }
+    .idea-desc {
+      font-size: .9rem;
+      color: #9ab3cc;
+      line-height: 1.6;
+      margin: 0;
+    }
+    .idea-tag {
+      display: inline-block;
+      font-family: var(--vt);
+      font-size: .85rem;
+      padding: .1rem .5rem;
+      border: 1px solid;
+      letter-spacing: .05em;
+      margin-top: .75rem;
+    }
+    .c-gold  .idea-tag { color: var(--gold);   border-color: rgba(245,166,35,.4);  background: rgba(245,166,35,.07); }
+    .c-green .idea-tag { color: var(--green);  border-color: rgba(74,222,128,.4);  background: rgba(74,222,128,.07); }
+    .c-pink  .idea-tag { color: var(--pink);   border-color: rgba(244,114,182,.4); background: rgba(244,114,182,.07); }
+    .c-cyan  .idea-tag { color: var(--cyan);   border-color: rgba(34,211,238,.4);  background: rgba(34,211,238,.07); }
+    .c-purple .idea-tag { color: var(--purple); border-color: rgba(167,139,250,.4); background: rgba(167,139,250,.07); }
+
+    /* ── TikTok tips box ── */
+    .tips-box {
+      background: rgba(244,114,182,.06);
+      border: 2px solid rgba(244,114,182,.25);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .tips-box-title {
+      font-family: var(--px);
+      font-size: .48rem;
+      color: var(--pink);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .75rem;
+    }
+    .tips-list { list-style: none; display: flex; flex-direction: column; gap: .4rem; }
+    .tips-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      font-size: .95rem;
+      color: #c8d6e8;
+      line-height: 1.6;
+    }
+    .tips-list li::before { content: '▶'; color: var(--pink); font-size: .55rem; flex-shrink: 0; margin-top: .3rem; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 0;
+      text-align: center;
+    }
+    footer p {
+      font-family: var(--px);
+      font-size: .4rem;
+      color: var(--gray);
+      letter-spacing: .05em;
+      margin: 0;
+    }
+    footer a { color: var(--gray); }
+    footer a:hover { color: var(--gold); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .char-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-logo" href="/">
+        <img src="/icon-192.png" alt="">
+        <span>Creator Kit</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#screenshots">Screenshots</a></li>
+        <li><a href="#characters">Characters</a></li>
+        <li><a href="#icons">Icons</a></li>
+        <li><a href="#palette">Palette</a></li>
+        <li><a href="#ideas">Ideas</a></li>
+        <li><a href="/press">Press Kit</a></li>
+        <li><a href="/">← Game</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section style="padding: 3.5rem 0 2.5rem; text-align: center; position: relative; overflow: hidden;">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 110%, rgba(244,114,182,.07) 0%, transparent 65%);pointer-events:none;"></div>
+    <div class="container">
+      <div class="hero-badge">🎬 TIKTOK CREATOR KIT</div>
+      <h1 style="font-family:var(--px);font-size:clamp(.8rem,2.2vw,1.4rem);color:var(--gold);line-height:1.7;text-shadow:4px 4px 0 rgba(0,0,0,.5);margin-bottom:.75rem;">Egg Smash Adventures</h1>
+      <p style="font-size:1.05rem;color:#9ab3cc;max-width:480px;margin:0 auto 2rem;line-height:1.7;">All the graphics, characters, and ideas you need to create TikToks for the game. Download freely — tag your content!</p>
+      <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+        <a class="btn btn-pink" href="https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app" target="_blank" rel="noopener">▶ Play Store</a>
+        <a class="btn btn-outline" href="/press">Press Kit ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="sections">
+
+      <!-- Screenshots -->
+      <section id="screenshots">
+        <h2 class="section-title">📱 Screenshots <span class="section-count">3 images</span></h2>
+        <div class="screenshot-grid">
+          <div class="screenshot-card">
+            <img src="/screenshots/screen-mobile.png" alt="Gameplay — egg tray" loading="lazy">
+            <div class="card-foot">
+              <span class="card-label">Gameplay</span>
+              <a class="btn btn-outline btn-sm" href="/screenshots/screen-mobile.png" download>↓ PNG</a>
+            </div>
+          </div>
+          <div class="screenshot-card">
+            <img src="/screenshots/screen-album.png" alt="Item collection album" loading="lazy">
+            <div class="card-foot">
+              <span class="card-label">Album</span>
+              <a class="btn btn-outline btn-sm" href="/screenshots/screen-album.png" download>↓ PNG</a>
+            </div>
+          </div>
+          <div class="screenshot-card">
+            <img src="/screenshots/screen-shop.png" alt="Shop upgrades" loading="lazy">
+            <div class="card-foot">
+              <span class="card-label">Shop</span>
+              <a class="btn btn-outline btn-sm" href="/screenshots/screen-shop.png" download>↓ PNG</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Characters -->
+      <section id="characters">
+        <h2 class="section-title">🐵 Monkey Characters <span class="section-count">6 × 6 hat variants</span></h2>
+        <p style="margin-bottom:1.25rem;font-size:.95rem;color:var(--gray)">Click any hat chip to download that variant. Each monkey has 6 looks: no hat, chef, crown, pirate, top hat, and wizard.</p>
+        <div class="char-grid">
+
+          <!-- Mr. Monkey -->
+          <div class="char-card">
+            <div class="char-img-wrap">
+              <img src="/img/mrmonkey_nohat.jpeg" alt="Mr. Monkey" loading="lazy">
+            </div>
+            <div class="char-foot">
+              <span class="char-name">Mr. Monkey</span>
+              <span class="char-hats">6 hats</span>
+              <div class="char-dl-row">
+                <a class="hat-chip" href="/img/mrmonkey_nohat.jpeg" download title="No Hat">bare</a>
+                <a class="hat-chip" href="/img/mrmonkey_chef.jpeg" download title="Chef Hat">chef</a>
+                <a class="hat-chip" href="/img/mrmonkey_crown.jpeg" download title="Crown">crown</a>
+                <a class="hat-chip" href="/img/mrmonkey_pirate.jpeg" download title="Pirate">pirate</a>
+                <a class="hat-chip" href="/img/mrmonkey_tophat.jpeg" download title="Top Hat">top</a>
+                <a class="hat-chip" href="/img/mrmonkey_wizard.jpeg" download title="Wizard">wizard</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Steampunk Monkey -->
+          <div class="char-card">
+            <div class="char-img-wrap">
+              <img src="/img/steampunk_nohat.jpeg" alt="Steampunk Monkey" loading="lazy">
+            </div>
+            <div class="char-foot">
+              <span class="char-name">Steampunk</span>
+              <span class="char-hats">6 hats</span>
+              <div class="char-dl-row">
+                <a class="hat-chip" href="/img/steampunk_nohat.jpeg" download>bare</a>
+                <a class="hat-chip" href="/img/steampunk_chef.jpeg" download>chef</a>
+                <a class="hat-chip" href="/img/steampunk_crown.png" download>crown</a>
+                <a class="hat-chip" href="/img/steampunk_pirate.jpeg" download>pirate</a>
+                <a class="hat-chip" href="/img/steampunk_tophat.jpeg" download>top</a>
+                <a class="hat-chip" href="/img/steampunk_wizard.jpeg" download>wizard</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Princess Monkey -->
+          <div class="char-card">
+            <div class="char-img-wrap">
+              <img src="/img/princess_nohat.jpeg" alt="Princess Monkey" loading="lazy">
+            </div>
+            <div class="char-foot">
+              <span class="char-name">Princess</span>
+              <span class="char-hats">6 hats</span>
+              <div class="char-dl-row">
+                <a class="hat-chip" href="/img/princess_nohat.jpeg" download>bare</a>
+                <a class="hat-chip" href="/img/princess_chef.jpeg" download>chef</a>
+                <a class="hat-chip" href="/img/princess_crown.jpeg" download>crown</a>
+                <a class="hat-chip" href="/img/princess_pirate.jpeg" download>pirate</a>
+                <a class="hat-chip" href="/img/princess_tophat.jpeg" download>top</a>
+                <a class="hat-chip" href="/img/princess_wizard.jpeg" download>wizard</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Space Cadette -->
+          <div class="char-card">
+            <div class="char-img-wrap">
+              <img src="/img/space_nohat.jpeg" alt="Space Cadette" loading="lazy">
+            </div>
+            <div class="char-foot">
+              <span class="char-name">Space Cadette</span>
+              <span class="char-hats">6 hats</span>
+              <div class="char-dl-row">
+                <a class="hat-chip" href="/img/space_nohat.jpeg" download>bare</a>
+                <a class="hat-chip" href="/img/space_chef.jpeg" download>chef</a>
+                <a class="hat-chip" href="/img/space_crown.jpeg" download>crown</a>
+                <a class="hat-chip" href="/img/space_pirate.jpeg" download>pirate</a>
+                <a class="hat-chip" href="/img/space_tophat.jpeg" download>top</a>
+                <a class="hat-chip" href="/img/space_wizard.jpeg" download>wizard</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Odin Grímnir -->
+          <div class="char-card">
+            <div class="char-img-wrap">
+              <img src="/img/odin_nohat.jpeg" alt="Odin Grímnir" loading="lazy">
+            </div>
+            <div class="char-foot">
+              <span class="char-name">Odin Grímnir</span>
+              <span class="char-hats">6 hats</span>
+              <div class="char-dl-row">
+                <a class="hat-chip" href="/img/odin_nohat.jpeg" download>bare</a>
+                <a class="hat-chip" href="/img/odin_chef.jpeg" download>chef</a>
+                <a class="hat-chip" href="/img/odin_crown.jpeg" download>crown</a>
+                <a class="hat-chip" href="/img/odin_pirate.jpeg" download>pirate</a>
+                <a class="hat-chip" href="/img/odin_tophat.jpeg" download>top</a>
+                <a class="hat-chip" href="/img/odin_wizard.jpeg" download>wizard</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sun Wukong -->
+          <div class="char-card">
+            <div class="char-img-wrap">
+              <img src="/img/wukong_nohat.png" alt="Sun Wukong" loading="lazy">
+            </div>
+            <div class="char-foot">
+              <span class="char-name">Sun Wukong</span>
+              <span class="char-hats">6 hats</span>
+              <div class="char-dl-row">
+                <a class="hat-chip" href="/img/wukong_nohat.png" download>bare</a>
+                <a class="hat-chip" href="/img/wukong_chef.png" download>chef</a>
+                <a class="hat-chip" href="/img/wukong_crown.png" download>crown</a>
+                <a class="hat-chip" href="/img/wukong_pirate.png" download>pirate</a>
+                <a class="hat-chip" href="/img/wukong_tophat.png" download>top</a>
+                <a class="hat-chip" href="/img/wukong_wizard.png" download>wizard</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Skill Icons & App Icon -->
+      <section id="icons">
+        <h2 class="section-title">🎨 Icons &amp; Art</h2>
+        <div class="icon-grid">
+          <div class="icon-card">
+            <img src="/icon-512.png" alt="App icon" style="border-radius:12px;border:2px solid rgba(245,166,35,.25);">
+            <span class="icon-name">App Icon</span>
+            <a class="btn btn-outline btn-sm" href="/icon-512.png" download>↓ 512px</a>
+          </div>
+          <div class="icon-card">
+            <img src="/img/rage_monkey.png" alt="Monkey Rage">
+            <span class="icon-name">Monkey Rage</span>
+            <a class="btn btn-outline btn-sm" href="/img/rage_monkey.png" download>↓ PNG</a>
+          </div>
+          <div class="icon-card">
+            <img src="/img/golden_goose.png" alt="Golden Goose">
+            <span class="icon-name">Golden Goose</span>
+            <a class="btn btn-outline btn-sm" href="/img/golden_goose.png" download>↓ PNG</a>
+          </div>
+          <div class="icon-card">
+            <img src="/img/banana_shake.png" alt="Banana Shake">
+            <span class="icon-name">Banana Shake</span>
+            <a class="btn btn-outline btn-sm" href="/img/banana_shake.png" download>↓ PNG</a>
+          </div>
+          <div class="icon-card">
+            <img src="/img/cracked_golden_egg_icon.png" alt="Golden Egg">
+            <span class="icon-name">Golden Egg</span>
+            <a class="btn btn-outline btn-sm" href="/img/cracked_golden_egg_icon.png" download>↓ PNG</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- World Backgrounds -->
+      <section id="backgrounds">
+        <h2 class="section-title">🌍 World Backgrounds <span class="section-count">6 SVGs</span></h2>
+        <p style="margin-bottom:1.25rem;font-size:.95rem;color:var(--gray)">SVG format — scale to any size without quality loss. Great for overlays and thumbnails.</p>
+        <div class="bg-grid">
+          <div class="bg-card">
+            <div class="bg-preview"><img src="/img/background/mr_monkey.svg" alt="Mr. Monkey world"></div>
+            <div class="bg-foot">
+              <span class="bg-name">Mr. Monkey</span>
+              <a class="btn btn-outline btn-sm" href="/img/background/mr_monkey.svg" download>↓ SVG</a>
+            </div>
+          </div>
+          <div class="bg-card">
+            <div class="bg-preview"><img src="/img/background/steampunk.svg" alt="Steampunk world"></div>
+            <div class="bg-foot">
+              <span class="bg-name">Steampunk</span>
+              <a class="btn btn-outline btn-sm" href="/img/background/steampunk.svg" download>↓ SVG</a>
+            </div>
+          </div>
+          <div class="bg-card">
+            <div class="bg-preview"><img src="/img/background/princess.svg" alt="Princess world"></div>
+            <div class="bg-foot">
+              <span class="bg-name">Princess</span>
+              <a class="btn btn-outline btn-sm" href="/img/background/princess.svg" download>↓ SVG</a>
+            </div>
+          </div>
+          <div class="bg-card">
+            <div class="bg-preview"><img src="/img/background/space.svg" alt="Space world"></div>
+            <div class="bg-foot">
+              <span class="bg-name">Space Cadette</span>
+              <a class="btn btn-outline btn-sm" href="/img/background/space.svg" download>↓ SVG</a>
+            </div>
+          </div>
+          <div class="bg-card">
+            <div class="bg-preview"><img src="/img/background/odin.svg" alt="Odin world"></div>
+            <div class="bg-foot">
+              <span class="bg-name">Odin Grímnir</span>
+              <a class="btn btn-outline btn-sm" href="/img/background/odin.svg" download>↓ SVG</a>
+            </div>
+          </div>
+          <div class="bg-card">
+            <div class="bg-preview"><img src="/img/background/sun_wukong.svg" alt="Sun Wukong world"></div>
+            <div class="bg-foot">
+              <span class="bg-name">Sun Wukong</span>
+              <a class="btn btn-outline btn-sm" href="/img/background/sun_wukong.svg" download>↓ SVG</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Brand Palette -->
+      <section id="palette">
+        <h2 class="section-title">🎨 Brand Palette</h2>
+        <div class="palette-grid">
+          <div class="swatch">
+            <div class="swatch-color" style="background:#0d1b2a;"></div>
+            <div class="swatch-body">
+              <span class="swatch-name">Deep Navy</span>
+              <span class="swatch-hex">#0D1B2A</span>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#0f2944;"></div>
+            <div class="swatch-body">
+              <span class="swatch-name">Panel Blue</span>
+              <span class="swatch-hex">#0F2944</span>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#f5a623;"></div>
+            <div class="swatch-body">
+              <span class="swatch-name">Gold</span>
+              <span class="swatch-hex">#F5A623</span>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#f5c542;"></div>
+            <div class="swatch-body">
+              <span class="swatch-name">Bright Gold</span>
+              <span class="swatch-hex">#F5C542</span>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#4ade80;"></div>
+            <div class="swatch-body">
+              <span class="swatch-name">Green</span>
+              <span class="swatch-hex">#4ADE80</span>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#e88d2a;"></div>
+            <div class="swatch-body">
+              <span class="swatch-name">Amber</span>
+              <span class="swatch-hex">#E88D2A</span>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#e8f0fe;"></div>
+            <div class="swatch-body">
+              <span class="swatch-name">Off White</span>
+              <span class="swatch-hex">#E8F0FE</span>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#7a8fa6;"></div>
+            <div class="swatch-body">
+              <span class="swatch-name">Gray</span>
+              <span class="swatch-hex">#7A8FA6</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TikTok Ideas -->
+      <section id="ideas">
+        <h2 class="section-title">💡 TikTok Content Ideas</h2>
+        <div class="tips-box">
+          <div class="tips-box-title">Quick tips for TikTok</div>
+          <ul class="tips-list">
+            <li>Film in 9:16 vertical — crop screenshots to phone aspect ratio before posting</li>
+            <li>Hook in the first 2 seconds — show a satisfying egg smash, a rare drop, or a Starfall event</li>
+            <li>Use the monkey portraits as overlays or reaction images in CapCut</li>
+            <li>Trending sounds + gameplay = free reach — mute the game audio and overlay music</li>
+          </ul>
+        </div>
+        <div class="ideas-grid">
+          <div class="idea-card c-gold">
+            <span class="idea-emoji">🥚</span>
+            <div class="idea-title">Egg Opening Montage</div>
+            <p class="idea-desc">Screen record a Starfall event or a run of Century Eggs. Fast-cut to a trending sound. The item pop-up animations are very satisfying on camera.</p>
+            <span class="idea-tag">EASY · HIGH VIEWS</span>
+          </div>
+          <div class="idea-card c-pink">
+            <span class="idea-emoji">🐵</span>
+            <div class="idea-title">Pick Your Monkey</div>
+            <p class="idea-desc">Show all 6 monkey portraits one by one and ask viewers to comment their favourite. Drives comments → algorithm boost.</p>
+            <span class="idea-tag">ENGAGEMENT</span>
+          </div>
+          <div class="idea-card c-green">
+            <span class="idea-emoji">📖</span>
+            <div class="idea-title">The Origin Story</div>
+            <p class="idea-desc">"This Facebook game disappeared in 2016 — so I rebuilt it myself." Use the history from the press kit. Solo dev stories perform very well.</p>
+            <span class="idea-tag">STORY · VIRAL POTENTIAL</span>
+          </div>
+          <div class="idea-card c-cyan">
+            <span class="idea-emoji">🔨</span>
+            <div class="idea-title">Hammer Tier List</div>
+            <p class="idea-desc">Show each special hammer (Mjölnir, Rainbow, Crystal…) and rank them. Tier list videos consistently perform in gaming niches.</p>
+            <span class="idea-tag">GAMING FORMAT</span>
+          </div>
+          <div class="idea-card c-purple">
+            <span class="idea-emoji">🏆</span>
+            <div class="idea-title">Hidden Achievements</div>
+            <p class="idea-desc">Reveal a secret achievement or Easter egg. "Most players don't know this exists" hooks people immediately.</p>
+            <span class="idea-tag">SECRETS · HOOK</span>
+          </div>
+          <div class="idea-card c-gold">
+            <span class="idea-emoji">📵</span>
+            <div class="idea-title">No Ads. Ever.</div>
+            <p class="idea-desc">"I made a mobile game with zero ads" is a viral format right now. Lead with the tagline, show 30 seconds of clean gameplay.</p>
+            <span class="idea-tag">ANTI-AD ANGLE · TRENDING</span>
+          </div>
+          <div class="idea-card c-pink">
+            <span class="idea-emoji">🌍</span>
+            <div class="idea-title">World Tour</div>
+            <p class="idea-desc">Show each monkey's world one at a time — Mr. Monkey → Steampunk → Princess → Space → Odin → Wukong. "6 worlds, 0 paywalls."</p>
+            <span class="idea-tag">SHOWCASE</span>
+          </div>
+          <div class="idea-card c-green">
+            <span class="idea-emoji">🎩</span>
+            <div class="idea-title">Hat Try-On</div>
+            <p class="idea-desc">Flip through all 6 hat variants on one monkey. Costume / cosmetics videos do well — ask "which hat is best?" in the caption.</p>
+            <span class="idea-tag">AESTHETIC · COMMENTS</span>
+          </div>
+          <div class="idea-card c-cyan">
+            <span class="idea-emoji">🇮🇱</span>
+            <div class="idea-title">Solo Dev Devlog</div>
+            <p class="idea-desc">30-second "built this game alone from Israel" devlog. Show code, show the game, show yourself. Dev content has its own loyal niche.</p>
+            <span class="idea-tag">DEVLOG · PERSONAL</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>© 2026 YotJac &nbsp;·&nbsp; <a href="/press">Press Kit</a> &nbsp;·&nbsp; <a href="/privacy">Privacy</a> &nbsp;·&nbsp; <a href="/">Play the Game</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>
