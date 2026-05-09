@@ -87,6 +87,99 @@
       font-size: .48rem;
       color: var(--gold);
     }
+    /* ── Video grid ── */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .video-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      overflow: hidden;
+      transition: border-color .15s, transform .1s, box-shadow .1s;
+    }
+    .video-card:hover {
+      border-color: var(--pink);
+      transform: translate(-2px,-2px);
+      box-shadow: 4px 4px 0 rgba(244,114,182,.15);
+    }
+    .video-wrap {
+      position: relative;
+      /* 390:844 ≈ 46.2% padding-top for 9:16 portrait */
+      padding-top: 182%;
+      background: #060e18;
+      overflow: hidden;
+    }
+    .video-wrap video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .video-body { padding: 1rem; }
+    .video-num {
+      font-family: var(--vt);
+      font-size: 1rem;
+      color: var(--gray);
+      letter-spacing: .08em;
+      margin-bottom: .3rem;
+      display: block;
+    }
+    .video-title {
+      font-family: var(--px);
+      font-size: .48rem;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      line-height: 1.7;
+      margin-bottom: .65rem;
+    }
+    .video-desc {
+      font-size: .9rem;
+      color: #9ab3cc;
+      line-height: 1.6;
+      margin-bottom: .85rem;
+    }
+    .video-hook {
+      background: rgba(244,114,182,.07);
+      border: 1px solid rgba(244,114,182,.25);
+      padding: .65rem .85rem;
+      margin-bottom: .75rem;
+    }
+    .video-hook-label {
+      font-family: var(--px);
+      font-size: .35rem;
+      color: var(--pink);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      display: block;
+      margin-bottom: .35rem;
+    }
+    .video-hook-text {
+      font-family: var(--vt);
+      font-size: 1.05rem;
+      color: #f0c8dc;
+      line-height: 1.5;
+      letter-spacing: .02em;
+    }
+    .copy-btn {
+      font-family: var(--px);
+      font-size: .35rem;
+      color: var(--pink);
+      border: 1px solid rgba(244,114,182,.4);
+      background: transparent;
+      padding: .3rem .6rem;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      transition: background .12s;
+      width: 100%;
+    }
+    .copy-btn:hover { background: rgba(244,114,182,.1); }
+    .copy-btn.copied { color: var(--green); border-color: rgba(74,222,128,.4); }
+
     .nav-links { list-style: none; display: flex; gap: 1.25rem; }
     .nav-links a {
       font-family: var(--px);
@@ -572,6 +665,7 @@
         <span>Creator Kit</span>
       </a>
       <ul class="nav-links">
+        <li><a href="#videos">Videos</a></li>
         <li><a href="#screenshots">Screenshots</a></li>
         <li><a href="#characters">Characters</a></li>
         <li><a href="#icons">Icons</a></li>
@@ -599,6 +693,327 @@
 
   <div class="container">
     <div class="sections">
+
+      <!-- Videos -->
+      <section id="videos">
+        <h2 class="section-title">🎬 Gameplay Videos <span class="section-count">26 clips</span></h2>
+        <p style="margin-bottom:1.5rem;font-size:.95rem;color:var(--gray)">Recorded live from the game. Download the MP4, trim in CapCut, add a trending sound, post. Each card has a ready-to-use TikTok hook — tap to copy.</p>
+        <div class="video-grid">
+
+          <!-- 01 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/01-basic-gameplay.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">01 / 26</span>
+              <div class="video-title">Tap. Crack. Collect.</div>
+              <p class="video-desc">Core gameplay loop — tapping eggs on the Tropical Paradise stage. The satisfying crack-and-pop every time.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">This mobile game has no ads. No timers. Just this.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'This mobile game has no ads. No timers. Just this.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 02 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/02-item-discovered.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">02 / 26</span>
+              <div class="video-title">New item unlocked!</div>
+              <p class="video-desc">The item pop that appears when you crack a new collectible. Dopamine. Every. Single. Time.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">The item pop is so satisfying. Every single time.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'The item pop is so satisfying. Every single time.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 03 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/03-rare-eggs.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">03 / 26</span>
+              <div class="video-title">Gold egg just dropped 👀</div>
+              <p class="video-desc">Rare gold and crystal eggs glowing in the tray — smashing them triggers bigger item drops and star pieces.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">When the gold egg appears you HAVE to smash it.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'When the gold egg appears you HAVE to smash it.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 04 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/04-multiplier-chain.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">04 / 26</span>
+              <div class="video-title">x2 + x3 + x5 = x10 combo</div>
+              <p class="video-desc">Building a multiplier chain by tapping chips before smashing. Stacks additively — save the big ones for gold eggs.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Stack multipliers before smashing a gold egg. Brain rot.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Stack multipliers before smashing a gold egg. Brain rot.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 05 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/05-starfall.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">05 / 26</span>
+              <div class="video-title">STARFALL ⭐</div>
+              <p class="video-desc">Fill 7 star pieces and trigger Starfall — every egg on screen explodes simultaneously in a chain reaction.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Fill 7 stars and watch every egg explode at once.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Fill 7 stars and watch every egg explode at once.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 06 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/06-monkey-rage.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">06 / 26</span>
+              <div class="video-title">MONKEY RAGE 🔥</div>
+              <p class="video-desc">Monkey Rage skill — hammers don't deplete for 10 seconds. Tap as fast as you can. No limits.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Unlimited hammers for 10 seconds. Pure chaos.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Unlimited hammers for 10 seconds. Pure chaos.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 07 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/07-golden-goose.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">07 / 26</span>
+              <div class="video-title">Golden Goose 🪙</div>
+              <p class="video-desc">Golden Goose skill — transforms all eggs to gold tier for 15 seconds. Every smash is a big reward.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Every egg becomes gold for 15 seconds. Cha-ching.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Every egg becomes gold for 15 seconds. Cha-ching.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 08 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/08-banana-shake.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">08 / 26</span>
+              <div class="video-title">Banana Shake 🍌</div>
+              <p class="video-desc">Banana Shake skill — Crystal Bananas drop on every smash. Collect them to unlock the next monkey world.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Drops Crystal Bananas on every smash. Stacks fast.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Drops Crystal Bananas on every smash. Stacks fast.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 09 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/09-mr-monkey-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">09 / 26</span>
+              <div class="video-title">Mr. Monkey — Tropical Paradise 🌴</div>
+              <p class="video-desc">World 1. The jungle where it all begins. 9 stages, hundreds of tropical items to collect.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">World 1. Where it all begins.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'World 1. Where it all begins.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 10 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/10-steampunk-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">10 / 26</span>
+              <div class="video-title">Steampunk — The Workshop ⚙️</div>
+              <p class="video-desc">Gears, cogs, and copper pipes. The Steampunk Monkey's industrial world with mechanical item drops.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Gears, cogs, and golden eggs. This world hits different.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Gears, cogs, and golden eggs. This world hits different.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 11 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/11-princess-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">11 / 26</span>
+              <div class="video-title">Princess — The Royal Court 👑</div>
+              <p class="video-desc">The Princess Monkey's royal world — pastel colours, crown and wand themed item drops, pink palace energy.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Pink palace vibes. Eggs with crowns.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Pink palace vibes. Eggs with crowns.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 12 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/12-space-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">12 / 26</span>
+              <div class="video-title">Space Cadette — The Cosmos 🚀</div>
+              <p class="video-desc">Smashing eggs in outer space. Star and nebula backdrop, sci-fi item collection. Peak idle game aesthetic.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Smashing eggs in outer space. Name a better combo.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Smashing eggs in outer space. Name a better combo.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 13 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/13-odin-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">13 / 26</span>
+              <div class="video-title">Odin Grímnir — Norse Realm ⚡</div>
+              <p class="video-desc">Mjölnir hammer. Viking runes. Norse mythology lore woven into every item in Odin's collection.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Mjölnir hammer. Norse mythology. Egg smashing.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Mjölnir hammer. Norse mythology. Egg smashing.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 14 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/14-wukong-world.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">14 / 26</span>
+              <div class="video-title">Sun Wukong — The Monkey King 🌸</div>
+              <p class="video-desc">World 6 — the final unlock. Sun Wukong's Chinese mythology world with the rarest and most hidden collection.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">The final world. The Monkey King has arrived.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'The final world. The Monkey King has arrived.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 15 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/15-album-stages.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">15 / 26</span>
+              <div class="video-title">The Album 📖</div>
+              <p class="video-desc">Album tab — 9 stages per monkey, from Tropical Paradise to Cloud Kingdom. Each stage has its own item set.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">9 stages × 6 worlds = 54 collections to complete.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'9 stages × 6 worlds = 54 collections to complete.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 16 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/16-album-items.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">16 / 26</span>
+              <div class="video-title">Gotta collect them all 🗂️</div>
+              <p class="video-desc">Item grid view — collected items revealed, undiscovered shown as question marks. The mystery is half the fun.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Hundreds of items across 6 worlds. You won't finish this in a day.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Hundreds of items across 6 worlds. You won\'t finish this in a day.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 17 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/17-stage-complete.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">17 / 26</span>
+              <div class="video-title">Stage complete! 🎉</div>
+              <p class="video-desc">Progress bar fills, tier advances from Bronze to Silver. That completion feeling hits just right.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">The progress bar fills up and then… satisfaction.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'The progress bar fills up and then… satisfaction.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 18 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/18-trophies.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">18 / 26</span>
+              <div class="video-title">Achievements 🏆</div>
+              <p class="video-desc">Trophy grid — dozens of achievements, some obvious, some completely hidden. Can you find all the secrets?</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Dozens of trophies. Some are hidden. Good luck.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Dozens of trophies. Some are hidden. Good luck.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 19 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/19-shop-consumables.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">19 / 26</span>
+              <div class="video-title">The Shop 🛒</div>
+              <p class="video-desc">Buy hammers, star pieces, and multipliers — all with in-game gold. No real money. No energy. No wait.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Buy hammers, star pieces, multipliers. All with in-game gold.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Buy hammers, star pieces, multipliers. All with in-game gold.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 20 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/20-special-hammers.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">20 / 26</span>
+              <div class="video-title">Special Hammers 🔨</div>
+              <p class="video-desc">8 special hammers — Mjölnir, Crystal, Rainbow, Golden, Drumstick, Bat, Cucumber, Judge Gavel. Permanent unlocks, each with unique bonuses.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Mjölnir. Crystal. Rainbow. Which one is YOUR hammer?</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Mjölnir. Crystal. Rainbow. Which one is YOUR hammer?')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 21 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/21-premium-shop.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">21 / 26</span>
+              <div class="video-title">Premium Shop 💎</div>
+              <p class="video-desc">Optional one-time upgrades — no subscriptions, no loot boxes, no paywalls. The full game is free. Always.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">One-time purchases. No subscriptions. No loot boxes.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'One-time purchases. No subscriptions. No loot boxes.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 22 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/22-monkey-selection.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">22 / 26</span>
+              <div class="video-title">6 Worlds. 6 Monkeys. 🐵</div>
+              <p class="video-desc">Monkey selection screen — Mr. Monkey, Steampunk, Princess, Space, Odin, Sun Wukong. Each a full new collection.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Each monkey is a whole new game inside a game.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Each monkey is a whole new game inside a game.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 23 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/23-hat-customization.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">23 / 26</span>
+              <div class="video-title">Choose your hat 🎩</div>
+              <p class="video-desc">6 cosmetic hats — Chef, Crown, Pirate, Top Hat, Wizard, and bare. Each gives unique stat bonuses.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Cosmetic hats that also buff your stats. Best of both worlds.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Cosmetic hats that also buff your stats. Best of both worlds.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 24 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/24-skills-tab.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">24 / 26</span>
+              <div class="video-title">3 Active Skills ⚡</div>
+              <p class="video-desc">Skills tab — Monkey Rage, Golden Goose, Banana Shake. Unlocked with feathers earned by collecting items. Game-changing.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Unlock these and the game changes completely.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Unlock these and the game changes completely.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 25 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/25-daily-rewards.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">25 / 26</span>
+              <div class="video-title">Daily Rewards 📅</div>
+              <p class="video-desc">Daily reward calendar — escalating streak bonuses. Log in 7 days in a row and get Double Daily. Streak is everything.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">7-day streak = Double Daily bonus. Log in every day.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'7-day streak = Double Daily bonus. Log in every day.')">Copy Hook</button>
+            </div>
+          </div>
+
+          <!-- 26 -->
+          <div class="video-card">
+            <div class="video-wrap"><video src="/videos/26-settings.mp4" autoplay muted loop playsinline></video></div>
+            <div class="video-body">
+              <span class="video-num">26 / 26</span>
+              <div class="video-title">Settings ⚙️</div>
+              <p class="video-desc">Cloud save via Google, push notifications, play log toggle, and a direct Rate on Google Play button. No dark patterns.</p>
+              <div class="video-hook"><span class="video-hook-label">🎣 TikTok Hook</span><div class="video-hook-text">Cloud save, push notifs, zero ads. Settings that actually respect you.</div></div>
+              <button class="copy-btn" onclick="copyHook(this,'Cloud save, push notifs, zero ads. Settings that actually respect you.')">Copy Hook</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
 
       <!-- Screenshots -->
       <section id="screenshots">
@@ -975,5 +1390,14 @@
     </div>
   </footer>
 
+  <script>
+    function copyHook(btn, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy Hook'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+  </script>
 </body>
 </html>
