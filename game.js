@@ -1898,26 +1898,23 @@ function showPlayInfo() {
     '<div class="info-blocks">' +
       '<div class="info-block">' +
         '<span class="info-block-title">🥚 basics</span>' +
-        '<div class="info-row"><span class="info-row-icon">🔨</span><span>Tap an egg to smash it — costs <span class="info-highlight">1 hammer</span></span></div>' +
-        '<div class="info-row"><span class="info-row-icon">📦</span><span>Collect all items in a stage to advance tiers</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🔨</span><span>Tap an egg — costs <span class="info-highlight">1 hammer</span></span></div>' +
+        '<div class="info-row"><span class="info-row-icon">📦</span><span>Collect all items to advance tiers</span></div>' +
         '<div class="info-row"><span class="info-row-icon">⭐</span><span>Fill <span class="info-highlight">7 star pieces</span> to trigger Starfall</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">🍌</span><span>100% stage items = Crystal Banana reward</span></div>' +
       '</div>' +
       '<div class="info-block">' +
         '<span class="info-block-title">💡 multipliers</span>' +
-        '<div class="info-row"><span class="info-row-icon">➕</span><span>Tap a chip to activate — chips <span class="info-highlight">add</span>: x2+x3 = x5</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">💰</span><span>Boosts gold, stars &amp; feathers — not items</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">🎯</span><span>Save big mults for Gold &amp; Crystal eggs!</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">➕</span><span>Tap chip to activate — chips <span class="info-highlight">add</span>: x2+x3 = x5</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">💰</span><span>Boosts gold &amp; stars — not item drops</span></div>' +
       '</div>' +
       '<div class="info-block">' +
         '<span class="info-block-title">⚡ skills</span>' +
-        '<div class="info-row"><span class="info-row-icon">⚡</span><span>Unlock powerful skills after completing <span class="info-highlight">2 monkeys</span> — see the Skills tab for details</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">⚡</span><span>Unlock after <span class="info-highlight">2 monkeys</span> — see Skills tab</span></div>' +
       '</div>' +
       '<div class="info-block">' +
-        '<span class="info-block-title">🍌 progression</span>' +
+        '<span class="info-block-title">🐵 progression</span>' +
         '<div class="info-row"><span class="info-row-icon">🐵</span><span>Each monkey has unique stages &amp; perks</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">✅</span><span>Unlocked monkey perks stack — always active</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">☁️</span><span>Cloud Save syncs progress across devices</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">✅</span><span>Unlocked perks stack — always active</span></div>' +
       '</div>' +
     '</div>',
     null, 'Got it!'
