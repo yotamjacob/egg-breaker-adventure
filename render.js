@@ -1388,7 +1388,7 @@ function renderDailyCalendar() {
 
   let html = '';
   for (let i = 0; i < DAILY_REWARDS.length; i++) {
-    const r = DAILY_REWARDS[i];
+    const r = (DAILY_REWARDS[i].type === 'goldmagnet' && G.owned_goldmagnet) ? DAY7_FALLBACK : DAILY_REWARDS[i];
     const day = r.day;
     let cls = 'daily-cell';
     if (r.type === 'banana') cls += ' banana';

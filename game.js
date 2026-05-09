@@ -332,10 +332,16 @@ function checkDaily() {
   updateDailyGlow();
 }
 
+function getEffectiveDailyReward(dayIdx) {
+  const r = DAILY_REWARDS[dayIdx];
+  if (r && r.type === 'goldmagnet' && G.owned_goldmagnet) return DAY7_FALLBACK;
+  return r;
+}
+
 function claimDaily() {
   if (G.dailyClaimed) return;
   const dayIdx = Math.min(G.consecutiveDays, 30) - 1;
-  const reward = DAILY_REWARDS[dayIdx];
+  const reward = getEffectiveDailyReward(dayIdx);
   if (!reward) return;
 
   // Apply reward (Double Daily doubles the value, except premium items)

@@ -743,3 +743,5 @@ function generateDailyRewards() {
   return rewards;
 }
 const DAILY_REWARDS = generateDailyRewards();
+// Replaces the day-7 magnet slot when the player already owns the magnet
+const DAY7_FALLBACK = { day: 7, type: 'gold', val: 3000, icon: '🪙', label: '+3,000 gold' };
