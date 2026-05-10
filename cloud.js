@@ -737,6 +737,9 @@ function _applyCloudSave(saveData) {
     }
     if (d.roundEggs) G.roundEggs = d.roundEggs;
     migrateSave(G);
+    // PREMIUM_KEY is the authoritative local store for purchased/daily-granted items.
+    // Re-apply it now so cloud save data can't downgrade locally-owned premium state.
+    loadPremium();
     saveGame();
     renderAll();
     checkSkillsUnlock();
