@@ -173,7 +173,7 @@ async function restorePurchases(opts = {}) {
         if (prod && prod.boughtKey && !G[prod.boughtKey]) { G[prod.boughtKey] = true; changed = true; _payLog('restore silent applied ' + p.product_id); }
         if (p.product_id === 'starter_pack' && !G.premium_starter_pack) { G.premium_starter_pack = true; changed = true; }
       });
-      if (changed) { saveGame(); savePremium(); renderPremiumShop(); }
+      if (changed) { saveGame(); loadPremium(); savePremium(); renderPremiumShop(); }
       return;
     }
     purchases.forEach(p => applyPurchaseReward(p.product_id, p.reward));

@@ -222,6 +222,12 @@ function migrateSave(state) {
   }
   // Guard out-of-bounds activeMonkey (corrupt save or downgrade)
   if (state.activeMonkey >= MONKEY_DATA.length) state.activeMonkey = 0;
+  // Repair: if player reached day 7 (longestStreak >= 7), the magnet was earned via daily
+  // but may have been wiped by a cloud-save sync bug — restore it.
+  if (!state.owned_goldmagnet && (state.longestStreak || 0) >= 7) {
+    state.owned_goldmagnet = true;
+    savePremium();
+  }
 }
 
 function loadGame() {
@@ -351,8 +357,11 @@ function claimDaily() {
   if (reward.type === 'maxH')       { G.maxH += dv; if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + dv); }
   if (reward.type === 'feathers')   { G.feathers += dv; G.totalFeathers += dv; }
   if (reward.type === 'goldmagnet') {
-    if (!G.owned_goldmagnet) { G.owned_goldmagnet = true; savePremium(); }
-    else { G.gold += 2000; G.totalGold += 2000; } // consolation if already purchased
+    if (!G.owned_goldmagnet) {
+      G.owned_goldmagnet = true;
+      savePremium();
+      _syncToCloud().catch(() => {}); // push to cloud immediately so sync can't overwrite it
+    } else { G.gold += 2000; G.totalGold += 2000; } // consolation if already purchased
   }
 
   G.dailyClaimed = true;
