@@ -146,8 +146,17 @@ const PREMIUM_FIELDS = [
 ];
 
 function savePremium() {
+  // Merge with existing PREMIUM_KEY: for boolean ownership flags, truthy wins.
+  // This prevents any caller with stale G values (cloud sync, race conditions)
+  // from downgrading a legitimately-owned premium item to false.
+  // Explicit revocations must clear the flag in PREMIUM_KEY directly before calling savePremium().
+  const existing = (() => {
+    try { return JSON.parse(localStorage.getItem(PREMIUM_KEY) || '{}'); } catch (_) { return {}; }
+  })();
   const data = {};
-  for (const k of PREMIUM_FIELDS) data[k] = G[k];
+  for (const k of PREMIUM_FIELDS) {
+    data[k] = (typeof G[k] === 'boolean') ? (G[k] || !!existing[k]) : G[k];
+  }
   try { localStorage.setItem(PREMIUM_KEY, JSON.stringify(data)); } catch (_) {}
 }
 

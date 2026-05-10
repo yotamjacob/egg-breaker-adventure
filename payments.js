@@ -152,12 +152,18 @@ async function restorePurchases(opts = {}) {
     if (revokeIds.length > 0) {
       _payLog('restore: revoking disabled products=[' + revokeIds.join(',') + ']');
       let revokeChanged = false;
+      // Pre-clear revoked items from PREMIUM_KEY so the merge in savePremium() doesn't restore them
+      let pkForRevoke;
+      try { pkForRevoke = JSON.parse(localStorage.getItem(PREMIUM_KEY) || '{}'); } catch (_) { pkForRevoke = {}; }
       revokeIds.forEach(pid => {
         const prod = PREMIUM_PRODUCTS.find(p => p.id === pid);
-        if (prod && prod.boughtKey && G[prod.boughtKey]) { G[prod.boughtKey] = false; revokeChanged = true; }
-        if (pid === 'starter_pack' && G.premium_starter_pack) { G.premium_starter_pack = false; revokeChanged = true; }
+        if (prod && prod.boughtKey && G[prod.boughtKey]) { G[prod.boughtKey] = false; pkForRevoke[prod.boughtKey] = false; revokeChanged = true; }
+        if (pid === 'starter_pack' && G.premium_starter_pack) { G.premium_starter_pack = false; pkForRevoke.premium_starter_pack = false; revokeChanged = true; }
       });
-      if (revokeChanged) { saveGame(); savePremium(); renderPremiumShop(); }
+      if (revokeChanged) {
+        try { localStorage.setItem(PREMIUM_KEY, JSON.stringify(pkForRevoke)); } catch (_) {}
+        saveGame(); savePremium(); renderPremiumShop();
+      }
     }
     const purchases = data.purchases || [];
     _payLog('restore found=' + purchases.length + ' items=[' + purchases.map(p => p.product_id).join(',') + ']');
