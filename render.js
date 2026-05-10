@@ -1192,6 +1192,7 @@ function isTrophyHidden(a) {
 }
 
 function renderPremiumShop() {
+  loadPremium(); // always read authoritative PREMIUM_KEY before rendering
   const panel = $id('panel-premium');
   if (!panel) return;
   panel.innerHTML =
