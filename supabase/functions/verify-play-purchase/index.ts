@@ -138,10 +138,9 @@ Deno.serve(async (req) => {
 
     if (existing) {
       if (existing.disabled) {
-        return new Response(
-          JSON.stringify({ success: false, disabled: true }),
-          { headers: { ...hdrs, 'Content-Type': 'application/json' } },
-        )
+        // Play API already confirmed purchaseState=0 above — Google is the authority.
+        // Re-enable so restore-purchases stops revoking it.
+        await supabase.from('play_purchases').update({ disabled: false }).eq('id', existing.id)
       }
       return new Response(
         JSON.stringify({ success: true, reward: {}, already_processed: true }),

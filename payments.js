@@ -46,13 +46,6 @@ window.onPlayPurchaseResult = async function(productId, purchaseToken, success, 
     if (error) showShopSnack('⚠️ ' + error);
     return;
   }
-  // If called from queryOwnedPurchases on startup and this non-consumable is already
-  // applied in game state, skip the verify network call (idempotent — already owned).
-  const _prod = PREMIUM_PRODUCTS.find(p => p.id === productId);
-  if (_prod && _prod.boughtKey && G[_prod.boughtKey]) {
-    _payLog('onPlayPurchaseResult: ' + productId + ' already owned in game state — skip verify');
-    return;
-  }
   try {
     // Use same-origin Vercel proxy to avoid CORS failures from the Android WebView
     _payLog('verify START token=' + purchaseToken.slice(0, 20));
@@ -75,6 +68,15 @@ window.onPlayPurchaseResult = async function(productId, purchaseToken, success, 
     if (data.error) { _payLog('verify APP_ERROR: ' + data.error); throw new Error(data.error); }
     if (!data.success) { _payLog('verify not success: ' + JSON.stringify(data)); return; }
     _payLog('verify OK reward=' + JSON.stringify(data.reward || {}));
+    if (data.already_processed) {
+      // Silently re-sync ownership without sound or snack (server confirmed valid, no new reward)
+      _payLog('verify already_processed ' + productId + ' — silent re-sync');
+      const _rp = PREMIUM_PRODUCTS.find(p => p.id === productId);
+      if (_rp && _rp.boughtKey) G[_rp.boughtKey] = true;
+      if (productId === 'starter_pack') G.premium_starter_pack = true;
+      saveGame(); savePremium(); renderPremiumShop();
+      return;
+    }
     applyPurchaseReward(productId, data.reward);
   } catch (e) {
     showShopSnack('⚠️ ' + (e.message || 'Purchase verification failed.'));
