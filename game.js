@@ -369,7 +369,13 @@ function claimDaily() {
     if (!G.owned_goldmagnet) {
       G.owned_goldmagnet = true;
       savePremium();
-      _syncToCloud().catch(() => {}); // push to cloud immediately so sync can't overwrite it
+      _syncToCloud().catch(() => {});
+      // Record server-side so restore-purchases won't revoke it
+      fetch('/api/grant-daily-product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ device_id: getDeviceId(), user_id: _cloudUser ? _cloudUser.id : null, product_id: 'goldmagnet' }),
+      }).then(r => r.json()).then(d => _payLog('grant-daily goldmagnet: ' + JSON.stringify(d))).catch(e => _payLog('grant-daily ERR: ' + e.message));
     } else { G.gold += 2000; G.totalGold += 2000; } // consolation if already purchased
   }
 
