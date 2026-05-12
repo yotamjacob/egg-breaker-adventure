@@ -975,6 +975,7 @@ function activateBananaShake() {
   if (_starfallActive) return;
   if (!G.skillsUnlocked || !G.skillsUnlocked[2]) return;
   if (!isSkillReady(2)) return;
+  if (G.hammers >= G.maxH) { _skillBump($id('banana-btn')); return; }
 
   const doShake = () => {
     G.hammers = G.maxH;
@@ -1371,14 +1372,20 @@ function updateBananaBtn() {
     }
     return;
   }
-  btn.classList.remove('skill-btn-blocked');
   const ready = isSkillReady(2);
-  if (!ready) {
+  const full  = G.hammers >= G.maxH;
+  if (full) {
+    btn.classList.add('skill-btn-blocked');
+    btn.classList.remove('skill-btn-cd');
+    btn.innerHTML = '<img src="img/banana_shake.png" class="rage-btn-img" alt="">';
+    btn.disabled = false;
+  } else if (!ready) {
+    btn.classList.remove('skill-btn-blocked');
     btn.classList.add('skill-btn-cd');
     btn.innerHTML = `<span class="rage-cd-count">${skillEggsUntilReady(2)}</span>`;
     btn.disabled = true;
   } else {
-    btn.classList.remove('skill-btn-cd');
+    btn.classList.remove('skill-btn-blocked', 'skill-btn-cd');
     btn.innerHTML = '<img src="img/banana_shake.png" class="rage-btn-img" alt="">';
     btn.disabled = false;
   }
