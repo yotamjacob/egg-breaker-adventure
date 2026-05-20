@@ -869,6 +869,12 @@ async function toggleNotifications() {
         if (sub) await sub.unsubscribe();
       } catch (_) {}
     }
+    // Clear server-side token and hammers_full_at so cron doesn't fire after opt-out
+    fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
+      body:    JSON.stringify({ device_id: getDeviceId(), unsubscribe: true }),
+    }).catch(() => {});
     localStorage.removeItem('eba_push_sub');
     label.textContent = 'OFF';
     label.classList.remove('on');

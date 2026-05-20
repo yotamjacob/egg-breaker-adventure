@@ -23,7 +23,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: hdrs })
 
   try {
-    const { device_id, subscription, fcm_token, user_id, timezone, hammers_full_at } = await req.json()
+    const { device_id, subscription, fcm_token, user_id, timezone, hammers_full_at, unsubscribe } = await req.json()
     if (!device_id) {
       return new Response(JSON.stringify({ error: 'missing device_id' }), { status: 400, headers: hdrs })
     }
@@ -32,6 +32,14 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
+
+    // Explicit unsubscribe — clear token and pending notification so cron won't fire.
+    if (unsubscribe) {
+      await supabase.from('push_subscriptions')
+        .update({ fcm_token: null, subscription: null, hammers_full_at: null })
+        .eq('device_id', device_id)
+      return new Response(JSON.stringify({ ok: true }), { headers: hdrs })
+    }
 
     // Partial update: only hammers_full_at (no new subscription token needed).
     // Only update the field when a value is provided — never clear a pending timestamp.
