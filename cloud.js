@@ -853,6 +853,18 @@ async function _sendFcmSubscription(token) {
   });
 }
 
+function _sendPushUnsubscribe() {
+  fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
+    body:    JSON.stringify({ device_id: getDeviceId(), unsubscribe: true }),
+  }).then(() => {
+    localStorage.removeItem('_eba_push_pending_unsub');
+  }).catch(() => {
+    // Leave _eba_push_pending_unsub set — startup will retry
+  });
+}
+
 async function toggleNotifications() {
   const label = $id('notif-toggle-label');
   const btn   = $id('notif-toggle-btn');
@@ -869,13 +881,10 @@ async function toggleNotifications() {
         if (sub) await sub.unsubscribe();
       } catch (_) {}
     }
-    // Clear server-side token and hammers_full_at so cron doesn't fire after opt-out
-    fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
-      body:    JSON.stringify({ device_id: getDeviceId(), unsubscribe: true }),
-    }).catch(() => {});
     localStorage.removeItem('eba_push_sub');
+    // Mark pending so startup retries the server delete if this call fails
+    localStorage.setItem('_eba_push_pending_unsub', '1');
+    _sendPushUnsubscribe();
     label.textContent = 'OFF';
     label.classList.remove('on');
     re(); return;
@@ -905,6 +914,7 @@ async function toggleNotifications() {
       _payLog('notif: got token, subscribing');
       await _sendFcmSubscription(token);
       localStorage.setItem('eba_push_sub', '1');
+      localStorage.removeItem('_eba_push_pending_unsub');
       label.textContent = 'ON';
       label.classList.add('on');
       _payLog('notif: subscribed OK');
@@ -943,6 +953,7 @@ async function toggleNotifications() {
       }),
     });
     localStorage.setItem('eba_push_sub', '1');
+    localStorage.removeItem('_eba_push_pending_unsub');
     label.textContent = 'ON';
     label.classList.add('on');
   } catch (e) {
@@ -972,5 +983,9 @@ function _initNotifBtn() {
     if (hasSub) localStorage.removeItem('eba_push_sub');
     label.textContent = 'OFF';
     label.classList.remove('on');
+    // Retry server-side delete if a previous unsubscribe didn't reach the server
+    if (localStorage.getItem('_eba_push_pending_unsub')) {
+      _sendPushUnsubscribe();
+    }
   }
 }
