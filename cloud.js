@@ -983,9 +983,10 @@ function _initNotifBtn() {
     if (hasSub) localStorage.removeItem('eba_push_sub');
     label.textContent = 'OFF';
     label.classList.remove('on');
-    // Retry server-side delete if a previous unsubscribe didn't reach the server
-    if (localStorage.getItem('_eba_push_pending_unsub')) {
-      _sendPushUnsubscribe();
-    }
+    // Always delete the server row on startup when not subscribed.
+    // This covers: failed unsubscribe calls, pre-v2.5.80 opt-outs, and
+    // any other case where the local flag and server state diverged.
+    // DELETE is a no-op if the row doesn't exist, so this is always safe.
+    _sendPushUnsubscribe();
   }
 }
