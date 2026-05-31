@@ -857,7 +857,7 @@ function _sendPushUnsubscribe() {
   fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
-    body:    JSON.stringify({ device_id: getDeviceId(), unsubscribe: true }),
+    body:    JSON.stringify({ device_id: getDeviceId(), user_id: _cloudUser ? _cloudUser.id : null, unsubscribe: true }),
   }).then(() => {
     localStorage.removeItem('_eba_push_pending_unsub');
   }).catch(() => {
