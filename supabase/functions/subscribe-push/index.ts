@@ -33,8 +33,12 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    // Explicit unsubscribe — delete the row entirely so the cron never picks it up.
+    // Explicit unsubscribe — null the delivery tokens first so the cron query filter
+    // excludes this row even if the subsequent delete doesn't land. Then delete.
     if (unsubscribe) {
+      await supabase.from('push_subscriptions')
+        .update({ fcm_token: null, subscription: null, hammers_full_at: null })
+        .eq('device_id', device_id)
       await supabase.from('push_subscriptions').delete().eq('device_id', device_id)
       return new Response(JSON.stringify({ ok: true }), { headers: hdrs })
     }

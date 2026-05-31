@@ -198,6 +198,7 @@ serve(async (req) => {
       const { data, error } = await supabase
         .from('push_subscriptions')
         .select('device_id, subscription, fcm_token, timezone, last_notified_at, hammers_full_at, updated_at')
+        .or('fcm_token.not.is.null,subscription.not.is.null')   // skip opted-out rows with no delivery method
         .or(`last_notified_at.is.null,last_notified_at.lt.${dedupeCutoff}`)
         .or(`hammers_full_at.lt.${nowIso},updated_at.lt.${inactiveCutoff}`)
         .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
