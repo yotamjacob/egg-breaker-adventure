@@ -7,6 +7,13 @@
 
 const esbuild = require('esbuild');
 const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+// `node build.js --itch` also assembles an upload-ready itch.io build
+// into /dist-itch (+ dist-itch.zip). Without the flag the build is
+// identical to before — the Vercel/Android pipeline is untouched.
+const ITCH = process.argv.includes('--itch');
 
 const JS_FILES = [
   'lz-string.min.js',
@@ -73,6 +80,96 @@ async function build() {
   }
 
   console.log('Build complete.');
+
+  if (ITCH) buildItch();
+}
+
+// ============================================================
+//  itch.io build target  (node build.js --itch)
+//  Produces a clean, upload-ready static build in /dist-itch
+//  with index.html at the ROOT, plus a zipped dist-itch.zip.
+//  Source files (index.html, render.js, etc.) are never modified.
+// ============================================================
+function buildItch() {
+  const OUT = 'dist-itch';
+
+  // 1. Clean output dir.
+  fs.rmSync(OUT, { recursive: true, force: true });
+  fs.mkdirSync(OUT, { recursive: true });
+
+  // 2. Copy the only files the web game needs at runtime.
+  const FILES = [
+    'bundle.min.js',
+    'bundle.min.css',
+    'favicon.ico',
+    'icon-192.png',
+    'icon-512.png',
+    'itch/itch.css',          // → dist-itch/itch.css
+    'itch/itch.js',           // → dist-itch/itch.js
+    'itch/google-play-badge.png',
+  ];
+  for (const f of FILES) {
+    fs.copyFileSync(f, path.join(OUT, path.basename(f)));
+  }
+  const DIRS = ['img', 'audio'];
+  for (const d of DIRS) {
+    fs.cpSync(d, path.join(OUT, d), { recursive: true });
+  }
+
+  // 3. Transform index.html → itch-safe variant.
+  let html = fs.readFileSync('index.html', 'utf8');
+
+  // 3a. Root-absolute icon/favicon paths → relative (itch serves
+  //     the game from a subpath, so leading-slash paths 404).
+  html = html
+    .replace(/(["'(])\/(icon-512\.png|icon-192\.png|favicon\.ico)/g, '$1./$2');
+
+  // 3b. Remove the PWA manifest link (no manifest in the itch build).
+  html = html.replace(/\s*<link rel="manifest"[^>]*>\n?/, '\n');
+
+  // 3c. Strip the service-worker registration block entirely — a SW
+  //     scoped to "/" cannot register from itch's subpath and only
+  //     adds failure modes inside the sandboxed iframe.
+  html = html.replace(
+    /\s*<script>\s*if \('serviceWorker' in navigator\)[\s\S]*?<\/script>/,
+    ''
+  );
+
+  // 3d. Inject the itch-only stylesheet (before </head>) and script
+  //     (before </body>, after bundle.min.js has already executed).
+  html = html.replace(
+    '</head>',
+    '  <link rel="stylesheet" href="./itch.css" />\n</head>'
+  );
+  html = html.replace(
+    '</body>',
+    '  <script defer src="./itch.js"></script>\n</body>'
+  );
+
+  fs.writeFileSync(path.join(OUT, 'index.html'), html);
+
+  // 4. Zip with index.html at the archive ROOT (not nested).
+  fs.rmSync('dist-itch.zip', { force: true });
+  execSync('zip -r -X ../dist-itch.zip .', { cwd: OUT, stdio: 'ignore' });
+
+  // 5. Report.
+  const list = listFiles(OUT).sort();
+  const total = list.reduce((s, f) => s + fs.statSync(path.join(OUT, f)).size, 0);
+  console.log('\nitch build → ' + OUT + '/  (+ dist-itch.zip)');
+  console.log('  files: ' + list.length + '   total: ' + kb(total));
+  const hasRootIndex = fs.existsSync(path.join(OUT, 'index.html'));
+  console.log('  index.html at root: ' + (hasRootIndex ? 'YES' : 'NO'));
+}
+
+function listFiles(dir, base) {
+  base = base || dir;
+  let out = [];
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) out = out.concat(listFiles(full, base));
+    else out.push(path.relative(base, full));
+  }
+  return out;
 }
 
 const kb  = n => Math.round(n / 1024) + 'KB';

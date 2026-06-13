@@ -7,3 +7,5 @@ bundle.min.js
 bundle.min.css
 .claude/
 supabase/.temp/
+dist-itch/
+dist-itch.zip

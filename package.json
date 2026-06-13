@@ -1,6 +1,7 @@
 {
   "scripts": {
     "build": "node build.js",
+    "build:itch": "node build.js --itch",
     "test": "node --test 'tests/**/*.test.js'"
   },
   "dependencies": {
