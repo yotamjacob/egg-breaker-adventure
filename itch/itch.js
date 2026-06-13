@@ -83,30 +83,16 @@
   cta.appendChild(ctaBadge);
   document.body.appendChild(cta);
 
-  // ---- C: scale the framed phone to fit the embed height ----
-  // The phone "screen" (#app) lays out at a fixed 900px so the egg
-  // tray is never crammed; here we compute a scale factor so the whole
-  // framed phone shrinks to fit shorter embeds (e.g. a 720px-tall itch
-  // viewport that must stay within the laptop screen). CSS can't divide
-  // vh/px into a unitless ratio, so we set it from JS. Only matters at
-  // >=900px wide — the frame is hidden below that anyway.
-  var PHONE_H = 1020; // 960px screen + 30px top + 30px bottom bezel
-  function fitScale() {
-    var s = 1;
-    if (window.innerWidth >= 900) {
-      s = Math.min(1, (window.innerHeight - 16) / PHONE_H);
-    }
-    document.body.style.setProperty('--itch-scale', String(s));
-  }
-  fitScale();
-  window.addEventListener('resize', fitScale);
-
-  // ---- C: desktop phone-frame bezel — wrap #app as a real parent ----
-  // Reparenting #app into the frame guarantees the screen and bezel stay
-  // concentric and scale together. Moving a node preserves its children
-  // and event listeners, and the game references #app via getElementById,
-  // so this is transparent to the game logic. On narrow views the frame
-  // is display:contents (CSS), so #app lays out exactly as before.
+  // ---- C: desktop phone-frame — wrap #app as a real parent ----
+  // The phone renders at TRUE 1:1 size (no CSS scaling). The game derives
+  // its hammer/particle positions from getBoundingClientRect() and writes
+  // them back as unscaled px, plus tracks the cursor via clientX − rect.left
+  // — all of which only line up at 100% scale, so we never shrink. The
+  // frame is the bezel and the parent of #app; reparenting preserves #app's
+  // children and listeners, and the game references #app via getElementById,
+  // so this is transparent to the game. On narrow views the frame is
+  // display:contents (CSS), so #app lays out exactly as before. On wide
+  // views the body scrolls (CSS) if the window is shorter than the phone.
   var frame = document.createElement('div');
   frame.className = 'itch-frame';
   frame.setAttribute('aria-hidden', 'true');

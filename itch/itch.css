@@ -63,7 +63,7 @@
 /* On narrow / portrait views the frame is a transparent passthrough
    (display:contents) so #app — now its child — lays out exactly as it
    would directly under <body>. The mobile layout is thus untouched.
-   The side decor + desktop CTA are simply hidden.                    */
+   Side decor + desktop CTA are hidden.                              */
 .itch-frame { display: contents; }
 .itch-decor,
 .itch-deskcta { display: none; }
@@ -73,33 +73,36 @@
    ============================================================ */
 @media (min-width: 900px) {
 
-  /* The device bezel becomes a real, centered, fixed box and the PARENT
-     of #app (itch.js reparents #app into it). Scaling the frame scales
-     the screen with it — they can never drift apart — and because #app
-     itself carries no transform, it neither collides with the game's own
-     transforms nor becomes a containing block for the modal overlays.
-     box-sizing:border-box means the padding IS the bezel thickness, so
-     the inner content box is exactly 540×960 for #app to fill.
-     Height (1020) feeds --itch-scale in itch.js so the whole phone
-     scales down to fit the embed height — tray never crammed.          */
+  /* Center the phone in the viewport (the base body is already a centered
+     flex row; we just add vertical centering). The phone renders at true
+     1:1 size, so the embed should be tall enough to show it (≈1080px) —
+     the itch page itself scrolls if the window is shorter, and the
+     Fullscreen button gives a perfect, roomy view.                       */
+  body {
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* The device bezel is the PARENT of #app (itch.js reparents #app into
+     it) so the screen and bezel can never drift apart. The phone renders
+     at TRUE 1:1 size — no transform/zoom — because the game's hammer,
+     particle and cursor-tracking math only line up at 100% scale.
+     box-sizing:border-box → the padding IS the bezel thickness, so the
+     inner content box is exactly 540×960 for #app to fill.              */
   .itch-frame {
     display: block;
     box-sizing: border-box;
-    position: fixed;
-    left: 50%;
-    top: 50%;
+    flex: 0 0 auto;
     width: 568px;
     height: 1020px;
+    margin: 24px 0;
     padding: 30px 14px;
-    transform: translate(-50%, -50%) scale(var(--itch-scale, 1));
-    transform-origin: center center;
     border-radius: 46px;
     background: linear-gradient(155deg, #2a2a44 0%, #15152a 55%, #0a0a18 100%);
     box-shadow:
       inset 0 0 0 2px rgba(245, 197, 66, 0.18),
       inset 0 0 18px rgba(0, 0, 0, 0.6),
       0 34px 90px rgba(0, 0, 0, 0.65);
-    z-index: 1;
   }
   /* The game screen — a plain child filling the bezel's content box. */
   #app {
