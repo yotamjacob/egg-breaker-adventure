@@ -83,6 +83,24 @@
   cta.appendChild(ctaBadge);
   document.body.appendChild(cta);
 
+  // ---- C: scale the framed phone to fit the embed height ----
+  // The phone "screen" (#app) lays out at a fixed 900px so the egg
+  // tray is never crammed; here we compute a scale factor so the whole
+  // framed phone shrinks to fit shorter embeds (e.g. a 720px-tall itch
+  // viewport that must stay within the laptop screen). CSS can't divide
+  // vh/px into a unitless ratio, so we set it from JS. Only matters at
+  // >=900px wide — the frame is hidden below that anyway.
+  var PHONE_H = 930; // 900px screen + 30px bezel
+  function fitScale() {
+    var s = 1;
+    if (window.innerWidth >= 900) {
+      s = Math.min(1, (window.innerHeight - 20) / PHONE_H);
+    }
+    document.body.style.setProperty('--itch-scale', String(s));
+  }
+  fitScale();
+  window.addEventListener('resize', fitScale);
+
   // ---- C: desktop phone-frame bezel (CSS shows it >=900px) ----
   var frame = document.createElement('div');
   frame.className = 'itch-frame';

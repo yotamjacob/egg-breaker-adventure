@@ -74,13 +74,18 @@
      phone standing in the middle of the screen.                 */
   body { align-items: center; }
 
-  /* The 540px column becomes the phone "screen". */
+  /* The 540px column becomes the phone "screen". It always lays out
+     at its full comfortable portrait height (900px) so the egg tray is
+     never crammed, then scales down via --itch-scale (set by itch.js)
+     to fit the actual embed height. transform-origin:center keeps it
+     centered, aligned with the frame below.                          */
   #app {
-    height: min(94vh, 900px);
-    max-height: 900px;
+    height: 900px;
     border-radius: 30px;
     position: relative;
     z-index: 2;
+    transform: scale(var(--itch-scale, 1));
+    transform-origin: center center;
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
   }
 
@@ -93,9 +98,8 @@
     left: 50%;
     top: 50%;
     width: calc(540px + 30px);
-    height: calc(min(94vh, 900px) + 30px);
-    max-height: calc(900px + 30px);
-    transform: translate(-50%, -50%);
+    height: calc(900px + 30px);
+    transform: translate(-50%, -50%) scale(var(--itch-scale, 1));
     border-radius: 46px;
     background: linear-gradient(155deg, #2a2a44 0%, #15152a 55%, #0a0a18 100%);
     box-shadow:
