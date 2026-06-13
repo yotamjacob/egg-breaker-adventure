@@ -6,6 +6,14 @@
    the Android TWA — is completely unaffected.
    ============================================================ */
 
+/* Persistent CTAs fade out after 60s (itch.js adds .itch-cta-dismissed) */
+.itch-cta,
+.itch-deskcta { transition: opacity 0.6s ease; }
+.itch-cta-dismissed {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* ---- Google Play funnel: shared link styling (B) ----------- */
 .itch-play-link,
 .itch-cta,

@@ -149,4 +149,14 @@
   desk.appendChild(deskHook);
   desk.appendChild(deskLink);
   document.body.appendChild(desk);
+
+  // ---- Auto-dismiss the persistent CTAs after 60s ----
+  // Keeps the early funnel impression but gets the Google Play banner out
+  // of the way during play. (The premium-shop badges are contextual and
+  // stay.) To remove the CTAs entirely instead, delete the cta/desk
+  // appends above — or set this timeout to 0.
+  setTimeout(function () {
+    cta.classList.add('itch-cta-dismissed');
+    desk.classList.add('itch-cta-dismissed');
+  }, 60000);
 })();
