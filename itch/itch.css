@@ -60,8 +60,11 @@
 .itch-cta-badge { width: 116px; height: auto; display: block; }
 .itch-cta-hook { font-size: 7px; max-width: 150px; }
 
-/* Decorative side decor + framing are hidden on narrow views */
-.itch-frame,
+/* On narrow / portrait views the frame is a transparent passthrough
+   (display:contents) so #app — now its child — lays out exactly as it
+   would directly under <body>. The mobile layout is thus untouched.
+   The side decor + desktop CTA are simply hidden.                    */
+.itch-frame { display: contents; }
 .itch-decor,
 .itch-deskcta { display: none; }
 
@@ -70,36 +73,26 @@
    ============================================================ */
 @media (min-width: 900px) {
 
-  /* Center the portrait column vertically too, so it reads as a
-     phone standing in the middle of the screen.                 */
-  body { align-items: center; }
-
-  /* The 540px column becomes the phone "screen". It always lays out
-     at its full comfortable portrait height (900px) so the egg tray is
-     never crammed, then scales down via --itch-scale (set by itch.js)
-     to fit the actual embed height. transform-origin:center keeps it
-     centered, aligned with the frame below.                          */
-  #app {
-    height: 900px;
-    border-radius: 30px;
-    position: relative;
-    z-index: 2;
-    transform: scale(var(--itch-scale, 1));
-    transform-origin: center center;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-  }
-
-  /* Decorative device bezel sitting behind the screen. Injected
-     by itch.js as <div class="itch-frame">. Notch + home-bar are
-     drawn as pseudo-elements so no new art is needed.           */
+  /* The device bezel becomes a real, centered, fixed box and the PARENT
+     of #app (itch.js reparents #app into it). Scaling the frame scales
+     the screen with it — they can never drift apart — and because #app
+     itself carries no transform, it neither collides with the game's own
+     transforms nor becomes a containing block for the modal overlays.
+     box-sizing:border-box means the padding IS the bezel thickness, so
+     the inner content box is exactly 540×960 for #app to fill.
+     Height (1020) feeds --itch-scale in itch.js so the whole phone
+     scales down to fit the embed height — tray never crammed.          */
   .itch-frame {
     display: block;
+    box-sizing: border-box;
     position: fixed;
     left: 50%;
     top: 50%;
-    width: calc(540px + 30px);
-    height: calc(900px + 30px);
+    width: 568px;
+    height: 1020px;
+    padding: 30px 14px;
     transform: translate(-50%, -50%) scale(var(--itch-scale, 1));
+    transform-origin: center center;
     border-radius: 46px;
     background: linear-gradient(155deg, #2a2a44 0%, #15152a 55%, #0a0a18 100%);
     box-shadow:
@@ -107,25 +100,35 @@
       inset 0 0 18px rgba(0, 0, 0, 0.6),
       0 34px 90px rgba(0, 0, 0, 0.65);
     z-index: 1;
-    pointer-events: none;
   }
-  /* Notch / speaker */
+  /* The game screen — a plain child filling the bezel's content box. */
+  #app {
+    position: relative;
+    width: 540px;
+    height: 960px;
+    max-width: none;
+    border-radius: 30px;
+    overflow: hidden;
+    z-index: 2;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  }
+  /* Notch / speaker (sits in the top bezel padding) */
   .itch-frame::before {
     content: '';
     position: absolute;
-    top: 14px;
+    top: 10px;
     left: 50%;
     transform: translateX(-50%);
     width: 120px;
-    height: 16px;
+    height: 14px;
     background: #05050d;
     border-radius: 0 0 12px 12px;
   }
-  /* Home indicator */
+  /* Home indicator (sits in the bottom bezel padding) */
   .itch-frame::after {
     content: '';
     position: absolute;
-    bottom: 12px;
+    bottom: 11px;
     left: 50%;
     transform: translateX(-50%);
     width: 110px;

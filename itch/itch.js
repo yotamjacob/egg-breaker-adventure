@@ -90,22 +90,33 @@
   // viewport that must stay within the laptop screen). CSS can't divide
   // vh/px into a unitless ratio, so we set it from JS. Only matters at
   // >=900px wide — the frame is hidden below that anyway.
-  var PHONE_H = 930; // 900px screen + 30px bezel
+  var PHONE_H = 1020; // 960px screen + 30px top + 30px bottom bezel
   function fitScale() {
     var s = 1;
     if (window.innerWidth >= 900) {
-      s = Math.min(1, (window.innerHeight - 20) / PHONE_H);
+      s = Math.min(1, (window.innerHeight - 16) / PHONE_H);
     }
     document.body.style.setProperty('--itch-scale', String(s));
   }
   fitScale();
   window.addEventListener('resize', fitScale);
 
-  // ---- C: desktop phone-frame bezel (CSS shows it >=900px) ----
+  // ---- C: desktop phone-frame bezel — wrap #app as a real parent ----
+  // Reparenting #app into the frame guarantees the screen and bezel stay
+  // concentric and scale together. Moving a node preserves its children
+  // and event listeners, and the game references #app via getElementById,
+  // so this is transparent to the game logic. On narrow views the frame
+  // is display:contents (CSS), so #app lays out exactly as before.
   var frame = document.createElement('div');
   frame.className = 'itch-frame';
   frame.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(frame);
+  var appEl = document.getElementById('app');
+  if (appEl && appEl.parentNode) {
+    appEl.parentNode.insertBefore(frame, appEl);
+    frame.appendChild(appEl);
+  } else {
+    document.body.appendChild(frame);
+  }
 
   // ---- C: scattered decor reusing existing sprites ----
   // {src, side, edge%, top%, size, rotation}
