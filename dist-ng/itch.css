@@ -1,0 +1,204 @@
+/* ============================================================
+   itch.css — ITCH BUILD ONLY
+   Loaded only by /dist-itch/index.html. Never bundled into the
+   Vercel/Android build. All section-C styling is scoped to wide
+   viewports (min-width:900px) so the mobile layout — and therefore
+   the Android TWA — is completely unaffected.
+   ============================================================ */
+
+/* Persistent CTAs fade out after 60s (itch.js adds .itch-cta-dismissed) */
+.itch-cta,
+.itch-deskcta { transition: opacity 0.6s ease; }
+.itch-cta-dismissed {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* ---- Google Play funnel: shared link styling (B) ----------- */
+.itch-play-link,
+.itch-cta,
+.itch-deskcta-badge {
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Premium-shop "Available on Android" → tappable Play badge (B1) */
+.android-only-msg[data-itch-linked] { padding: 0; }
+.itch-play-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.itch-play-badge { width: 150px; height: auto; display: block; }
+.itch-play-hook,
+.itch-cta-hook,
+.itch-deskcta-hook {
+  font-family: var(--px);
+  font-size: 8px;
+  line-height: 1.5;
+  color: var(--gold);
+  text-align: center;
+  text-shadow: 1px 1px 0 var(--dark);
+}
+
+/* ---- Persistent low-key CTA during play (B2) --------------- */
+/* Visible on narrow / portrait views; replaced by the desktop
+   side treatment on wide viewports (see media query below).    */
+.itch-cta {
+  position: fixed;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 12px 5px;
+  background: rgba(10, 10, 24, 0.78);
+  border: 1px solid var(--gold3);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  opacity: 0.92;
+  transition: opacity 0.2s;
+  pointer-events: auto;
+}
+.itch-cta:hover { opacity: 1; }
+.itch-cta-badge { width: 116px; height: auto; display: block; }
+.itch-cta-hook { font-size: 7px; max-width: 150px; }
+
+/* On narrow / portrait views the frame is a transparent passthrough
+   (display:contents) so #app — now its child — lays out exactly as it
+   would directly under <body>. The mobile layout is thus untouched.
+   Side decor + desktop CTA are hidden.                              */
+.itch-frame { display: contents; }
+.itch-decor,
+.itch-deskcta { display: none; }
+
+/* ============================================================
+   SECTION C — desktop phone-frame treatment (wide viewports)
+   ============================================================ */
+@media (min-width: 900px) {
+
+  /* Center the phone in the viewport (the base body is already a centered
+     flex row; we just add vertical centering). The phone renders at true
+     1:1 size, so the embed should be tall enough to show it (≈1080px) —
+     the itch page itself scrolls if the window is shorter, and the
+     Fullscreen button gives a perfect, roomy view.                       */
+  body {
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* The device bezel is the PARENT of #app (itch.js reparents #app into
+     it) so the screen and bezel can never drift apart. The phone renders
+     at TRUE 1:1 size — no transform/zoom — because the game's hammer,
+     particle and cursor-tracking math only line up at 100% scale.
+     box-sizing:border-box → the padding IS the bezel thickness, so the
+     inner content box is exactly 540×960 for #app to fill.              */
+  .itch-frame {
+    display: block;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: 568px;
+    height: 1020px;
+    margin: 24px 0;
+    padding: 30px 14px;
+    border-radius: 46px;
+    background: linear-gradient(155deg, #2a2a44 0%, #15152a 55%, #0a0a18 100%);
+    box-shadow:
+      inset 0 0 0 2px rgba(245, 197, 66, 0.18),
+      inset 0 0 18px rgba(0, 0, 0, 0.6),
+      0 34px 90px rgba(0, 0, 0, 0.65);
+  }
+  /* The game screen — a plain child filling the bezel's content box. */
+  #app {
+    position: relative;
+    width: 540px;
+    height: 960px;
+    max-width: none;
+    border-radius: 30px;
+    overflow: hidden;
+    z-index: 2;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  }
+  /* Notch / speaker (sits in the top bezel padding) */
+  .itch-frame::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 14px;
+    background: #05050d;
+    border-radius: 0 0 12px 12px;
+  }
+  /* Home indicator (sits in the bottom bezel padding) */
+  .itch-frame::after {
+    content: '';
+    position: absolute;
+    bottom: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 3px;
+  }
+
+  /* Scattered, low-opacity sprites fill the empty side space.
+     Reuses existing game art from img/ — nothing new generated. */
+  .itch-decor {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .itch-decor img {
+    position: absolute;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+    animation: itch-bob 7s ease-in-out infinite;
+  }
+  @keyframes itch-bob {
+    0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+    50%      { transform: translateY(-14px) rotate(var(--r, 0deg)); }
+  }
+
+  /* Google Play badge + cloud-save hook in the side space (C). */
+  .itch-deskcta {
+    display: flex;
+    position: fixed;
+    top: 50%;
+    right: clamp(16px, 6vw, 90px);
+    transform: translateY(-50%);
+    z-index: 30;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 210px;
+    padding: 20px 18px;
+    background: rgba(10, 10, 24, 0.55);
+    border: 1px solid var(--gold3);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+    text-align: center;
+  }
+  .itch-deskcta-title {
+    font-family: var(--px);
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--gold);
+    text-shadow: 2px 2px 0 var(--dark);
+  }
+  .itch-deskcta-badge { display: block; }
+  .itch-deskcta-badge img { width: 180px; height: auto; display: block; }
+  .itch-deskcta-hook { font-size: 9px; max-width: 180px; }
+
+  /* On wide viewports the bottom pill is superseded by the side CTA */
+  .itch-cta { display: none; }
+}

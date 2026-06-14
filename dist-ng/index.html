@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+  <title>Egg Smash Adventures</title>
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#f5c542" />
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Egg Smash" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+
+  <!-- Open Graph (sharing) -->
+  <meta property="og:title" content="Egg Smash Adventures" />
+  <meta property="og:description" content="Smash eggs, win prizes, complete collections." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="./icon-512.png" />
+  <meta property="og:url" content="https://egg-breaker-adventures.vercel.app/" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="bundle.min.css" />
+  <link rel="icon" href="./favicon.ico" sizes="32x32 16x16" type="image/x-icon" />
+  <link rel="icon" href="./icon-192.png" type="image/png" sizes="192x192" />
+
+  <!-- Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="343bb5db-6668-469d-a99c-9b6fcaa1c45a"></script>
+  <link rel="stylesheet" href="./itch.css" />
+</head>
+<body>
+  <div id="splash-screen">
+    <img src="./icon-512.png" class="splash-logo" alt="" />
+    <div class="splash-title">Egg Smash<br>Adventures</div>
+    <div class="splash-tip" id="splash-tip"></div>
+  </div>
+
+  <div id="app">
+
+    <!-- ===== Top bar ===== -->
+    <div class="top-bar">
+      <div class="title-row">
+        <div class="monkey-avatar" id="monkey-avatar">🐵</div>
+        <div class="title-text">
+          <p class="subtitle" id="monkey-subtitle">Mr. Monkey</p>
+          <p class="hammer-row" id="hammer-row">🔨 <span id="res-h">40/40</span></p>
+        </div>
+      </div>
+      <button class="icon-btn" id="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
+      <div class="resource-bar">
+        <div class="res" id="res-g-wrap" style="cursor:pointer"><span>🪙</span><strong id="res-g">0</strong></div>
+        <div class="res" id="res-b-wrap" style="display:none;cursor:pointer"><span>🍌</span><strong id="res-b">0</strong></div>
+        <div class="res" id="res-f-wrap" style="display:none;cursor:pointer"><span>🪶</span><strong id="res-f">0</strong></div>
+      </div>
+    </div>
+
+    <!-- ===== Nav sections ===== -->
+    <nav class="nav-sections" id="nav-tabs">
+      <div class="nav-grid">
+        <button class="nav-tab" data-tab="album">Album</button>
+        <button class="nav-tab" data-tab="monkeys">Monkeys</button>
+        <button class="nav-tab" data-tab="shop">Shop</button>
+        <button class="nav-tab" data-tab="premium">Premium</button>
+      </div>
+      <button class="nav-play active" data-tab="play">Play</button>
+      <div class="nav-grid">
+        <button class="nav-tab" data-tab="log">Log</button>
+        <button class="nav-tab" data-tab="daily">Daily</button>
+        <button class="nav-tab" data-tab="achieve">Trophies</button>
+        <button class="nav-tab locked" id="nav-skills" data-tab="skills" disabled>?</button>
+      </div>
+    </nav>
+
+    <!-- ===== PLAY TAB ===== -->
+    <section class="tab-panel active" id="panel-play">
+      <!-- Stage + Starfall row -->
+      <div class="stage-star-row">
+        <div class="stage-bar" id="stage-bar" style="cursor:pointer">
+          <div class="stage-header">
+            <span class="stage-name" id="stage-name">Stage 1: Tropical Paradise</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" id="stage-fill"></div></div>
+          <div class="stage-footer">
+            <span class="stage-detail" id="stage-detail">0/5 items</span>
+            <span class="stage-tier hidden" id="stage-tier"></span>
+          </div>
+        </div>
+        <button class="starfall-box" id="star-btn" onclick="useStarfall()" disabled>
+          <span class="starfall-icon">⭐</span>
+          <strong class="starfall-count" id="star-count">0</strong>
+          <small class="starfall-hint" id="star-hint">need 5</small>
+        </button>
+      </div>
+
+      <!-- Egg tray -->
+      <div class="egg-area">
+        <div class="egg-tray-wrap" id="egg-tray-wrap">
+          <div class="stage-complete-banner hidden" id="stage-complete-banner">stage complete — tap to advance</div>
+          <div class="egg-tray" id="egg-tray"></div>
+          <button class="tray-info-btn" id="tray-info-btn" onclick="showPlayInfo()" title="How to play">ℹ️</button>
+          <div class="skill-tray-btns" id="skill-tray-btns">
+            <button class="rage-btn hidden" id="rage-btn" onclick="_rageActive ? stopMonkeyRage() : activateMonkeyRage()" title="Monkey Rage"><img src="img/rage_monkey.png" class="rage-btn-img" alt=""></button>
+            <button class="skill-tray-btn goose-btn hidden" id="goose-btn" onclick="activateGoldenGoose()" title="Golden Goose"></button>
+            <button class="skill-tray-btn banana-btn hidden" id="banana-btn" onclick="activateBananaShake()" title="Banana Shake"></button>
+          </div>
+          <div class="reward-log" id="reward-log">
+            <div class="rlog-title">Log</div>
+          </div>
+        </div>
+        <div id="overlay-layer" style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:visible">
+          <canvas id="particle-canvas"></canvas>
+          <div id="prize-zone"></div>
+          <div id="hammer"></div>
+        </div>
+      </div>
+
+      <!-- Multiplier row -->
+      <div class="mult-bar" id="mult-bar">
+        <span class="mult-label"><span class="mult-label-row"><button class="mult-info-btn" onclick="showMultInfo()" title="How multipliers work">?</button><span>Active<br>Mults</span></span><strong id="active-mult">x1</strong></span>
+        <div class="mult-queue" id="mult-queue"></div>
+      </div>
+    </section>
+
+    <!-- ===== ALBUM TAB ===== -->
+    <section class="tab-panel" id="panel-album">
+      <div class="tab-info-row"><button class="mult-info-btn" onclick="showAlbumInfo()" title="How the album works">?</button></div>
+      <div class="album-stages" id="album-stages"></div>
+      <div class="album-items" id="album-items"></div>
+    </section>
+
+    <!-- ===== MONKEYS TAB ===== -->
+    <section class="tab-panel" id="panel-monkeys">
+      <div class="tab-info-row"><button class="mult-info-btn" onclick="showMonkeysInfo()" title="How monkeys work">?</button></div>
+      <div class="monkey-grid" id="monkey-grid"></div>
+    </section>
+
+    <!-- ===== SHOP TAB ===== -->
+    <section class="tab-panel" id="panel-shop">
+      <div class="auto-buy-row">
+        <span class="auto-buy-label">Auto-buy</span>
+        <button class="auto-buy-toggle" id="auto-buy-btn" onclick="toggleAutoBuy()">OFF</button>
+        <button class="mult-info-btn shop-info-btn" onclick="showShopInfo()" title="How shop bonuses work">?</button>
+      </div>
+      <h3 class="section-title">Consumables</h3>
+      <div class="shop-grid" id="shop-consumables"></div>
+      <h3 class="section-title">Upgrades</h3>
+      <div class="shop-grid" id="shop-upgrades"></div>
+      <h3 class="section-title">Special Hammers</h3>
+      <div class="shop-grid" id="shop-hammers"></div>
+      <h3 class="section-title">Hats</h3>
+      <div class="shop-grid" id="shop-hats"></div>
+    </section>
+
+    <!-- ===== PREMIUM TAB ===== -->
+    <section class="tab-panel" id="panel-premium"></section>
+
+    <!-- ===== STATS TAB (locked — content in Settings) ===== -->
+    <section class="tab-panel" id="panel-stats"></section>
+
+
+    <!-- ===== DAILY TAB ===== -->
+    <section class="tab-panel" id="panel-daily">
+      <div class="daily-panel">
+        <div class="daily-header">📅 Daily Rewards — Day <strong id="daily-day">1</strong> <span id="daily-header-badge" class="daily-2x-badge" style="display:none">2×</span></div>
+        <div class="daily-calendar" id="daily-calendar"></div>
+      </div>
+    </section>
+
+    <!-- ===== LOG TAB ===== -->
+    <section class="tab-panel" id="panel-log">
+      <h3 class="section-title">Activity Log</h3>
+      <div class="log-controls">
+        <button class="log-filter-btn active" data-cat="">All</button>
+        <button class="log-filter-btn" data-cat="prizes">Prizes</button>
+        <button class="log-filter-btn" data-cat="trophies">Trophies</button>
+        <button class="log-filter-btn" data-cat="items">Items</button>
+        <button class="log-filter-btn" data-cat="discovery">Discoveries</button>
+        <button class="log-filter-btn" data-cat="specials">Specials</button>
+      </div>
+      <div class="full-log-list" id="full-log-list"></div>
+    </section>
+
+    <!-- ===== ACHIEVEMENTS TAB ===== -->
+    <section class="tab-panel" id="panel-achieve">
+      <h3 class="section-title">Trophies</h3>
+      <div class="achieve-grid" id="achieve-grid"></div>
+      <h3 class="section-title">Secrets</h3>
+      <div class="achieve-grid" id="secrets-grid"></div>
+    </section>
+
+    <!-- ===== SKILLS TAB ===== -->
+    <section class="tab-panel" id="panel-skills">
+      <div class="tab-info-row"><button class="mult-info-btn" onclick="showSkillsInfo()" title="How skills work">?</button></div>
+      <div class="skills-grid" id="skills-grid"></div>
+    </section>
+
+    <!-- ===== POPUPS ===== -->
+
+
+    <div class="overlay hidden" id="overlay-stage">
+      <div class="popup pop-stage">
+        <div class="pop-icon">🎉</div>
+        <strong id="pop-stage-title"></strong>
+        <span class="pop-sub" id="pop-stage-detail"></span>
+        <button class="pop-btn" onclick="closeOverlay('overlay-stage')">Continue!</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="overlay-levelup">
+      <div class="popup pop-levelup">
+        <div class="pop-icon spin">⭐</div>
+        <strong id="pop-level-title"></strong>
+        <span class="pop-sub" id="pop-level-detail"></span>
+        <button class="pop-btn" onclick="closeOverlay('overlay-levelup')">Let's go!</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="overlay-skills-unlock" onclick="if(event.target===this)closeOverlay('overlay-skills-unlock')">
+      <div class="popup pop-skills-unlock">
+        <div class="pop-icon">⚡</div>
+        <strong>Skills Unlocked!</strong>
+        <span class="pop-sub">Two monkey adventures complete — powerful new abilities await.</span>
+        <div class="confirm-btns">
+          <button class="pop-btn confirm-yes" onclick="goToSkills()">Let's take a look!</button>
+          <button class="pop-btn confirm-no" onclick="closeOverlay('overlay-skills-unlock')">Later</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="overlay-confirm">
+      <div class="popup pop-confirm">
+        <div class="pop-icon" id="confirm-icon">🛒</div>
+        <strong id="confirm-title"></strong>
+        <span class="pop-sub" id="confirm-detail"></span>
+        <div class="confirm-btns">
+          <button class="pop-btn confirm-yes" id="confirm-yes">Buy</button>
+          <button class="pop-btn confirm-no" onclick="cancelConfirm()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ===== WELCOME MODAL ===== -->
+    <div class="overlay hidden" id="overlay-welcome" onclick="if(event.target===this)dismissWelcome()">
+      <div class="popup pop-welcome">
+        <div class="pop-icon">🥚</div>
+        <strong>Welcome to Egg Smash Adventures!</strong>
+        <span class="pop-sub">Sync your progress to the cloud so you never lose your save.</span>
+        <div class="confirm-btns">
+          <button class="pop-btn confirm-yes" onclick="dismissWelcome(true)">Take me there</button>
+          <button class="pop-btn confirm-no" onclick="dismissWelcome()">No thanks</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS MENU ===== -->
+    <div class="overlay hidden" id="overlay-settings" onclick="if(event.target===this)closeOverlay('overlay-settings')">
+      <div class="popup pop-settings">
+        <div class="settings-header">
+          <div class="settings-header-left">
+            <button class="settings-sound-btn" id="sound-btn" onclick="toggleSound()">🔊</button>
+            <button class="settings-sound-btn" id="music-btn" onclick="toggleMusic()">🎵</button>
+          </div>
+          <span class="settings-title-text">Settings</span>
+          <div class="settings-header-right">
+            <button class="settings-close" onclick="closeOverlay('overlay-settings')">✕</button>
+          </div>
+        </div>
+        <div class="settings-menu">
+          <button class="settings-menu-btn" onclick="openSubModal('overlay-progress',renderStats)">
+            <span class="btn-label">Overall Progress</span>
+          </button>
+          <button class="settings-menu-btn" onclick="openSubModal('overlay-lifestats',renderStats)">
+            <span class="btn-label">Lifetime Stats</span>
+          </button>
+          <button class="settings-menu-btn" onclick="openCloudSaveModal()">
+            <span class="btn-label">☁️ Cloud Save</span>
+          </button>
+          <div class="settings-menu-btn notif-row" id="notif-toggle-btn" onclick="toggleNotifications()">
+            <span class="notif-icon">🔔</span>
+            <span class="btn-label">Push Notifications</span>
+            <span class="notif-toggle-chip" id="notif-toggle-label">OFF</span>
+          </div>
+          <div class="settings-menu-btn notif-row" id="floats-toggle-btn" onclick="toggleFloats()">
+            <span class="notif-icon">✨</span>
+            <span class="btn-label">Float Texts</span>
+            <span class="notif-toggle-chip" id="floats-toggle-label">ON</span>
+          </div>
+          <div class="settings-menu-btn notif-row" id="log-toggle-btn" onclick="toggleLog()">
+            <span class="notif-icon">📋</span>
+            <span class="btn-label">Play Log</span>
+            <span class="notif-toggle-chip" id="log-toggle-label">ON</span>
+          </div>
+          <button class="settings-menu-btn settings-play-btn" onclick="openExternalUrl('https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app')">
+            <span class="btn-label">⭐ Rate on Google Play</span>
+          </button>
+          <button class="settings-menu-btn settings-danger-btn" onclick="resetGame()">
+            <span class="btn-label">Reset All Progress</span>
+          </button>
+          <button class="settings-menu-btn settings-report-btn" onclick="reportIssue()">
+            <span class="btn-label">✉️ Report an Issue</span>
+          </button>
+        </div>
+        <div class="settings-version" id="version-tag"></div>
+      </div>
+    </div>
+
+    <!-- ===== OVERALL PROGRESS MODAL ===== -->
+    <div class="overlay hidden" id="overlay-progress" onclick="if(event.target===this){closeOverlay('overlay-progress');openSettings();}">
+      <div class="popup pop-submodal">
+        <div class="submodal-header">
+          <span class="submodal-title">Overall Progress</span>
+          <button class="submodal-close" onclick="closeOverlay('overlay-progress');openSettings()">✕</button>
+        </div>
+        <div class="submodal-body">
+          <div class="overall-prog" id="overall-prog">
+            <div class="overall-header">
+              <span class="overall-pct" id="overall-pct">0%</span>
+            </div>
+            <div class="overall-track"><div class="overall-fill" id="overall-fill"></div></div>
+            <div class="overall-detail" id="overall-detail"></div>
+            <div class="overall-quote" id="overall-quote"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== LIFETIME STATS MODAL ===== -->
+    <div class="overlay hidden" id="overlay-lifestats" onclick="if(event.target===this){closeOverlay('overlay-lifestats');openSettings();}">
+      <div class="popup pop-submodal pop-submodal-fit">
+        <div class="submodal-header">
+          <span class="submodal-title">Lifetime Stats</span>
+          <div style="display:flex;gap:6px">
+            <button class="submodal-close" onclick="copyStatsToClipboard()" title="Copy stats to clipboard">📋</button>
+            <button class="submodal-close" onclick="closeOverlay('overlay-lifestats');openSettings()">✕</button>
+          </div>
+        </div>
+        <div class="submodal-body flush">
+          <div class="life-stats" id="life-stats"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ===== CLOUD SAVE MODAL ===== -->
+    <div class="overlay hidden" id="overlay-cloudsave" onclick="if(event.target===this){closeOverlay('overlay-cloudsave');openSettings();}">
+      <div class="popup pop-submodal" style="max-width:320px">
+        <div class="submodal-header">
+          <span class="submodal-title">Cloud Save</span>
+          <button class="submodal-close" onclick="closeOverlay('overlay-cloudsave');openSettings()">✕</button>
+        </div>
+        <div class="submodal-body">
+          <div class="cloud-save-box">
+            <div class="cloud-health-banner hidden" id="cloud-health-banner">⚠️ Cloud service unreachable — saves may fail</div>
+            <button class="cloud-link-btn" id="cloud-link-btn" onclick="linkGoogleAccount()">
+              <span class="cloud-g-icon">G</span>
+              <span id="cloud-link-label">Link Google Account</span>
+            </button>
+            <button class="cloud-action-btn" id="cloud-save-action-btn" onclick="cloudSaveManual()" disabled>
+              ☁️ Save to Cloud
+            </button>
+            <button class="cloud-action-btn" id="cloud-load-action-btn" onclick="cloudLoadManual()" disabled>
+              📥 Load from Cloud
+            </button>
+            <button class="cloud-action-btn settings-danger-btn" id="cloud-delete-action-btn" onclick="deleteCloudData()" disabled>
+              🗑️ Delete Cloud Data
+            </button>
+            <div class="cloud-timestamp" id="cloud-timestamp">Last cloud save: never</div>
+            <label class="cloud-autosave-row disabled" id="cloud-autosave-row">
+              <input type="checkbox" id="cloud-autosave-cb" onchange="toggleCloudAutoSave(this.checked)" disabled>
+              Auto-save every 15 minutes
+            </label>
+            <div class="cloud-debug-row hidden" id="cloud-debug-row">
+              <button class="cloud-debug-btn" onclick="showCloudLog()">📋 Cloud Log</button>
+              <button class="cloud-debug-btn" onclick="showOauthDebugLog()">📋 Auth Log</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ===== ALL MONKEYS COMPLETE MODAL ===== -->
+    <div class="overlay hidden" id="overlay-congrats">
+      <div class="popup pop-congrats">
+        <div class="pop-icon spin">🏆</div>
+        <strong>Legendary Egg Breaker!</strong>
+        <span class="pop-sub">You've completed every monkey — that's seriously impressive.<br>We're already working on new content. Stay tuned!</span>
+        <span class="pop-sub" style="margin-top:2px;color:var(--amber)">In the meantime, try collecting every item in the Shop and pushing your overall progress to 100%.</span>
+        <div class="congrats-btns">
+          <button class="pop-btn" onclick="closeOverlay('overlay-congrats');document.querySelector('[data-tab=shop]').click()">🛒 Shop</button>
+          <button class="pop-btn" onclick="closeOverlay('overlay-congrats');openSubModal('overlay-progress',renderStats)">📊 Progress</button>
+          <button class="pop-btn" onclick="closeOverlay('overlay-congrats');document.querySelector('[data-tab=premium]').click()">💎 Support Us</button>
+        </div>
+        <button class="pop-btn congrats-dismiss" onclick="closeOverlay('overlay-congrats')">Close</button>
+      </div>
+    </div>
+
+    <div class="shop-snack" id="shop-snack"></div>
+
+  </div>
+
+  <div class="update-banner hidden" id="update-banner">
+    <span id="update-banner-msg">⬆ New version available!</span>
+    <button id="update-reload-btn">RELOAD</button>
+  </div>
+
+  <script>
+    // Mobile touch: walk up from target to find interactive elements
+    document.addEventListener('touchstart', function(e) {
+      var el = e.target;
+      while (el && el !== document.body) {
+        if (typeof el.getAttribute !== 'function') { el = el.parentNode; continue; }
+        // Egg smashing
+        var idx = el.getAttribute('data-idx');
+        if (idx !== null && !(el.classList && el.classList.contains('broken'))) {
+          e.preventDefault();
+          // Balloon eggs need long press
+          if (el.getAttribute('data-balloon') === '1') {
+            if (typeof startBalloonInflate === 'function') startBalloonInflate(parseInt(idx), el);
+          } else {
+            if (typeof smashEgg === 'function') smashEgg(parseInt(idx));
+          }
+          return;
+        }
+        // Monkey switch
+        var monkey = el.getAttribute('data-monkey');
+        if (monkey !== null) {
+          e.preventDefault();
+          if (typeof switchMonkey === 'function') switchMonkey(parseInt(monkey));
+          return;
+        }
+        // Monkey unlock button
+        var unlock = el.getAttribute('data-unlock');
+        if (unlock !== null) {
+          e.preventDefault();
+          if (typeof unlockMonkey === 'function') unlockMonkey(parseInt(unlock));
+          return;
+        }
+        // Feather buy button
+        if (el.classList && el.classList.contains('feather-buy-btn')) {
+          e.preventDefault();
+          if (typeof buyAlbumItem === 'function') {
+            buyAlbumItem(
+              parseInt(el.getAttribute('data-stage')),
+              parseInt(el.getAttribute('data-idx2')),
+              parseInt(el.getAttribute('data-cost'))
+            );
+          }
+          return;
+        }
+        el = el.parentNode;
+      }
+    }, { capture: true, passive: false });
+
+    // Cancel balloon inflate on touch release
+    document.addEventListener('touchend', function() {
+      if (typeof cancelBalloonInflate === 'function') cancelBalloonInflate(document.querySelector('.inflating'));
+    }, { capture: true });
+    document.addEventListener('touchcancel', function() {
+      if (typeof cancelBalloonInflate === 'function') cancelBalloonInflate(document.querySelector('.inflating'));
+    }, { capture: true });
+  </script>
+  <script>
+    // Diagnostic: show any JS crash on the splash screen + guarantee it fades
+    window._splashErr = function(msg) {
+      var el = document.getElementById('splash-version');
+      if (el) el.textContent = 'ERR: ' + String(msg).slice(0, 120);
+    };
+    window.onerror = function(msg, src, line) {
+      window._splashErr(msg + ' (' + (src||'').split('/').pop() + ':' + line + ')');
+    };
+    window.onunhandledrejection = function(e) {
+      window._splashErr('Promise: ' + (e.reason && e.reason.message || e.reason));
+    };
+    // Safety net: force splash away after 6s even if game JS never runs
+    setTimeout(function() {
+      var s = document.getElementById('splash-screen');
+      if (s) { s.style.opacity='0'; s.style.transition='opacity 0.6s'; setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 700); }
+    }, 6000);
+  </script>
+  <script src="https://browser.sentry-cdn.com/7.99.0/bundle.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="bundle.min.js"></script>
+  <script>
+    // ── Error tracking (GlitchTip / Sentry) ──────────────────────
+    if (typeof Sentry !== 'undefined') {
+      Sentry.init({
+        dsn: 'https://e4551c877a8c413eb81b78f11b7fc5ed@app.glitchtip.com/22260',
+        release: 'egg-breaker-adventures@' + (typeof VERSION !== 'undefined' ? VERSION : 'unknown'),
+        environment: 'production',
+        tracesSampleRate: 0.01,
+        autoSessionTracking: false,
+        ignoreErrors: [
+          'ResizeObserver loop limit exceeded',
+          'Non-Error promise rejection captured',
+          /chrome-extension/i,
+          /webkit-masked-url/i,
+        ],
+      });
+      Sentry.captureMessage('Sentry init OK', 'info');
+    }
+  </script>
+  <script defer src="./itch.js"></script>
+  <script defer src="./newgrounds.js"></script>
+</body>
+</html>

@@ -15,12 +15,16 @@
 | `tabs.css` | Non-play tab styles — album, shop, monkeys, premium, daily, lexicon, achievements |
 | `components.css` | Shared component styles — toast, snack, tooltips |
 | `sw.js` | Service worker — cache versioning, network-first fetch strategy |
-| `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css |
+| `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css; `--itch`/`--ng` assemble static web builds |
+| `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by `--itch` and `--ng` builds) |
+| `newgrounds/newgrounds.js` | Newgrounds-only — NG.io API (medals, scoreboards, cloud save). Loaded only by `--ng`. Fill MEDAL_IDS/BOARDS from the NG dashboard |
 | `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications |
 
 ## Build & deploy
 ```bash
 node build.js                    # bundle JS + CSS (always run before commit)
+node build.js --itch             # + assemble itch.io build → dist-itch.zip
+node build.js --ng               # + assemble Newgrounds build → dist-ng.zip (itch build + NG.io API)
 git add -A && git commit && git push   # Vercel auto-deploys on push
 supabase functions deploy <name> # deploy a single edge function
 ```

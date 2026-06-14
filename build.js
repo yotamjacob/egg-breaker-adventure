@@ -11,9 +11,12 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // `node build.js --itch` also assembles an upload-ready itch.io build
-// into /dist-itch (+ dist-itch.zip). Without the flag the build is
+// into /dist-itch (+ dist-itch.zip). `node build.js --ng` assembles the
+// Newgrounds build into /dist-ng (+ dist-ng.zip) — same static build plus
+// the newgrounds.io integration script. Without a flag the build is
 // identical to before — the Vercel/Android pipeline is untouched.
 const ITCH = process.argv.includes('--itch');
+const NG   = process.argv.includes('--ng');
 
 const JS_FILES = [
   'lz-string.min.js',
@@ -82,16 +85,24 @@ async function build() {
   console.log('Build complete.');
 
   if (ITCH) buildItch();
+  if (NG)   buildNewgrounds();
 }
 
 // ============================================================
-//  itch.io build target  (node build.js --itch)
-//  Produces a clean, upload-ready static build in /dist-itch
-//  with index.html at the ROOT, plus a zipped dist-itch.zip.
-//  Source files (index.html, render.js, etc.) are never modified.
+//  Static web build targets  (itch.io / Newgrounds)
+//  Produce a clean, upload-ready static build with index.html at
+//  the ROOT, plus a zip. Source files (index.html, render.js, …)
+//  are never modified — the transform happens on a copy in memory.
 // ============================================================
-function buildItch() {
-  const OUT = 'dist-itch';
+//
+//  assembleWebBuild(outDir, zipName, opts)
+//    opts.extraFiles  : [paths]  copied (flattened) into outDir
+//    opts.bodyScripts : [html]   injected before </body> (in order)
+//  Always injects the itch.css stylesheet + itch.js CTA script; the
+//  Newgrounds build appends newgrounds.js on top of that.
+//
+function assembleWebBuild(OUT, zipName, opts) {
+  opts = opts || {};
 
   // 1. Clean output dir.
   fs.rmSync(OUT, { recursive: true, force: true });
@@ -104,10 +115,10 @@ function buildItch() {
     'favicon.ico',
     'icon-192.png',
     'icon-512.png',
-    'itch/itch.css',          // → dist-itch/itch.css
-    'itch/itch.js',           // → dist-itch/itch.js
+    'itch/itch.css',          // → OUT/itch.css
+    'itch/itch.js',           // → OUT/itch.js
     'itch/google-play-badge.png',
-  ];
+  ].concat(opts.extraFiles || []);
   for (const f of FILES) {
     fs.copyFileSync(f, path.join(OUT, path.basename(f)));
   }
@@ -116,49 +127,60 @@ function buildItch() {
     fs.cpSync(d, path.join(OUT, d), { recursive: true });
   }
 
-  // 3. Transform index.html → itch-safe variant.
+  // 3. Transform index.html → sandbox-safe variant.
   let html = fs.readFileSync('index.html', 'utf8');
 
-  // 3a. Root-absolute icon/favicon paths → relative (itch serves
-  //     the game from a subpath, so leading-slash paths 404).
+  // 3a. Root-absolute icon/favicon paths → relative (the game is
+  //     served from a subpath, so leading-slash paths 404).
   html = html
     .replace(/(["'(])\/(icon-512\.png|icon-192\.png|favicon\.ico)/g, '$1./$2');
 
-  // 3b. Remove the PWA manifest link (no manifest in the itch build).
+  // 3b. Remove the PWA manifest link (no manifest in static builds).
   html = html.replace(/\s*<link rel="manifest"[^>]*>\n?/, '\n');
 
   // 3c. Strip the service-worker registration block entirely — a SW
-  //     scoped to "/" cannot register from itch's subpath and only
-  //     adds failure modes inside the sandboxed iframe.
+  //     scoped to "/" cannot register from a subpath and only adds
+  //     failure modes inside the sandboxed iframe.
   html = html.replace(
     /\s*<script>\s*if \('serviceWorker' in navigator\)[\s\S]*?<\/script>/,
     ''
   );
 
-  // 3d. Inject the itch-only stylesheet (before </head>) and script
+  // 3d. Inject the itch-only stylesheet (before </head>) and scripts
   //     (before </body>, after bundle.min.js has already executed).
   html = html.replace(
     '</head>',
     '  <link rel="stylesheet" href="./itch.css" />\n</head>'
   );
-  html = html.replace(
-    '</body>',
-    '  <script defer src="./itch.js"></script>\n</body>'
-  );
+  const bodyScripts = ['  <script defer src="./itch.js"></script>']
+    .concat(opts.bodyScripts || []);
+  html = html.replace('</body>', bodyScripts.join('\n') + '\n</body>');
 
   fs.writeFileSync(path.join(OUT, 'index.html'), html);
 
   // 4. Zip with index.html at the archive ROOT (not nested).
-  fs.rmSync('dist-itch.zip', { force: true });
-  execSync('zip -r -X ../dist-itch.zip .', { cwd: OUT, stdio: 'ignore' });
+  fs.rmSync(zipName, { force: true });
+  execSync('zip -r -X ../' + zipName + ' .', { cwd: OUT, stdio: 'ignore' });
 
   // 5. Report.
   const list = listFiles(OUT).sort();
   const total = list.reduce((s, f) => s + fs.statSync(path.join(OUT, f)).size, 0);
-  console.log('\nitch build → ' + OUT + '/  (+ dist-itch.zip)');
+  console.log('\nbuild → ' + OUT + '/  (+ ' + zipName + ')');
   console.log('  files: ' + list.length + '   total: ' + kb(total));
-  const hasRootIndex = fs.existsSync(path.join(OUT, 'index.html'));
-  console.log('  index.html at root: ' + (hasRootIndex ? 'YES' : 'NO'));
+  console.log('  index.html at root: ' + (fs.existsSync(path.join(OUT, 'index.html')) ? 'YES' : 'NO'));
+}
+
+// itch.io build  (node build.js --itch)
+function buildItch() {
+  assembleWebBuild('dist-itch', 'dist-itch.zip', {});
+}
+
+// Newgrounds build  (node build.js --ng) — itch build + newgrounds.io API
+function buildNewgrounds() {
+  assembleWebBuild('dist-ng', 'dist-ng.zip', {
+    extraFiles: ['newgrounds/newgrounds.js'],
+    bodyScripts: ['  <script defer src="./newgrounds.js"></script>'],
+  });
 }
 
 function listFiles(dir, base) {
