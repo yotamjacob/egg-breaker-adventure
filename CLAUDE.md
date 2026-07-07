@@ -19,6 +19,8 @@
 | `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by `--itch` and `--ng` builds) |
 | `newgrounds/newgrounds.js` | Newgrounds-only — NG.io API (medals, scoreboards, cloud save). Loaded only by `--ng`. Fill MEDAL_IDS/BOARDS from the NG dashboard |
 | `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications |
+| `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live) |
+| `.github/workflows/smoke-tests.yml` | CI: runs all tests 3× daily (08/14/20 UTC) + on every push to main; emails on failure |
 
 ## Build & deploy
 ```bash
@@ -160,3 +162,6 @@ Users must never lose paid purchases. The system has three layers of protection:
 | When deleting a static file, remove it from `STATIC_ASSETS` in `sw.js` in the same commit | Stale entries 404 during install; even with allSettled they waste a fetch and hide real breakage |
 | `networkFirst()` must always resolve — timeout → cache → shell (`/`) → `Response.error()`; never `respondWith(undefined)` | A hanging fetch or `undefined` response shows the browser's hard error page; the Android app is a raw WebView with no recovery UI |
 | `STATIC_ASSETS` uses clean URLs (`/privacy`, not `/privacy.html`) | `cleanUrls: true` in vercel.json 308-redirects `.html` paths; `cache.add` rejects on non-200 |
+| The version watchdog in `index.html` (fetch live sw.js → compare `CACHE_VERSION` to running `VERSION` → force update + one guarded reload) must stay | Last line of defense: no client can stay pinned to an old version while online, whatever the failure mode. Auto-SKIP_WAITING happens only at startup — the update banner remains the mid-session path |
+
+All of these are enforced by `tests/sw-health.test.js` in CI (3× daily + every push). If a change legitimately needs to alter one, update the test in the same commit.

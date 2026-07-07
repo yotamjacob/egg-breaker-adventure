@@ -534,6 +534,26 @@
             });
           });
 
+          // ── Version watchdog ──────────────────────────────────────
+          // Guarantees no client can stay pinned to an old version while
+          // online, no matter how it got stuck (frozen SW, fossil cache).
+          // Compares the server's sw.js CACHE_VERSION to the running
+          // bundle's VERSION; on mismatch, forces the update through
+          // (auto-SKIP_WAITING at startup — the banner remains the polite
+          // path for mid-session updates) and reloads once.
+          // Offline / fetch failure → do nothing; cached play unaffected.
+          fetch('/sw.js', { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(src => {
+            const m = src.match(/CACHE_VERSION = '([^']+)'/);
+            if (!m || typeof VERSION === 'undefined' || m[1] === VERSION) return;
+            if (sessionStorage._vwTarget === m[1]) return; // one attempt per version — no reload loops
+            sessionStorage._vwTarget = m[1];
+            reg.update().then(() => {
+              if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              // controllerchange below reloads; fallback timer in case it doesn't fire
+              setTimeout(() => { if (!reloading) { reloading = true; window.location.reload(); } }, 3000);
+            }).catch(() => {});
+          }).catch(() => {});
+
         }).catch(() => {});
 
         // Reload when a new SW takes over — but only if there was already a
