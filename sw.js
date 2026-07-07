@@ -3,7 +3,7 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '2.6.2';
+const CACHE_VERSION = '2.6.3';
 const CACHE_NAME    = 'esa-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
@@ -13,17 +13,20 @@ const STATIC_ASSETS = [
   '/bundle.min.js',
   '/favicon.ico',
   '/icon-192.png',
-  '/icon-192-maskable.png',
   '/icon-512.png',
-  '/icon-512-maskable.png',
-  '/privacy.html',
+  '/privacy',
 ];
 
 // ── Install: pre-cache all static assets ──────────────────────
 self.addEventListener('install', event => {
-  // Do NOT skipWaiting automatically — wait for user confirmation via SKIP_WAITING message
+  // Do NOT skipWaiting automatically — wait for user confirmation via SKIP_WAITING message.
+  // Cache each asset individually (allSettled) rather than cache.addAll: addAll is
+  // atomic, so a single missing/404 asset would reject the whole install and the new
+  // SW would never activate — trapping clients on a stale (possibly broken) worker.
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then(cache =>
+      Promise.allSettled(STATIC_ASSETS.map(asset => cache.add(asset)))
+    )
   );
 });
 
