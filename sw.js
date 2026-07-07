@@ -3,7 +3,7 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '2.6.1';
+const CACHE_VERSION = '2.6.2';
 const CACHE_NAME    = 'esa-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
@@ -66,19 +66,44 @@ self.addEventListener('fetch', event => {
       })
     );
   } else {
-    // Network-first for JS/CSS/HTML/JSON — always get fresh code,
-    // fall back to cache only when offline
-    event.respondWith(
-      fetch(event.request).then(response => {
-        if (response && response.status === 200) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      }).catch(() => caches.match(event.request))
-    );
+    // Network-first for JS/CSS/HTML/JSON — always get fresh code, but never
+    // let a stalled connection hang the page: race the fetch against a timeout
+    // and always fall back to cache (and, for navigations, the cached shell).
+    event.respondWith(networkFirst(event.request));
   }
 });
+
+const NETWORK_TIMEOUT_MS = 6000;
+
+function networkFirst(request) {
+  return new Promise(resolve => {
+    let settled = false;
+    const done = value => { if (!settled) { settled = true; resolve(value); } };
+
+    // Serve cache (exact match, then the app shell for navigations, then a
+    // real network error as a last resort — never respondWith(undefined),
+    // which the browser treats as a hard failure / error page).
+    const fallback = () => caches.match(request).then(cached => {
+      if (cached) return done(cached);
+      if (request.mode === 'navigate') {
+        return caches.match('/').then(shell => done(shell || Response.error()));
+      }
+      done(Response.error());
+    });
+
+    const timer = setTimeout(fallback, NETWORK_TIMEOUT_MS);
+
+    fetch(request).then(response => {
+      clearTimeout(timer);
+      if (settled) return; // timeout already served cache
+      if (response && response.status === 200) {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+      }
+      done(response);
+    }).catch(() => { clearTimeout(timer); fallback(); });
+  });
+}
 
 // Push notifications
 self.addEventListener('push', event => {
