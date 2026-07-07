@@ -152,3 +152,11 @@ Users must never lose paid purchases. The system has three layers of protection:
 - Tab panels use `visibility:hidden + flex:0 0 0` (not `display:none`) to keep animations alive
 - `_sbClient.auth.getSession()` can hang on Android — always use cached `_cloudSession` from `onAuthStateChange`
 - PayPal `el.dataset.rendered` guard prevents double-render when `renderPremiumShop` resets innerHTML
+
+## Service worker invariants — never break these
+| Invariant | Why |
+|-----------|-----|
+| `install` caches assets individually via `Promise.allSettled(...cache.add)` — never `cache.addAll` | `addAll` is atomic: one 404 rejects the whole install, so SW updates silently stop installing and clients freeze on a stale worker forever. This happened for v2.4.61→v2.6.2 (deleted maskable icons stayed in `STATIC_ASSETS`) — trapped devices served a fossilized v1.x cache and dead-ended in `net::ERR_TIMED_OUT` |
+| When deleting a static file, remove it from `STATIC_ASSETS` in `sw.js` in the same commit | Stale entries 404 during install; even with allSettled they waste a fetch and hide real breakage |
+| `networkFirst()` must always resolve — timeout → cache → shell (`/`) → `Response.error()`; never `respondWith(undefined)` | A hanging fetch or `undefined` response shows the browser's hard error page; the Android app is a raw WebView with no recovery UI |
+| `STATIC_ASSETS` uses clean URLs (`/privacy`, not `/privacy.html`) | `cleanUrls: true` in vercel.json 308-redirects `.html` paths; `cache.add` rejects on non-200 |
