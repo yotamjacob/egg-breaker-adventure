@@ -453,9 +453,21 @@ function playerCard(p) {
     s.owned_spyglass ? '🔍' : '',
   ].filter(Boolean).join(' ') || '—'
 
-  const premiumLine = s.premium_starter_pack
-    ? (s.premiumPurchases > 0 ? s.premiumPurchases + ' + pack' : 'Starter Pack')
-    : s.premiumPurchases > 0 ? String(s.premiumPurchases) : '—'
+  // Owned premium products — set on the re-verify/silent-restore paths, which never
+  // bump premiumPurchases. Must be shown or paying players read as "—". (🧲 can also
+  // be earned free at day-7 streak — the Purchases tab is authoritative for paid.)
+  const premOwned = [
+    s.owned_luckycharm  && '🍀',
+    s.owned_eggradar    && '📡',
+    s.owned_doubledaily && '📅',
+    s.owned_starsaver   && '✨',
+    s.owned_goldmagnet  && '🧲',
+  ].filter(Boolean).join(' ')
+  const premParts = []
+  if (s.premium_starter_pack) premParts.push('Starter Pack')
+  if (s.premiumPurchases > 0)  premParts.push('×' + s.premiumPurchases)
+  if (premOwned)               premParts.push(premOwned)
+  const premiumLine = premParts.join(' · ') || '—'
 
   return `<div class="player-card">
     <div class="player-header">
