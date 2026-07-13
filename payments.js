@@ -70,10 +70,13 @@ window.onPlayPurchaseResult = async function(productId, purchaseToken, success, 
     _payLog('verify OK reward=' + JSON.stringify(data.reward || {}));
     if (data.already_processed) {
       // Silently re-sync ownership without sound or snack (server confirmed valid, no new reward)
+      // Count the purchase only on the false→true transition — queryOwnedPurchases
+      // re-verifies every owned token on every cold start, so an unconditional bump
+      // would inflate premiumPurchases each launch.
       _payLog('verify already_processed ' + productId + ' — silent re-sync');
       const _rp = PREMIUM_PRODUCTS.find(p => p.id === productId);
-      if (_rp && _rp.boughtKey) G[_rp.boughtKey] = true;
-      if (productId === 'starter_pack') G.premium_starter_pack = true;
+      if (_rp && _rp.boughtKey && !G[_rp.boughtKey]) { G[_rp.boughtKey] = true; G.premiumPurchases = (G.premiumPurchases || 0) + 1; }
+      if (productId === 'starter_pack' && !G.premium_starter_pack) { G.premium_starter_pack = true; G.premiumPurchases = (G.premiumPurchases || 0) + 1; }
       saveGame(); savePremium(); renderPremiumShop();
       return;
     }
@@ -174,12 +177,14 @@ async function restorePurchases(opts = {}) {
       return;
     }
     if (silent) {
-      // Silent restore: only apply non-consumable upgrades to avoid re-granting gold/hammers
+      // Silent restore: only apply non-consumable upgrades to avoid re-granting gold/hammers.
+      // The !owned guards make each grant a one-time false→true transition, so bumping
+      // premiumPurchases here stays idempotent across repeated silent restores and cold starts.
       let changed = false;
       purchases.forEach(p => {
         const prod = PREMIUM_PRODUCTS.find(x => x.id === p.product_id);
-        if (prod && prod.boughtKey && !G[prod.boughtKey]) { G[prod.boughtKey] = true; changed = true; _payLog('restore silent applied ' + p.product_id); }
-        if (p.product_id === 'starter_pack' && !G.premium_starter_pack) { G.premium_starter_pack = true; changed = true; }
+        if (prod && prod.boughtKey && !G[prod.boughtKey]) { G[prod.boughtKey] = true; G.premiumPurchases = (G.premiumPurchases || 0) + 1; changed = true; _payLog('restore silent applied ' + p.product_id); }
+        if (p.product_id === 'starter_pack' && !G.premium_starter_pack) { G.premium_starter_pack = true; G.premiumPurchases = (G.premiumPurchases || 0) + 1; changed = true; }
       });
       if (changed) { saveGame(); loadPremium(); savePremium(); renderPremiumShop(); }
       return;
