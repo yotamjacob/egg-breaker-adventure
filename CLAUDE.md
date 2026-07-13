@@ -18,7 +18,10 @@
 | `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css; `--itch`/`--ng` assemble static web builds |
 | `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by `--itch` and `--ng` builds) |
 | `newgrounds/newgrounds.js` | Newgrounds-only — NG.io API (medals, scoreboards, cloud save). Loaded only by `--ng`. Fill MEDAL_IDS/BOARDS from the NG dashboard |
-| `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications |
+| `payments.js` | Google Play Billing, purchase verification, restore-purchases flow, PREMIUM_PRODUCTS |
+| `cloud.js` | Supabase auth + cloud save — `_syncToCloud`, autosave timer (default OFF), session caching |
+| `admin.html` | Standalone admin dashboard (not bundled) — Players/Purchases/Analytics tabs; calls admin-* edge fns with `x-admin-secret` |
+| `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications, admin-players, admin-purchases |
 | `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live) |
 | `.github/workflows/smoke-tests.yml` | CI: runs all tests 3× daily (08/14/20 UTC) + on every push to main; emails on failure |
 
@@ -142,6 +145,13 @@ Users must never lose paid purchases. The system has three layers of protection:
 | `applyPurchaseReward` only runs on `data.success === true` with no `data.error` | Never grant items without server confirmation |
 | `restore-purchases` queries by both `device_id` and `user_id` | `device_id` alone breaks after reinstall; `user_id` alone breaks without cloud save linked |
 | `payLog()` helper in Java must call `_payLog` (not `_oauthLog`) | Purchase events must appear in the payment debug log, not just the OAuth log |
+| Every ownership grant must call `_syncToCloud().catch(()=>{})` — `applyPurchaseReward` + the `already_processed` re-verify + silent-restore paths | Cloud autosave defaults OFF and only fires on a 15-min timer/manual save/sign-in. Without a sync-on-grant, a buyer's `game_saves` snapshot never receives the flag, so the admin Players tab shows "Premium 💎 —" for paying players (v2.6.8 fix). Entitlements are still safe — this is about mirroring them into the cloud save |
+
+### Admin premium visibility — where the truth lives
+- **Purchases tab** reads `play_purchases`/`purchases` directly → **authoritative** "did they pay".
+- **Players tab** ("Premium 💎") reflects the player's **cloud-save snapshot** (`game_saves.save_data`), which can lag reality if their save hasn't synced since the purchase. Never treat the Players tab as proof of payment.
+- Entitlement recovery does **not** depend on the cloud save — it comes from Google Play `queryOwnedPurchases` + `play_purchases` + local `PREMIUM_KEY`. A stale cloud save never means a lost purchase.
+- Existing buyers whose LOCAL save already has premium won't auto-heal into the cloud (sync fires only on a `false→true` transition) — repair `game_saves` directly. Debug/repair recipe is in memory `project_admin_premium_visibility`.
 
 ### Adding a new premium product
 1. Add to `PREMIUM_PRODUCTS` array in `game.js` with `id`, `boughtKey`, and display fields.
