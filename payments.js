@@ -75,9 +75,11 @@ window.onPlayPurchaseResult = async function(productId, purchaseToken, success, 
       // would inflate premiumPurchases each launch.
       _payLog('verify already_processed ' + productId + ' — silent re-sync');
       const _rp = PREMIUM_PRODUCTS.find(p => p.id === productId);
-      if (_rp && _rp.boughtKey && !G[_rp.boughtKey]) { G[_rp.boughtKey] = true; G.premiumPurchases = (G.premiumPurchases || 0) + 1; }
-      if (productId === 'starter_pack' && !G.premium_starter_pack) { G.premium_starter_pack = true; G.premiumPurchases = (G.premiumPurchases || 0) + 1; }
+      let _reSynced = false;
+      if (_rp && _rp.boughtKey && !G[_rp.boughtKey]) { G[_rp.boughtKey] = true; G.premiumPurchases = (G.premiumPurchases || 0) + 1; _reSynced = true; }
+      if (productId === 'starter_pack' && !G.premium_starter_pack) { G.premium_starter_pack = true; G.premiumPurchases = (G.premiumPurchases || 0) + 1; _reSynced = true; }
       saveGame(); savePremium(); renderPremiumShop();
+      if (_reSynced) _syncToCloud().catch(() => {}); // first-time ownership grant on this save — push to cloud
       return;
     }
     applyPurchaseReward(productId, data.reward);
@@ -186,7 +188,7 @@ async function restorePurchases(opts = {}) {
         if (prod && prod.boughtKey && !G[prod.boughtKey]) { G[prod.boughtKey] = true; G.premiumPurchases = (G.premiumPurchases || 0) + 1; changed = true; _payLog('restore silent applied ' + p.product_id); }
         if (p.product_id === 'starter_pack' && !G.premium_starter_pack) { G.premium_starter_pack = true; G.premiumPurchases = (G.premiumPurchases || 0) + 1; changed = true; }
       });
-      if (changed) { saveGame(); loadPremium(); savePremium(); renderPremiumShop(); }
+      if (changed) { saveGame(); loadPremium(); savePremium(); renderPremiumShop(); _syncToCloud().catch(() => {}); } // push restored ownership to cloud
       return;
     }
     purchases.forEach(p => applyPurchaseReward(p.product_id, p.reward));
@@ -213,6 +215,7 @@ function applyPurchaseReward(productId, reward = {}) {
   checkAchievements();
   saveGame();
   savePremium(); // write to isolated premium store — survives resets and save wipes
+  _syncToCloud().catch(() => {}); // push the purchase to the cloud save so it survives reinstall + shows in admin
   updateResources();
   renderPremiumShop();
   const parts = [];
