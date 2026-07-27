@@ -53,6 +53,16 @@ JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 - Launcher name: `twaManifest.launcherName` in `build.gradle` + `twa-manifest.json`
 - Mipmap icons: `android-build/app/src/main/res/mipmap-*/ic_launcher.png` + `ic_maskable.png`
 
+### Play Console compliance floors (v2.7.0)
+| Setting | Value | Why |
+|---------|-------|-----|
+| `com.android.billingclient:billing` | `9.1.0` | Play rejects updates using Billing Library < 8.0.0 (enforced Aug 2026). Verify with `grep billingclient.version` in the merged manifest — Play reads that meta-data, not the gradle line |
+| `minSdkVersion` | `23` | Hard floor of Billing Library 8.1+/9.x. Cannot go back to 21 without downgrading billing to 8.0.0 |
+| `targetSdkVersion` | `36` | Play requires API 36+ for updates (enforced Aug 2026) |
+| `android:appCategory="game"` on `<application>` | required | Android 16 ignores `android:screenOrientation` on screens ≥600dp; games with `appCategory` set keep their portrait lock. Without it the app unlocks to landscape on tablets/foldables |
+- **Billing API shape (PBL 8+/9)**: `enablePendingPurchases()` must take a `PendingPurchasesParams` (no-arg overload removed — `build()` throws without it), and `queryProductDetailsAsync`'s callback receives a `QueryProductDetailsResult`, not a `List<ProductDetails>`.
+- **`com.google.androidbrowserhelper:billing` must stay removed** — it pins Billing Library 7.1.1 and only serves the TWA Digital Goods API, which this raw-WebView app never used. Re-adding it drags the resolved billing version backwards and its 7.x-compiled classes break against 9.x. Its `PaymentActivity`/`PaymentService` manifest entries and `DelegationService`'s `DigitalGoodsRequestHandler` were removed with it.
+
 ## Key patterns
 
 ### Adding config values

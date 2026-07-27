@@ -23,6 +23,7 @@ import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.PendingPurchasesParams;
 import com.android.billingclient.api.ProductDetails;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.QueryProductDetailsParams;
@@ -87,10 +88,13 @@ public class MainActivity extends Activity {
         s.setAllowContentAccess(false);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 
-        // Set up Play Billing client
+        // Set up Play Billing client.
+        // PBL 8+ removed the no-arg enablePendingPurchases(); one-time products must be
+        // opted in explicitly or build() throws.
         billingClient = BillingClient.newBuilder(this)
             .setListener(this::onPurchasesUpdated)
-            .enablePendingPurchases()
+            .enablePendingPurchases(
+                PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
             .build();
         connectBilling();
 
@@ -126,7 +130,11 @@ public class MainActivity extends Activity {
                     ))
                     .build();
 
-                billingClient.queryProductDetailsAsync(params, (billingResult, productDetailsList) -> {
+                // PBL 9 changed the callback to deliver a QueryProductDetailsResult
+                // instead of a raw List<ProductDetails>.
+                billingClient.queryProductDetailsAsync(params, (billingResult, result) -> {
+                    List<ProductDetails> productDetailsList =
+                        (result != null) ? result.getProductDetailsList() : null;
                     if (billingResult.getResponseCode() != BillingClient.BillingResponseCode.OK
                             || productDetailsList == null || productDetailsList.isEmpty()) {
                         callJsPurchaseResult(productId, null, false,

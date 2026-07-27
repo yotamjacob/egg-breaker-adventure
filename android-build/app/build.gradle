@@ -56,10 +56,11 @@ android {
     namespace "com.eggbreakeradventures.app"
     defaultConfig {
         applicationId "com.eggbreakeradventures.app"
-        minSdkVersion 21
-        targetSdkVersion 35
-        versionCode 109
-        versionName "2.5.48"
+        // minSdk 23: floor required by Play Billing Library 8.1+ / 9.x
+        minSdkVersion 23
+        targetSdkVersion 36
+        versionCode 110
+        versionName "2.7.0"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -212,8 +213,12 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.billingclient:billing:7.0.0'
-    implementation 'com.google.androidbrowserhelper:billing:1.1.0'
+    // Play requires Billing Library >= 8.0.0 for app updates (enforced Aug 2026).
+    // 9.x requires minSdkVersion 23 and the QueryProductDetailsResult callback shape.
+    // Note: com.google.androidbrowserhelper:billing was removed — it pinned billing
+    // 7.1.1 and served the TWA Digital Goods API, which this raw-WebView app never
+    // used (all purchases go through AndroidBridge.purchaseProduct).
+    implementation 'com.android.billingclient:billing:9.1.0'
     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
     implementation 'com.google.firebase:firebase-messaging'

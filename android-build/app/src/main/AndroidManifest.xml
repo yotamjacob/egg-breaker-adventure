@@ -7,6 +7,7 @@
 
     <application
         android:name="Application"
+        android:appCategory="game"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -50,27 +51,10 @@
             </intent-filter>
         </activity>
 
-        <!-- ── Play Billing (for future IAP integration) ─────── -->
-        <activity
-            android:name="com.google.androidbrowserhelper.playbilling.provider.PaymentActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:configChanges="keyboardHidden|keyboard|orientation|screenLayout|screenSize"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="org.chromium.intent.action.PAY" />
-            </intent-filter>
-            <meta-data
-                android:name="org.chromium.default_payment_method_name"
-                android:value="https://play.google.com/billing" />
-        </activity>
-
-        <service
-            android:name="com.google.androidbrowserhelper.playbilling.provider.PaymentService"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="org.chromium.intent.action.IS_READY_TO_PAY" />
-            </intent-filter>
-        </service>
+        <!-- Play Billing runs through AndroidBridge.purchaseProduct() in MainActivity,
+             not the TWA Digital Goods API — so no PaymentActivity/PaymentService here.
+             Those came from com.google.androidbrowserhelper:billing, which pinned
+             Billing Library 7.1.1 and was dropped in v2.7.0. -->
 
         <!-- ── FCM: receive tokens and background messages ────── -->
         <service
