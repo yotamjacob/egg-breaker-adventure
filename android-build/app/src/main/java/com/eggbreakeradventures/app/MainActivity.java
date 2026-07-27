@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
@@ -18,6 +18,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
@@ -66,6 +69,19 @@ public class MainActivity extends Activity {
         _instanceRef = new WeakReference<>(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        // Draw into the display cutout area instead of letting the system letterbox
+        // the window away from it — without SHORT_EDGES a fullscreen window on a
+        // notched device gets black bars, which is what "edge-to-edge may not display
+        // for all users" is about. Safe because the web layout already pads with
+        // env(safe-area-inset-top/bottom) (style.css) and the viewport is
+        // viewport-fit=cover, so the resource bar stays clear of the notch.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(lp);
+        }
 
         webView = new WebView(this);
         webView.setBackgroundColor(0xFF1A1A2E);
@@ -379,26 +395,21 @@ public class MainActivity extends Activity {
             "if(typeof _payLog==='function')_payLog('" + escaped + "')", null));
     }
 
+    /** Immersive edge-to-edge, applied identically on every supported API level.
+     *  Uses the androidx compat wrappers instead of the framework calls: the old
+     *  API 30+ WindowInsetsController / pre-30 setSystemUiVisibility split meant
+     *  edge-to-edge was only provably applied on newer devices (Play reports this
+     *  as "edge-to-edge may not display for all users"), and setSystemUiVisibility
+     *  plus the SYSTEM_UI_FLAG_* constants are deprecated. WindowCompat handles the
+     *  back-compat internally, so there is one code path and no deprecated call. */
     private void applyImmersiveMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getWindow().setDecorFitsSystemWindows(false);
-            android.view.WindowInsetsController c = getWindow().getInsetsController();
-            if (c != null) {
-                c.hide(android.view.WindowInsets.Type.systemBars());
-                c.setSystemBarsBehavior(
-                    android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-            }
-        } else {
-            //noinspection deprecation
-            getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            );
-        }
+        Window window = getWindow();
+        WindowCompat.setDecorFitsSystemWindows(window, false);
+        WindowInsetsControllerCompat controller =
+            WindowCompat.getInsetsController(window, window.getDecorView());
+        controller.setSystemBarsBehavior(
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        controller.hide(WindowInsetsCompat.Type.systemBars());
     }
 
     @Override

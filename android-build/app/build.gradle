@@ -59,8 +59,8 @@ android {
         // minSdk 23: floor required by Play Billing Library 8.1+ / 9.x
         minSdkVersion 23
         targetSdkVersion 36
-        versionCode 110
-        versionName "2.7.0"
+        versionCode 111
+        versionName "2.7.1"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -220,6 +220,10 @@ dependencies {
     // used (all purchases go through AndroidBridge.purchaseProduct).
     implementation 'com.android.billingclient:billing:9.1.0'
     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
+    // WindowCompat / WindowInsetsControllerCompat — one edge-to-edge code path for
+    // all API levels, no deprecated setSystemUiVisibility. Declared explicitly rather
+    // than leaning on the transitive copy from billing.
+    implementation 'androidx.core:core:1.15.0'
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
     implementation 'com.google.firebase:firebase-messaging'
 }
