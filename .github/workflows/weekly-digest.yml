@@ -97,7 +97,11 @@ jobs:
 
       - name: Run digest
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # The repo secret is named ANTHROPIC (not ANTHROPIC_API_KEY); the SDK
+          # reads ANTHROPIC_API_KEY from the environment, so map it here rather
+          # than require the key to be re-entered under a second name.
+          # `||` falls back if a correctly-named secret is added later.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY || secrets.ANTHROPIC }}
           RESEND_API_KEY:    ${{ secrets.RESEND_API_KEY }}
           DIGEST_FROM:       ${{ secrets.DIGEST_FROM }}
           DIGEST_TO:         ${{ secrets.DIGEST_TO }}
