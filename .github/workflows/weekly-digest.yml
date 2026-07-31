@@ -1,0 +1,101 @@
+name: Weekly promotion digest
+
+# Monday 08:00 Europe/Vienna, year-round.
+#
+# GitHub cron is UTC-only and has no DST awareness, so a single expression
+# would drift by an hour twice a year. Instead this fires at BOTH candidate
+# hours and the job itself checks the real local time in Europe/Vienna,
+# exiting immediately on the wrong one. Exactly one run per week does work.
+#
+#   06:00 UTC → 08:00 CEST (summer)
+#   07:00 UTC → 08:00 CET  (winter)
+#
+# To change the target timezone, edit TZ_NAME below and adjust the two cron
+# hours to bracket 08:00 local in that zone.
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: true
+        default: 'test'
+        type: choice
+        options: [test, smoke, dry-run, live]
+
+env:
+  TZ_NAME: Europe/Vienna
+  TARGET_HOUR: '8'
+
+permissions:
+  contents: write   # needed to commit the updated agents/seen.json
+
+concurrency:
+  group: weekly-digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Scheduled runs fire twice (see above); keep only the one that is
+      # actually 08:00 local. Manual runs always proceed.
+      - name: Gate on local time
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "manual run — proceeding"
+            echo "run=yes" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          LOCAL_HOUR=$(TZ="$TZ_NAME" date +%-H)
+          echo "local hour in $TZ_NAME is $LOCAL_HOUR (target $TARGET_HOUR)"
+          if [ "$LOCAL_HOUR" = "$TARGET_HOUR" ]; then
+            echo "run=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=no" >> "$GITHUB_OUTPUT"
+            echo "not the target hour — skipping this firing"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.run == 'yes'
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        if: steps.gate.outputs.run == 'yes'
+        run: npm ci --omit=optional || npm install
+
+      - name: Run digest
+        if: steps.gate.outputs.run == 'yes'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEND_API_KEY:    ${{ secrets.RESEND_API_KEY }}
+          DIGEST_FROM:       ${{ secrets.DIGEST_FROM }}
+          DIGEST_TO:         ${{ secrets.DIGEST_TO }}
+        run: |
+          case "${{ github.event.inputs.mode }}" in
+            smoke)   node agents/digest.js --smoke ;;
+            dry-run) node agents/digest.js --dry-run ;;
+            test)    node agents/digest.js --test ;;
+            *)       node agents/digest.js ;;
+          esac
+
+      # seen.json is the de-duplication state — it must persist between runs,
+      # so commit it back. Skipped on dry-run/smoke, which never write it.
+      - name: Persist de-duplication state
+        if: steps.gate.outputs.run == 'yes'
+        run: |
+          if git diff --quiet -- agents/seen.json; then
+            echo "no state change"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add agents/seen.json
+          git commit -m "chore(digest): record reported items [skip ci]"
+          git push

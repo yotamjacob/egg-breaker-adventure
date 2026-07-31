@@ -25,6 +25,8 @@
 | `cloud.js` | Supabase auth + cloud save — `_syncToCloud`, autosave timer (default OFF), session caching |
 | `admin.html` | Standalone admin dashboard (not bundled) — Players/Purchases/Analytics tabs; calls admin-* edge fns with `x-admin-secret` |
 | `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications, admin-players, admin-purchases |
+| `agents/digest.js` | Weekly promotion digest — two web-search research agents (communities + "Egg Breaker" mentions), de-dupes via `agents/seen.json`, emails HTML via Resend. Run by `.github/workflows/weekly-digest.yml` |
+| `agents/prompts.js` | Research prompts for the digest. Reddit is excluded here AND via `blocked_domains` AND by a URL filter in digest.js |
 | `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live) |
 | `.github/workflows/smoke-tests.yml` | CI: runs all tests 3× daily (08/14/20 UTC) + on every push to main; emails on failure |
 
@@ -266,3 +268,23 @@ rather than forking the game.
   files are never modified.
 - SDK integration is **not** included. It is optional for Basic Launch and
   mandatory for Full Launch — see `/sdk/intro` when the game is promoted.
+
+## Weekly promotion digest (`agents/`)
+
+`node agents/digest.js` runs two research agents and emails one combined digest.
+Scheduled by `.github/workflows/weekly-digest.yml` for Monday 08:00 Europe/Vienna.
+
+| Rule | Why |
+|------|-----|
+| Reddit is blocked in **three** independent places — the prompt, `blocked_domains` on the web_search tool, and a URL/`r/sub` filter in `digest.js` | It is a hard product rule; a prompt alone is not a guarantee |
+| The agents only ever *report* — nothing is posted anywhere | Every community action and draft reply is reviewed and posted by a human |
+| `agents/seen.json` is committed back by the workflow | It is the de-duplication state; without persistence every week re-reports the same items. Keys are normalised host+path, so utm params and trailing slashes don't defeat it |
+| `seen.json` is written **only after** a successful send | A delivery failure must not silently swallow a week's findings |
+| Two API calls per section (research → structure) | The `web_search` tool returns citations, and structured outputs (`output_config.format`) are rejected alongside citations. Research runs free-form, then a tool-less call structures it against a JSON schema |
+| Cron fires at **both** 06:00 and 07:00 UTC, and the job gates on the real local hour | GitHub cron is UTC-only with no DST awareness. One expression would drift an hour twice a year; the gate guarantees exactly one run per week year-round |
+
+Modes: `--test` (subject prefixed), `--dry-run` (renders `agents/preview.html`, sends nothing),
+`--smoke` (tiny email, no research). Also available via workflow_dispatch.
+
+Secrets required: `ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `DIGEST_FROM` (a Resend-verified
+sending domain), optional `DIGEST_TO`.
