@@ -370,6 +370,25 @@
           <button class="settings-menu-btn settings-play-btn" onclick="openPlayStore('settings-menu')">
             <span class="btn-label">⭐ Rate on Google Play</span>
           </button>
+          <!-- Content pages. Real <a href> anchors, not buttons: these are the
+               homepage's internal links to the content pages and a crawlable
+               href is the only thing that passes link equity. openSiteLink()
+               keeps the Android WebView from navigating away from the game. -->
+          <a class="settings-menu-btn settings-link-btn" href="/egg-breaker-guide"
+             target="_blank" rel="noopener"
+             onclick="return openSiteLink(event,'/egg-breaker-guide')">
+            <span class="btn-label">📖 Game Guide</span>
+          </a>
+          <a class="settings-menu-btn settings-link-btn" href="/what-happened-to-egg-breaker"
+             target="_blank" rel="noopener"
+             onclick="return openSiteLink(event,'/what-happened-to-egg-breaker')">
+            <span class="btn-label">📜 The Story</span>
+          </a>
+          <a class="settings-menu-btn settings-link-btn" href="/press"
+             target="_blank" rel="noopener"
+             onclick="return openSiteLink(event,'/press')">
+            <span class="btn-label">📰 Press Kit</span>
+          </a>
           <button class="settings-menu-btn settings-danger-btn" onclick="resetGame()">
             <span class="btn-label">Reset All Progress</span>
           </button>

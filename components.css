@@ -301,3 +301,14 @@
   font-size:14px;cursor:pointer;padding:2px 4px;line-height:1;
 }
 .referral-banner-close:hover{color:var(--gold)}
+
+/* Content-page links in the settings menu. They are <a> elements (crawlable
+   internal links) styled to match the surrounding buttons — anchors need the
+   text-decoration and box-sizing reset that <button> gets for free. */
+.settings-link-btn{
+  background:var(--panel)!important;
+  border-color:var(--gold2)!important;color:var(--gold)!important;
+  box-shadow:2px 2px 0 var(--dark)!important;
+  text-decoration:none;box-sizing:border-box;
+}
+.settings-link-btn:hover{background:rgba(245,197,66,.1)!important;text-decoration:none}

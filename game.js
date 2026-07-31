@@ -1859,6 +1859,31 @@ function openExternalUrl(url) {
   }
 }
 
+/**
+ * Opens one of the site's content pages (guide, history, press) from inside
+ * the game.
+ *
+ * The settings entries are real <a href> anchors rather than buttons on
+ * purpose: the homepage is the strongest page on this domain, and search
+ * engines can only pass its internal link equity to the content pages
+ * through a crawlable href. An onclick-only <button> passes none.
+ *
+ * But on Android the game is a raw WebView — following the link in place
+ * would navigate AWAY from the game with no in-app way back. So on Android
+ * the click is intercepted and handed to the external browser instead;
+ * on web, returning true lets target="_blank" open a new tab and the game
+ * keeps running untouched either way.
+ */
+function openSiteLink(e, path) {
+  track('content-page-click', { path: path, source: 'settings-menu' });
+  if (window.AndroidBridge && typeof window.AndroidBridge.openUrl === 'function') {
+    if (e && e.preventDefault) e.preventDefault();
+    window.AndroidBridge.openUrl('https://egg-breaker-adventures.vercel.app' + path);
+    return false;
+  }
+  return true;
+}
+
 function checkReviewPrompt() {
   if (G._reviewPromptShown) return;
   if ((G.totalEggs || 0) < 1000) return;
