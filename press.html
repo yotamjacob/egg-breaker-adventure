@@ -305,34 +305,39 @@
       margin-top: .38rem;
     }
 
-    /* ── Video placeholder ── */
+    /* ── Gameplay video ── */
+    /* Holds a real portrait (390x844) capture — no aspect-ratio box or
+       dashed placeholder border. */
     .video-wrap {
       background: var(--panel);
-      border: 2px dashed var(--border);
-      aspect-ratio: 16 / 9;
+      border: 1px solid var(--border);
+      border-radius: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: .75rem;
+      gap: .85rem;
       text-align: center;
-      padding: 2rem;
+      padding: 1.5rem;
     }
-    .video-play {
-      font-size: 3.5rem;
-      opacity: .25;
-      line-height: 1;
-    }
-    .video-label {
-      font-family: var(--vt);
-      font-size: 1.6rem;
-      color: var(--gray);
-      letter-spacing: .08em;
+    .video-wrap video {
+      width: 100%;
+      max-width: 270px;
+      height: auto;
+      border-radius: 10px;
+      border: 2px solid var(--gold);
+      background: #000;
+      display: block;
     }
     .video-sub {
       font-size: .9rem;
       color: var(--gray);
       margin: 0;
+    }
+    .video-dl {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     /* ── Gallery ── */
@@ -535,8 +540,12 @@
         <a class="btn btn-gold" href="https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app&amp;referrer=utm_source%3Dweb%26utm_medium%3Dcta%26utm_campaign%3Dplay_install%26utm_content%3Dpress-hero" target="_blank" rel="noopener" data-umami-event="play-store-click" data-umami-event-source="press-hero">
           ▶ Play Store
         </a>
-        <a class="btn btn-outline" href="#" id="download-kit">
-          ↓ Press Kit ZIP
+        <a class="btn btn-green" href="/" data-umami-event="play-web-click" data-umami-event-source="press-hero">
+          ▶ Play free in browser
+        </a>
+        <a class="btn btn-outline" href="/press-kit.zip" id="download-kit" download
+           data-umami-event="press-kit-download">
+          ↓ Press Kit ZIP (5.3&nbsp;MB)
         </a>
       </div>
     </div>
@@ -588,33 +597,56 @@
 
         <!-- Videos -->
         <section class="section" id="videos">
-          <h2 class="section-title">Videos</h2>
+          <h2 class="section-title">Gameplay video</h2>
           <div class="video-wrap">
-            <div class="video-play">▶</div>
-            <div class="video-label">GAMEPLAY TRAILER</div>
-            <p class="video-sub">Video coming soon — embed will appear here</p>
-            <a class="btn btn-green" href="#" target="_blank" rel="noopener" style="margin-top:.25rem">Watch on YouTube</a>
+            <!-- Inline MP4 (545KB) rather than the 2.2MB GIF: same footage,
+                 a quarter of the bytes, and it does not start downloading
+                 before the reader scrolls to it. The GIF is offered below
+                 for embedding in articles that cannot host video. -->
+            <video
+              src="/promo/egg-smash-clip.mp4"
+              autoplay muted loop playsinline preload="metadata"
+              width="270" height="584"
+              aria-label="Egg Smash Adventures gameplay footage"></video>
+            <p class="video-sub">Gameplay capture · 8s · 390×844 · no audio</p>
+            <div class="video-dl">
+              <a class="btn btn-outline btn-sm" href="/promo/egg-smash-clip.mp4" download>↓ MP4 (545&nbsp;KB)</a>
+              <a class="btn btn-outline btn-sm" href="/promo/egg-smash-gameplay.gif" download>↓ Animated GIF (2.2&nbsp;MB)</a>
+            </div>
           </div>
         </section>
 
         <!-- Screenshots -->
         <section class="section" id="screenshots">
           <h2 class="section-title">Screenshots</h2>
+          <!-- /shots/* are web-sized (440px, ~50KB). The press-kit ZIP carries
+               the full-resolution 1170x2532 originals. Both come from
+               tools/capture-shots.js, which injects a real mid-game save —
+               the previous /screenshots/* were captured on an empty save and
+               showed "0/5 items" and "???" placeholders throughout. -->
           <div class="gallery">
             <div class="gallery-item">
-              <img src="/screenshots/screen-mobile.png" alt="Egg tray gameplay screen" loading="lazy">
+              <img src="/shots/play.png" width="440" height="952" alt="Egg tray gameplay screen with normal and silver eggs" loading="lazy">
               <div class="gallery-label">Gameplay</div>
             </div>
             <div class="gallery-item">
-              <img src="/screenshots/screen-album.png" alt="Item collection album" loading="lazy">
+              <img src="/shots/album.png" width="440" height="952" alt="Item collection album with discovered items" loading="lazy">
               <div class="gallery-label">Album</div>
             </div>
             <div class="gallery-item">
-              <img src="/screenshots/screen-shop.png" alt="Upgrade shop" loading="lazy">
+              <img src="/shots/monkeys.png" width="440" height="952" alt="Monkey companion selection screen" loading="lazy">
+              <div class="gallery-label">Monkeys</div>
+            </div>
+            <div class="gallery-item">
+              <img src="/shots/shop.png" width="440" height="952" alt="Upgrade shop with hats and hammers" loading="lazy">
               <div class="gallery-label">Shop</div>
             </div>
+            <div class="gallery-item">
+              <img src="/shots/trophies.png" width="440" height="952" alt="Achievements and trophies screen" loading="lazy">
+              <div class="gallery-label">Trophies</div>
+            </div>
           </div>
-          <p class="gallery-note">All screenshots are free to use for editorial and review coverage of Egg Smash Adventures.</p>
+          <p class="gallery-note">All screenshots are free to use for editorial and review coverage of Egg Smash Adventures. Full-resolution originals are in the <a href="/press-kit.zip" download>press kit ZIP</a>.</p>
         </section>
 
         <!-- Logo & Icon -->
@@ -708,6 +740,10 @@
               <div class="fact-row">
                 <span class="fact-label">Play Store</span>
                 <span class="fact-value"><a href="https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app&amp;referrer=utm_source%3Dweb%26utm_medium%3Dcta%26utm_campaign%3Dplay_install%26utm_content%3Dpress-factsheet" target="_blank" rel="noopener" data-umami-event="play-store-click" data-umami-event-source="press-factsheet">View listing ↗</a></span>
+              </div>
+              <div class="fact-row">
+                <span class="fact-label">itch.io</span>
+                <span class="fact-value"><a href="https://yotamjac.itch.io/egg-smash-adventures" target="_blank" rel="noopener" data-umami-event="itch-click" data-umami-event-source="press-factsheet">Play on itch.io ↗</a></span>
               </div>
               <div class="fact-row">
                 <span class="fact-label">Privacy</span>
