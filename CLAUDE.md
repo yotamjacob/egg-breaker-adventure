@@ -32,6 +32,7 @@
 ```bash
 node build.js                    # bundle JS + CSS (always run before commit)
 node build.js --itch             # + assemble itch.io build → dist-itch.zip
+node build.js --gamejolt         # + assemble Game Jolt build → dist-gamejolt.zip (itch features, optimised assets)
 node build.js --crazy            # + assemble CrazyGames build → dist-crazy.zip
 git add -A && git commit && git push   # Vercel auto-deploys on push
 supabase functions deploy <name> # deploy a single edge function

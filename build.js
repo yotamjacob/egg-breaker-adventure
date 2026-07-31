@@ -14,8 +14,9 @@ const { execSync } = require('child_process');
 // into /dist-itch (+ dist-itch.zip). `--crazy` assembles the CrazyGames
 // submission build into /dist-crazy (+ dist-crazy.zip). Without a flag the
 // build is identical — the Vercel/Android pipeline is untouched.
-const ITCH  = process.argv.includes('--itch');
-const CRAZY = process.argv.includes('--crazy');
+const ITCH     = process.argv.includes('--itch');
+const GAMEJOLT = process.argv.includes('--gamejolt');
+const CRAZY    = process.argv.includes('--crazy');
 
 const JS_FILES = [
   'lz-string.min.js',
@@ -90,8 +91,9 @@ async function build() {
 
   console.log('Build complete.');
 
-  if (ITCH)  buildItch();
-  if (CRAZY) await buildCrazyGames();
+  if (ITCH)     await buildItch();
+  if (GAMEJOLT) await buildGameJolt();
+  if (CRAZY)    await buildCrazyGames();
 }
 
 // ============================================================
@@ -161,7 +163,65 @@ function buildSitemap() {
 //  are never modified — the transform happens on a copy in memory.
 //  Injects the itch.css stylesheet + itch.js CTA script.
 // ============================================================
-function assembleWebBuild(OUT, zipName) {
+// ── Shared asset optimisation ─────────────────────────────────
+// The source art is 1024x1024 PNG masters up to 4.9MB each, never displayed
+// above ~300px, and the music is 2-4MB stereo MP3. Untouched, a web build is
+// ~78MB. Downscaling to 512px palette PNGs and 96kbps mono audio takes it to
+// ~11MB with no visible or audible loss — which is the difference between a
+// browser-portal player waiting and a browser-portal player leaving.
+// Source files are never modified; this only writes into the output dir.
+async function optimizeImages(outDir) {
+  const sharp = require('sharp');
+  let before = 0, after = 0;
+  for (const rel of listFiles('img')) {
+    const src = path.join('img', rel);
+    const dst = path.join(outDir, rel);
+    fs.mkdirSync(path.dirname(dst), { recursive: true });
+    before += fs.statSync(src).size;
+    const ext = path.extname(rel).toLowerCase();
+    if (ext === '.png' || ext === '.jpg' || ext === '.jpeg') {
+      let pipe = sharp(src).resize({ width: 512, height: 512, fit: 'inside', withoutEnlargement: true });
+      pipe = (ext === '.png')
+        ? pipe.png({ compressionLevel: 9, palette: true })
+        : pipe.jpeg({ quality: 82, mozjpeg: true });
+      await pipe.toFile(dst);
+    } else {
+      fs.copyFileSync(src, dst);   // svg / webp pass through untouched
+    }
+    after += fs.statSync(dst).size;
+  }
+  return { before, after };
+}
+
+function optimizeAudio(outDir) {
+  fs.mkdirSync(outDir, { recursive: true });
+  let before = 0, after = 0, reencoded = 0;
+  const haveFfmpeg = (() => {
+    try { execSync('ffmpeg -version', { stdio: 'ignore' }); return true; } catch (e) { return false; }
+  })();
+  if (!haveFfmpeg) console.warn('  ffmpeg not found — audio copied at full size');
+  for (const rel of listFiles('audio')) {
+    const src = path.join('audio', rel);
+    const dst = path.join(outDir, rel);
+    fs.mkdirSync(path.dirname(dst), { recursive: true });
+    before += fs.statSync(src).size;
+    if (haveFfmpeg && path.extname(rel).toLowerCase() === '.mp3') {
+      try { execSync(`ffmpeg -y -i "${src}" -ac 1 -b:a 96k "${dst}"`, { stdio: 'ignore' }); reencoded++; }
+      catch (e) { fs.copyFileSync(src, dst); }
+    } else {
+      fs.copyFileSync(src, dst);
+    }
+    after += fs.statSync(dst).size;
+  }
+  return { before, after, reencoded };
+}
+
+// opts.optimizeAssets — re-encode img/ and audio/ into the build (see above).
+// Off by default so the itch build keeps byte-for-byte parity with what is
+// already published there.
+async function assembleWebBuild(OUT, zipName, opts) {
+  opts = opts || {};
+
   // 1. Clean output dir.
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.mkdirSync(OUT, { recursive: true });
@@ -180,9 +240,15 @@ function assembleWebBuild(OUT, zipName) {
   for (const f of FILES) {
     fs.copyFileSync(f, path.join(OUT, path.basename(f)));
   }
-  const DIRS = ['img', 'audio'];
-  for (const d of DIRS) {
-    fs.cpSync(d, path.join(OUT, d), { recursive: true });
+  let assetReport = null;
+  if (opts.optimizeAssets) {
+    const img = await optimizeImages(path.join(OUT, 'img'));
+    const aud = optimizeAudio(path.join(OUT, 'audio'));
+    assetReport = { img, aud };
+  } else {
+    for (const d of ['img', 'audio']) {
+      fs.cpSync(d, path.join(OUT, d), { recursive: true });
+    }
   }
 
   // 3. Transform index.html → sandbox-safe variant.
@@ -223,13 +289,36 @@ function assembleWebBuild(OUT, zipName) {
   const list = listFiles(OUT).sort();
   const total = list.reduce((s, f) => s + fs.statSync(path.join(OUT, f)).size, 0);
   console.log('\nbuild → ' + OUT + '/  (+ ' + zipName + ')');
+  if (assetReport) {
+    const { img, aud } = assetReport;
+    console.log(`  img:   ${kb(img.before)} → ${kb(img.after)}  (${pct(img.before, img.after)} smaller)`);
+    console.log(`  audio: ${kb(aud.before)} → ${kb(aud.after)}  (${pct(aud.before, aud.after)} smaller, ${aud.reencoded} re-encoded)`);
+  }
   console.log('  files: ' + list.length + '   total: ' + kb(total));
   console.log('  index.html at root: ' + (fs.existsSync(path.join(OUT, 'index.html')) ? 'YES' : 'NO'));
 }
 
 // itch.io build  (node build.js --itch)
-function buildItch() {
-  assembleWebBuild('dist-itch', 'dist-itch.zip');
+// Assets left untouched so the package stays identical to what is already
+// published on itch. Pass optimizeAssets:true to shrink it ~6x if that build
+// is ever re-uploaded.
+async function buildItch() {
+  await assembleWebBuild('dist-itch', 'dist-itch.zip');
+}
+
+// Game Jolt build  (node build.js --gamejolt)
+// Identical feature set to the itch build — Game Jolt permits outbound links,
+// so cloud save, the premium shop and the Google Play CTA all stay. The only
+// difference is optimised assets: Game Jolt is a browser-games portal where
+// load time is most of the first impression, and 78MB is not a first
+// impression worth having.
+//
+// NOTE: the CrazyGames build is NOT a substitute here. It strips cloud save,
+// premium, share and the Play CTA to satisfy CrazyGames' platform rules —
+// restrictions Game Jolt does not impose. Reusing it would discard the save
+// sync and the entire Play Store conversion path for nothing.
+async function buildGameJolt() {
+  await assembleWebBuild('dist-gamejolt', 'dist-gamejolt.zip', { optimizeAssets: true });
 }
 
 // ============================================================
