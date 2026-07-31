@@ -1867,7 +1867,7 @@ function checkReviewPrompt() {
   setTimeout(() => {
     showConfirm('🥚', 'You smashed 1000 eggs!',
       'Enjoying the game so far? A quick review means the world to us 🙏',
-      () => openExternalUrl('https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app'),
+      () => openPlayStore('review-prompt'),
       '⭐ Rate Now', 'Maybe Later'
     );
   }, 1000);
@@ -2120,6 +2120,10 @@ document.addEventListener('keydown', (e) => {
 // ==================== INIT ====================
 loadGame();
 if (!G.firstPlayDate) { G.firstPlayDate = Date.now(); }
+
+// Fire after loadGame() so "returning vs new" reflects the actual save.
+// Never throws — see analytics.js.
+trackGameStarted();
 
 // Offline hammer regen — apply hammers earned while the app was closed
 if (G._savedAt > 0 && G.hammers < G.maxH) {

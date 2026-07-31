@@ -21,6 +21,7 @@ const NG   = process.argv.includes('--ng');
 const JS_FILES = [
   'lz-string.min.js',
   'config.js',
+  'analytics.js',
   'quotes.js',
   'data.js',
   'audio.js',

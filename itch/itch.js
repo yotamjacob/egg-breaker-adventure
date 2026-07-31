@@ -21,7 +21,7 @@
 
   var PLAY_URL =
     'https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app' +
-    '&referrer=utm_source%3Ditch.io%26utm_medium%3Dwebgame';
+    '&referrer=utm_source%3Ditch.io%26utm_medium%3Dwebgame%26utm_campaign%3Dplay_install';
   var HOOK = 'Keep your progress safe forever — cloud save on Android.';
   var BADGE = './google-play-badge.png';
 
