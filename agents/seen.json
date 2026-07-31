@@ -1,25 +1,210 @@
 {
   "communities": [
-    "facebook.com/eggbreakercommunity",
-    "facebook.com/p/ultimate-egg-breakers-100077167433963",
-    "forums.lostmediawiki.com",
-    "flashpointarchive.org/discord",
-    "forums.tigsource.com/index.php",
-    "html5gamedevs.com",
-    "facebook.com/groups/516335368422919"
+    {
+      "key": "facebook.com/eggbreakercommunity",
+      "nameKey": "",
+      "name": "facebook.com/eggbreakercommunity",
+      "url": ""
+    },
+    {
+      "key": "facebook.com/p/ultimate-egg-breakers-100077167433963",
+      "nameKey": "",
+      "name": "facebook.com/p/ultimate-egg-breakers-100077167433963",
+      "url": ""
+    },
+    {
+      "key": "forums.lostmediawiki.com",
+      "nameKey": "",
+      "name": "forums.lostmediawiki.com",
+      "url": ""
+    },
+    {
+      "key": "flashpointarchive.org/discord",
+      "nameKey": "",
+      "name": "flashpointarchive.org/discord",
+      "url": ""
+    },
+    {
+      "key": "forums.tigsource.com/index.php",
+      "nameKey": "",
+      "name": "forums.tigsource.com/index.php",
+      "url": ""
+    },
+    {
+      "key": "html5gamedevs.com",
+      "nameKey": "",
+      "name": "html5gamedevs.com",
+      "url": ""
+    },
+    {
+      "key": "facebook.com/groups/516335368422919",
+      "nameKey": "",
+      "name": "facebook.com/groups/516335368422919",
+      "url": ""
+    },
+    {
+      "key": "discord.com/invite/zw5gsbqjbw",
+      "nameKey": "socialworldoldsocialempiresgamepreservat",
+      "name": "Social World — \"Old Social Empires game preservation project\"",
+      "url": "https://discord.com/invite/zW5gSbQJBw"
+    },
+    {
+      "key": "forum.frutigeraeroarchive.org",
+      "nameKey": "frutigeraeroarchive",
+      "name": "Frutiger Aero Archive Forum",
+      "url": "https://forum.frutigeraeroarchive.org/"
+    },
+    {
+      "key": "itch.io/board/10022/release-announcements",
+      "nameKey": "itchioboardsandflashrevivaldevcluster",
+      "name": "itch.io community boards and the Flash-revival dev cluster",
+      "url": "https://itch.io/board/10022/release-announcements"
+    },
+    {
+      "key": "discord.com/invite/social-kingdoms-746191104155582495",
+      "nameKey": "socialkingdomssocialempiresspiritualsucc",
+      "name": "Social Kingdoms (Social Empires' spiritual successor)",
+      "url": "https://discord.com/invite/social-kingdoms-746191104155582495"
+    },
+    {
+      "key": "flashgaming.fandom.com/wiki/flash_gaming_wiki",
+      "nameKey": "flashgamingwikifandom",
+      "name": "Flash Gaming Wiki (Fandom)",
+      "url": "https://flashgaming.fandom.com/wiki/Flash_Gaming_Wiki"
+    },
+    {
+      "key": "newgrounds.com",
+      "nameKey": "newgroundspublishingsurfacebbs",
+      "name": "Newgrounds (publishing surface + BBS)",
+      "url": "https://www.newgrounds.com/"
+    },
+    {
+      "key": "armorgames.com/community",
+      "nameKey": "armorgamesforums",
+      "name": "Armor Games Community forums",
+      "url": "https://armorgames.com/community"
+    },
+    {
+      "key": "tiktok.com/discover/jogos-antigos-do-facebook",
+      "nameKey": "portuguesespanishnostalgiacreatorcluster",
+      "name": "Portuguese + Spanish nostalgia creator cluster",
+      "url": "https://www.tiktok.com/discover/jogos-antigos-do-facebook"
+    },
+    {
+      "key": "facebook.com/groups/1624257187672486",
+      "nameKey": "facebooknostalgiaforearly2000sshockwavef",
+      "name": "Facebook group: \"Nostalgia for Early 2000s Shockwave Flash Games\"",
+      "url": "https://www.facebook.com/groups/1624257187672486/"
+    },
+    {
+      "key": "discord.com/servers/fantage-rewritten-1461427549203730540",
+      "nameKey": "fantagerewrittenandbrowsergamerevivalsce",
+      "name": "Fantage Rewritten Discord and the browser-game revival scene around it",
+      "url": "https://discord.com/servers/fantage-rewritten-1461427549203730540"
+    },
+    {
+      "key": "disboard.org/server/762668759017717780",
+      "nameKey": "idleclickerdiscordsfoundviadisboarddirec",
+      "name": "Idle / clicker Discords found via Disboard directories (Idle Hangout, Idle Game Mountain, Farbig Studios, Flash Player Community)",
+      "url": "https://disboard.org/server/762668759017717780"
+    },
+    {
+      "key": "belltreeforums.com/threads/have-you-played-flash-games-before-2025-edition.636119",
+      "nameKey": "belltreeforumshaveyouplayedflashgamesbef",
+      "name": "The Bell Tree Forums — \"Have you played flash games before? (2025 edition)\"",
+      "url": "https://www.belltreeforums.com/threads/have-you-played-flash-games-before-2025-edition.636119/"
+    }
   ],
   "mentions": [
-    "armorgames.com/egg-breaker-adventures-game/14798",
-    "forum.codenameentertainment.com",
-    "facebook.com/eggbreakercommunity",
-    "facebook.com/p/ultimate-egg-breakers-100077167433963",
-    "williamawalker.wordpress.com/tag/egg-breaker"
+    {
+      "key": "armorgames.com/egg-breaker-adventures-game/14798",
+      "nameKey": "",
+      "name": "armorgames.com/egg-breaker-adventures-game/14798",
+      "url": ""
+    },
+    {
+      "key": "forum.codenameentertainment.com",
+      "nameKey": "",
+      "name": "forum.codenameentertainment.com",
+      "url": ""
+    },
+    {
+      "key": "facebook.com/eggbreakercommunity",
+      "nameKey": "",
+      "name": "facebook.com/eggbreakercommunity",
+      "url": ""
+    },
+    {
+      "key": "facebook.com/p/ultimate-egg-breakers-100077167433963",
+      "nameKey": "",
+      "name": "facebook.com/p/ultimate-egg-breakers-100077167433963",
+      "url": ""
+    },
+    {
+      "key": "williamawalker.wordpress.com/tag/egg-breaker",
+      "nameKey": "",
+      "name": "williamawalker.wordpress.com/tag/egg-breaker",
+      "url": ""
+    },
+    {
+      "key": "boardgamegeek.com/videogame/122395/egg-breaker",
+      "nameKey": "boardgamegeek",
+      "name": "BoardGameGeek",
+      "url": "https://boardgamegeek.com/videogame/122395/egg-breaker"
+    },
+    {
+      "key": "videogamegeek.com/videogame/122397/egg-breaker-2-mr-monkeys-adventure",
+      "nameKey": "videogamegeek",
+      "name": "VideoGameGeek",
+      "url": "https://videogamegeek.com/videogame/122397/egg-breaker-2-mr-monkeys-adventure"
+    },
+    {
+      "key": "videogamegeek.com/forums/thing/122397",
+      "nameKey": "videogamegeekforums",
+      "name": "VideoGameGeek forums",
+      "url": "https://videogamegeek.com/forums/thing/122397"
+    },
+    {
+      "key": "analog.games/games/99cee27e-8955-4e59-9539-05d0d3cf5d6c/egg-breaker-2-mr-monkey-s-adventure",
+      "nameKey": "analoggames",
+      "name": "analog.games",
+      "url": "https://www.analog.games/games/99cee27e-8955-4e59-9539-05d0d3cf5d6c/egg-breaker-2-mr-monkey-s-adventure"
+    },
+    {
+      "key": "hallmarkchannel.com/games/egg-breaker-adventures",
+      "nameKey": "hallmarkchannelgamesportal",
+      "name": "Hallmark Channel games portal",
+      "url": "https://www.hallmarkchannel.com/games/egg-breaker-adventures"
+    },
+    {
+      "key": "m.aferon.com/download-game/egg-breaker-adventures-online.html",
+      "nameKey": "aferonflashportallisting",
+      "name": "Aferon (Flash portal listing)",
+      "url": "http://m.aferon.com/download-game/Egg-Breaker-Adventures-online.html"
+    },
+    {
+      "key": "gamezebo.com/reviews/egg-breaker-review",
+      "nameKey": "gamezebo",
+      "name": "Gamezebo",
+      "url": "https://www.gamezebo.com/reviews/egg-breaker-review/"
+    },
+    {
+      "key": "codenameentertainment.com",
+      "nameKey": "codenameentertainmentdevelopersunsetpage",
+      "name": "Codename Entertainment (developer sunset pages)",
+      "url": "http://www.codenameentertainment.com/?page=eba"
+    }
   ],
   "runs": [
     {
       "at": "2026-07-31T22:11:50.789Z",
       "communities": 7,
       "mentions": 5
+    },
+    {
+      "at": "2026-07-31T22:24:32.580Z",
+      "communities": 12,
+      "mentions": 8
     }
   ]
 }
