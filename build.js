@@ -11,9 +11,11 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // `node build.js --itch` also assembles an upload-ready itch.io build
-// into /dist-itch (+ dist-itch.zip). Without the flag the build is
-// identical — the Vercel/Android pipeline is untouched.
-const ITCH = process.argv.includes('--itch');
+// into /dist-itch (+ dist-itch.zip). `--crazy` assembles the CrazyGames
+// submission build into /dist-crazy (+ dist-crazy.zip). Without a flag the
+// build is identical — the Vercel/Android pipeline is untouched.
+const ITCH  = process.argv.includes('--itch');
+const CRAZY = process.argv.includes('--crazy');
 
 const JS_FILES = [
   'lz-string.min.js',
@@ -88,7 +90,8 @@ async function build() {
 
   console.log('Build complete.');
 
-  if (ITCH) buildItch();
+  if (ITCH)  buildItch();
+  if (CRAZY) await buildCrazyGames();
 }
 
 // ============================================================
@@ -227,6 +230,194 @@ function assembleWebBuild(OUT, zipName) {
 // itch.io build  (node build.js --itch)
 function buildItch() {
   assembleWebBuild('dist-itch', 'dist-itch.zip');
+}
+
+// ============================================================
+//  CrazyGames build  (node build.js --crazy)
+//
+//  CrazyGames Basic Launch requirements this build satisfies:
+//    · relative paths only, never absolute
+//    · no external requests (fonts, analytics, error tracking, SDKs)
+//    · no external login options      → cloud save disabled
+//    · no external payment providers  → premium shop hidden
+//    · no off-platform cross-promotion→ Play/itch/site links removed
+//    · total <= 250MB, <= 1500 files, initial download <= 50MB
+//      (<= 20MB to be eligible for the mobile homepage)
+//
+//  The source game is never modified — every transform happens on a
+//  copy, exactly like the itch build.
+// ============================================================
+const CRAZY_OUT = 'dist-crazy';
+
+async function buildCrazyGames() {
+  const sharp = require('sharp');
+
+  fs.rmSync(CRAZY_OUT, { recursive: true, force: true });
+  fs.mkdirSync(CRAZY_OUT, { recursive: true });
+
+  // 1. Flat runtime files. icon-192/512 are referenced by the splash screen
+  //    and the favicon links — omitting them 404s on every load.
+  for (const f of [
+    'bundle.min.js',
+    'bundle.min.css',
+    'favicon.ico',
+    'icon-192.png',
+    'icon-512.png',
+    'crazygames/crazygames.css',
+    'crazygames/crazygames.js',
+    'crazygames/press-start-2p.woff2',
+  ]) {
+    fs.copyFileSync(f, path.join(CRAZY_OUT, path.basename(f)));
+  }
+
+  // 2. Images — the source PNGs are 1024x1024 masters up to 4.9MB each and
+  //    are never displayed above ~300px. Downscaling to 512 keeps them crisp
+  //    on retina while taking the image payload from ~51MB to a few MB, which
+  //    is what makes the 20MB mobile-homepage threshold reachable at all.
+  //    Filenames and extensions are preserved because data.js references
+  //    them by path.
+  const imgOut = path.join(CRAZY_OUT, 'img');
+  let imgBefore = 0, imgAfter = 0;
+  for (const rel of listFiles('img')) {
+    const src = path.join('img', rel);
+    const dst = path.join(imgOut, rel);
+    fs.mkdirSync(path.dirname(dst), { recursive: true });
+    imgBefore += fs.statSync(src).size;
+
+    const ext = path.extname(rel).toLowerCase();
+    if (ext === '.png' || ext === '.jpg' || ext === '.jpeg') {
+      let pipe = sharp(src).resize({ width: 512, height: 512, fit: 'inside', withoutEnlargement: true });
+      pipe = (ext === '.png')
+        ? pipe.png({ compressionLevel: 9, palette: true })
+        : pipe.jpeg({ quality: 82, mozjpeg: true });
+      await pipe.toFile(dst);
+    } else {
+      fs.copyFileSync(src, dst);   // svg / webp pass through untouched
+    }
+    imgAfter += fs.statSync(dst).size;
+  }
+
+  // 3. Audio — six music tracks at ~2-4MB each. Re-encoded to 96kbps mono,
+  //    which is transparent enough for chiptune-style loops and roughly
+  //    quarters the payload. Skipped gracefully if ffmpeg is unavailable.
+  const audOut = path.join(CRAZY_OUT, 'audio');
+  fs.mkdirSync(audOut, { recursive: true });
+  let audBefore = 0, audAfter = 0, reencoded = 0;
+  const haveFfmpeg = (() => {
+    try { execSync('ffmpeg -version', { stdio: 'ignore' }); return true; } catch (e) { return false; }
+  })();
+  for (const rel of listFiles('audio')) {
+    const src = path.join('audio', rel);
+    const dst = path.join(audOut, rel);
+    fs.mkdirSync(path.dirname(dst), { recursive: true });
+    audBefore += fs.statSync(src).size;
+    if (haveFfmpeg && path.extname(rel).toLowerCase() === '.mp3') {
+      try {
+        execSync(`ffmpeg -y -i "${src}" -ac 1 -b:a 96k "${dst}"`, { stdio: 'ignore' });
+        reencoded++;
+      } catch (e) {
+        fs.copyFileSync(src, dst);
+      }
+    } else {
+      fs.copyFileSync(src, dst);
+    }
+    audAfter += fs.statSync(dst).size;
+  }
+  if (!haveFfmpeg) console.warn('  crazy: ffmpeg not found — audio copied at full size');
+
+  // 4. index.html → CrazyGames-safe variant.
+  let html = fs.readFileSync('index.html', 'utf8');
+
+  // 4a. Root-absolute asset paths → relative. CrazyGames serves the game
+  //     from a subpath, and absolute paths "will fail to load".
+  html = html.replace(/(["'(])\/(icon-512\.png|icon-192\.png|favicon\.ico)/g, '$1./$2');
+
+  // 4b. Drop the PWA manifest and the service worker. A SW scoped to "/"
+  //     cannot register from a subpath and only adds failure modes.
+  html = html.replace(/\s*<link rel="manifest"[^>]*>\n?/, '\n');
+  html = html.replace(/\s*<script>\s*if \('serviceWorker' in navigator\)[\s\S]*?<\/script>/, '');
+
+  // 4c. Remove every third-party request.
+  //     Supabase and Sentry are both guarded by `typeof` checks upstream,
+  //     so removing the tags disables cloud save and error tracking
+  //     cleanly rather than throwing.
+  html = html
+    .replace(/\s*<link rel="preconnect" href="https:\/\/fonts\.[^>]*>/g, '')
+    .replace(/\s*<link rel="preload"[^>]*fonts\.googleapis[^>]*>/g, '')
+    .replace(/\s*<noscript><link[^>]*fonts\.googleapis[^>]*><\/noscript>/g, '')
+    .replace(/\s*<script[^>]*cloud\.umami\.is[^>]*><\/script>/g, '')
+    .replace(/\s*<script[^>]*browser\.sentry-cdn\.com[^>]*><\/script>/g, '')
+    .replace(/\s*<script[^>]*cdn\.jsdelivr\.net[^>]*><\/script>/g, '');
+
+  // 4d. Drop the Sentry init block (now dead) and the JSON-LD / social meta,
+  //     which only carry absolute URLs pointing back at the public site.
+  html = html.replace(/\s*<script>\s*\/\/ ── Error tracking[\s\S]*?<\/script>/, '');
+  html = html.replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/g, '');
+  html = html.replace(/\s*<meta (?:property="og:|name="twitter:)[^>]*>/g, '');
+  html = html.replace(/\s*<link rel="canonical"[^>]*>/g, '');
+  html = html.replace(/\s*<meta name="google-site-verification"[^>]*>/g, '');
+
+  // 4e. Remove the off-platform links outright rather than only hiding them,
+  //     so they are not present in the DOM for a reviewer to find.
+  html = html.replace(/\s*<!-- Content pages\.[\s\S]*?-->\s*/, '\n          ');
+  html = html.replace(/\s*<a class="settings-menu-btn settings-link-btn"[\s\S]*?<\/a>/g, '');
+  html = html.replace(/\s*<button class="settings-menu-btn settings-play-btn"[\s\S]*?<\/button>/g, '');
+
+  // 4f. Hard network guard, inline in <head> so it runs before the bundle.
+  //     Cloud save already disables itself without the Supabase SDK, but the
+  //     push-notification paths call the Supabase functions endpoint directly
+  //     and are gated only on localStorage flags — so a returning player could
+  //     still emit an off-platform request. Rather than chase every call site
+  //     in shared code, block the hosts outright. Resolving with 204 keeps
+  //     callers' .then/.catch chains well-behaved.
+  const NET_GUARD = [
+    '  <script>',
+    '    // CrazyGames: no third-party requests may leave the game.',
+    '    (function () {',
+    '      var BLOCK = /supabase\\.co|umami\\.is|glitchtip\\.com|google-analytics|googletagmanager|play\\.google\\.com/i;',
+    '      var of = window.fetch;',
+    '      window.fetch = function (input) {',
+    '        var u = typeof input === "string" ? input : (input && input.url) || "";',
+    '        // 204 forbids a body — passing "" throws and would abort the caller.',
+    '        if (BLOCK.test(u)) return Promise.resolve(new Response(null, { status: 204 }));',
+    '        return of.apply(this, arguments);',
+    '      };',
+    '      var oo = XMLHttpRequest.prototype.open;',
+    '      XMLHttpRequest.prototype.open = function (m, u) {',
+    '        this.__blocked = BLOCK.test(String(u || ""));',
+    '        return oo.apply(this, arguments);',
+    '      };',
+    '      var os = XMLHttpRequest.prototype.send;',
+    '      XMLHttpRequest.prototype.send = function () {',
+    '        if (this.__blocked) return;',
+    '        return os.apply(this, arguments);',
+    '      };',
+    '    })();',
+    '  </script>',
+  ].join('\n');
+  html = html.replace('</head>', NET_GUARD + '\n</head>');
+
+  // 4g. Inject the CrazyGames stylesheet + shim.
+  html = html.replace('</head>', '  <link rel="stylesheet" href="./crazygames.css" />\n</head>');
+  html = html.replace('</body>', '  <script defer src="./crazygames.js"></script>\n</body>');
+
+  fs.writeFileSync(path.join(CRAZY_OUT, 'index.html'), html);
+
+  // 5. Zip with index.html at the archive ROOT.
+  fs.rmSync('dist-crazy.zip', { force: true });
+  execSync('zip -r -X ../dist-crazy.zip .', { cwd: CRAZY_OUT, stdio: 'ignore' });
+
+  // 6. Report against CrazyGames' published limits.
+  const list  = listFiles(CRAZY_OUT);
+  const total = list.reduce((s, f) => s + fs.statSync(path.join(CRAZY_OUT, f)).size, 0);
+  console.log('\nbuild → ' + CRAZY_OUT + '/  (+ dist-crazy.zip)');
+  console.log(`  img:   ${kb(imgBefore)} → ${kb(imgAfter)}  (${pct(imgBefore, imgAfter)} smaller)`);
+  console.log(`  audio: ${kb(audBefore)} → ${kb(audAfter)}  (${pct(audBefore, audAfter)} smaller, ${reencoded} re-encoded)`);
+  console.log(`  files: ${list.length} / 1500 limit`);
+  console.log(`  total: ${kb(total)} / 250MB limit`);
+  const mb = total / 1024 / 1024;
+  console.log(`  mobile-homepage eligibility (<=20MB): ${mb <= 20 ? 'YES' : 'NO — ' + mb.toFixed(1) + 'MB'}`);
+  console.log('  index.html at root: ' + (fs.existsSync(path.join(CRAZY_OUT, 'index.html')) ? 'YES' : 'NO'));
 }
 
 function listFiles(dir, base) {

@@ -20,6 +20,7 @@
 | `sw.js` | Service worker — cache versioning, network-first fetch strategy |
 | `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css; `--itch` assembles the static itch.io build; also generates `sitemap.xml` |
 | `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by the `--itch` build) |
+| `crazygames/crazygames.js` | CrazyGames-only shim — hides cloud save, premium, push and all off-platform links (loaded by the `--crazy` build) |
 | `payments.js` | Google Play Billing, purchase verification, restore-purchases flow, PREMIUM_PRODUCTS |
 | `cloud.js` | Supabase auth + cloud save — `_syncToCloud`, autosave timer (default OFF), session caching |
 | `admin.html` | Standalone admin dashboard (not bundled) — Players/Purchases/Analytics tabs; calls admin-* edge fns with `x-admin-secret` |
@@ -31,6 +32,7 @@
 ```bash
 node build.js                    # bundle JS + CSS (always run before commit)
 node build.js --itch             # + assemble itch.io build → dist-itch.zip
+node build.js --crazy            # + assemble CrazyGames build → dist-crazy.zip
 git add -A && git commit && git push   # Vercel auto-deploys on push
 supabase functions deploy <name> # deploy a single edge function
 ```
@@ -233,3 +235,33 @@ save show "0/5 items" and "???" placeholders and sell the game badly. Eggs are
 | The version watchdog in `index.html` (fetch live sw.js → compare `CACHE_VERSION` to running `VERSION` → force update + one guarded reload) must stay | Last line of defense: no client can stay pinned to an old version while online, whatever the failure mode. Auto-SKIP_WAITING happens only at startup — the update banner remains the mid-session path |
 
 All of these are enforced by `tests/sw-health.test.js` in CI (3× daily + every push). If a change legitimately needs to alter one, update the test in the same commit.
+
+## CrazyGames build (`node build.js --crazy`)
+
+CrazyGames Basic Launch forbids, inside the game: external login, external
+payment providers, external analytics/ads, and off-platform cross-promotion.
+The bundle is shared across platforms, so the build strips those surfaces
+rather than forking the game.
+
+| Requirement | How it is met |
+|-------------|---------------|
+| Relative paths only ("absolute paths will fail to load") | Root-absolute asset paths rewritten to `./` |
+| No external requests | Google Fonts self-hosted (`press-start-2p.woff2`, OFL); umami, Sentry and the Supabase CDN tags removed |
+| No external login | Removing the Supabase CDN tag is enough — `initCloudSave()` already returns early on `typeof supabase === 'undefined'`. The shim hides the now-dead Cloud Save button |
+| No external payments | Premium tab + panel hidden (they sell through Google Play) |
+| No cross-promotion | Play Store button and the Guide/Story/Press links are **deleted from the DOM**, not just hidden |
+| ≤250MB, ≤1500 files, ≤50MB initial | ~11MB / 67 files — also under the 20MB mobile-homepage threshold |
+
+- **Network guard**: an inline `<head>` script wraps `fetch`/`XMLHttpRequest`
+  and blocks the Supabase/umami/glitchtip hosts. Cloud save disables itself,
+  but the push-notification paths call Supabase *directly* and are gated only
+  on localStorage flags, so a returning player could still leak a request.
+  Blocking the hosts is cheaper than auditing every call site in shared code.
+  **The 204 response must be constructed with `null`, not `""`** — a 204
+  forbids a body, and throwing there aborts bundle execution (which surfaces
+  as a confusing `Cannot access '_isDesktop' before initialization` TDZ error).
+- **Assets are re-encoded for this target only**: 1024px PNG masters → 512px
+  palette PNGs (52MB → 2.3MB) and MP3s → 96kbps mono (16MB → 8MB). Source
+  files are never modified.
+- SDK integration is **not** included. It is optional for Basic Launch and
+  mandatory for Full Launch — see `/sdk/intro` when the game is promoted.
