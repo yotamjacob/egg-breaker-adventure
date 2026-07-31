@@ -8,9 +8,9 @@
 //  Out: press-kit.zip
 //
 //  Committed rather than generated at deploy time: build.js only
-//  shells out to `zip` behind the --itch/--ng flags, which Vercel
-//  never passes, so the binary's availability in the Vercel build
-//  image is unproven. Building locally keeps the deploy dependency-free.
+//  shells out to `zip` behind the --itch flag, which Vercel never
+//  passes, so the binary's availability in the Vercel build image is
+//  unproven. Building locally keeps the deploy dependency-free.
 // ============================================================
 
 const fs   = require('fs');

@@ -11,12 +11,9 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // `node build.js --itch` also assembles an upload-ready itch.io build
-// into /dist-itch (+ dist-itch.zip). `node build.js --ng` assembles the
-// Newgrounds build into /dist-ng (+ dist-ng.zip) — same static build plus
-// the newgrounds.io integration script. Without a flag the build is
-// identical to before — the Vercel/Android pipeline is untouched.
+// into /dist-itch (+ dist-itch.zip). Without the flag the build is
+// identical — the Vercel/Android pipeline is untouched.
 const ITCH = process.argv.includes('--itch');
-const NG   = process.argv.includes('--ng');
 
 const JS_FILES = [
   'lz-string.min.js',
@@ -92,7 +89,6 @@ async function build() {
   console.log('Build complete.');
 
   if (ITCH) buildItch();
-  if (NG)   buildNewgrounds();
 }
 
 // ============================================================
@@ -156,21 +152,13 @@ function buildSitemap() {
 }
 
 // ============================================================
-//  Static web build targets  (itch.io / Newgrounds)
-//  Produce a clean, upload-ready static build with index.html at
+//  Static web build target  (itch.io)
+//  Produces a clean, upload-ready static build with index.html at
 //  the ROOT, plus a zip. Source files (index.html, render.js, …)
 //  are never modified — the transform happens on a copy in memory.
+//  Injects the itch.css stylesheet + itch.js CTA script.
 // ============================================================
-//
-//  assembleWebBuild(outDir, zipName, opts)
-//    opts.extraFiles  : [paths]  copied (flattened) into outDir
-//    opts.bodyScripts : [html]   injected before </body> (in order)
-//  Always injects the itch.css stylesheet + itch.js CTA script; the
-//  Newgrounds build appends newgrounds.js on top of that.
-//
-function assembleWebBuild(OUT, zipName, opts) {
-  opts = opts || {};
-
+function assembleWebBuild(OUT, zipName) {
   // 1. Clean output dir.
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.mkdirSync(OUT, { recursive: true });
@@ -185,7 +173,7 @@ function assembleWebBuild(OUT, zipName, opts) {
     'itch/itch.css',          // → OUT/itch.css
     'itch/itch.js',           // → OUT/itch.js
     'itch/google-play-badge.png',
-  ].concat(opts.extraFiles || []);
+  ];
   for (const f of FILES) {
     fs.copyFileSync(f, path.join(OUT, path.basename(f)));
   }
@@ -219,9 +207,8 @@ function assembleWebBuild(OUT, zipName, opts) {
     '</head>',
     '  <link rel="stylesheet" href="./itch.css" />\n</head>'
   );
-  const bodyScripts = ['  <script defer src="./itch.js"></script>']
-    .concat(opts.bodyScripts || []);
-  html = html.replace('</body>', bodyScripts.join('\n') + '\n</body>');
+  html = html.replace('</body>',
+    '  <script defer src="./itch.js"></script>\n</body>');
 
   fs.writeFileSync(path.join(OUT, 'index.html'), html);
 
@@ -239,15 +226,7 @@ function assembleWebBuild(OUT, zipName, opts) {
 
 // itch.io build  (node build.js --itch)
 function buildItch() {
-  assembleWebBuild('dist-itch', 'dist-itch.zip', {});
-}
-
-// Newgrounds build  (node build.js --ng) — itch build + newgrounds.io API
-function buildNewgrounds() {
-  assembleWebBuild('dist-ng', 'dist-ng.zip', {
-    extraFiles: ['newgrounds/newgrounds.js'],
-    bodyScripts: ['  <script defer src="./newgrounds.js"></script>'],
-  });
+  assembleWebBuild('dist-itch', 'dist-itch.zip');
 }
 
 function listFiles(dir, base) {

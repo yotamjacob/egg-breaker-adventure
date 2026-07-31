@@ -18,9 +18,8 @@
 | `components.css` | Shared component styles — toast, snack, tooltips, referral banner |
 | `content.css` | Styles for the SEO content pages only — **not** part of `bundle.min.css` |
 | `sw.js` | Service worker — cache versioning, network-first fetch strategy |
-| `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css; `--itch`/`--ng` assemble static web builds |
-| `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by `--itch` and `--ng` builds) |
-| `newgrounds/newgrounds.js` | Newgrounds-only — NG.io API (medals, scoreboards, cloud save). Loaded only by `--ng`. Fill MEDAL_IDS/BOARDS from the NG dashboard |
+| `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css; `--itch` assembles the static itch.io build; also generates `sitemap.xml` |
+| `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by the `--itch` build) |
 | `payments.js` | Google Play Billing, purchase verification, restore-purchases flow, PREMIUM_PRODUCTS |
 | `cloud.js` | Supabase auth + cloud save — `_syncToCloud`, autosave timer (default OFF), session caching |
 | `admin.html` | Standalone admin dashboard (not bundled) — Players/Purchases/Analytics tabs; calls admin-* edge fns with `x-admin-secret` |
@@ -32,7 +31,6 @@
 ```bash
 node build.js                    # bundle JS + CSS (always run before commit)
 node build.js --itch             # + assemble itch.io build → dist-itch.zip
-node build.js --ng               # + assemble Newgrounds build → dist-ng.zip (itch build + NG.io API)
 git add -A && git commit && git push   # Vercel auto-deploys on push
 supabase functions deploy <name> # deploy a single edge function
 ```
@@ -196,7 +194,7 @@ Marketing pages, analytics and the share loop. All organic — no paid ads.
 |------|-----|
 | Play Store links use `&referrer=` with URL-encoded `utm_*` inside | Bare `?utm_source=` on a Play listing URL is **dropped**. Play Console reads campaign data out of `referrer` |
 | Attribution lives in its own `localStorage` key (`_ebaAttribution`), never `SAVE_KEY` | `resetGame()` clears the save; losing the original acquisition source silently corrupts reporting. Same reasoning as `_cloudLinkPref` / `PREMIUM_KEY` |
-| `track()` must stay fail-safe | itch.io/Newgrounds builds ship the same bundle with no umami. Analytics must never break play |
+| `track()` must stay fail-safe | The itch.io build ships the same bundle and may load without umami. Analytics must never break play |
 | Event names: `game-started`, `play-store-click`, `play-web-click`, `share-click`, `share-completed`, `referral-arrival` | Content pages fire these declaratively via `data-umami-event`; keep names in sync when adding surfaces |
 
 ### Share / referral loop

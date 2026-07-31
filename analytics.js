@@ -2,9 +2,9 @@
 //  Egg Smash Adventures — Analytics & attribution
 //
 //  Thin wrapper over Umami (already loaded in index.html). Every
-//  call is fail-safe: if the script is blocked, offline, or absent
-//  (itch.io / Newgrounds builds), tracking silently no-ops and the
-//  game is unaffected. Analytics must never be able to break play.
+//  call is fail-safe: if the script is blocked, offline, or absent,
+//  tracking silently no-ops and the game is unaffected. Analytics
+//  must never be able to break play.
 //
 //  Events emitted here:
 //    game-started      once per page load, carries traffic source
