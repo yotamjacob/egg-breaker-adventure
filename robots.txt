@@ -8,9 +8,10 @@ Disallow: /admin.html
 Disallow: /graphics
 Disallow: /graphics.html
 
-# Share links are per-player redirect stubs, not content. Indexing them would
-# create thousands of near-duplicate URLs pointing at the same game.
-Disallow: /s
+# Serverless endpoints — no content to index.
 Disallow: /api/
+
+# Share links are /?ref=...&st=... — the homepage canonical collapses them,
+# so they need no rule here.
 
 Sitemap: https://egg-breaker-adventures.vercel.app/sitemap.xml

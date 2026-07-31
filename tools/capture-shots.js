@@ -125,8 +125,10 @@ async function clickTab(page, name) {
 /** Smash a few eggs so the log panel shows real prize messages. */
 async function smashSome(page, count) {
   for (let i = 0; i < count; i++) {
+    // Eggs are .egg-slot (see render.js) — NOT .egg, which matches nothing
+    // and would make this silently do nothing.
     await page.evaluate(() => {
-      const egg = document.querySelector('.egg:not(.broken)');
+      const egg = document.querySelector('#egg-tray .egg-slot:not(.broken)');
       if (egg) egg.click();
     });
     await page.waitForTimeout(220);

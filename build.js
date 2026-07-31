@@ -29,6 +29,10 @@ const JS_FILES = [
   'hammers.js',
   'render.js',
   'game.js',
+  // AFTER game.js: share.js reads referral params on load and must run
+  // after trackGameStarted() has classified the traffic source, because
+  // it strips those params from the URL afterwards.
+  'share.js',
   'smash.js',
   'shop.js',
   'achievements.js',

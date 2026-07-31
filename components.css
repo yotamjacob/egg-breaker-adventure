@@ -271,3 +271,33 @@
 .cloud-debug-btn{flex:1;padding:4px 6px;font-size:9px;background:transparent;border:1px solid var(--gray);color:var(--gray);border-radius:2px;cursor:pointer}
 .cloud-debug-btn:hover{border-color:var(--gold2);color:var(--gold2)}
 
+
+/* ── Referral banner ───────────────────────────────────────────
+   Shown when a player arrives from someone else's share link.
+   Pinned to the top of the viewport ABOVE #app so it never shifts
+   the game layout — renderEggTray computes from laid-out dimensions
+   and only re-runs on tab switch, so pushing the tray down here
+   would leave it mislaid-out until the next tab change. */
+.referral-banner{
+  position:fixed;top:0;left:0;right:0;z-index:890;
+  display:flex;align-items:center;gap:9px;
+  padding:calc(env(safe-area-inset-top) + 9px) 12px 9px;
+  background:linear-gradient(180deg,#1c4d8f,#0f3460);
+  border-bottom:2px solid var(--gold);
+  box-shadow:0 6px 22px rgba(0,0,0,.55);
+  transform:translateY(-105%);
+  transition:transform .3s ease;
+}
+.referral-banner.show{transform:translateY(0)}
+.referral-banner.hidden{display:none}
+.referral-banner-icon{font-size:20px;flex-shrink:0}
+.referral-banner-text{
+  flex:1;font-size:10px;line-height:1.6;color:var(--white);
+  letter-spacing:.3px;
+}
+.referral-banner-text strong{color:var(--gold)}
+.referral-banner-close{
+  flex-shrink:0;background:transparent;border:none;color:var(--gray);
+  font-size:14px;cursor:pointer;padding:2px 4px;line-height:1;
+}
+.referral-banner-close:hover{color:var(--gold)}

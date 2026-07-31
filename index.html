@@ -95,6 +95,13 @@
     <div class="splash-tip" id="splash-tip"></div>
   </div>
 
+  <!-- ===== REFERRAL BANNER (shown when arriving from a share link) ===== -->
+  <div class="referral-banner hidden" id="referral-banner">
+    <span class="referral-banner-icon">🥚</span>
+    <span class="referral-banner-text" id="referral-banner-text"></span>
+    <button class="referral-banner-close" onclick="dismissReferralBanner()" aria-label="Dismiss">✕</button>
+  </div>
+
   <div id="app">
 
     <!-- ===== Top bar ===== -->
@@ -351,6 +358,9 @@
             <span class="btn-label">Play Log</span>
             <span class="notif-toggle-chip" id="log-toggle-label">ON</span>
           </div>
+          <button class="settings-menu-btn" onclick="shareGame('settings-menu')">
+            <span class="btn-label">🔗 Share Your Progress</span>
+          </button>
           <button class="settings-menu-btn settings-play-btn" onclick="openPlayStore('settings-menu')">
             <span class="btn-label">⭐ Rate on Google Play</span>
           </button>
