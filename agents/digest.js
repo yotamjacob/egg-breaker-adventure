@@ -49,13 +49,23 @@ const MODEL = 'claude-opus-5';
 
 // ── State ─────────────────────────────────────────────────────
 
+/**
+ * Entries are stored as { key, nameKey, name, url }. Older runs wrote bare
+ * strings, so those are upgraded on read — the history from before this change
+ * still counts for de-duplication.
+ */
+function normaliseEntry(e) {
+  if (typeof e === 'string') return { key: e, nameKey: '', name: e, url: '' };
+  return { key: e.key || '', nameKey: e.nameKey || '', name: e.name || '', url: e.url || '' };
+}
+
 function loadSeen() {
   try {
     const raw = JSON.parse(fs.readFileSync(SEEN_PATH, 'utf8'));
     return {
-      communities: Array.isArray(raw.communities) ? raw.communities : [],
-      mentions:    Array.isArray(raw.mentions)    ? raw.mentions    : [],
-      runs:        Array.isArray(raw.runs)        ? raw.runs        : [],
+      communities: (Array.isArray(raw.communities) ? raw.communities : []).map(normaliseEntry),
+      mentions:    (Array.isArray(raw.mentions)    ? raw.mentions    : []).map(normaliseEntry),
+      runs:        Array.isArray(raw.runs) ? raw.runs : [],
     };
   } catch (e) {
     return { communities: [], mentions: [], runs: [] };
@@ -82,6 +92,20 @@ function keyOf(item) {
   } catch (e) {
     return url.toLowerCase().replace(/\/+$/, '');
   }
+}
+
+/**
+ * Second de-duplication axis: the identity of the thing, not the link to it.
+ * A Discord server whose invite link rotates, or a Facebook group reported
+ * once as /groups/123 and again as /groups/123/about, produces two different
+ * URL keys for one community — the name catches that.
+ */
+function nameKeyOf(item) {
+  return String(item.name || item.source || '')
+    .toLowerCase()
+    .replace(/\b(the|a|an|official|group|server|community|forum|discord|subreddit)\b/g, '')
+    .replace(/[^a-z0-9]/g, '')
+    .slice(0, 40);
 }
 
 function isBlocked(item) {
@@ -114,12 +138,14 @@ async function research(prompt, label) {
   log(`[${label}] researching…`);
   const stream = client.messages.stream({
     model: MODEL,
-    max_tokens: 32000,
-    output_config: { effort: 'high' },
+    max_tokens: 48000,
+    // xhigh: this is agentic search — more tool calls, deeper verification.
+    // The extra cost is a few cents a week and the depth is the whole point.
+    output_config: { effort: 'xhigh' },
     tools: [{
       type: 'web_search_20260209',
       name: 'web_search',
-      max_uses: 14,
+      max_uses: 30,
       // Enforcement layer 2: the model never even sees Reddit results.
       blocked_domains: BLOCKED_HOSTS,
     }],
@@ -369,21 +395,31 @@ async function main() {
   ]);
 
   // Enforcement layer 3 + dedup.
-  const filterNew = (data, seenKeys) => {
+  const filterNew = (data, seenEntries, label) => {
     const before = (data.items || []).length;
+    const urlKeys  = new Set(seenEntries.map(e => e.key).filter(Boolean));
+    const nameKeys = new Set(seenEntries.map(e => e.nameKey).filter(Boolean));
+    // Also guard against the same item appearing twice within one run.
+    const thisRun = new Set();
     const kept = [];
     for (const it of data.items || []) {
-      if (isBlocked(it)) { log(`  dropped (blocked source): ${it.name || it.source}`); continue; }
+      if (isBlocked(it)) { log(`  [${label}] dropped (blocked source): ${it.name || it.source}`); continue; }
       const k = keyOf(it);
-      if (!k || seenKeys.includes(k)) continue;
+      const nk = nameKeyOf(it);
+      if (!k && !nk) continue;
+      if (k && urlKeys.has(k))            { log(`  [${label}] skip (seen url): ${it.name || it.source}`); continue; }
+      if (nk && nameKeys.has(nk))         { log(`  [${label}] skip (seen name): ${it.name || it.source}`); continue; }
+      if (thisRun.has(k) || thisRun.has(nk)) { log(`  [${label}] skip (dupe in run): ${it.name || it.source}`); continue; }
+      if (k) thisRun.add(k);
+      if (nk) thisRun.add(nk);
       kept.push(it);
     }
-    if (before !== kept.length) log(`  filtered ${before} → ${kept.length}`);
+    if (before !== kept.length) log(`  [${label}] filtered ${before} → ${kept.length}`);
     return { ...data, items: kept };
   };
 
-  const communities = filterNew(commData, seen.communities);
-  const mentions    = filterNew(mentData, seen.mentions);
+  const communities = filterNew(commData, seen.communities, 'communities');
+  const mentions    = filterNew(mentData, seen.mentions, 'mentions');
 
   log(`new this week: ${communities.items.length} communities, ${mentions.items.length} mentions`);
 
@@ -401,8 +437,12 @@ async function main() {
 
   // Only record items AFTER a successful send, so a delivery failure doesn't
   // silently swallow a week's findings.
-  seen.communities.push(...communities.items.map(keyOf));
-  seen.mentions.push(...mentions.items.map(keyOf));
+  const record = it => ({
+    key: keyOf(it), nameKey: nameKeyOf(it),
+    name: it.name || it.source || '', url: it.url || '',
+  });
+  seen.communities.push(...communities.items.map(record));
+  seen.mentions.push(...mentions.items.map(record));
   seen.runs.push({ at: now.toISOString(), communities: communities.items.length, mentions: mentions.items.length });
   if (seen.runs.length > 100) seen.runs = seen.runs.slice(-100);
   saveSeen(seen);

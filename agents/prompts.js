@@ -49,6 +49,16 @@ HARD RULES — these are absolute:
 `.trim();
 
 /** Section A — community finder. */
+/** Renders prior findings as "Name — url" so the model can avoid them by identity. */
+function renderSeen(seenList) {
+  if (!seenList || !seenList.length) return '  (nothing yet — this is the first run)';
+  return seenList.map(e => {
+    const name = (e && e.name) || String(e);
+    const url  = (e && e.url) ? ` — ${e.url}` : '';
+    return `  - ${name}${url}`;
+  }).join('\n');
+}
+
 function communitiesPrompt(seenList) {
   return `
 ${GAME_CONTEXT}
@@ -83,10 +93,34 @@ For each community, establish and report:
 Rank best-fit first.
 
 ALREADY REPORTED IN PREVIOUS WEEKS — do not report these again. Find NEW ones:
-${seenList.length ? seenList.map(s => `  - ${s}`).join('\n') : '  (nothing yet — this is the first run)'}
+${renderSeen(seenList)}
 
-Aim for 4-8 strong results. Quality over quantity: three well-researched
-communities with real promo-policy detail beat ten shallow links.
+GO DEEPER THAN A LIST OF OBVIOUS LINKS. For every community you propose:
+  - VERIFY it is actually alive. Find evidence: a dated recent post, a member
+    count, visible activity. State the evidence and the date. If you cannot
+    verify activity, say so explicitly rather than guessing.
+  - READ THE ACTUAL RULES where they are visible (pinned post, sidebar, rules
+    page, #rules channel). Quote or paraphrase the specific self-promotion
+    clause instead of writing a generic "probably fine".
+  - Say WHO is there — the specific sub-audience, not "gamers". Ex-Facebook-game
+    players? Flash preservationists? Idle-game min-maxers? HTML5 developers?
+  - Make the first action SPECIFIC AND CURRENT: reference a real thread,
+    question, or topic you actually found, not a hypothetical one.
+
+Because the obvious surfaces have been covered in previous weeks, push into
+territory not yet explored. Deliberately try:
+  - smaller and more niche forums rather than the biggest ones
+  - non-English communities (Spanish, Portuguese, German, French, Hebrew) —
+    the store listings are localised for exactly those markets
+  - Flash/Facebook-game PRESERVATION projects and archives specifically
+  - Discord servers reachable via disboard/top.gg style directories
+  - creator communities (small YouTube/TikTok nostalgia channels and their
+    comment sections, Discord servers attached to those channels)
+  - itch.io and IndieDB devlog/community surfaces
+
+Aim for 6-12 strong results. Depth beats breadth: a community with verified
+activity, a quoted promo rule and a specific first action is worth far more
+than five unverified links.
 
 Write your findings as clear prose with explicit links. A separate step will
 structure them, so focus on being accurate and complete rather than on format.
@@ -136,10 +170,32 @@ For each mention, report:
     automating it.
 
 ALREADY REPORTED IN PREVIOUS WEEKS — do not report these again. Find NEW ones:
-${seenList.length ? seenList.map(s => `  - ${s}`).join('\n') : '  (nothing yet — this is the first run)'}
+${renderSeen(seenList)}
+
+SEARCH HARDER THAN A SINGLE PASS. Run many distinct queries, and go past the
+first page of results. Also try:
+  - "egg breaker" + each of: labpixies, monkey, hammer, hat, collection, prizes
+  - "egg breaker" + facebook game + each of: remember, miss, gone, shut down,
+    where can I play, anyone else
+  - the game's name alongside other LabPixies titles
+  - YouTube comment sections on "lost Facebook games" / "Flash games we lost"
+    style videos
+  - old forum threads and blog comments, including ones several years old that
+    have recent replies
+  - non-English phrasings (Spanish, Portuguese, German, French, Hebrew)
+  - archived and preservation sites (Flashpoint, Internet Archive, Lost Media)
+  - Quora, Discord public logs, YouTube, TikTok, Facebook, personal blogs
+
+For every mention, dig into the actual page rather than reporting the search
+snippet. Establish the real date, what the person actually said, and whether
+they are still reachable (is the thread live? does the platform allow replies?).
+Note explicitly if replying is not possible — a mention nobody can answer is
+worth knowing about but is not an action.
 
 This section is often thin, and that is expected and fine. Report only genuine
-finds. Zero results is a valid, useful answer — do not pad it.
+finds. Zero results is a valid, useful answer — do not pad it. But do not stop
+after two or three searches: exhaust the angles above before concluding there
+is nothing new.
 
 Write your findings as clear prose with explicit links. A separate step will
 structure them, so focus on being accurate and complete rather than on format.
