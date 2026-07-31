@@ -281,7 +281,7 @@ Scheduled by `.github/workflows/weekly-digest.yml` for Monday 08:00 Europe/Vienn
 | `agents/seen.json` is committed back by the workflow | It is the de-duplication state; without persistence every week re-reports the same items. Keys are normalised host+path, so utm params and trailing slashes don't defeat it |
 | `seen.json` is written **only after** a successful send | A delivery failure must not silently swallow a week's findings |
 | Two API calls per section (research → structure) | The `web_search` tool returns citations, and structured outputs (`output_config.format`) are rejected alongside citations. Research runs free-form, then a tool-less call structures it against a JSON schema |
-| Cron fires at **both** 06:00 and 07:00 UTC, and the job gates on the real local hour | GitHub cron is UTC-only with no DST awareness. One expression would drift an hour twice a year; the gate guarantees exactly one run per week year-round |
+| Cron fires at **four** Monday-morning UTC slots; a guard sends only on the first success that week | Two independent problems. (a) DST: GitHub cron is UTC-only, so one expression drifts an hour twice a year — a local-hour window (08:00-10:00 Europe/Vienna) absorbs it. (b) GitHub silently DROPS a large share of cron firings (measured ~10/72 on yotamjacob/vanilla-sky-tracker), so a single slot quietly misses weeks. Extra slots are insurance; the guard stops duplicate emails |
 
 Modes: `--test` (subject prefixed), `--dry-run` (renders `agents/preview.html`, sends nothing),
 `--smoke` (tiny email, no research). Also available via workflow_dispatch.

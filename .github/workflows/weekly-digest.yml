@@ -1,21 +1,27 @@
 name: Weekly promotion digest
 
-# Monday 08:00 Europe/Vienna, year-round.
+# Monday morning, Europe/Vienna. Two independent problems are solved here:
 #
-# GitHub cron is UTC-only and has no DST awareness, so a single expression
-# would drift by an hour twice a year. Instead this fires at BOTH candidate
-# hours and the job itself checks the real local time in Europe/Vienna,
-# exiting immediately on the wrong one. Exactly one run per week does work.
+# 1. DST. GitHub cron is UTC-only with no DST awareness, so a single
+#    expression drifts an hour twice a year.
+#      06:00 UTC = 08:00 CEST (summer) | 07:00 UTC = 08:00 CET (winter)
 #
-#   06:00 UTC → 08:00 CEST (summer)
-#   07:00 UTC → 08:00 CET  (winter)
+# 2. DROPPED FIRINGS. GitHub's scheduler silently skips a large share of cron
+#    events on busy repos — measured on yotamjacob/vanilla-sky-tracker as
+#    roughly 10 runs/day landing out of 72 scheduled slots. A schedule with
+#    one (or even two) slots per week will quietly miss weeks.
 #
-# To change the target timezone, edit TZ_NAME below and adjust the two cron
-# hours to bracket 08:00 local in that zone.
+# Defence in depth, same shape as the vanilla-sky-tracker digest that has been
+# running reliably:
+#   * several Monday-morning slots — any ONE of them landing sends the digest
+#   * a local-hour window so it always arrives at a sensible morning time
+#   * a guard so only the FIRST success in a given week actually sends
 on:
   schedule:
-    - cron: '0 6 * * 1'
-    - cron: '0 7 * * 1'
+    - cron: '0 6 * * 1'    # 08:00 CEST / 07:00 CET
+    - cron: '0 7 * * 1'    # 09:00 CEST / 08:00 CET
+    - cron: '35 7 * * 1'   # backup
+    - cron: '10 8 * * 1'   # backup
   workflow_dispatch:
     inputs:
       mode:
@@ -27,51 +33,69 @@ on:
 
 env:
   TZ_NAME: Europe/Vienna
-  TARGET_HOUR: '8'
+  HOUR_MIN: '8'    # earliest acceptable local hour
+  HOUR_MAX: '10'   # latest acceptable local hour
 
 permissions:
-  contents: write   # needed to commit the updated agents/seen.json
+  contents: write   # commit the updated agents/seen.json
+  actions: read     # the guard reads this workflow's own run history
 
 concurrency:
   group: weekly-digest
   cancel-in-progress: false
 
 jobs:
-  digest:
+  guard:
     runs-on: ubuntu-latest
+    outputs:
+      send: ${{ steps.check.outputs.send }}
+    steps:
+      - name: Decide whether this firing should send
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Manual runs always proceed.
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "manual run — proceeding"; echo "send=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+
+          # Only fire inside the local morning window, so backup slots don't
+          # deliver at an odd hour.
+          H=$(TZ="$TZ_NAME" date +%-H)
+          echo "local hour in $TZ_NAME: $H (window ${HOUR_MIN}-${HOUR_MAX})"
+          if [ "$H" -lt "$HOUR_MIN" ] || [ "$H" -gt "$HOUR_MAX" ]; then
+            echo "outside window — skip"; echo "send=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+
+          # Only the first success this week sends — the extra slots exist
+          # purely as insurance against dropped firings.
+          SINCE=$(date -u -d '6 days ago' +%Y-%m-%d 2>/dev/null || date -u -v-6d +%Y-%m-%d)
+          SENT=$(gh run list -R "$GITHUB_REPOSITORY" --workflow weekly-digest.yml \
+                   --status success --created ">=$SINCE" --json databaseId --jq length)
+          echo "successful digest runs since $SINCE: $SENT"
+          if [ "$SENT" -eq 0 ]; then
+            echo "send=true"  >> "$GITHUB_OUTPUT"
+          else
+            echo "already sent this week — skip"; echo "send=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  digest:
+    needs: guard
+    if: needs.guard.outputs.send == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
-      # Scheduled runs fire twice (see above); keep only the one that is
-      # actually 08:00 local. Manual runs always proceed.
-      - name: Gate on local time
-        id: gate
-        run: |
-          if [ "${{ github.event_name }}" != "schedule" ]; then
-            echo "manual run — proceeding"
-            echo "run=yes" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          LOCAL_HOUR=$(TZ="$TZ_NAME" date +%-H)
-          echo "local hour in $TZ_NAME is $LOCAL_HOUR (target $TARGET_HOUR)"
-          if [ "$LOCAL_HOUR" = "$TARGET_HOUR" ]; then
-            echo "run=yes" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=no" >> "$GITHUB_OUTPUT"
-            echo "not the target hour — skipping this firing"
-          fi
-
       - uses: actions/setup-node@v4
-        if: steps.gate.outputs.run == 'yes'
         with:
           node-version: '22'
 
       - name: Install dependencies
-        if: steps.gate.outputs.run == 'yes'
         run: npm ci --omit=optional || npm install
 
       - name: Run digest
-        if: steps.gate.outputs.run == 'yes'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           RESEND_API_KEY:    ${{ secrets.RESEND_API_KEY }}
@@ -85,14 +109,11 @@ jobs:
             *)       node agents/digest.js ;;
           esac
 
-      # seen.json is the de-duplication state — it must persist between runs,
-      # so commit it back. Skipped on dry-run/smoke, which never write it.
+      # seen.json is the de-duplication state — worthless if it doesn't persist.
       - name: Persist de-duplication state
-        if: steps.gate.outputs.run == 'yes'
         run: |
           if git diff --quiet -- agents/seen.json; then
-            echo "no state change"
-            exit 0
+            echo "no state change"; exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
