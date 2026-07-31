@@ -82,10 +82,63 @@ async function build() {
     }
   }
 
+  buildSitemap();
+
   console.log('Build complete.');
 
   if (ITCH) buildItch();
   if (NG)   buildNewgrounds();
+}
+
+// ============================================================
+//  sitemap.xml
+//  Generated rather than hand-maintained so a new content page
+//  cannot silently go unlisted. `lastmod` comes from each file's
+//  mtime, so it only moves when the page actually changes.
+//  Clean URLs (no .html) — vercel.json sets cleanUrls:true and
+//  308-redirects the .html form, which wastes crawl budget.
+// ============================================================
+const SITE_ORIGIN = 'https://egg-breaker-adventures.vercel.app';
+
+const SITEMAP_PAGES = [
+  { file: 'index.html',                        url: '/',                            priority: '1.0', changefreq: 'weekly'  },
+  { file: 'play-egg-breaker-online.html',      url: '/play-egg-breaker-online',     priority: '0.9', changefreq: 'monthly' },
+  { file: 'what-happened-to-egg-breaker.html', url: '/what-happened-to-egg-breaker', priority: '0.9', changefreq: 'monthly' },
+  { file: 'egg-breaker-guide.html',            url: '/egg-breaker-guide',           priority: '0.8', changefreq: 'monthly' },
+  { file: 'egg-breaker-vs-original.html',      url: '/egg-breaker-vs-original',     priority: '0.7', changefreq: 'monthly' },
+  { file: 'press.html',                        url: '/press',                       priority: '0.6', changefreq: 'monthly' },
+  { file: 'privacy.html',                      url: '/privacy',                     priority: '0.3', changefreq: 'yearly'  },
+  { file: 'terms.html',                        url: '/terms',                       priority: '0.3', changefreq: 'yearly'  },
+  { file: 'refund.html',                       url: '/refund',                      priority: '0.3', changefreq: 'yearly'  },
+];
+
+function buildSitemap() {
+  const entries = SITEMAP_PAGES
+    .filter(p => {
+      if (fs.existsSync(p.file)) return true;
+      console.warn(`  sitemap: skipping ${p.file} (not found)`);
+      return false;
+    })
+    .map(p => {
+      const lastmod = fs.statSync(p.file).mtime.toISOString().slice(0, 10);
+      return [
+        '  <url>',
+        `    <loc>${SITE_ORIGIN}${p.url}</loc>`,
+        `    <lastmod>${lastmod}</lastmod>`,
+        `    <changefreq>${p.changefreq}</changefreq>`,
+        `    <priority>${p.priority}</priority>`,
+        '  </url>',
+      ].join('\n');
+    });
+
+  const xml =
+    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    entries.join('\n') + '\n' +
+    '</urlset>\n';
+
+  fs.writeFileSync('sitemap.xml', xml);
+  console.log(`sitemap.xml written (${entries.length} URLs)`);
 }
 
 // ============================================================

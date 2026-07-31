@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
   <title>Egg Smash Adventures — Play the Egg Breaker Revival Free</title>
-  <meta name="description" content="Egg Breaker is back. Smash eggs, win prizes and complete collections in this free browser revival of the classic Facebook game — no download, no ads, plays instantly." />
+  <meta name="description" content="Egg Breaker is back. Smash eggs, win prizes and complete collections in this free browser revival of the classic Facebook game — no download, no ads." />
   <link rel="canonical" href="https://egg-breaker-adventures.vercel.app/" />
 
   <!-- PWA -->
@@ -47,6 +47,46 @@
 
   <!-- Analytics -->
   <script defer src="https://cloud.umami.is/script.js" data-website-id="343bb5db-6668-469d-a99c-9b6fcaa1c45a"></script>
+
+  <!-- Structured data: helps Google show this as a playable game rather than
+       a generic page. Keep `offers.price` at 0 — the game itself is free and
+       premium items are optional in-app purchases, not a price of entry. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Egg Smash Adventures",
+    "alternateName": ["Egg Breaker Adventure Revival", "Egg Breaker"],
+    "url": "https://egg-breaker-adventures.vercel.app/",
+    "description": "A free browser and Android revival of the classic Egg Breaker Facebook game. Smash eggs with a hammer, win prizes and complete 353 collectible items across six monkey worlds. No ads, no energy timers.",
+    "image": "https://egg-breaker-adventures.vercel.app/og-image.png",
+    "screenshot": [
+      "https://egg-breaker-adventures.vercel.app/shots/play.png",
+      "https://egg-breaker-adventures.vercel.app/shots/album.png",
+      "https://egg-breaker-adventures.vercel.app/shots/monkeys.png",
+      "https://egg-breaker-adventures.vercel.app/shots/shop.png"
+    ],
+    "applicationCategory": "GameApplication",
+    "genre": ["Casual", "Idle", "Collecting"],
+    "operatingSystem": ["Web browser", "Android 6.0+"],
+    "gamePlatform": ["Web browser", "Android"],
+    "playMode": "SinglePlayer",
+    "inLanguage": "en",
+    "author":    { "@type": "Person", "name": "Yotam Jacob" },
+    "publisher": { "@type": "Organization", "name": "YotJac" },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "url": "https://egg-breaker-adventures.vercel.app/"
+    },
+    "sameAs": [
+      "https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app",
+      "https://yotamjac.itch.io/egg-smash-adventures"
+    ]
+  }
+  </script>
 </head>
 <body>
   <div id="splash-screen">

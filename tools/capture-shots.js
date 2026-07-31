@@ -17,9 +17,10 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs   = require('fs');
 
-const SITE = process.env.SHOT_SITE || 'https://egg-breaker-adventures.vercel.app/';
-const OUT  = path.join(__dirname, '..', 'marketing', 'shots');
-const VP   = { width: 390, height: 844 };
+const SITE     = process.env.SHOT_SITE || 'https://egg-breaker-adventures.vercel.app/';
+const ROOT_DIR = path.join(__dirname, '..');
+const OUT      = path.join(ROOT_DIR, 'marketing', 'shots');
+const VP       = { width: 390, height: 844 };
 
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -173,9 +174,27 @@ async function smashSome(page, count) {
   await browser.close();
 
   const files = fs.readdirSync(OUT).filter(f => f.endsWith('.png'));
-  console.log(`captured ${files.length} shots → marketing/shots/`);
+  console.log(`captured ${files.length} shots → marketing/shots/  (full-res, for the press kit)`);
   for (const f of files) {
     const kb = Math.round(fs.statSync(path.join(OUT, f)).size / 1024);
     console.log(`  ${f}  ${kb}KB`);
   }
+
+  // ── Web-sized copies for the content pages ──────────────────────
+  // The full-res 1170x2532 captures are 300-700KB each. Content pages
+  // are the top of the funnel and must stay fast, so they get 440px-wide
+  // palette-quantised copies (~40-70KB) served from /shots/.
+  const sharp = require('sharp');
+  const WEB = path.join(ROOT_DIR, 'shots');
+  fs.mkdirSync(WEB, { recursive: true });
+  let webTotal = 0;
+  for (const f of files) {
+    const dest = path.join(WEB, f);
+    await sharp(path.join(OUT, f))
+      .resize({ width: 440 })
+      .png({ compressionLevel: 9, palette: true })
+      .toFile(dest);
+    webTotal += fs.statSync(dest).size;
+  }
+  console.log(`web copies → shots/  (${files.length} files, ${Math.round(webTotal / 1024)}KB total)`);
 })().catch(e => { console.error(e); process.exit(1); });

@@ -1,0 +1,16 @@
+# Egg Smash Adventures — https://egg-breaker-adventures.vercel.app/
+User-agent: *
+Allow: /
+
+# Admin dashboard and internal dev tools — never index these.
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /graphics
+Disallow: /graphics.html
+
+# Share links are per-player redirect stubs, not content. Indexing them would
+# create thousands of near-duplicate URLs pointing at the same game.
+Disallow: /s
+Disallow: /api/
+
+Sitemap: https://egg-breaker-adventures.vercel.app/sitemap.xml
