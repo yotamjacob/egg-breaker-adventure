@@ -105,6 +105,15 @@ async function build() {
 // ============================================================
 const SITE_ORIGIN = 'https://egg-breaker-adventures.vercel.app';
 
+// TODO(owner): hreflang. The site is English-only today, so there are no
+// alternate-language URLs to declare and hreflang tags would be invalid.
+// The Play listings ARE localised (marketing/store-listings/) — that is a
+// Play Console concern and needs no site change.
+// If localised pages are ever added, emit <xhtml:link rel="alternate"
+// hreflang="..."> per URL here AND matching <link rel="alternate"> tags in
+// each page head; a sitemap-only declaration is ignored by Google unless
+// every language version points back at all the others.
+
 const SITEMAP_PAGES = [
   { file: 'index.html',                        url: '/',                            priority: '1.0', changefreq: 'weekly'  },
   { file: 'play-egg-breaker-online.html',      url: '/play-egg-breaker-online',     priority: '0.9', changefreq: 'monthly' },
