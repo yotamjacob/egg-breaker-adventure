@@ -95,7 +95,15 @@ function isBlocked(item) {
 
 // ── Anthropic ─────────────────────────────────────────────────
 
-const client = new Anthropic();
+// Trim explicitly: a key pasted through a clipboard or `gh secret set` can pick
+// up a trailing newline or stray whitespace, which the API rejects as
+// `invalid x-api-key` — a 401 that looks identical to a genuinely bad key.
+const RAW_KEY = (process.env.ANTHROPIC_API_KEY || '').trim();
+if (!RAW_KEY) throw new Error('ANTHROPIC_API_KEY is not set');
+if (!RAW_KEY.startsWith('sk-ant-')) {
+  log(`WARNING: key does not start with "sk-ant-" (starts with "${RAW_KEY.slice(0, 3)}…", length ${RAW_KEY.length}) — this is probably not an Anthropic API key`);
+}
+const client = new Anthropic({ apiKey: RAW_KEY });
 
 /**
  * Stage 1 — research with the web_search server tool.
