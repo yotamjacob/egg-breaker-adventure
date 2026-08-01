@@ -32,6 +32,9 @@ function dataUri(file) {
 
 const play   = dataUri(path.join(SHOTS, 'play.png'));
 const album  = dataUri(path.join(SHOTS, 'album.png'));
+const monkeysShot = dataUri(path.join(SHOTS, 'monkeys.png'));
+const shopShot    = dataUri(path.join(SHOTS, 'shop.png'));
+
 const monkeys = [
   'mrmonkey_crown.jpeg',
   'steampunk_crown.png',
@@ -183,9 +186,44 @@ ${BASE_CSS}
   <div class="fade"></div>
 </body></html>`;
 
+
+// ── Forum screenshots 800x600 ─────────────────────────────────
+// html5gamedevs.com asks for screenshots "at best about 800x600 px", uploaded
+// as attachments. The game is portrait (390x844), so a single native shot
+// wastes most of a 4:3 frame — these place two real screens side by side on a
+// neutral backdrop. Deliberately plainer than the store covers: this board
+// wants to see the GAME, not marketing art.
+function forumShot(left, right, caption) {
+  return `<!doctype html><html><head><meta charset="utf-8">${FONTS}<style>
+${BASE_CSS}
+  body { width:800px; height:600px; }
+  .grid { background-size:34px 34px; opacity:.5; }
+  .glow { width:520px; height:520px; left:140px; top:60px; }
+  .row { position:absolute; inset:0; display:flex; align-items:center;
+         justify-content:center; gap:34px; }
+  .phone { position:relative; width:246px; height:532px; border-width:4px; border-radius:18px; }
+  .cap { position:absolute; left:0; right:0; bottom:18px; text-align:center;
+         font:600 15px/1.4 'DM Sans',sans-serif; color:#8fa6c4; }
+  .cap b { color:#f5c542; }
+</style></head><body>
+  <div class="bg"></div><div class="grid"></div><div class="glow"></div>
+  <div class="row">
+    <div class="phone"><img src="${left}"></div>
+    <div class="phone"><img src="${right}"></div>
+  </div>
+  <div class="cap">${caption}</div>
+</body></html>`;
+}
+
 const TARGETS = [
   { name: 'cover-landscape-1920x1080.png', html: landscape, w: 1920, h: 1080 },
   { name: 'cover-portrait-800x1200.png',   html: portrait,  w: 800,  h: 1200 },
+  { name: 'forum-1-gameplay-800x600.png',
+    html: forumShot(play, album, 'Smash eggs to fill the collection · <b>353 items</b> across six worlds'),
+    w: 800, h: 600 },
+  { name: 'forum-2-progression-800x600.png',
+    html: forumShot(monkeysShot, shopShot, 'Six monkey companions, each a themed world · gear with real stat effects'),
+    w: 800, h: 600 },
 ];
 
 (async () => {
