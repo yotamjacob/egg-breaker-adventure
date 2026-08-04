@@ -534,7 +534,15 @@ function smashEgg(index) {
     tray.addEventListener('animationend', () => tray.classList.remove('tray-wiggle'), { once: true });
   } else {
     SFX.play('hit');
-    shake(slot, egg.hp <= 1 ? 'md' : 'sm');
+    // `smashing` drives egg-smash-retro — the squash-and-rotate wiggle that
+    // reads as "you hit it". v3.2.1 swapped it for shake(), whose few-pixel
+    // translate is nearly invisible on a phone, and the class survived only
+    // on the rage/starfall paths. Restored here; specials keep egg-crunch,
+    // which is stronger and would otherwise lose the cascade to `smashing`.
+    slot.classList.remove('idle-wiggle', 'smashing');
+    void slot.offsetWidth;
+    slot.classList.add('smashing');
+    slot.addEventListener('animationend', () => slot.classList.remove('smashing'), { once: true });
   }
 
   const hammerEl = $id('hammer');
