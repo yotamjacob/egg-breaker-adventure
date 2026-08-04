@@ -43,15 +43,13 @@
       var t = (b.textContent || '').toLowerCase();
       // Cloud Save  → external login (Google OAuth)
       // Google Play → cross-promotion to another store
-      // Guide/Story/Press/Online/vs-Original → links off the CrazyGames domain
+      // Guide/Story/Press → links off the CrazyGames domain
       // Share       → produces a link to the Vercel origin
       if (t.indexOf('cloud save') > -1 ||
           t.indexOf('google play') > -1 ||
           t.indexOf('game guide') > -1 ||
           t.indexOf('the story') > -1 ||
           t.indexOf('press kit') > -1 ||
-          t.indexOf('play egg breaker online') > -1 ||
-          t.indexOf('vs the original') > -1 ||
           t.indexOf('share your progress') > -1) {
         hide(b);
       }

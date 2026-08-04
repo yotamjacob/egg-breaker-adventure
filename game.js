@@ -558,7 +558,13 @@ function spawnFloat(zone, text, color, cls, cx, cy) {
 }
 
 function shake(el, level) {
-  el.classList.remove('shake-sm', 'shake-md', 'shake-lg');
+  // `idle-wiggle` must come off first. `.egg-slot.idle-wiggle` is specificity
+  // (0,2,0) and the `.shake-*` rules are (0,1,0), so an egg tapped during its
+  // idle wiggle kept animating `egg-idle-wiggle` and showed no smash reaction
+  // at all — same for `.egg-slot.egg-crunching`, which loses on source order.
+  // The wiggle reschedules itself off any `animationend` on the slot, so the
+  // shake we start here still hands the loop back to _scheduleWiggle().
+  el.classList.remove('idle-wiggle', 'shake-sm', 'shake-md', 'shake-lg');
   void el.offsetWidth;
   el.classList.add('shake-' + level);
 }
