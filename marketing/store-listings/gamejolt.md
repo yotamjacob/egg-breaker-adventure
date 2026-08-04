@@ -129,11 +129,10 @@ tell me. Comments are open.
 
 ## Build to upload
 
-`dist-itch.zip` works as-is on Game Jolt — index.html sits at the archive root
-and the platform permits the outbound links the CrazyGames build had to strip.
+Use `node build.js --gamejolt` → `dist-gamejolt.zip`. index.html sits at the
+archive root and Game Jolt permits outbound links, so cloud save, the premium
+shop and the Play CTA all stay.
 
-Worth considering first: the CrazyGames build proved the asset payload can go
-from **78MB to 11MB** with no visible quality loss (512px palette PNGs, 96kbps
-mono audio). A Game Jolt build reusing that optimisation while keeping cloud
-save and the Play CTA would load dramatically faster on a browser-games site
-where load time is most of the first impression.
+It ships optimised assets: the payload goes from **78MB to 11MB** with no
+visible quality loss (512px palette PNGs, 96kbps mono audio), which matters on
+a browser-games site where load time is most of the first impression.

@@ -20,14 +20,13 @@
 | `sw.js` | Service worker — cache versioning, network-first fetch strategy |
 | `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css; `--itch` assembles the static itch.io build; also generates `sitemap.xml` |
 | `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by the `--itch` build) |
-| `crazygames/crazygames.js` | CrazyGames-only shim — hides cloud save, premium, push and all off-platform links (loaded by the `--crazy` build) |
 | `payments.js` | Google Play Billing, purchase verification, restore-purchases flow, PREMIUM_PRODUCTS |
 | `cloud.js` | Supabase auth + cloud save — `_syncToCloud`, autosave timer (default OFF), session caching |
 | `admin.html` | Standalone admin dashboard (not bundled) — Players/Purchases/Analytics tabs; calls admin-* edge fns with `x-admin-secret` |
 | `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications, admin-players, admin-purchases |
 | `agents/digest.js` | Weekly promotion digest — two web-search research agents (communities + "Egg Breaker" mentions), de-dupes via `agents/seen.json`, emails HTML via Resend. Run by `.github/workflows/weekly-digest.yml` |
 | `agents/prompts.js` | Research prompts for the digest. Reddit is excluded here AND via `blocked_domains` AND by a URL filter in digest.js |
-| `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live) |
+| `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live), `smash-animation.test.js` (tap-feedback cascade, drives real Chromium) |
 | `.github/workflows/smoke-tests.yml` | CI: runs all tests 3× daily (08/14/20 UTC) + on every push to main; emails on failure |
 
 ## Build & deploy
@@ -35,7 +34,6 @@
 node build.js                    # bundle JS + CSS (always run before commit)
 node build.js --itch             # + assemble itch.io build → dist-itch.zip
 node build.js --gamejolt         # + assemble Game Jolt build → dist-gamejolt.zip (itch features, optimised assets)
-node build.js --crazy            # + assemble CrazyGames build → dist-crazy.zip
 git add -A && git commit && git push   # Vercel auto-deploys on push
 supabase functions deploy <name> # deploy a single edge function
 ```
@@ -239,35 +237,23 @@ save show "0/5 items" and "???" placeholders and sell the game badly. Eggs are
 
 All of these are enforced by `tests/sw-health.test.js` in CI (3× daily + every push). If a change legitimately needs to alter one, update the test in the same commit.
 
-## CrazyGames build (`node build.js --crazy`)
+## Smash animation invariants — never break these
 
-CrazyGames Basic Launch forbids, inside the game: external login, external
-payment providers, external analytics/ads, and off-platform cross-promotion.
-The bundle is shared across platforms, so the build strips those surfaces
-rather than forking the game.
+The tap-feedback animation broke twice with nothing failing, erroring or logging,
+because both failures were **CSS cascade** failures: two rules set `animation` on
+`.egg-slot` and the loser vanishes silently.
 
-| Requirement | How it is met |
-|-------------|---------------|
-| Relative paths only ("absolute paths will fail to load") | Root-absolute asset paths rewritten to `./` |
-| No external requests | Google Fonts self-hosted (`press-start-2p.woff2`, OFL); umami, Sentry and the Supabase CDN tags removed |
-| No external login | Removing the Supabase CDN tag is enough — `initCloudSave()` already returns early on `typeof supabase === 'undefined'`. The shim hides the now-dead Cloud Save button |
-| No external payments | Premium tab + panel hidden (they sell through Google Play) |
-| No cross-promotion | Play Store button and the Guide/Story/Press links are **deleted from the DOM**, not just hidden |
-| ≤250MB, ≤1500 files, ≤50MB initial | ~11MB / 67 files — also under the 20MB mobile-homepage threshold |
+| Invariant | Why |
+|-----------|-----|
+| `smashEgg()`'s normal-egg branch must add the `smashing` class | It drives `egg-smash-retro`, the squash-and-rotate wiggle that reads as "you hit it". v3.2.1 (`ef754f5`) swapped it for `shake()` — a few-pixel translate — and the class survived only on the rage/starfall paths. The rule and keyframes stayed in `play.css`, orphaned, so the CSS looked healthy for months |
+| `shake()` must strip `idle-wiggle` before adding its own class | `.egg-slot.idle-wiggle` is specificity (0,2,0); `.shake-*` is (0,1,0). A tap landing inside an egg's 0.5s idle wiggle showed no reaction at all |
+| Special eggs (`crystal`/`ruby`/`black`/`century`) must resolve to `egg-crunch`, not `egg-smash-retro` | `.egg-slot.egg-crunching` and `.egg-slot.smashing` tie on specificity, so **source order in the bundle decides**. `egg-crunching` is earlier and would lose — the normal path must therefore never set `smashing` on a special egg |
+| Any new `.egg-slot.<state>` rule that sets `animation` must not outrank the smash feedback | This is the whole bug class. Adding one is silent |
 
-- **Network guard**: an inline `<head>` script wraps `fetch`/`XMLHttpRequest`
-  and blocks the Supabase/umami/glitchtip hosts. Cloud save disables itself,
-  but the push-notification paths call Supabase *directly* and are gated only
-  on localStorage flags, so a returning player could still leak a request.
-  Blocking the hosts is cheaper than auditing every call site in shared code.
-  **The 204 response must be constructed with `null`, not `""`** — a 204
-  forbids a body, and throwing there aborts bundle execution (which surfaces
-  as a confusing `Cannot access '_isDesktop' before initialization` TDZ error).
-- **Assets are re-encoded for this target only**: 1024px PNG masters → 512px
-  palette PNGs (52MB → 2.3MB) and MP3s → 96kbps mono (16MB → 8MB). Source
-  files are never modified.
-- SDK integration is **not** included. It is optional for Basic Launch and
-  mandatory for Full Launch — see `/sdk/intro` when the game is promoted.
+Guarded by `tests/smash-animation.test.js`, which asserts the **resolved**
+`getComputedStyle().animationName` after a real tap — source greps cannot catch a
+cascade loss. It drives Chromium, so CI runs `npm ci` + `npx playwright install
+chromium` first; locally it skips with a warning if the browser binary is absent.
 
 ## Weekly promotion digest (`agents/`)
 

@@ -38,7 +38,7 @@ jobs:
   smoke:
     name: Smoke Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
 
@@ -48,6 +48,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      # smash-animation.test.js drives a real browser: the bugs it guards are
+      # CSS cascade failures, which only the resolved style can detect.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Wait for Vercel deployment
         if: github.event_name == 'push'
@@ -71,7 +79,7 @@ jobs:
           echo "Timed out waiting for deployment." && exit 1
 
       - name: Run smoke tests
-        run: node --test tests/smoke.test.js tests/sw-health.test.js
+        run: node --test tests/smoke.test.js tests/sw-health.test.js tests/smash-animation.test.js
         env:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
