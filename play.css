@@ -326,7 +326,10 @@
   animation:chicken-dash 2.5s linear forwards;cursor:pointer;z-index:40;
 }
 @keyframes chicken-dash{0%{left:-40px;transform:scaleX(1)}100%{left:110%;transform:scaleX(1)}}
-.egg-slot.smashing{animation:egg-smash-retro .35s steps(6)}
+/* .45s, not .35s: steps(6) holds each pose as a discrete frame, and at .35s
+   the peak beat lasted about one frame at 60fps — present but too brief to
+   register as impact. */
+.egg-slot.smashing{animation:egg-smash-retro .45s steps(6)}
 @keyframes runny-wobble{0%,100%{rotate:-2deg}50%{rotate:2deg}}
 .egg-slot .egg-label{
   font-size:8px;color:var(--gray);margin-top:1px;
@@ -380,13 +383,23 @@
 .shake-lg{animation:shake-lg .3s steps(6)}
 
 /* ---------- Animations (stepped for 16-bit feel) ---------- */
+/* Amplitudes are written ~20% hotter than the intended look on purpose.
+   steps(6) applies per keyframe INTERVAL, not across the whole animation, and
+   defaults to jump-end — so an interval's endpoint is only shown as the first
+   sub-step of the interval after it. At the old .35s that peak frame lasted
+   ~10ms, under one frame at 60fps, so it was routinely skipped: sampling the
+   old animation peaked at 1.125/-6.67deg against authored 1.15/-8deg. The
+   longer duration below gives each pose ~12.5ms and these values land a
+   measured peak of 1.24/-12deg.
+   Re-measure if the timing function changes — tests/smash-animation.test.js
+   asserts the RENDERED peak, not these numbers. */
 @keyframes egg-smash-retro{
   0%,100%{transform:scale(1) rotate(0)}
-  16%{transform:scale(1.15) rotate(-8deg)}
-  33%{transform:scale(.85) rotate(6deg)}
-  50%{transform:scale(1.08) rotate(-4deg)}
-  66%{transform:scale(.95) rotate(2deg)}
-  83%{transform:scale(1.02) rotate(-1deg)}
+  16%{transform:scale(1.24) rotate(-12deg)}
+  33%{transform:scale(.80) rotate(9deg)}
+  50%{transform:scale(1.12) rotate(-6deg)}
+  66%{transform:scale(.93) rotate(3deg)}
+  83%{transform:scale(1.03) rotate(-1.5deg)}
 }
 @keyframes float-up-retro{
   0%{opacity:0;transform:translate(-50%,0) scale(.7)}

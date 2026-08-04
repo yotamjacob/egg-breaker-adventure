@@ -569,6 +569,21 @@ function shake(el, level) {
   el.classList.add('shake-' + level);
 }
 
+// Starts (or restarts) the tap-feedback wiggle on an egg slot.
+// The remove → reflow → add dance is required, not cosmetic: adding a class
+// that is already present does NOT restart a running animation, so the
+// rapid-fire paths (Monkey Rage batches every 450ms, Starfall) would drop the
+// wiggle on any egg still mid-animation. Clearing `idle-wiggle` first is the
+// specificity fix — see shake() above.
+// Removal is driven by animationend rather than a hardcoded timeout so the
+// animation's duration lives in one place: play.css.
+function punchEgg(slot) {
+  slot.classList.remove('idle-wiggle', 'smashing');
+  void slot.offsetWidth;
+  slot.classList.add('smashing');
+  slot.addEventListener('animationend', () => slot.classList.remove('smashing'), { once: true });
+}
+
 function isEggDiscovered(id) {
   return G.discoveredEggs && G.discoveredEggs.includes(id);
 }
@@ -687,8 +702,7 @@ function _doStarfall(message, cat) {
 
       const slots = $id('egg-tray').children;
       const slot = slots[idx];
-      slot.classList.add('smashing');
-      setTimeout(() => slot.classList.remove('smashing'), 300);
+      punchEgg(slot);
 
       const rect = slot.getBoundingClientRect();
       const wrapRect = wrap.getBoundingClientRect();
@@ -852,8 +866,7 @@ function _doRageBatch() {
       const isSpecial = ['crystal','ruby','black','century'].includes(egg.type);
       SFX.play(isSpecial ? 'crunch' : 'hit');
       shake(slot, fullyBroken ? 'lg' : 'md');
-      slot.classList.add('smashing');
-      setTimeout(() => slot.classList.remove('smashing'), 250);
+      punchEgg(slot);
       Particles.emit(cx, cy, egg.type, fullyBroken ? 18 : Math.max(4, (dmg || 1) * 3));
 
       setTimeout(() => {

@@ -47,13 +47,37 @@ describe('smash animation — source guards', () => {
   const bundleJs  = read('bundle.min.js');
 
   test('the normal smash path still applies the `smashing` class', () => {
-    // This is the exact line ef754f5 deleted. Its absence is invisible at
+    // This is the exact thing ef754f5 deleted. Its absence is invisible at
     // runtime — the egg simply stops reacting.
     const fn = smashSrc.slice(smashSrc.indexOf('function smashEgg'));
     assert.match(
-      fn, /classList\.add\('smashing'\)/,
-      'smashEgg() no longer adds the `smashing` class — the tap wiggle is gone (see ef754f5)'
+      fn, /punchEgg\(slot\)|classList\.add\('smashing'\)/,
+      'smashEgg() no longer applies the `smashing` class — the tap wiggle is gone (see ef754f5)'
     );
+  });
+
+  test('punchEgg() restarts the animation rather than just adding the class', () => {
+    // Rage batches every 450ms against a 450ms animation, so without the
+    // remove → reflow → add dance an egg still mid-wiggle would never restart.
+    const gameSrc = read('game.js');
+    const fn = gameSrc.slice(gameSrc.indexOf('function punchEgg('));
+    const body = fn.slice(0, 500);
+    assert.match(body, /classList\.remove\([^)]*'smashing'/, 'punchEgg must clear `smashing` first');
+    assert.match(body, /offsetWidth/,                       'punchEgg must force a reflow between remove and add');
+    assert.match(body, /classList\.add\('smashing'\)/,      'punchEgg must add `smashing`');
+    assert.match(body, /'animationend'/,                    'punchEgg must clear the class on animationend');
+  });
+
+  test('no path removes `smashing` on a hardcoded timeout', () => {
+    // The animation duration lives in play.css. A timeout that predates a
+    // duration change silently truncates the wiggle — this is how the rage
+    // and starfall paths ended up showing 55% of it.
+    for (const [name, src] of [['game.js', read('game.js')], ['smash.js', smashSrc]]) {
+      assert.doesNotMatch(
+        src, /setTimeout\(\(\) => \w+\.classList\.remove\('smashing'\)/,
+        `${name} removes 'smashing' on a timeout — use punchEgg() so play.css owns the duration`
+      );
+    }
   });
 
   test('play.css defines the rule and keyframes `smashing` depends on', () => {
@@ -173,6 +197,47 @@ describe('smash animation — resolved cascade', () => {
     // shake) leaves a=1,b=0, which is what "muted to invisible" looked like.
     assert.ok(Math.abs(a) > 1.05 || Math.abs(b) > 0.05,
       `transform ${r.transform} shows no scale or rotation — is this still a translate-only shake?`);
+  });
+
+  test('the wiggle reaches its intended peak, not a muted fraction of it', async (t) => {
+    if (unavailable) return t.skip(unavailable);
+    // Authored keyframe values are not what the screen shows: steps(6) holds
+    // each pose for a sub-step, and at the old .35s the peak pose lasted under
+    // one frame at 60fps and was routinely skipped — sampling peaked at
+    // 1.125/-6.67deg against an authored 1.15/-8deg. That gap is what "it looks
+    // a bit muted" was. Assert the RENDERED peak so a duration, timing-function
+    // or amplitude change cannot quietly walk it back.
+    const peak = await page.evaluate(async () => {
+      G.hammers = 500; G.maxH = 500;
+      Object.assign(G.roundEggs[0], {
+        type: 'normal', hp: 9, maxHp: 9, broken: false, expired: false,
+        effects: [], _smashing: false,
+      });
+      renderEggTray();
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const slot = document.getElementById('egg-tray').children[0];
+      slot.click();
+
+      let maxScale = 0, maxRot = 0;
+      const t0 = performance.now();
+      return new Promise(res => {
+        const tick = () => {
+          const m = getComputedStyle(slot).transform.match(/matrix\(([^)]+)\)/);
+          if (m) {
+            const [a, b] = m[1].split(',').map(Number);
+            maxScale = Math.max(maxScale, Math.hypot(a, b));
+            maxRot   = Math.max(maxRot, Math.abs(Math.atan2(b, a) * 180 / Math.PI));
+          }
+          if (performance.now() - t0 < 600) requestAnimationFrame(tick);
+          else res({ maxScale: +maxScale.toFixed(3), maxRot: +maxRot.toFixed(2) });
+        };
+        requestAnimationFrame(tick);
+      });
+    });
+    assert.ok(peak.maxScale >= 1.15,
+      `peak scale only reached ${peak.maxScale} (want >= 1.15) — the wiggle is muted again`);
+    assert.ok(peak.maxRot >= 8,
+      `peak rotation only reached ${peak.maxRot}deg (want >= 8) — the wiggle is muted again`);
   });
 
   // The class list an alive egg slot can legitimately carry alongside a tap.

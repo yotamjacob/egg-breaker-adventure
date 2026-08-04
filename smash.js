@@ -539,10 +539,7 @@ function smashEgg(index) {
     // translate is nearly invisible on a phone, and the class survived only
     // on the rage/starfall paths. Restored here; specials keep egg-crunch,
     // which is stronger and would otherwise lose the cascade to `smashing`.
-    slot.classList.remove('idle-wiggle', 'smashing');
-    void slot.offsetWidth;
-    slot.classList.add('smashing');
-    slot.addEventListener('animationend', () => slot.classList.remove('smashing'), { once: true });
+    punchEgg(slot);
   }
 
   const hammerEl = $id('hammer');
