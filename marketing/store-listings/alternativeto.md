@@ -104,6 +104,29 @@ Still ~600 characters — this is **not** a fit for the 290-character short desc
 Egg Smash Adventures is a browser and Android collection game in which the player breaks eggs with a hammer to win prizes. It is an independent recreation of Egg Breaker Adventures, a Facebook game that ran from 2008 until its shutdown. Seven egg tiers drop gold, star pieces, multipliers and collectible items across 353 items and 53 stages, with six monkey companions that each apply a passive bonus and gate their own stages. Hammers regenerate on a timer, there are no advertisements, and optional one-time in-app purchases are available on Android. It installs as a progressive web app and runs offline.
 ```
 
+### Meta — "Note about your changes" (optional, but do fill it)
+
+This field is not public listing copy, it is a private note to the reviewing admin — which
+makes it the one place to answer the decline reasons *before* they're applied. Disclose
+authorship, prove the app is shipped and public, and pre-empt the duplicate question.
+Unlike the description, a link here is fine and actively helps them verify.
+
+```
+Submitting as the developer of the app.
+
+Egg Smash Adventures is an independent recreation of Egg Breaker Adventures, a Facebook game retired around 2016. The original has no working successor since Flash was dropped, and it still draws steady search traffic, which is the gap this fills.
+
+It is live and public on both platforms, not a beta or a closed test: Google Play (com.eggbreakeradventures.app) and the web build at the homepage URL, which loads directly into the playable game rather than a landing page. English only, no region restrictions. Free to play, with optional one-time in-app purchases on Android, hence the Freemium license.
+
+This is a single entry covering the web and Android builds together. Repackaged builds of the same game exist on itch.io and Game Jolt; I have deliberately not submitted those as separate entries.
+
+Happy to provide anything else that helps.
+```
+
+Keep the tone flat. Do not pitch the game here, do not describe it as a passion project or
+a hobby — "personal project" is adjacent to their largest decline bucket, and the note
+exists to move you *out* of that bucket, not into it.
+
 ### Tags
 Lowercase and generic — AlternativeTo wants categorisation, not keywords:
 ```
