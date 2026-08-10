@@ -60,10 +60,10 @@ Do **not** tick Windows / Mac / Linux. It installs as a PWA on desktop, but tick
 OSes for a browser game reads as platform-padding and invites scrutiny.
 
 ### Short description — **290 character limit**
-267 characters. No URLs, no marketing language:
+275 characters. No URLs, no marketing language:
 
 ```
-A browser and Android game in which the player breaks eggs with a hammer to win prizes and complete collections. An independent recreation of Egg Breaker Adventures, a Facebook game retired around 2016. 353 collectible items, 53 stages, six monkey companions, no ads.
+A browser and Android game in which the player breaks eggs with a hammer to win prizes and complete collections. An independent recreation of Egg Breaker Adventures, a Facebook game that became unplayable when Flash ended in 2020. 353 items, 53 stages, six monkey companions.
 ```
 
 Two alternates, if you want a different emphasis — both also under the limit:
@@ -71,22 +71,23 @@ Two alternates, if you want a different emphasis — both also under the limit:
 ```
 Egg Smash Adventures is a browser and Android collection game in which the player breaks eggs with a hammer to win prizes. An independent recreation of the Facebook game Egg Breaker Adventures, with 353 collectible items across 53 stages and six monkey companions.
 ```
-*(264 characters — leads with the product name, drops the shutdown hook.)*
+*(264 characters — leads with the product name, drops the history hook entirely.)*
 
 ```
 A browser and Android collection game in which the player breaks eggs with a hammer to win prizes and fill an album. An independent recreation of the Facebook game Egg Breaker Adventures, with 353 items across 53 stages, six monkey companions and no advertisements.
 ```
 *(265 characters — no date claim at all.)*
 
-Keep "retired around 2016" hedged exactly as written: `what-happened-to-egg-breaker.html`
-says the studio wound down its Facebook titles *around* 2016, and a flat date here would
-be more confident than the game's own content page.
+Say "unplayable when Flash ended in 2020", **not** "shut down in 2016". The studio
+(DJArts Games, renamed Codename Entertainment in 2014) stopped making new content in May
+2016 but explicitly kept the game online; Flash's end-of-life is what actually killed it.
+See `what-happened-to-egg-breaker.html` for the sourced version.
 
 ### Full description
 No URLs, no contact details, no marketing language. Paste as-is:
 
 ```
-Egg Smash Adventures is a browser and Android game in which the player breaks eggs with a hammer to win prizes and complete themed collections. It is an independent recreation of Egg Breaker Adventures, a Facebook game that ran from 2008 until its shutdown.
+Egg Smash Adventures is a browser and Android game in which the player breaks eggs with a hammer to win prizes and complete themed collections. It is an independent recreation of Egg Breaker Adventures, a Facebook game that ran from 2008 until Flash ended in 2020.
 
 Each tap spends a hammer and damages the egg on screen. Rarer egg tiers take more hits and pay out proportionally more: gold, star pieces, multipliers, and the collectible items that fill the album. There are seven egg tiers and 353 items spread across 53 stages, and completing a stage's collection unlocks the next one.
 
@@ -101,7 +102,7 @@ Condensed variant, if the full-description field turns out to be tighter than ex
 Still ~600 characters — this is **not** a fit for the 290-character short description above:
 
 ```
-Egg Smash Adventures is a browser and Android collection game in which the player breaks eggs with a hammer to win prizes. It is an independent recreation of Egg Breaker Adventures, a Facebook game that ran from 2008 until its shutdown. Seven egg tiers drop gold, star pieces, multipliers and collectible items across 353 items and 53 stages, with six monkey companions that each apply a passive bonus and gate their own stages. Hammers regenerate on a timer, there are no advertisements, and optional one-time in-app purchases are available on Android. It installs as a progressive web app and runs offline.
+Egg Smash Adventures is a browser and Android collection game in which the player breaks eggs with a hammer to win prizes. It is an independent recreation of Egg Breaker Adventures, a Facebook game that ran from 2008 until Flash ended in 2020. Seven egg tiers drop gold, star pieces, multipliers and collectible items across 353 items and 53 stages, with six monkey companions that each apply a passive bonus and gate their own stages. Hammers regenerate on a timer, there are no advertisements, and optional one-time in-app purchases are available on Android. It installs as a progressive web app and runs offline.
 ```
 
 ### Meta — "Note about your changes" (optional, but do fill it)
@@ -114,7 +115,7 @@ Unlike the description, a link here is fine and actively helps them verify.
 ```
 Submitting as the developer of the app.
 
-Egg Smash Adventures is an independent recreation of Egg Breaker Adventures, a Facebook game retired around 2016. The original has no working successor since Flash was dropped, and it still draws steady search traffic, which is the gap this fills.
+Egg Smash Adventures is an independent recreation of Egg Breaker Adventures, a Facebook game that ran until Flash ended in 2020. The original has no working successor, and it still draws steady search traffic, which is the gap this fills.
 
 It is live and public on both platforms, not a beta or a closed test: Google Play (com.eggbreakeradventures.app) and the web build at the homepage URL, which loads directly into the playable game rather than a landing page. English only, no region restrictions. Free to play, with optional one-time in-app purchases on Android, hence the Freemium license.
 

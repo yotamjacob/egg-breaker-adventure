@@ -52,10 +52,14 @@ to discover items across six themed monkey worlds. No ads, no energy
 timers, no paywalls. Free in any browser and on Android.
 
 LONG DESCRIPTION
-The original Egg Breaker was a Facebook game published around 2008 by
-LabPixies. It was retired when the studio wound down its Facebook titles
-around 2016, and whatever survived stopped working entirely when browsers
-dropped Flash at the end of 2020. No announcement, no successor.
+The original Egg Breaker was a 2008 Facebook game by DJArts Games of
+Victoria, British Columbia — the studio's first title, and the start of a
+series that ran through Egg Breaker 2, Egg Drop and Egg Breaker
+Adventures. DJArts renamed itself Codename Entertainment in July 2014. In
+May 2016 it stopped developing new content for the series but said the
+game would stay online indefinitely; what ended it was Adobe
+discontinuing Flash at the end of 2020, after which no browser could run
+it. No successor was ever made.
 
 Egg Smash Adventures is an independent fan revival built by a solo
 developer who played the original for years. It keeps the loop that made
@@ -102,7 +106,8 @@ All assets in this kit may be used freely for editorial and review
 coverage of Egg Smash Adventures.
 
 Egg Smash Adventures is an independent fan revival. It is not affiliated
-with, endorsed by, or connected to LabPixies or Meta.
+with, endorsed by, or connected to Codename Entertainment (formerly DJArts Games)
+or Meta.
 `;
 
 // ── Build ─────────────────────────────────────────────────────

@@ -14,8 +14,21 @@
 const GAME_CONTEXT = `
 ABOUT THE GAME
 Egg Breaker Adventure Revival ("Egg Smash Adventures") is a fan revival of the
-original Egg Breaker Facebook game (2008-2016, published by LabPixies, retired
-around 2016, finished off when browsers dropped Flash at the end of 2020).
+original Egg Breaker Facebook game.
+
+VERIFIED PROVENANCE — use these names, do not substitute others:
+  - Egg Breaker (2008) was the FIRST title of DJArts Games, founded 2008 in
+    Victoria, British Columbia by David Whittaker and Justin Stocks.
+  - Series order: Egg Breaker -> Egg Breaker 2 -> Egg Drop -> Egg Breaker Adventures.
+  - DJArts Games renamed itself Codename Entertainment on 2 July 2014. That studio
+    still operates (Bush Whacker 2, Crusaders of the Lost Idols).
+  - 17 May 2016: studio announced it would stop developing NEW CONTENT for the
+    series (a final monkey and hat), but said the game would stay online
+    indefinitely and progress would not be lost. It was NOT shut down in 2016.
+  - What ended it was Adobe discontinuing Flash at the end of 2020.
+  - The game is NOT connected to LabPixies. LabPixies is an unrelated Israeli
+    studio Google acquired in April 2010. Earlier versions of our own site made
+    this mistake; do not reproduce it, and flag it if you see it in the wild.
 
 It is a casual/idle egg-smashing and collection game:
   - Smash eggs with a hammer, roll prizes, complete collections to unlock stages
@@ -174,10 +187,14 @@ ${renderSeen(seenList)}
 
 SEARCH HARDER THAN A SINGLE PASS. Run many distinct queries, and go past the
 first page of results. Also try:
-  - "egg breaker" + each of: labpixies, monkey, hammer, hat, collection, prizes
+  - "egg breaker" + each of: monkey, hammer, hat, collection, prizes
   - "egg breaker" + facebook game + each of: remember, miss, gone, shut down,
     where can I play, anyone else
-  - the game's name alongside other LabPixies titles
+  - "egg breaker" + each of: djarts, "djarts games", "codename entertainment",
+    kongregate, "armor games" — the real publisher lineage, which is where the
+    surviving listings and forum threads live
+  - the game's name alongside other Codename Entertainment / DJArts titles
+    (Egg Breaker 2, Egg Drop, Bush Whacker, Crusaders of the Lost Idols)
   - YouTube comment sections on "lost Facebook games" / "Flash games we lost"
     style videos
   - old forum threads and blog comments, including ones several years old that
