@@ -113,6 +113,60 @@
       "nameKey": "belltreeforumshaveyouplayedflashgamesbef",
       "name": "The Bell Tree Forums — \"Have you played flash games before? (2025 edition)\"",
       "url": "https://www.belltreeforums.com/threads/have-you-played-flash-games-before-2025-edition.636119/"
+    },
+    {
+      "key": "eternaltwin.org",
+      "nameKey": "eternaltwinmotiontwinbrowsergamerevivalp",
+      "name": "Eternaltwin — Motion-Twin browser-game revival project",
+      "url": "https://eternaltwin.org/"
+    },
+    {
+      "key": "galaxy.click",
+      "nameKey": "galaxyclickfreetoplayincrementalgameport",
+      "name": "galaxy.click — free-to-play incremental-game portal with forums",
+      "url": "https://galaxy.click/"
+    },
+    {
+      "key": "ruffle.rs",
+      "nameKey": "ruffleflashemulatorproject",
+      "name": "Ruffle — Flash emulator project community",
+      "url": "https://ruffle.rs/"
+    },
+    {
+      "key": "sparklmonkey.itch.io/pet-society-revival",
+      "nameKey": "sparklmonkeysrevivalprojectsonitchiopets",
+      "name": "Sparklmonkey's revival projects on itch.io (Pet Society Revival / Element Revival)",
+      "url": "https://sparklmonkey.itch.io/pet-society-revival"
+    },
+    {
+      "key": "conflingo.com/forum/tech-and-gaming/safe-ways-to-use-ruffle-flash-emulator-and-find-updates",
+      "nameKey": "conflingoruffleoldflashgamesthread",
+      "name": "Conflingo forum — Ruffle / old Flash games thread",
+      "url": "https://www.conflingo.com/forum/tech-and-gaming/safe-ways-to-use-ruffle-flash-emulator-and-find-updates"
+    },
+    {
+      "key": "gamrconnect.vgchartz.com/thread/250666/video-games-lost-media",
+      "nameKey": "gamrconnectvgchartzvideogameslostmediath",
+      "name": "gamrConnect (VGChartz) — \"Video Games Lost Media\" thread",
+      "url": "https://gamrconnect.vgchartz.com/thread/250666/video-games-lost-media/"
+    },
+    {
+      "key": "lostmediaarchive.fandom.com/wiki/category:lost_games",
+      "nameKey": "lostmediaarchivefandom",
+      "name": "Lost Media Archive (Fandom)",
+      "url": "https://lostmediaarchive.fandom.com/wiki/Category:Lost_Games"
+    },
+    {
+      "key": "jeuxvideo.com/forums/42-51-73582270-2-0-1-0-nostalgie-les-jeux-flash-qui-vous-ont-marque.htm",
+      "nameKey": "jeuxvideocomblabla1825frenchflashnostalg",
+      "name": "jeuxvideo.com Blabla 18-25 — French Flash-nostalgia threads",
+      "url": "https://www.jeuxvideo.com/forums/42-51-73582270-2-0-1-0-nostalgie-les-jeux-flash-qui-vous-ont-marque.htm"
+    },
+    {
+      "key": "abandonware-forums.org/forum/forum-ltf-abandonware-france/requ%c3%aates/891209-jeu-flash-bloodmoon",
+      "nameKey": "abandonwareforumsabandonwarefrancerequte",
+      "name": "Abandonware Forums (Abandonware France) — \"Requêtes\" section",
+      "url": "https://www.abandonware-forums.org/forum/forum-ltf-abandonware-france/requ%C3%AAtes/891209-jeu-flash-bloodmoon"
     }
   ],
   "mentions": [
@@ -193,6 +247,18 @@
       "nameKey": "codenameentertainmentdevelopersunsetpage",
       "name": "Codename Entertainment (developer sunset pages)",
       "url": "http://www.codenameentertainment.com/?page=eba"
+    },
+    {
+      "key": "kongregate.com/games/djartsgames/egg-breaker-adventures",
+      "nameKey": "kongregateeggbreakeradventuresgamepage",
+      "name": "Kongregate — Egg Breaker Adventures game page",
+      "url": "https://www.kongregate.com/games/djartsgames/egg-breaker-adventures"
+    },
+    {
+      "key": "kongregate.com/forums/12-kongregate-multiplayer-games/topics/425973-egg-breaker-adventures-new-event-carnival-challenge-mini-event",
+      "nameKey": "kongregateforumskongregatemultiplayergam",
+      "name": "Kongregate forums, \"Kongregate Multiplayer Games\" — \"[Egg Breaker Adventures] New Event: Carnival Challenge Mini Event!\"",
+      "url": "http://www.kongregate.com/forums/12-kongregate-multiplayer-games/topics/425973-egg-breaker-adventures-new-event-carnival-challenge-mini-event"
     }
   ],
   "runs": [
@@ -205,6 +271,11 @@
       "at": "2026-07-31T22:24:32.580Z",
       "communities": 12,
       "mentions": 8
+    },
+    {
+      "at": "2026-08-10T07:29:15.401Z",
+      "communities": 9,
+      "mentions": 2
     }
   ]
 }
