@@ -167,6 +167,72 @@
       "nameKey": "abandonwareforumsabandonwarefrancerequte",
       "name": "Abandonware Forums (Abandonware France) — \"Requêtes\" section",
       "url": "https://www.abandonware-forums.org/forum/forum-ltf-abandonware-france/requ%C3%AAtes/891209-jeu-flash-bloodmoon"
+    },
+    {
+      "key": "fxp.co.il/forumdisplay.php",
+      "nameKey": "fxpnostalgiagames",
+      "name": "FXP — קהילת משחקי נוסטלגיה (Nostalgia Games forum)",
+      "url": "https://www.fxp.co.il/forumdisplay.php?f=2427"
+    },
+    {
+      "key": "itch.io/jam/summer-incremental-game-jam-2026/community",
+      "nameKey": "itchioincrementalgamejamboards",
+      "name": "itch.io — Incremental Game Jam community boards",
+      "url": "https://itch.io/jam/summer-incremental-game-jam-2026/community"
+    },
+    {
+      "key": "forums.pcgamer.com/threads/what-are-were-your-favorite-flash-games.148174",
+      "nameKey": "pcgamerforumsflashnostalgiathreadindiesu",
+      "name": "PC Gamer Forums — Flash nostalgia thread + indie sub-forum",
+      "url": "https://forums.pcgamer.com/threads/what-are-were-your-favorite-flash-games.148174/"
+    },
+    {
+      "key": "tvtropes.org/pmwiki/posts.php",
+      "nameKey": "tvtropeswhataresomeoldflashgamesyouremem",
+      "name": "TV Tropes Forum — \"What are some old Flash games you remember?\"",
+      "url": "https://tvtropes.org/pmwiki/posts.php?discussion=16889591710A44544000"
+    },
+    {
+      "key": "mediavida.com/foro/off-topic/vivan-los-juegos-flash-646867",
+      "nameKey": "mediavidavivanlosjuegosflash",
+      "name": "Mediavida — \"Vivan los juegos Flash\"",
+      "url": "https://www.mediavida.com/foro/off-topic/vivan-los-juegos-flash-646867"
+    },
+    {
+      "key": "condadobraveheart.com/threads/lembra-de-algum-jogo-de-navegador-que-voce-jogava-antigamente.7921",
+      "nameKey": "condadobraveheartgamedevlembradealgumjog",
+      "name": "Condado Braveheart GameDev — \"Lembra de algum jogo de navegador…?\"",
+      "url": "https://condadobraveheart.com/threads/lembra-de-algum-jogo-de-navegador-que-voce-jogava-antigamente.7921/"
+    },
+    {
+      "key": "discord.com/invite/vvg6geecag",
+      "nameKey": "gamepreservationhq",
+      "name": "Game Preservation HQ (Discord)",
+      "url": "https://discord.com/invite/VVG6geecag"
+    },
+    {
+      "key": "incrementaldb.com/community",
+      "nameKey": "incrementaldbcomdatabase",
+      "name": "incrementaldb.com — community + database",
+      "url": "https://www.incrementaldb.com/community"
+    },
+    {
+      "key": "tiktok.com/discover/juegos-antiguos-de-facebook",
+      "nameKey": "spanishlanguagetiktoknostalgiacluster",
+      "name": "Spanish-language TikTok nostalgia cluster",
+      "url": "https://www.tiktok.com/discover/juegos-antiguos-de-facebook"
+    },
+    {
+      "key": "forum.pcgames.de/threads/suche-nach-einem-flash-game-ca-2011-2015.9429458",
+      "nameKey": "pcgamesdesuchenacheinemflashgameca201120",
+      "name": "PC Games Forum (DE) — \"Suche nach einem Flash Game ca. 2011-2015\"",
+      "url": "https://forum.pcgames.de/threads/suche-nach-einem-flash-game-ca-2011-2015.9429458/"
+    },
+    {
+      "key": "idledb.com/browser",
+      "nameKey": "idledbbrowseridlerankings",
+      "name": "IdleDB — browser idle rankings",
+      "url": "https://idledb.com/browser"
     }
   ],
   "mentions": [
@@ -259,6 +325,12 @@
       "nameKey": "kongregateforumskongregatemultiplayergam",
       "name": "Kongregate forums, \"Kongregate Multiplayer Games\" — \"[Egg Breaker Adventures] New Event: Carnival Challenge Mini Event!\"",
       "url": "http://www.kongregate.com/forums/12-kongregate-multiplayer-games/topics/425973-egg-breaker-adventures-new-event-carnival-challenge-mini-event"
+    },
+    {
+      "key": "gamersunite.coolchaser.com/games/egg-breaker",
+      "nameKey": "gamersunitecoolchasercomsubdomain",
+      "name": "Gamers Unite! (coolchaser.com subdomain)",
+      "url": "http://gamersunite.coolchaser.com/games/egg-breaker"
     }
   ],
   "runs": [
@@ -276,6 +348,11 @@
       "at": "2026-08-10T07:29:15.401Z",
       "communities": 9,
       "mentions": 2
+    },
+    {
+      "at": "2026-08-17T06:51:37.702Z",
+      "communities": 11,
+      "mentions": 1
     }
   ]
 }
