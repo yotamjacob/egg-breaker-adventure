@@ -220,6 +220,60 @@ function dismissReferralBanner() {
   setTimeout(() => el.classList.add('hidden'), 320);
 }
 
+/* ------------------------------------------------------------------
+   Web-only banner: "looks best on mobile + sync to cloud" + Play link.
+   ------------------------------------------------------------------ */
+
+// Own key, never inside SAVE_KEY — same reasoning as _cloudLinkPref and
+// _ebaAttribution: a resetGame() must not bring the nag back.
+const WEB_BANNER_KEY = '_ebaWebBanner';
+const WEB_BANNER_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;   // dismissed → quiet for a week
+const WEB_BANNER_TTL_MS = 14000;                        // sits over the top bar, so it must go away
+
+/**
+ * Shows the banner on the plain web/PWA build only:
+ *  - never inside the Android app (AndroidBridge present) — they already have it
+ *  - never on the itch.io / Game Jolt builds — itch.js paints its own Play CTA
+ *  - not while the referral greeting is up (both are fixed to the top)
+ *  - not for a week after the player closes it
+ */
+function initWebBanner() {
+  try {
+    if (window.AndroidBridge) return;
+    const until = parseInt(localStorage.getItem(WEB_BANNER_KEY) || '0', 10);
+    if (until && Date.now() < until) return;
+  } catch (e) { return; }
+
+  _whenSplashGone(function tryShow() {
+    // itch.js is injected after the bundle, so this can only be checked now.
+    if (document.querySelector('.itch-cta')) return;
+    const ref = $id('referral-banner');
+    if (ref && !ref.classList.contains('hidden')) { setTimeout(tryShow, 1500); return; }
+    _showWebBanner();
+  });
+}
+
+function _showWebBanner() {
+  const el = $id('web-banner');
+  if (!el) return;
+  el.classList.remove('hidden');
+  requestAnimationFrame(() => el.classList.add('show'));
+  track('web-banner-shown');
+  setTimeout(() => dismissWebBanner(false), WEB_BANNER_TTL_MS);
+}
+
+/** @param {boolean} byUser - explicit close snoozes it; the auto-hide does not. */
+function dismissWebBanner(byUser) {
+  const el = $id('web-banner');
+  if (!el || el.classList.contains('hidden')) return;
+  el.classList.remove('show');
+  setTimeout(() => el.classList.add('hidden'), 320);
+  if (byUser) {
+    try { localStorage.setItem(WEB_BANNER_KEY, String(Date.now() + WEB_BANNER_SNOOZE_MS)); } catch (e) {}
+    track('web-banner-dismissed');
+  }
+}
+
 // TODO(owner): richer link previews for shares.
 // Share links currently resolve to the static index.html, so a shared link
 // previews with the generic gameplay card rather than "reached Stage 7".
@@ -230,3 +284,4 @@ function dismissReferralBanner() {
 // important link in the funnel, and it cannot be verified before deploy.
 
 initReferralBanner();
+initWebBanner();

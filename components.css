@@ -302,6 +302,21 @@
 }
 .referral-banner-close:hover{color:var(--gold)}
 
+/* Web-only "get it on Google Play" banner — shares the referral-banner shell
+   (fixed above #app, z-index 890) so it never shifts layout; see share.js. */
+.web-banner{gap:8px;padding-left:10px;padding-right:8px}
+.web-banner .referral-banner-text{font-size:9px;line-height:1.5}
+.web-banner-cta{
+  flex-shrink:0;
+  font-family:var(--px);font-size:8px;
+  background:var(--gold);color:var(--dark);
+  border:2px solid var(--gold3);border-radius:2px;
+  padding:6px 7px;cursor:pointer;white-space:nowrap;
+  box-shadow:2px 2px 0 var(--dark);
+}
+.web-banner-cta:hover{background:#ffe07a}
+.web-banner-cta:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--dark)}
+
 /* Content-page links in the settings menu. They are <a> elements (crawlable
    internal links) styled to match the surrounding buttons — anchors need the
    text-decoration and box-sizing reset that <button> gets for free. */

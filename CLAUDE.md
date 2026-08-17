@@ -198,7 +198,8 @@ Marketing pages, analytics and the share loop. All organic — no paid ads.
 | Play Store links use `&referrer=` with URL-encoded `utm_*` inside | Bare `?utm_source=` on a Play listing URL is **dropped**. Play Console reads campaign data out of `referrer` |
 | Attribution lives in its own `localStorage` key (`_ebaAttribution`), never `SAVE_KEY` | `resetGame()` clears the save; losing the original acquisition source silently corrupts reporting. Same reasoning as `_cloudLinkPref` / `PREMIUM_KEY` |
 | `track()` must stay fail-safe | The itch.io build ships the same bundle and may load without umami. Analytics must never break play |
-| Event names: `game-started`, `play-store-click`, `play-web-click`, `share-click`, `share-completed`, `referral-arrival` | Content pages fire these declaratively via `data-umami-event`; keep names in sync when adding surfaces |
+| Event names: `game-started`, `play-store-click`, `play-web-click`, `share-click`, `share-completed`, `referral-arrival`, `web-banner-shown`, `web-banner-dismissed` | Content pages fire these declaratively via `data-umami-event`; keep names in sync when adding surfaces |
+| Web banner (`#web-banner`, `share.js initWebBanner`) shows only when `AndroidBridge` is absent AND no `.itch-cta` exists; user-dismiss snoozes 7 days in `_ebaWebBanner`; auto-hides after 14s | It is `position:fixed` over the top bar, so it must go away on its own; itch/Game Jolt already paint a Play CTA; the snooze key lives outside `SAVE_KEY` so a reset doesn't bring the nag back |
 
 ### Share / referral loop
 | Invariant | Why |

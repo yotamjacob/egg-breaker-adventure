@@ -108,6 +108,14 @@
     <button class="referral-banner-close" onclick="dismissReferralBanner()" aria-label="Dismiss">✕</button>
   </div>
 
+  <!-- ===== WEB BANNER (web/PWA only — never inside the Android app) ===== -->
+  <div class="referral-banner web-banner hidden" id="web-banner">
+    <span class="referral-banner-icon">📱</span>
+    <span class="referral-banner-text">Looks best on mobile — and don't forget to <strong>sync to cloud</strong>!</span>
+    <button class="web-banner-cta" onclick="openPlayStore('web-banner')">▶ Google Play</button>
+    <button class="referral-banner-close" onclick="dismissWebBanner(true)" aria-label="Dismiss">✕</button>
+  </div>
+
   <div id="app">
 
     <!-- ===== Top bar ===== -->
