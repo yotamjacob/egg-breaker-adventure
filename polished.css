@@ -1,0 +1,450 @@
+/* ============================================================
+   Egg Smash Adventures — POLISHED skin   (served at /polished only)
+   polished.css — loaded AFTER bundle.min.css. Overrides only; the
+   original stylesheets are untouched. Delete this file + polished.js
+   + the build step to revert.
+
+   The whole skin follows four rules, taken from one reference image
+   (a pixel-art potion: red glass, cork, kraft tag, teal rim, navy field):
+
+     1. OUTLINE OUTSIDE, COLOUR INSIDE. Every container has one dark,
+        hue-shifted ink outline; the accent colour is an inner line.
+     2. LIGHT IS BANDED. Warm key light from the top-left, cool teal
+        rim light on the bottom-right. Hard steps, never gradients,
+        never blur, never anti-aliased circles.
+     3. ONE FIELD. A teal-navy ground everywhere; the warm counterpoint
+        is cork and kraft paper (notes/quotes/tags), never raw amber.
+     4. THE EGG IS THE HERO. Everything else is quieter than the egg.
+   ============================================================ */
+
+/* ---------- 0. Tokens ---------- */
+:root{
+  /* palette */
+  --pl-bg:        #14273b;   /* page ground */
+  --pl-well:      #0f1e2f;   /* inset wells (resource chips, tracks) */
+  --pl-field:     #1e3a55;   /* the reference field: tray + icon plates */
+  --pl-panel:     #22405f;   /* card face */
+  --pl-panel-hi:  #2d5279;   /* top band / hover / featured */
+  --pl-ink:       #0c1524;   /* the outline. navy-black, never #000 */
+  --pl-line:      #315d84;   /* quiet inner line (default accent) */
+  --pl-rim:       #79d3c7;   /* teal rim light */
+  --pl-rim-dim:   rgba(121,211,199,.30);
+  --pl-warm:      rgba(255,232,190,.20);  /* key-light band */
+  --pl-shade:     rgba(6,10,24,.45);      /* shadow band */
+
+  --pl-kraft:     #e5d09b;
+  --pl-kraft-hi:  #f4e6bd;
+  --pl-kraft-lo:  #b8964f;
+  --pl-kraft-ink: #3d2612;
+
+  --pl-cork:      #8f4f2f;
+  --pl-cork-hi:   #b97448;
+  --pl-cork-lo:   #5c2d17;
+
+  --pl-gold:      #f2c541;
+  --pl-gold-hi:   #fff1ab;
+  --pl-gold-lo:   #b3841b;
+  --pl-gold-ink:  #5e4008;
+
+  --pl-green:     #3fd07c;
+  --pl-green-hi:  #9df2bf;
+  --pl-green-lo:  #1c7d4c;
+  --pl-green-face:#1c4a3f;
+
+  --pl-purple:    #a06fe6;
+  --pl-purple-hi: #d5bdff;
+  --pl-purple-lo: #5c3f95;
+
+  --pl-red:       #d9293d;
+  --pl-red-lo:    #7b1026;
+
+  --pl-text:      #eef3f8;
+  --pl-muted:     #8ea4bd;   /* cool gray, replaces the green-gray #7f8c8d */
+  --pl-muted2:    #4f6a86;
+
+  /* re-point the game's own variables so untouched rules fall in line */
+  --bg:     var(--pl-bg);
+  --bg2:    #193049;
+  --panel:  var(--pl-panel);
+  --panel2: var(--pl-panel-hi);
+  --dark:   var(--pl-ink);
+  --gray:   var(--pl-muted);
+  --white:  var(--pl-text);
+  --gold:   var(--pl-gold);
+  --gold2:  #d3a41f;
+  --gold3:  var(--pl-gold-lo);
+  --purple: var(--pl-purple);
+  --green:  var(--pl-green);
+  --green2: var(--pl-green-lo);
+  --raised: var(--pl-warm);
+  --inset:  var(--pl-shade);
+}
+
+/* ---------- 1. Ground ---------- */
+body{
+  background:var(--pl-bg);
+  /* 4px pixel dither — depth without a gradient */
+  background-image:
+    linear-gradient(90deg,rgba(0,0,0,.07) 50%,transparent 50%),
+    linear-gradient(rgba(0,0,0,.07) 50%,transparent 50%);
+  background-size:4px 4px,4px 4px;
+  background-attachment:scroll;
+}
+#splash-screen{background:var(--pl-bg)}
+.splash-title{text-shadow:2px 2px 0 var(--pl-ink)}
+.overlay{background:rgba(6,12,24,.74)}
+
+/* ---------- 2. Top bar ---------- */
+.top-bar{
+  background:linear-gradient(180deg,var(--pl-panel-hi) 0 5px,var(--pl-panel) 5px);
+  border:3px solid var(--pl-ink);border-radius:0;
+  box-shadow:
+    inset 0 0 0 2px var(--pl-cork-hi),
+    inset 5px 5px 0 var(--pl-warm),
+    inset -5px -5px 0 var(--pl-rim-dim),
+    4px 4px 0 var(--pl-ink);
+}
+.title-text h1{text-shadow:2px 2px 0 var(--pl-ink)}
+.subtitle{color:var(--pl-kraft)}
+.monkey-avatar{
+  background:var(--pl-well);border:2px solid var(--pl-ink);border-radius:0;
+  box-shadow:inset 0 0 0 2px var(--pl-gold),2px 2px 0 var(--pl-ink);
+}
+.res{
+  background:var(--pl-well);border:2px solid var(--pl-ink);border-radius:0;
+  box-shadow:inset 0 0 0 1px var(--pl-gold-lo),inset 2px 2px 0 rgba(0,0,0,.55),inset -1px -1px 0 var(--pl-rim-dim);
+}
+#res-g-wrap.gold-counting{border-color:var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-gold),inset 2px 2px 0 rgba(0,0,0,.55)}
+.icon-btn{
+  background:var(--pl-panel);border:2px solid var(--pl-ink);border-radius:0;
+  box-shadow:inset 0 0 0 1px var(--pl-line),inset 2px 2px 0 var(--pl-warm),inset -2px -2px 0 var(--pl-shade),2px 2px 0 var(--pl-ink);
+}
+.icon-btn:hover{box-shadow:inset 0 0 0 1px var(--pl-gold),inset 2px 2px 0 var(--pl-warm),inset -2px -2px 0 var(--pl-shade),3px 3px 0 var(--pl-ink)}
+.icon-btn:active{box-shadow:inset 0 0 0 1px var(--pl-line),inset 2px 2px 0 var(--pl-shade)}
+
+/* ---------- 3. Nav ---------- */
+.nav-sections{
+  background:var(--pl-ink);border:2px solid var(--pl-ink);border-radius:0;
+  box-shadow:inset 0 0 0 1px var(--pl-gold-lo),2px 2px 0 var(--pl-ink);
+}
+.nav-tab,.nav-play{
+  background:var(--pl-panel);border-radius:0;
+  box-shadow:inset 1px 1px 0 var(--pl-warm),inset -1px -1px 0 var(--pl-shade);
+  text-shadow:1px 1px 0 var(--pl-ink);color:var(--pl-muted);
+}
+.nav-tab:hover:not(.active):not(.locked),.nav-play:hover:not(.active){background:var(--pl-panel-hi);color:var(--pl-text)}
+.nav-tab.active,.nav-play.active{
+  background:var(--pl-gold);color:var(--pl-gold-ink);text-shadow:none;
+  box-shadow:inset 0 3px 0 var(--pl-gold-hi),inset 0 -3px 0 var(--pl-gold-lo);
+}
+.nav-tab[data-tab="premium"]{border:none;color:var(--pl-gold);box-shadow:inset 0 0 0 1px var(--pl-gold-lo),inset 1px 1px 0 var(--pl-warm)}
+.nav-tab[data-tab="premium"].active{color:var(--pl-gold-ink);box-shadow:inset 0 3px 0 var(--pl-gold-hi),inset 0 -3px 0 var(--pl-gold-lo)}
+.nav-tab.daily-ready{color:var(--pl-gold)}
+.nav-tab.daily-ready.active{color:var(--pl-gold-ink)}
+
+/* ---------- 4. Play: stage tag + starfall cork ---------- */
+.stage-bar{
+  position:relative;
+  background:var(--pl-kraft);border:3px solid var(--pl-ink);border-radius:0;
+  box-shadow:inset 0 0 0 2px var(--pl-kraft-hi),inset -4px -4px 0 rgba(120,80,20,.28),3px 3px 0 var(--pl-ink);
+}
+.stage-bar::before{            /* punched hole, like the tag on the bottle */
+  content:'';position:absolute;top:7px;right:7px;width:6px;height:6px;
+  background:var(--pl-bg);box-shadow:inset 0 0 0 1px var(--pl-kraft-ink);pointer-events:none;
+}
+.stage-name{color:var(--pl-kraft-ink);text-shadow:none}
+.stage-detail{color:#7a5a2c}
+.prog-track{background:var(--pl-kraft-ink);border:2px solid var(--pl-kraft-ink);border-radius:0;box-shadow:none}
+.stage-tier{border-color:var(--pl-kraft-ink)}
+.stage-tier.gold{background:var(--pl-gold-lo);color:var(--pl-gold-hi)}
+.stage-tier.silver{background:#6b7f95;color:var(--pl-text)}
+.stage-tier.bronze{background:var(--pl-cork);color:var(--pl-kraft-hi)}
+.stage-tier.complete{background:var(--pl-green-lo);color:var(--pl-green-hi)}
+@keyframes stage-complete-pulse{
+  0%,100%{box-shadow:inset 0 0 0 2px var(--pl-kraft-hi),inset -4px -4px 0 rgba(120,80,20,.28),3px 3px 0 var(--pl-ink)}
+  50%    {box-shadow:inset 0 0 0 2px var(--pl-green),inset -4px -4px 0 rgba(120,80,20,.28),3px 3px 0 var(--pl-ink)}
+}
+.starfall-box{
+  border:3px solid var(--pl-ink);border-radius:0;
+  background:var(--pl-cork);color:#f7e6cf;
+  box-shadow:inset 0 0 0 2px var(--pl-cork-hi),inset 4px 4px 0 rgba(255,220,180,.18),inset -4px -4px 0 rgba(30,10,0,.40),3px 3px 0 var(--pl-ink);
+}
+.starfall-box.star-muted{background:var(--pl-cork);color:#c9a98a;border-color:var(--pl-ink)}
+.starfall-box.star-ready{
+  background:var(--pl-gold);color:var(--pl-gold-ink);border-color:var(--pl-ink);
+  box-shadow:inset 0 0 0 2px var(--pl-gold-hi),inset -4px -4px 0 var(--pl-gold-lo),3px 3px 0 var(--pl-ink);
+}
+@keyframes star-glow{
+  0%,100%{box-shadow:inset 0 0 0 2px var(--pl-gold-hi),inset -4px -4px 0 var(--pl-gold-lo),3px 3px 0 var(--pl-ink)}
+  50%    {box-shadow:inset 0 0 0 2px #ffffff,inset -4px -4px 0 var(--pl-gold-lo),3px 3px 0 var(--pl-ink),0 0 0 3px var(--pl-gold-lo)}
+}
+
+/* ---------- 5. Play: the tray ---------- */
+.egg-tray-wrap{
+  background:var(--pl-field);border:3px solid var(--pl-ink);border-radius:0;
+  box-shadow:
+    inset 0 0 0 2px #2f5c82,
+    inset 0 0 0 10px rgba(0,0,0,.07),
+    inset 0 0 0 20px rgba(0,0,0,.05),
+    inset 5px 5px 0 rgba(0,0,0,.18),
+    inset -4px -4px 0 var(--pl-rim-dim),
+    4px 4px 0 var(--pl-ink);
+}
+/* per-monkey wallpaper: keep the silhouette, drop the colour so the field stays one field */
+.egg-tray-wrap::before{filter:grayscale(1);opacity:.11;mix-blend-mode:screen}
+.egg-slot{filter:none}                                  /* hard cast shadow now lives in the SVG */
+/* state glows: a hard 2px halo instead of a blurred drop-shadow */
+.egg-slot.runny{filter:drop-shadow(2px 0 0 #ffd76a) drop-shadow(-2px 0 0 #ffd76a) drop-shadow(0 2px 0 #ffd76a) drop-shadow(0 -2px 0 #ffd76a)}
+.egg-slot.timed{filter:drop-shadow(2px 0 0 #ff9d3a) drop-shadow(-2px 0 0 #ff9d3a) drop-shadow(0 2px 0 #ff9d3a) drop-shadow(0 -2px 0 #ff9d3a)}
+.egg-slot.egg-century{filter:drop-shadow(2px 0 0 var(--pl-gold)) drop-shadow(-2px 0 0 var(--pl-gold)) drop-shadow(0 2px 0 var(--pl-gold)) drop-shadow(0 -2px 0 var(--pl-gold))}
+.egg-slot.runny.broken,.egg-slot.timed.broken,.egg-slot.egg-century.broken{filter:grayscale(.4)}
+.egg-slot .egg-label{color:#b9cbdd;text-shadow:1px 1px 0 var(--pl-ink),-1px -1px 0 var(--pl-ink),1px -1px 0 var(--pl-ink),-1px 1px 0 var(--pl-ink)}
+.egg-timer{text-shadow:1px 1px 0 var(--pl-ink),-1px -1px 0 var(--pl-ink),1px -1px 0 var(--pl-ink),-1px 1px 0 var(--pl-ink)}
+.tray-info-btn,.mult-info-btn{
+  border-radius:0;background:var(--pl-panel);border:2px solid var(--pl-ink);color:var(--pl-purple-hi);
+  box-shadow:inset 0 0 0 1px var(--pl-purple),1px 1px 0 var(--pl-ink);
+}
+.tray-info-btn:hover,.mult-info-btn:hover{background:var(--pl-purple);color:var(--pl-text)}
+.rage-btn,.skill-tray-btn{border-radius:0;border-width:2px}
+.rage-btn-img{border-radius:0}
+.rage-confirm-img{border-radius:0;border:2px solid var(--pl-ink)}
+.rlog-title{color:#c9a94a}
+.stage-complete-banner{border-radius:0}
+
+/* found-item toast → written on a kraft tag */
+.item-toast{
+  background:var(--pl-kraft);border:2px solid var(--pl-ink);border-radius:0;backdrop-filter:none;
+  box-shadow:inset 0 0 0 2px var(--pl-kraft-hi),3px 3px 0 var(--pl-ink);
+}
+.item-toast-title{color:var(--pl-kraft-ink)}
+.item-toast-sub{color:#7a5a2c}
+.item-toast-quote{color:#5c4322}
+
+/* ---------- 6. Play: mult bar ---------- */
+.mult-bar{
+  background:var(--pl-well);border:2px solid var(--pl-ink);border-radius:0;
+  box-shadow:inset 0 0 0 2px var(--pl-purple-lo),inset 4px 4px 0 rgba(0,0,0,.45),inset -3px -3px 0 var(--pl-rim-dim),2px 2px 0 var(--pl-ink);
+}
+.mult-label strong{color:var(--pl-purple-hi)}
+.mult-chip{
+  background:var(--pl-panel);border:2px solid var(--pl-ink);border-radius:0;color:var(--pl-purple-hi);
+  box-shadow:inset 0 0 0 1px var(--pl-purple-lo),inset 1px 1px 0 var(--pl-warm),inset -1px -1px 0 var(--pl-shade),1px 1px 0 var(--pl-ink);
+}
+.mult-chip:hover:not(.muted){background:var(--pl-panel-hi)}
+.mult-chip.active{
+  background:var(--pl-purple);color:var(--pl-text);border-color:var(--pl-ink);
+  box-shadow:inset 0 2px 0 var(--pl-purple-hi),inset 0 -2px 0 var(--pl-purple-lo),1px 1px 0 var(--pl-ink);
+}
+.mult-chip.muted{color:var(--pl-muted2);border-color:var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-muted2)}
+
+/* ---------- 7. Shared card recipe ---------- */
+.shop-card,.monkey-card,.premium-card,.album-items,.overall-prog,.life-stats,
+.daily-cell,.achieve-card,.album-item,.album-complete-banner,.skill-block,.popup,.toast{
+  border-radius:0;
+}
+.shop-card,.monkey-card,.premium-card{
+  background:var(--pl-panel);border:3px solid var(--pl-ink);
+  box-shadow:inset 0 0 0 1px var(--pl-line),inset 4px 4px 0 var(--pl-warm),inset -4px -4px 0 var(--pl-shade),3px 3px 0 var(--pl-ink);
+}
+.shop-card:hover:not(.owned),.monkey-card:hover,.premium-card:hover:not(.bought){
+  border-color:var(--pl-ink);
+  box-shadow:inset 0 0 0 1px var(--pl-gold),inset 4px 4px 0 var(--pl-warm),inset -4px -4px 0 var(--pl-shade),4px 4px 0 var(--pl-ink);
+}
+.shop-card.owned{background:var(--pl-green-face);border-color:var(--pl-ink);box-shadow:inset 0 0 0 2px var(--pl-green),inset 4px 4px 0 var(--pl-warm),inset -4px -4px 0 var(--pl-shade),3px 3px 0 var(--pl-ink)}
+.shop-card.can-afford{border-color:var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-green-lo),inset 4px 4px 0 var(--pl-warm),inset -4px -4px 0 var(--pl-shade),3px 3px 0 var(--pl-ink)}
+.shop-card.equipped{border-color:var(--pl-ink);box-shadow:inset 0 0 0 2px var(--pl-gold),inset 4px 4px 0 var(--pl-warm),inset -4px -4px 0 var(--pl-shade),3px 3px 0 var(--pl-ink)}
+.shop-card .s-name,.monkey-card .m-name,.premium-name{text-shadow:1px 1px 0 var(--pl-ink)}
+/* icon wells: every emoji-as-icon sits on the field, like the bottle on its ground */
+.shop-card .s-emoji,.premium-emoji,.album-item .item-emoji,.skill-emoji-icon,.skill-icon-wrap{
+  display:flex;align-items:center;justify-content:center;
+  width:46px;height:46px;line-height:1;
+  background:var(--pl-field);
+  box-shadow:inset 0 0 0 2px var(--pl-ink),inset 0 0 0 3px var(--pl-rim-dim);
+}
+.premium-emoji{width:54px;height:54px}
+.album-item .item-emoji{width:42px;height:42px;font-size:22px}
+.album-item.locked .item-emoji{opacity:.55;filter:grayscale(.75)}
+.section-title,.daily-header,.premium-title,.skills-header-title{color:var(--pl-gold);text-shadow:2px 2px 0 var(--pl-ink)}
+
+/* ---------- 8. Buttons: gold / green / quiet ---------- */
+.pop-btn,.settings-menu-btn,.settings-close,.settings-sound-btn,.submodal-close,
+.cloud-link-btn,.cloud-action-btn,.monkey-unlock-btn,.play-buy-btn,.skill-unlock-btn,
+.skill-upgrade-btn,.web-banner-cta,.album-try-monkey-btn,.feather-buy-btn,.monkey-enter-btn,
+.auto-buy-toggle,.notif-toggle-chip,.log-filter-btn,.shop-toggle,.reset-btn,.cloud-debug-btn,
+#update-reload-btn,.update-banner{
+  border-radius:0;
+}
+.pop-btn,.settings-menu-btn,.settings-close,.settings-sound-btn,.submodal-close,
+.cloud-link-btn,.cloud-action-btn,.monkey-unlock-btn,.play-buy-btn,.skill-unlock-btn,.skill-upgrade-btn{
+  background:var(--pl-gold);color:var(--pl-gold-ink);
+  border:2px solid var(--pl-ink);text-shadow:none;
+  box-shadow:inset 0 3px 0 var(--pl-gold-hi),inset 0 -3px 0 var(--pl-gold-lo),3px 3px 0 var(--pl-ink);
+  filter:none;
+}
+.pop-btn:hover,.settings-menu-btn:hover,.settings-close:hover,.settings-sound-btn:hover,.submodal-close:hover,
+.cloud-link-btn:hover,.cloud-action-btn:not(:disabled):hover,.monkey-unlock-btn:hover,.skill-upgrade-btn:hover:not(.skill-btn-dim){
+  background:#f8d25a;filter:none;transform:translate(-1px,-1px);
+  box-shadow:inset 0 3px 0 var(--pl-gold-hi),inset 0 -3px 0 var(--pl-gold-lo),4px 4px 0 var(--pl-ink);
+}
+.pop-btn:active,.settings-menu-btn:active,.settings-close:active,.settings-sound-btn:active,.submodal-close:active,
+.cloud-link-btn:active,.cloud-action-btn:not(:disabled):active,.monkey-unlock-btn:active,.skill-upgrade-btn:active:not(.skill-btn-dim){
+  transform:translate(2px,2px);
+  box-shadow:inset 0 3px 0 var(--pl-gold-lo),inset 0 -3px 0 var(--pl-gold-hi),1px 1px 0 var(--pl-ink);
+}
+.play-buy-btn:active{opacity:1;transform:translate(2px,2px)}
+/* green = go */
+.confirm-yes,.feather-buy-btn,.album-try-monkey-btn,.monkey-enter-btn,.cloud-link-btn.cloud-link-linked,.shop-toggle.on,.notif-toggle-chip.on,.auto-buy-toggle.on{
+  background:var(--pl-green)!important;color:#0d3320!important;border:2px solid var(--pl-ink)!important;
+  box-shadow:inset 0 3px 0 var(--pl-green-hi),inset 0 -3px 0 var(--pl-green-lo),2px 2px 0 var(--pl-ink)!important;
+  text-shadow:none;
+}
+.confirm-yes{box-shadow:inset 0 3px 0 var(--pl-green-hi),inset 0 -3px 0 var(--pl-green-lo),3px 3px 0 var(--pl-ink)!important}
+.feather-buy-btn:hover{background:#63dc93!important}
+/* quiet = secondary */
+.confirm-no,.congrats-dismiss,.settings-play-btn,.settings-danger-btn,.settings-report-btn,.settings-link-btn,
+.auto-buy-toggle,.notif-toggle-chip,.shop-toggle.off,.log-filter-btn,.reset-btn,.cloud-debug-btn,
+.settings-sound-btn.btn-off,.cloud-action-btn:disabled,.skill-unlock-btn.skill-btn-dim,.skill-upgrade-btn.skill-btn-dim{
+  background:var(--pl-panel)!important;color:var(--pl-muted)!important;
+  border:2px solid var(--pl-ink)!important;
+  box-shadow:inset 0 0 0 1px var(--pl-line),inset 1px 1px 0 var(--pl-warm),inset -1px -1px 0 var(--pl-shade),2px 2px 0 var(--pl-ink)!important;
+  text-shadow:none;opacity:1;filter:none;
+}
+.settings-play-btn{color:var(--pl-gold)!important;box-shadow:inset 0 0 0 1px var(--pl-gold-lo),inset 1px 1px 0 var(--pl-warm),inset -1px -1px 0 var(--pl-shade),2px 2px 0 var(--pl-ink)!important}
+.settings-danger-btn,.reset-btn{color:#ff7b8a!important;box-shadow:inset 0 0 0 1px var(--pl-red-lo),inset 1px 1px 0 var(--pl-warm),inset -1px -1px 0 var(--pl-shade),2px 2px 0 var(--pl-ink)!important}
+.settings-play-btn:hover,.settings-danger-btn:hover,.settings-report-btn:hover,.settings-link-btn:hover{background:var(--pl-panel-hi)!important}
+.auto-buy-toggle{color:#ff7b8a!important}
+.log-filter-btn{padding:4px 9px}
+.log-filter-btn.active{background:var(--pl-gold-lo)!important;color:var(--pl-gold-hi)!important;box-shadow:inset 0 0 0 1px var(--pl-gold),2px 2px 0 var(--pl-ink)!important}
+.cloud-action-btn:disabled{opacity:.55}
+.settings-sound-btn.btn-off{color:var(--pl-muted2)!important}
+.skill-unlock-btn.skill-btn-dim,.skill-upgrade-btn.skill-btn-dim{color:var(--pl-muted2)!important;box-shadow:inset 0 0 0 1px var(--pl-muted2),2px 2px 0 var(--pl-ink)!important}
+
+/* ---------- 9. Album ---------- */
+.album-items{
+  background:var(--pl-panel);border:3px solid var(--pl-ink);
+  box-shadow:inset 0 0 0 2px var(--pl-gold-lo),inset 5px 5px 0 var(--pl-warm),inset -5px -5px 0 var(--pl-rim-dim),3px 3px 0 var(--pl-ink);
+}
+.album-item{
+  background:var(--pl-well);border:2px solid var(--pl-ink);
+  box-shadow:inset 0 0 0 1px var(--pl-muted2);
+}
+.album-item.found{background:var(--pl-panel);border-color:var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-gold),inset 2px 2px 0 var(--pl-warm)}
+.album-item[data-tip]::after{
+  background:var(--pl-kraft);border:2px solid var(--pl-ink);border-radius:0;
+  color:var(--pl-kraft-ink);box-shadow:inset 0 0 0 2px var(--pl-kraft-hi),3px 3px 0 var(--pl-ink);
+}
+.album-stage-btn{
+  border:2px solid var(--pl-ink);border-radius:0;background:var(--pl-panel);color:var(--pl-muted);
+  box-shadow:inset 0 0 0 1px var(--pl-muted2),1px 1px 0 var(--pl-ink);
+}
+.album-stage-btn.tier-bronze{border-color:var(--pl-ink);color:var(--pl-kraft);box-shadow:inset 0 0 0 1px var(--pl-cork),1px 1px 0 var(--pl-ink)}
+.album-stage-btn.tier-silver{border-color:var(--pl-ink);color:#d7e2ee;background:var(--pl-panel-hi);box-shadow:inset 0 0 0 1px #8fa4ba,1px 1px 0 var(--pl-ink)}
+.album-stage-btn.tier-gold{border-color:var(--pl-ink);color:var(--pl-gold);background:var(--pl-panel-hi);box-shadow:inset 0 0 0 1px var(--pl-gold),1px 1px 0 var(--pl-ink)}
+.album-stage-btn.complete{border-color:var(--pl-ink);background:var(--pl-green-face);color:var(--pl-green);box-shadow:inset 0 0 0 1px var(--pl-green),1px 1px 0 var(--pl-ink)}
+.album-stage-btn.active{
+  border-color:var(--pl-ink)!important;border-width:2px!important;
+  background:var(--pl-gold)!important;color:var(--pl-gold-ink)!important;
+  box-shadow:inset 0 2px 0 var(--pl-gold-hi),inset 0 -2px 0 var(--pl-gold-lo),1px 1px 0 var(--pl-ink)!important;
+}
+.album-complete-banner{background:var(--pl-green-face);border:2px solid var(--pl-ink);box-shadow:inset 0 0 0 2px var(--pl-green),2px 2px 0 var(--pl-ink)}
+.pity-bar{background:var(--pl-well);border:2px solid var(--pl-ink);border-radius:0;box-shadow:inset 0 0 0 1px var(--pl-green-lo)}
+.overall-prog{
+  background:var(--pl-panel);border:3px solid var(--pl-ink);
+  box-shadow:inset 0 0 0 2px var(--pl-gold-lo),inset 5px 5px 0 var(--pl-warm),inset -5px -5px 0 var(--pl-rim-dim),3px 3px 0 var(--pl-ink);
+}
+.overall-track{background:var(--pl-well);border:2px solid var(--pl-ink);border-radius:0;box-shadow:inset 0 0 0 1px var(--pl-gold-lo),inset 2px 2px 0 rgba(0,0,0,.5)}
+.overall-quote,.overall-quote.thank-you,.pop-quote,.premium-info{
+  background:var(--pl-kraft);border:2px solid var(--pl-ink);border-radius:0;
+  color:var(--pl-kraft-ink);box-shadow:inset 0 0 0 2px var(--pl-kraft-hi),2px 2px 0 var(--pl-ink);
+}
+.pop-quote{padding:7px 10px;max-width:240px}
+.premium-info{color:var(--pl-kraft-ink)}
+.premium-info-icon,.premium-info strong{color:var(--pl-kraft-ink)}
+.rarity-1{background:var(--pl-green-face);color:var(--pl-green);border-color:var(--pl-green-lo)}
+.rarity-2{background:#2a1d4d;color:var(--pl-purple-hi);border-color:var(--pl-purple-lo)}
+.rarity-3{background:#4a3005;color:var(--pl-gold);border-color:var(--pl-gold-lo)}
+
+/* ---------- 10. Monkeys ---------- */
+.m-avatar-wrap{background:var(--pl-well);border:2px solid var(--pl-ink);border-radius:0;box-shadow:inset 0 0 0 2px var(--pl-gold-lo)}
+.monkey-card.active{border-color:var(--pl-ink);box-shadow:inset 0 0 0 2px var(--pl-gold),inset 4px 4px 0 var(--pl-warm),inset -4px -4px 0 var(--pl-shade),3px 3px 0 var(--pl-ink)}
+.monkey-card.mystery{border-color:var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-muted2),3px 3px 0 var(--pl-ink)}
+.monkey-card.egg-milestone,.monkey-card.egg-milestone:hover{border-color:var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-gold-lo),inset 4px 4px 0 var(--pl-warm),inset -4px -4px 0 var(--pl-shade),3px 3px 0 var(--pl-ink)}
+.m-prog-track{background:var(--pl-well);border:1px solid var(--pl-ink);border-radius:0}
+.monkey-btn-active{background:var(--pl-cork)!important;color:var(--pl-kraft-hi)!important;box-shadow:inset 0 3px 0 var(--pl-cork-hi),inset 0 -3px 0 var(--pl-cork-lo),2px 2px 0 var(--pl-ink)!important}
+
+/* ---------- 11. Daily / Trophies / Stats ---------- */
+.daily-cell{background:var(--pl-panel);border:2px solid var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-muted2)}
+.daily-cell.claimed{background:var(--pl-green-face);border-color:var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-green)}
+.daily-cell.current{background:var(--pl-panel-hi);border-color:var(--pl-ink);box-shadow:inset 0 0 0 2px var(--pl-gold)}
+.daily-cell.banana{border-color:var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-cork-hi)}
+.daily-cell.banana.claimed{box-shadow:inset 0 0 0 1px var(--pl-green)}
+.daily-cell.doubled.current{border-color:var(--pl-ink);box-shadow:inset 0 0 0 2px var(--pl-gold-hi)}
+@keyframes pulse-daily{0%,100%{box-shadow:inset 0 0 0 2px var(--pl-gold)}50%{box-shadow:inset 0 0 0 2px var(--pl-gold-hi),0 0 0 2px var(--pl-gold-lo)}}
+.daily-2x-badge{
+  background:var(--pl-gold);color:var(--pl-gold-ink);border:1px solid var(--pl-ink);border-radius:0;
+  box-shadow:inset 0 2px 0 var(--pl-gold-hi),inset 0 -2px 0 var(--pl-gold-lo),1px 1px 0 var(--pl-ink);text-shadow:none;animation:none;
+}
+.achieve-card{background:var(--pl-well);border:2px solid var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-muted2)}
+.achieve-card.unlocked{background:var(--pl-panel);border-color:var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-gold),inset 2px 2px 0 var(--pl-warm)}
+.life-stats{
+  background:var(--pl-panel);border:3px solid var(--pl-ink);
+  box-shadow:inset 0 0 0 2px var(--pl-gold-lo),inset 5px 5px 0 var(--pl-warm),inset -5px -5px 0 var(--pl-rim-dim),3px 3px 0 var(--pl-ink);
+}
+
+/* ---------- 12. Premium ---------- */
+.premium-header{border-bottom:2px solid var(--pl-ink);box-shadow:0 2px 0 var(--pl-gold-lo)}
+.premium-card.featured{
+  background:var(--pl-panel-hi);border-color:var(--pl-ink);
+  box-shadow:inset 0 0 0 2px var(--pl-gold),inset 5px 5px 0 var(--pl-warm),inset -5px -5px 0 var(--pl-shade),3px 3px 0 var(--pl-ink);
+}
+.premium-card.featured:hover:not(.bought){box-shadow:inset 0 0 0 2px var(--pl-gold-hi),inset 5px 5px 0 var(--pl-warm),inset -5px -5px 0 var(--pl-shade),4px 4px 0 var(--pl-ink)}
+.premium-divider{background:var(--pl-ink);box-shadow:0 1px 0 var(--pl-line);opacity:1}
+.premium-price{text-shadow:1px 1px 0 var(--pl-ink)}
+.one-time-badge{background:var(--pl-gold);color:var(--pl-gold-ink);border:1px solid var(--pl-ink);border-radius:0}
+.play-buy-btn{font-family:var(--px);font-size:10px;font-weight:400}
+
+/* ---------- 13. Skills ---------- */
+.skills-header{border-bottom:2px solid var(--pl-ink);box-shadow:0 2px 0 var(--pl-line)}
+.skill-block.skill-locked,.skill-block.skill-unlocked{
+  background:var(--pl-panel);border:3px solid var(--pl-ink);border-radius:0;
+  box-shadow:inset 0 0 0 1px var(--pl-line),inset 4px 4px 0 var(--pl-warm),inset -4px -4px 0 var(--pl-shade),3px 3px 0 var(--pl-ink);
+}
+.skill-block.skill-unlocked{box-shadow:inset 0 0 0 2px var(--pl-gold-lo),inset 4px 4px 0 var(--pl-warm),inset -4px -4px 0 var(--pl-shade),3px 3px 0 var(--pl-ink)}
+.skill-rage-img{border-radius:0;border:2px solid var(--pl-ink);box-shadow:inset 0 0 0 1px var(--pl-gold-lo)}
+.skill-icon-wrap,.skill-emoji-icon{width:60px;height:60px;font-size:30px}
+.skill-icon-wrap:has(.skill-rage-img){width:auto;height:auto;background:none;box-shadow:none}
+.skill-upgrade-row{border-top:2px solid var(--pl-ink);box-shadow:inset 0 1px 0 var(--pl-line)}
+.skill-maxed-badge{
+  color:var(--pl-gold-hi);text-shadow:1px 1px 0 var(--pl-ink);border:2px solid var(--pl-ink);border-radius:0;
+  background:var(--pl-gold-lo);box-shadow:inset 0 0 0 1px var(--pl-gold),inset 0 2px 0 rgba(255,241,171,.35);animation:none;
+}
+.skill-cd-label,.skill-upgrade-label,.skill-cd-status,.skill-skip-label{color:var(--pl-muted)}
+
+/* ---------- 14. Modals / toasts / banners ---------- */
+.popup{
+  background:var(--pl-panel);border:3px solid var(--pl-ink);
+  box-shadow:inset 0 0 0 2px var(--pl-gold),inset 5px 5px 0 var(--pl-warm),inset -5px -5px 0 var(--pl-rim-dim),4px 4px 0 var(--pl-ink);
+}
+.popup strong,.settings-title-text,.submodal-title{text-shadow:2px 2px 0 var(--pl-ink)}
+.pop-welcome .pop-sub{color:#cfdbe8}
+.settings-version{border-top:2px solid var(--pl-ink);box-shadow:inset 0 1px 0 var(--pl-line)}
+.info-block{border-top:2px solid var(--pl-ink);box-shadow:inset 0 1px 0 var(--pl-line)}
+.info-block:first-child{box-shadow:none}
+.cloud-health-banner{border:2px solid var(--pl-ink);border-radius:0;background:#3a1420;box-shadow:inset 0 0 0 1px var(--pl-red-lo)}
+.toast{
+  background:var(--pl-panel);border:3px solid var(--pl-ink);
+  box-shadow:inset 0 0 0 2px var(--pl-gold),inset 4px 4px 0 var(--pl-warm),4px 4px 0 var(--pl-ink);
+}
+.update-banner{background:var(--pl-gold);color:var(--pl-gold-ink);border:2px solid var(--pl-ink);box-shadow:inset 0 2px 0 var(--pl-gold-hi),inset 0 -2px 0 var(--pl-gold-lo),3px 3px 0 var(--pl-ink)}
+#update-reload-btn{background:var(--pl-ink);color:var(--pl-gold);border-color:var(--pl-ink)}
+.referral-banner{
+  background:var(--pl-panel-hi);border-bottom:3px solid var(--pl-ink);
+  box-shadow:inset 0 -2px 0 var(--pl-gold),0 4px 0 var(--pl-ink);
+}
+.web-banner-cta{
+  background:var(--pl-gold);color:var(--pl-gold-ink);border:2px solid var(--pl-ink);
+  box-shadow:inset 0 2px 0 var(--pl-gold-hi),inset 0 -2px 0 var(--pl-gold-lo),2px 2px 0 var(--pl-ink);
+}
+.cloud-g-icon{border-radius:0;border:1px solid var(--pl-ink)}
+.flog-row{border-bottom:1px solid var(--pl-ink)}
+.notif-toggle-chip{padding:4px 8px}

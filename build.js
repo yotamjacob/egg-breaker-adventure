@@ -87,11 +87,40 @@ async function build() {
   }
 
   buildSitemap();
+  buildPolished();
 
   console.log('Build complete.');
 
   if (ITCH)     await buildItch();
   if (GAMEJOLT) await buildGameJolt();
+}
+
+// ============================================================
+//  /polished  — the alternate visual skin (web only)
+//  polished.html is GENERATED from index.html: identical markup and
+//  bundle, plus polished.css after bundle.min.css and polished.js after
+//  bundle.min.js. Nothing in index.html or the bundle changes, so the
+//  skin is revertable by deleting polished.{css,js} and this function.
+//  Same-origin ⇒ same localStorage save. Not in the sitemap and not in
+//  the SW's STATIC_ASSETS on purpose: it is a preview surface, not a
+//  landing page, and networkFirst already serves it while online.
+// ============================================================
+function buildPolished() {
+  let html = fs.readFileSync('index.html', 'utf8');
+  const cssTag = '<link rel="stylesheet" href="bundle.min.css" />';
+  const jsTag  = '<script src="bundle.min.js"></script>';
+  if (!html.includes(cssTag) || !html.includes(jsTag)) {
+    console.warn('  polished: bundle tags not found in index.html — polished.html NOT written');
+    return;
+  }
+  html = html
+    .replace(cssTag, cssTag + '\n  <link rel="stylesheet" href="polished.css" />')
+    .replace(jsTag,  jsTag  + '\n  <script src="polished.js"></script>')
+    // it is a preview of the same game, not a second page for crawlers
+    // (index.html's canonical → "/" is inherited and stays correct)
+    .replace('</head>', '  <meta name="robots" content="noindex" />\n</head>');
+  fs.writeFileSync('polished.html', html);
+  console.log('polished.html written (index.html + polished.css/js)');
 }
 
 // ============================================================
