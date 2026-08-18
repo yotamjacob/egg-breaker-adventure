@@ -21,7 +21,7 @@ What is in it
 - Seven egg types: normal, silver, gold, crystal, ruby, black and century. Higher tiers pay out much bigger and stop giving empty prizes, but take more hits to crack.
 - Multipliers, star pieces and Starfall (seven star pieces triggers a rain of gold across the whole tray).
 - Three skills that unlock after your second monkey: Monkey Rage, Golden Goose and Banana Shake, each upgradeable.
-- A shop with hammers, hats, upgrades and consumables, daily login rewards, and 115 in-game trophies (seven of them secret).
+- A shop with hammers, hats, upgrades and consumables, daily login rewards, and 121 in-game trophies (seven of them secret).
 - 12 Newgrounds medals and 3 scoreboards (total gold, eggs smashed, stages completed). Log in to Newgrounds and they track automatically.
 
 Notes for this version
