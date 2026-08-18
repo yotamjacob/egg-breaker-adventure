@@ -93,6 +93,12 @@
   var lastPosted = {};          // board key → last value posted
   var loginBar = null;
 
+  // NGIO.hasUser is true whenever the session carries a User object — even an
+  // empty one before login — so check for a populated user instead.
+  function loggedIn() {
+    try { var u = NGIO.user; return !!(u && (u.id || u.name)); } catch (e) { return false; }
+  }
+
   function medalIdFor(achId) {
     var m = CFG.medals || {};
     var id = m[achId];
@@ -102,7 +108,7 @@
   function unlockMedalFor(achId) {
     var medalId = medalIdFor(achId);
     if (!medalId) return;
-    if (!ngReady || !NGIO.hasUser) { if (medalQueue.indexOf(achId) === -1) medalQueue.push(achId); return; }
+    if (!ngReady || !loggedIn()) { if (medalQueue.indexOf(achId) === -1) medalQueue.push(achId); return; }
     try {
       var medal = NGIO.getMedal(medalId);
       if (medal && medal.unlocked) return;
@@ -118,14 +124,14 @@
   // Everything already achieved locally that has a medal and isn't unlocked
   // on NG yet — covers unlocks that happened while logged out / offline.
   function syncMedals() {
-    if (!ngReady || !NGIO.hasUser || !hasGame() || !Array.isArray(G.achieved)) return;
+    if (!ngReady || !loggedIn() || !hasGame() || !Array.isArray(G.achieved)) return;
     var pending = medalQueue.slice(); medalQueue = [];
     G.achieved.forEach(function (id) { if (pending.indexOf(id) === -1) pending.push(id); });
     pending.forEach(unlockMedalFor);
   }
 
   function postScores(force) {
-    if (!ngReady || !NGIO.hasUser || !hasGame()) return;
+    if (!ngReady || !loggedIn() || !hasGame()) return;
     var boards = CFG.scoreboards || {};
     var values = {
       gold:   Math.floor(G.totalGold || 0),
@@ -217,8 +223,8 @@
             case NGIO.STATUS_READY:
               ngReady = true;
               hideLoginBar();
-              if (NGIO.hasUser) {
-                log('user:', NGIO.user && NGIO.user.name);
+              if (loggedIn()) {
+                log('user:', NGIO.user.name);
                 syncMedals();
                 postScores(true);
               } else {
