@@ -29,7 +29,7 @@ to `dist-newgrounds/`, so the normal game is untouched.
 5. `node build.js --newgrounds` → upload `dist-newgrounds.zip` as an HTML5 game.
    Suggested embed size **600 × 800** (the game column is max 540px wide and fills any height ≥ 640px;
    NG's fullscreen button works too).
-6. Listing copy: lead with the numbers — 6 monkeys, 53 stages, 353 collectibles, 109 trophies,
+6. Listing copy: lead with the numbers — 6 monkeys, 53 stages, 353 collectibles, 115 trophies,
    medals + scoreboards. Mention what changed since the last submission.
 
 ## Testing locally

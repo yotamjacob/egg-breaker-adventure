@@ -100,8 +100,8 @@ function multEquation(base, multVals, result, unit, balloonMult, customPrefix) {
 
 // ==================== PRIZE ROLLING ====================
 // Set by idle.js while simulating offline smashes: rollPrize() must not
-// touch the DOM or the log.
-let _quietRoll = false;
+// touch the DOM or the log. `var` so it is never in a TDZ for boot-time callers.
+var _quietRoll = false;
 
 function rollPrize(eggType) {
   // Sun Wukong: 72 Transformations — 15% chance to roll prizes from the next egg tier up

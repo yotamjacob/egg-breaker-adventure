@@ -100,9 +100,13 @@ function buyAutoTapUpgrade(id) {
 // ---------------------------------------------------------------
 // Online loop
 // ---------------------------------------------------------------
-let _autoTapTimer = null;
-let _autoTapUiTimer = null;
-let _autoTapNextAt = 0;     // ms timestamp of the next scheduled tap (for the pill countdown)
+// `var`, never `let`/`const`: updateAutoBtn() → _autoTapCountdown() runs
+// during game.js boot (renderAll → updateSkillBtns) once the smasher is
+// unlocked, i.e. before these lines execute. A `let` is in its TDZ there and
+// throws — which killed the whole boot for unlocked players in v3.4.2/3.
+var _autoTapTimer = null;
+var _autoTapUiTimer = null;
+var _autoTapNextAt = 0;     // ms timestamp of the next scheduled tap (for the pill countdown)
 
 function startAutoTap() {
   stopAutoTap();

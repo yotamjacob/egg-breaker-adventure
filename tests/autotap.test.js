@@ -169,3 +169,10 @@ test('every Auto-Smasher achievement id has a check and no id collides', () => {
     assert.ok(new RegExp('\\b' + id + ':').test(src), 'missing check for ' + id);
   }
 });
+
+test('idle.js has no top-level let/const (boot-time callers would hit the TDZ and abort the bundle)', () => {
+  // v3.4.2 shipped `let _autoTapNextAt` → every player who had unlocked the
+  // Auto-Smasher got a blank tray on reload. See CLAUDE.md "Auto-Smasher".
+  const offenders = read('idle.js').split('\n').filter(l => /^(let|const)\s/.test(l));
+  assert.deepEqual(offenders, []);
+});

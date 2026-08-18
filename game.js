@@ -1708,7 +1708,8 @@ function showShopInfo() {
     '1. <strong>Special bonuses are always active</strong> — owning an item is enough, no need to equip it<br>' +
     '2. Hammers &amp; hats with a bonus stat stack permanently once purchased<br>' +
     '3. Equipping changes your cursor &amp; look — not your power<br>' +
-    '4. Buy everything you can afford to maximize your bonuses!',
+    '4. <strong>Auto-Smasher</strong> taps eggs for you using your hammers, online and while away — upgrade its speed, away time and away efficiency<br>' +
+    '5. Buy everything you can afford to maximize your bonuses!',
     null, 'Got it!'
   );
 }
@@ -2000,6 +2001,7 @@ function showPlayInfo() {
       '<div class="info-block">' +
         '<span class="info-block-title">⚡ skills</span>' +
         '<div class="info-row"><span class="info-row-icon">⚡</span><span>Unlock after <span class="info-highlight">2 monkeys</span> — see Skills tab</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">🤖</span><span><span class="info-highlight">Auto-Smasher</span> (Shop, from stage 3) taps eggs for you — even while you are away. AUTO pill in the tray toggles it</span></div>' +
       '</div>' +
       '<div class="info-block">' +
         '<span class="info-block-title">🐵 progression</span>' +
@@ -2276,6 +2278,8 @@ const _SPLASH_TIPS = [
   'Tap the gold counter to jump to the shop.',
   'Check the premium shop for game-changing gear.',
   'Crystal and ruby eggs hit harder but pay out big.',
+  'The Auto-Smasher keeps tapping while you are away.',
+  'Upgrade Away Time so long breaks pay out in full.',
 ];
 (function() {
   const el = document.getElementById('splash-tip');

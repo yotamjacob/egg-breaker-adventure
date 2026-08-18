@@ -250,7 +250,7 @@ so shop prices never needed retuning.
 | Rule | Why |
 |------|-----|
 | `game.js` boot skips `applyOfflineRegen` when the sim will run and leaves `_bootElapsedSec`; `idle.js`'s boot block does the sim after the whole bundle executed | The sim walks regen tap by tap itself; crediting regen first would double-count. `idle.js` must stay **after** game/smash/shop/achievements in `JS_FILES` |
-| Module-level state in `idle.js` that boot-time code can reach must be `var` (see `SHOP_AUTOTAP`) | `renderShop()` runs during game.js boot; a `const` there is in its TDZ and even `typeof` throws, which aborts every later top-level statement in the bundle |
+| **All** module-level state in `idle.js` is `var`, never `let`/`const` | game.js boot calls `renderShop()` and `updateSkillBtns()` → `updateAutoBtn()` before idle.js's top level executes; a `let`/`const` there is in its TDZ and throws, aborting every later top-level statement in the bundle. v3.4.2 shipped this exact bug (`_autoTapNextAt`) — every player who had unlocked the smasher got a blank tray on reload; fresh saves never hit it because `updateAutoBtn` returns early when locked. Test the unlocked-then-reload path for any idle change |
 | Offline rolls run with `_quietRoll = true` and `G.activeMult = 1` | No DOM/log/SFX from the sim; multipliers are never spent while away |
 | The Auto-Smasher never touches Century eggs — `availableEggTypes(si, true)` offline, `e.type !== 'century'` filter online | The 100-hit jackpot stays a hands-on moment; the bot must not sink 100 hammers into it either |
 | Offline items: max `offlineMaxItems` new per report, never rarity 3 | Collection completion stays a hands-on moment; the rest converts to duplicate gold |
