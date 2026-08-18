@@ -377,3 +377,28 @@ body{
 @keyframes auto-pulse{0%,100%{box-shadow:0 0 5px rgba(78,227,227,.3),1px 1px 0 var(--dark)}50%{box-shadow:0 0 12px rgba(78,227,227,.7),1px 1px 0 var(--dark)}}
 
 
+
+/* ---------- Site strip (index.html) — web, wide viewports only ----------
+   Sits in the empty margin left of the 540px game column. Never overlaps
+   #app: width is bounded by the margin, and it is display:none below 900px
+   (no margin to sit in) and inside the Android app / itch build. */
+.site-strip{display:none}
+@media (min-width:900px){
+  .site-strip:not([hidden]){
+    position:fixed;left:16px;top:16px;z-index:5;
+    width:min(280px, calc((100vw - 560px) / 2 - 32px));
+    display:flex;gap:10px;align-items:flex-start;
+    padding:10px 12px;
+    background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:3px solid var(--gold3);border-radius:2px;
+    box-shadow:4px 4px 0 var(--dark);
+    color:var(--white);
+  }
+  .site-strip img{flex:0 0 auto;width:40px;height:40px;border:2px solid var(--gold);background:var(--dark);image-rendering:pixelated}
+  .site-strip-text{min-width:0}
+  .site-strip-name{margin:0;font-family:var(--px);font-size:10px;line-height:1.4;color:var(--gold);text-shadow:1px 1px 0 var(--dark);letter-spacing:.3px}
+  .site-strip-tag{margin:4px 0 0;font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:11px;line-height:1.45;color:#c9d6e8}
+  .site-strip-links{margin:5px 0 0;font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:10px;color:var(--gray)}
+  .site-strip-links a{color:var(--gold);text-decoration:none}
+  .site-strip-links a:hover{text-decoration:underline}
+}

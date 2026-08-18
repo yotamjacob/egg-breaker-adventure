@@ -19,6 +19,11 @@
   // Never run inside the Android TWA.
   if (typeof window.AndroidBridge !== 'undefined') return;
 
+  // The web site-strip (name + purpose card beside the game column) belongs to
+  // the plain web build; itch paints its own frame and decor in that space.
+  var _strip = document.getElementById('site-strip');
+  if (_strip) _strip.hidden = true;
+
   var PLAY_URL =
     'https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app' +
     '&referrer=utm_source%3Ditch.io%26utm_medium%3Dwebgame%26utm_campaign%3Dplay_install';

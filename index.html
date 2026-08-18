@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
-  <title>Egg Smash Adventures — Play the Egg Breaker Revival Free</title>
+  <title>Egg Smash Adventures</title>
   <meta name="description" content="Egg Breaker is back. Smash eggs, win prizes and complete collections in this free browser revival of the classic Facebook game — no download, no ads." />
   <link rel="canonical" href="https://egg-breaker-adventures.vercel.app/" />
 
@@ -118,6 +118,22 @@
     <span class="web-card-text">Plays best on mobile — and your progress syncs to the cloud.</span>
     <button class="web-card-cta" onclick="openPlayStore('web-banner')">▶ Google Play</button>
   </aside>
+
+  <!-- ===== SITE STRIP (web, wide viewports only) =====
+       Permanent, non-dismissible identity card in the empty margin beside the
+       game column: the exact app name as the page's <h1> plus a one-line
+       purpose. Google's OAuth brand review requires both to be VISIBLE on the
+       home page; the game itself only ever showed the name on the splash.
+       Hidden inside the Android app and on the itch build (itch.js). -->
+  <aside class="site-strip" id="site-strip">
+    <img src="/icon-192.png" alt="" width="40" height="40" />
+    <div class="site-strip-text">
+      <h1 class="site-strip-name">Egg Smash Adventures</h1>
+      <p class="site-strip-tag">A free egg-smashing collection game — crack eggs, win prizes, complete the album. Web &amp; Android.</p>
+      <p class="site-strip-links"><a href="/about">About</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p>
+    </div>
+  </aside>
+  <script>if (window.AndroidBridge) { var _ss = document.getElementById('site-strip'); if (_ss) _ss.hidden = true; }</script>
 
   <div id="app">
 
