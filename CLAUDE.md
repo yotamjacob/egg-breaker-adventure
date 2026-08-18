@@ -126,9 +126,12 @@ Always end every response to the user with the current version: **"Current versi
 - `linkGoogleAccount()` (when already linked) → confirm → sets `_cloudUnlinking = true` and `localStorage._cloudLinkPref = 'unlinked'` → calls `signOut()`.
 - `_cloudUnlinking` prevents a racing `SIGNED_IN` event (token refresh) from re-linking mid-unlink.
 
-**Consent-screen branding:** Google shows `<project-ref>.supabase.co` until the OAuth
-client is branded + published in Google Cloud Console (free; no Supabase custom domain
-needed). Steps in `docs-google-oauth-branding.md`.
+**Consent-screen branding:** Google shows `<project-ref>.supabase.co` until the OAuth client is
+branded + published in Google Cloud Console. Requirements learned the hard way (Aug 2026): the home
+page must be on a domain *you own* (`*.vercel.app` is rejected — hence `eggbreakeradventure.com`,
+DNS on Vercel), verified in Search Console with the project's owner account, and it must visibly
+show the app name and describe the app + why it uses Google data → use `/about` as the home page.
+Reviews are human, ~2–3 business days; re-submitting resets the clock.
 
 ### Invariants — never break these
 | Invariant | Why |
@@ -197,7 +200,7 @@ Marketing pages, analytics and the share loop. All organic — no paid ads.
 `/about` is also the **OAuth consent-screen home page** — Google requires visible page
 text with the exact app name + purpose, which the game root cannot provide without UI
 changes. Keep its H1 exactly `Egg Smash Adventures` and keep the "Google sign-in is used
-for cloud save only" paragraph (see `docs-google-oauth-branding.md`).
+for cloud save only" paragraph (see the Google OAuth notes above).
 - Facts in these pages (egg tiers, hat/hammer prices, monkey perks, the 353-item
   total) come from `config.js`/`data.js`. **If you retune those, update the guide** —
   nothing enforces it automatically.
