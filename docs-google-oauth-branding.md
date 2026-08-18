@@ -31,21 +31,23 @@ So a domain purchase is unavoidable for branded Google sign-in.
 | Domain live on Vercel | ✅ apex + `www` resolve to Vercel; apex 308s to `https://www.eggbreakeradventure.com/` |
 | Game served on it | ✅ `/`, `/privacy`, `/terms` all 200 with the game |
 | DNS host | **Vercel** (`ns1/ns2.vercel-dns.com`) — records are added in the Vercel dashboard, *not* at the registrar |
-| Search Console TXT | ❌ not present yet — this is the only thing blocking verification |
+| Search Console TXT | ✅ added 18 Aug 2026 (`rec_11ae4e4f29babc9d22fc56ba`) — live on Vercel's nameservers and both public resolvers |
 | OAuth home page URL to use | `https://www.eggbreakeradventure.com/` (the `www` form: the apex redirects) |
 
-### Add the TXT record (Vercel dashboard)
-Vercel → the `eggbreakeradventure.com` domain → **DNS Records** → Add:
+### The TXT record (already added)
+Added with the Vercel CLI, which refreshes the stored OAuth token by itself even
+when the cached access token has expired:
 
-| Field | Value |
-|-------|-------|
-| Type | `TXT` |
-| Name | leave **empty** (that is the apex `@`) |
-| Value | `google-site-verification=yaYt8e-eL8BzbBgTxkdCxKV4a3vRcLQJAI97BUUgfTE` |
-| TTL | 60 (or default) |
+```bash
+npx --yes vercel@latest dns ls  eggbreakeradventure.com
+npx --yes vercel@latest dns add eggbreakeradventure.com "@" TXT \
+  "google-site-verification=yaYt8e-eL8BzbBgTxkdCxKV4a3vRcLQJAI97BUUgfTE"
+```
+(The Vercel MCP has no DNS tooling, and calling api.vercel.com with the cached
+`auth.json` token returns 403 once it has expired — the CLI is the way in.)
 
-Then Search Console → **Domain** property → Verify. A Domain property covers the
-apex and every subdomain, so `www` is included automatically.
+Remaining manual step: Search Console → **Domain** property → Verify. A Domain
+property covers the apex and every subdomain, so `www` is included automatically.
 
 Check progress at any time with:
 

@@ -25,9 +25,13 @@ const ok = s => '  \x1b[32m✓\x1b[0m ' + s;
 const bad = s => '  \x1b[31m✗\x1b[0m ' + s;
 const warn = s => '  \x1b[33m!\x1b[0m ' + s;
 
-function dig(type, name) {
-  try { return execSync(`dig +short ${type} ${name}`, { encoding: 'utf8' }).trim().split('\n').filter(Boolean); }
-  catch (e) { return []; }
+// Query a public resolver, not the system one: macOS caches negative answers,
+// so a freshly added record looks missing for minutes if you ask locally.
+function dig(type, name, resolver) {
+  try {
+    const at = resolver === null ? '' : '@' + (resolver || '8.8.8.8') + ' ';
+    return execSync(`dig +short ${at}${type} ${name}`, { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+  } catch (e) { return []; }
 }
 /** GET that follows redirects (apex → www is normal on Vercel) and reports the final URL. */
 function head(url, depth) {
@@ -53,7 +57,9 @@ function head(url, depth) {
   let fatal = 0;
 
   // 1. Search Console TXT
-  const txt = dig('TXT', domain).map(s => s.replace(/^"|"$/g, ''));
+  // Cross-check two public resolvers so a single stale cache cannot hide it
+  const txt = [...new Set(dig('TXT', domain, '8.8.8.8').concat(dig('TXT', domain, '1.1.1.1')))]
+    .map(s => s.replace(/^"|"$/g, ''));
   const gsv = txt.filter(t => t.startsWith('google-site-verification='));
   console.log('1. Google Search Console TXT (apex)');
   if (!gsv.length) { console.log(bad('no google-site-verification TXT on ' + domain)); fatal++; }
