@@ -24,6 +24,10 @@ const NEWGROUNDS = process.argv.includes('--newgrounds');
 const JS_FILES = [
   'lz-string.min.js',
   'config.js',
+  // Pixel icons: generated map + runtime observer. Right after config.js so the
+  // observer is live before any render code writes emoji into the DOM.
+  'pxicons-map.js',
+  'pxicons.js',
   'analytics.js',
   'quotes.js',
   'data.js',

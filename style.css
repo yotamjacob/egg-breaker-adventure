@@ -402,3 +402,14 @@ body{
   box-shadow:0 0 8px rgba(78,227,227,.45),1px 1px 0 var(--dark);animation:auto-pulse 1.6s ease-in-out infinite;
 }
 @keyframes auto-pulse{0%,100%{box-shadow:0 0 5px rgba(78,227,227,.3),1px 1px 0 var(--dark)}50%{box-shadow:0 0 12px rgba(78,227,227,.7),1px 1px 0 var(--dark)}}
+
+/* ---------- Pixel icons (pxicons.js) ----------
+   Emoji are swapped for sprite cells at runtime. Fixed pixel sizes only —
+   the sheet is chosen to match the text size, never scaled non-integer. */
+.px{display:inline-block;vertical-align:-0.18em;background-repeat:no-repeat;
+  image-rendering:pixelated;image-rendering:crisp-edges;line-height:1;flex-shrink:0;
+  margin:0 .05em}
+.px12{width:12px;height:12px;background-image:url('img/px12.png');background-size:240px auto}
+.px16{width:16px;height:16px;background-image:url('img/px16.png');background-size:320px auto}
+.px24{width:24px;height:24px;background-image:url('img/px24.png');background-size:480px auto}
+.px32{width:32px;height:32px;background-image:url('img/px32.png');background-size:640px auto}
