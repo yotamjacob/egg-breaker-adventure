@@ -511,6 +511,12 @@ function smashEgg(index) {
   const egg = G.roundEggs[index];
   if (egg.effects && egg.effects.includes('balloon')) return; // balloon eggs use long-press
   if (egg._smashing) return;
+  // The tray is emptied by renderEggTray() when the play panel is collapsed
+  // (another tab open) and a round changes there. Programmatic taps in that
+  // state (Auto-Smasher, Rage) used to take the _smashing lock and then throw
+  // on the missing slot, leaving the egg permanently unclickable once the
+  // player came back. No slot → no smash; callers simply retry later.
+  if (!$id('egg-tray').children[index]) return;
   egg._smashing = true;
 
   // Each hit costs 1 hammer

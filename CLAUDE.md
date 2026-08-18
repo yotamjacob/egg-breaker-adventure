@@ -260,6 +260,7 @@ top, so idle income is bounded by time × speed × efficiency + the item cap, no
 Invariants are checked by `tests/autotap.test.js` (vm sandbox, no browser).
 
 ## Common pitfalls
+- **Programmatic smashes while the play panel is collapsed.** `renderEggTray()` empties the tray when the panel has no size (another tab open) and defers. `smashEgg()` therefore returns *before* taking the per-egg `_smashing` lock if the slot element is missing, `renderEggTray()` clears every `_smashing` on rebuild, and the Auto-Smasher tick skips when the tray is empty. v3.6.4 fixed "eggs randomly unclickable after coming back from a tab" — the lock was being set and then a throw on the missing slot left it set forever.
 - `renderEggTray` must run inside `requestAnimationFrame` when switching to play tab (needs laid-out dimensions)
 - Tab panels use `visibility:hidden + flex:0 0 0` (not `display:none`) to keep animations alive
 - `_sbClient.auth.getSession()` can hang on Android — always use cached `_cloudSession` from `onAuthStateChange`

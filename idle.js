@@ -141,6 +141,7 @@ function _autoTapTick() {
     if (typeof _rageActive !== 'undefined' && _rageActive) return;
     if (_spawningRound || _roundPending) return;
     if (G.hammers < 1 || !G.roundEggs) return;
+    if (!$id('egg-tray').children.length) return;   // tray not rendered (play panel collapsed) — wait
     // Skips balloon eggs (long-press only) and Century eggs — the 100-hit
     // jackpot is left for the player, online and offline alike.
     const idxs = [];

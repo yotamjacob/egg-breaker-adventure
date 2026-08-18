@@ -281,6 +281,9 @@ function renderEggTray() {
   }
   _trayNeedsRender = false;
   tray.innerHTML = '';
+  // A rebuild means no smash animation is in flight — release any stale
+  // per-egg lock so a hiccup can never leave an egg unclickable.
+  G.roundEggs.forEach(e => { e._smashing = false; });
   // Grid-based placement with random jitter — guarantees no overlap
   const eW = 76, eH = 110; // SVG 88px + label ~20px
   const padX = 12, padTop = 10, padBot = 80; // extra bottom clearance for reward log
