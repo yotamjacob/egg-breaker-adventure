@@ -101,17 +101,35 @@ function buyAutoTapUpgrade(id) {
 // Online loop
 // ---------------------------------------------------------------
 let _autoTapTimer = null;
+let _autoTapUiTimer = null;
+let _autoTapNextAt = 0;     // ms timestamp of the next scheduled tap (for the pill countdown)
 
 function startAutoTap() {
   stopAutoTap();
   const st = autoTapState();
   if (!st.unlocked || !st.on) return;
-  _autoTapTimer = setInterval(_autoTapTick, autoTapSecPerTap() * 1000);
+  const ms = autoTapSecPerTap() * 1000;
+  _autoTapNextAt = Date.now() + ms;
+  _autoTapTimer = setInterval(_autoTapTick, ms);
+  _autoTapUiTimer = setInterval(_autoTapCountdown, 250);
+  _autoTapCountdown();
 }
 function stopAutoTap() {
-  if (_autoTapTimer) { clearInterval(_autoTapTimer); _autoTapTimer = null; }
+  if (_autoTapTimer)   { clearInterval(_autoTapTimer);   _autoTapTimer = null; }
+  if (_autoTapUiTimer) { clearInterval(_autoTapUiTimer); _autoTapUiTimer = null; }
+  _autoTapNextAt = 0;
+  _autoTapCountdown();
+}
+/** Pill countdown: seconds until the next scheduled tap. */
+function _autoTapCountdown() {
+  const el = $id('auto-btn-cd');
+  if (!el) return;
+  if (!_autoTapNextAt) { el.textContent = ''; return; }
+  const s = Math.max(0, Math.ceil((_autoTapNextAt - Date.now()) / 1000));
+  el.textContent = s + 's';
 }
 function _autoTapTick() {
+  _autoTapNextAt = Date.now() + autoTapSecPerTap() * 1000;
   try {
     const st = autoTapState();
     if (!st.unlocked || !st.on) { stopAutoTap(); return; }
@@ -150,6 +168,7 @@ function updateAutoBtn() {
   btn.classList.toggle('on', !!st.on);
   const txt = $id('auto-btn-txt');
   if (txt) txt.textContent = st.on ? 'AUTO ON' : 'AUTO OFF';
+  _autoTapCountdown();
   btn.title = st.on
     ? 'Auto-Smasher: on (a tap every ' + autoTapSecPerTap() + 's) — tap to pause'
     : 'Auto-Smasher: paused — tap to resume';
