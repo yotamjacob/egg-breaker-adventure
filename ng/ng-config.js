@@ -22,14 +22,25 @@ window.NG_CONFIG = {
   // the ids here. `node tools/ng-medals.js` prints the suggested list with
   // names, descriptions and points that fit NG's 500-point budget.
   medals: {
-    // first_smash: 12345,
+    first_smash:     91857,   // First Crack — break your first egg (5)
+    smash_50:        91858,   // Egg Smasher — break 50 eggs (5)
+    round_clear:     91859,   // Clean Sweep — break all eggs in one round (5)
+    stage_1:         91860,   // Stage Clear — complete a stage (10)
+    items_10:        91861,   // Treasure Hunter — find 10 items (10)
+    starfall_1:      91862,   // Starfall! — first starfall (10)
+    monkey_2:        91863,   // New Friend — unlock a second monkey (10)
+    smash_1000:      91864,   // Egg Annihilator — break 1,000 eggs (25)
+    stage_9:         91865,   // World Champion — complete 9 stages (25)
+    black_1:         91866,   // Into the Void — first black egg (25)
+    monkey_all:      91867,   // Monkey Business — unlock all monkeys (50)
+    stage_all:       91868,   // True Grand Master — complete all 53 stages (50)
   },
 
   // Scoreboard ids from API Tools → Scoreboards. Each is posted only when the
   // value goes up. Leave an entry out to skip that board.
   scoreboards: {
-    // gold:   12345,   // total gold earned
-    // eggs:   12346,   // total eggs smashed
-    // stages: 12347,   // stages completed
+    gold:   16137,   // Total Gold
+    eggs:   16138,   // Eggs Smashed
+    stages: 16139,   // Stages Completed
   },
 };
