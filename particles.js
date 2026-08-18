@@ -145,7 +145,7 @@ const Particles = (() => {
     const cols = rainCol || (back ? ['#ffe9a3', '#fff3c4'] : ['#FFD700', '#ffe27a', '#fff8dc']);
     rain.push({
       x: R() * (rainW + 60) - 30, y: -14 - R() * 60,
-      vy: back ? 3.2 + R() * 1.6 : 4.4 + R() * 2.6,
+      vy: back ? 4.2 + R() * 2 : 5.8 + R() * 3.2,
       sz: back ? 2.5 + R() * 2.5 : 5 + R() * 6,
       sway: 4 + R() * 10, ph: R() * Math.PI * 2, sp: .05 + R() * .05,
       rot: R() * Math.PI * 2, rv: (R() - .5) * .12,

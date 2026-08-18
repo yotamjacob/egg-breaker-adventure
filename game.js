@@ -678,13 +678,13 @@ function _doStarfall(message, cat) {
   G._selectedCounts = {};
 
   const wrap = $id('egg-tray-wrap');
-  wrap.style.animation = 'starfall-glow 1.6s ease';
-  setTimeout(() => wrap.style.animation = '', 1600);
+  wrap.style.animation = 'starfall-glow 1.2s ease';
+  setTimeout(() => wrap.style.animation = '', 1200);
 
   // Rain of stars across the whole tray — eggs start breaking once the
   // first stars have reached them (see the 350ms lead below).
   const wRect = wrap.getBoundingClientRect();
-  Particles.starRain(wRect.width, wRect.height, 1500, 110);
+  Particles.starRain(wRect.width, wRect.height, 1000, 100);
 
   // Break all unbroken eggs in sequence — century eggs are immune
   const unbroken = [];
@@ -725,7 +725,7 @@ function _doStarfall(message, cat) {
         updateStageBar();
         saveGame();
       }, 200);
-    }, 350 + i * 200);
+    }, 250 + i * 130);
   });
 
   setTimeout(() => {
@@ -744,7 +744,7 @@ function _doStarfall(message, cat) {
       G.roundClears++;
       setTimeout(() => newRound(), 600);
     }
-  }, 350 + unbroken.length * 200 + 300);
+  }, 250 + unbroken.length * 130 + 300);
 }
 
 
