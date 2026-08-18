@@ -5,8 +5,9 @@
 //  Nothing here is bundled into the Vercel/Android build.
 // ============================================================
 window.NG_CONFIG = {
-  // From API Tools → "App ID" and "Encryption Key" (leave encKey '' if
-  // encryption is disabled on the project).
+  // App ID + Encryption Key are injected by build.js from the git-ignored
+  // ng/ng.secrets.json ({ "appId": "12345:abcDEfgh", "encKey": "…==" }) or
+  // the NG_APP_ID / NG_ENC_KEY env vars — never commit them (public repo).
   appId:  '',
   encKey: '',
 

@@ -336,11 +336,26 @@ async function buildGameJolt() {
 // external store, so ng.js removes the Premium tab / Play banner and instead
 // wires Newgrounds.io medals + scoreboards (see ng/README.md). Optimised
 // assets — it is a browser portal, load time is the first impression.
+// App ID / encryption key are NOT committed (public repo). They come from
+// the git-ignored ng/ng.secrets.json ({ "appId", "encKey" }) or the env vars
+// NG_APP_ID / NG_ENC_KEY, and are written into dist-newgrounds/ng-config.js
+// only. Medal/scoreboard ids stay in ng/ng-config.js — they are not secret.
 async function buildNewgrounds() {
-  if (!/appId:\s*'[^']+'/.test(fs.readFileSync('ng/ng-config.js', 'utf8'))) {
-    console.warn('\n  ⚠ ng/ng-config.js has no appId — medals/scoreboards will be disabled in this build.');
-  }
   await assembleWebBuild('dist-newgrounds', 'dist-newgrounds.zip', { optimizeAssets: true, shim: NG_SHIM });
+  let secrets = {};
+  try { secrets = JSON.parse(fs.readFileSync('ng/ng.secrets.json', 'utf8')); } catch (e) {}
+  const appId  = process.env.NG_APP_ID  || secrets.appId  || '';
+  const encKey = process.env.NG_ENC_KEY || secrets.encKey || '';
+  const cfgPath = path.join('dist-newgrounds', 'ng-config.js');
+  let cfg = fs.readFileSync(cfgPath, 'utf8');
+  cfg = cfg.replace(/appId:\s*'[^']*'/, "appId:  '" + appId.replace(/'/g, '') + "'")
+           .replace(/encKey:\s*'[^']*'/, "encKey: '" + encKey.replace(/'/g, '') + "'");
+  fs.writeFileSync(cfgPath, cfg);
+  // Re-zip so the archive carries the injected config.
+  fs.rmSync('dist-newgrounds.zip', { force: true });
+  execSync('zip -r -X ../dist-newgrounds.zip .', { cwd: 'dist-newgrounds', stdio: 'ignore' });
+  if (!appId) console.warn('\n  ⚠ No Newgrounds appId (ng/ng.secrets.json or NG_APP_ID) — medals/scoreboards will be disabled in this build.');
+  else console.log('  ng-config: appId + encKey injected' + (encKey ? '' : ' (no encKey)'));
 }
 
 function listFiles(dir, base) {

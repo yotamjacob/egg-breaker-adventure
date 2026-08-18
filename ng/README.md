@@ -16,7 +16,10 @@ to `dist-newgrounds/`, so the normal game is untouched.
 ## One-time setup on Newgrounds
 1. Create the project: newgrounds.com → Your Stuff → Projects → **Game**.
 2. Project page → **API Tools** → note the **App ID** and **Encryption Key**.
-   Paste them into `ng/ng-config.js` (`appId`, `encKey`).
+   Put them in the git-ignored `ng/ng.secrets.json`:
+   `{ "appId": "12345:abcDEfgh", "encKey": "…==" }` (or export `NG_APP_ID` / `NG_ENC_KEY`).
+   `build.js` injects them into `dist-newgrounds/ng-config.js` only — the repo is public,
+   so they are never committed.
 3. **Medals**: run `node tools/ng-medals.js` — it prints 29 medals (500 points, the NG budget)
    with names/descriptions/points, plus a `medals: {}` block. Create each medal in
    API Tools → Medals (`--csv` gives a spreadsheet-friendly list), then paste the ids
@@ -38,6 +41,6 @@ it shows the "Log in to Newgrounds" bar, which opens the passport flow.
 ## Files
 - `ng.js` — the shim (funnel removal, pacing, welcome copy, NGIO wiring)
 - `ng.css` — centres the game column in the NG iframe + login-bar styling
-- `ng-config.js` — App ID / key / medal + scoreboard ids (edit this)
+- `ng-config.js` — pacing + medal/scoreboard ids (edit this); App ID/key come from `ng.secrets.json` (git-ignored)
 - `NewgroundsIO.min.js` — vendored official library (github.com/PsychoGoldfishNG/NewgroundsIO-JS)
 - `../tools/ng-medals.js` — suggested medal set generator

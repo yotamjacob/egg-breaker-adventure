@@ -225,7 +225,7 @@ so the web/Android game is untouched:
 | Pacing (`NG_CONFIG.pacing`) overrides `CONFIG.regenInterval` after load, and clamps the already-seeded `G.regenCD` | Portal players judge in one sitting; the 30s regen wall after ~2 min is the classic "not developed" trigger |
 | Medals hook `window.checkAchievements` (wrap, not replace) and re-sync every 60s; scores post only when a value increases | Achievements stay the single source of truth; the wrap must call the original |
 | `checkHostLicense:false` in `NGIO.init` | A host-license hiccup must never brick the build |
-| `ng/ng-config.js` holds the App ID / key / medal ids — the build warns when `appId` is empty | Without it medals/scoreboards are silently disabled |
+| App ID + encryption key live in git-ignored `ng/ng.secrets.json` (or `NG_APP_ID`/`NG_ENC_KEY`) and are injected into `dist-newgrounds/ng-config.js` at build time; medal ids stay in `ng/ng-config.js` | Public repo — never commit the key. The build warns when `appId` is empty (medals silently disabled) |
 Setup steps (create project, medals, scoreboards, embed size) are in `ng/README.md`.
 
 ### Marketing asset tooling (run manually, not in the deploy)
