@@ -562,32 +562,25 @@ async function _onCloudSignIn() {
     G._cloudSavedAt = cloudTs;
     _renderCloudModal();
 
-    // Always ask before replacing anything — with the exact timestamps of both
-    // sides so the player can tell which save is which. Nothing is loaded
-    // silently; "Keep this device" leaves local in place (auto-save will then
-    // sync it up to the cloud).
-    const localEmpty = G.totalEggs === 0;            // fresh install / new device
-    const localTs    = G._savedAt || 0;
-    const cloudNewer = cloudTs > localTs;
-    const cs = _peekCloudSave(data.save_data);
-    const cloudEggs  = cs.totalEggs != null ? Number(cs.totalEggs).toLocaleString() + ' eggs' : null;
-    const cloudGold  = cs.gold != null ? Number(cs.gold).toLocaleString() + ' 🪙' : null;
-    const cloudLine  = '<strong>Cloud save</strong> — ' + _fmtCloudTs(cloudTs) + ' (' + _timeAgo(cloudTs) + ')'
-      + (cloudEggs || cloudGold ? '<br><span style="color:var(--gray)">' + [cloudEggs, cloudGold].filter(Boolean).join(' · ') + '</span>' : '');
-    const localLine  = localEmpty
-      ? '<strong>This device</strong> — no progress yet'
-      : '<strong>This device</strong> — ' + (localTs ? _fmtCloudTs(localTs) + ' (' + _timeAgo(localTs) + ')' : 'unknown time')
-        + '<br><span style="color:var(--gray)">' + Number(G.totalEggs || 0).toLocaleString() + ' eggs · ' + Number(G.gold || 0).toLocaleString() + ' 🪙</span>';
-    const verdict = localEmpty ? '' : (cloudNewer ? '<br><span style="color:var(--green)">The cloud save is newer.</span>' : '<br><span style="color:var(--amber)">This device\'s save is newer.</span>');
-    showConfirm('☁️', 'Load cloud save?',
-      cloudLine + '<br><br>' + localLine + verdict +
-      '<br><br>Loading replaces this device\'s progress with the cloud save.',
-      function() {
-        _applyCloudSave(data.save_data);
-        track('cloud-save', { action: 'load' });
-        showShopSnack('☁️ Cloud save loaded!');
-      }, 'Load cloud', localEmpty ? 'Start fresh' : 'Keep this device');
-    // If they keep local, auto-save syncs local → cloud shortly.
+    const localEmpty  = G.totalEggs === 0;           // fresh install / new device
+    const cloudNewer  = cloudTs > (G._savedAt || 0); // cloud has more recent progress
+
+    if (localEmpty) {
+      // No local progress — silently restore cloud save
+      _applyCloudSave(data.save_data);
+      track('cloud-save', { action: 'load' });
+      showShopSnack('☁️ Cloud save loaded!');
+    } else if (cloudNewer) {
+      // Both sides have progress but cloud is newer — ask the player
+      showConfirm('☁️', 'Load cloud save?',
+        'Found a cloud save from ' + _timeAgo(cloudTs) + '.\nLoad it? Your current local progress will be replaced.',
+        function() {
+          _applyCloudSave(data.save_data);
+          track('cloud-save', { action: 'load' });
+          showShopSnack('☁️ Cloud save loaded!');
+        }, 'Load it');
+    }
+    // local is newer — do nothing; auto-save will sync local → cloud shortly
   } catch (e) {
     console.warn('[cloud] sign-in check failed:', e);
   }
@@ -757,23 +750,6 @@ function _applyCloudSave(saveData) {
   } catch (e) {
     console.warn('[cloud] restore failed:', e);
   }
-}
-
-/** Decode just enough of a cloud save blob to describe it (never throws). */
-function _peekCloudSave(saveData) {
-  try {
-    if (typeof saveData !== 'string') return {};
-    const json = saveData.startsWith('lz:') ? LZString.decompressFromUTF16(saveData.slice(3)) : saveData;
-    const d = JSON.parse(json);
-    return d && typeof d === 'object' ? d : {};
-  } catch (e) { return {}; }
-}
-
-/** "18 Aug 2026, 14:05" in the device locale — for the load-from-cloud prompt. */
-function _fmtCloudTs(ms) {
-  try {
-    return new Date(ms).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  } catch (e) { return new Date(ms).toISOString().slice(0, 16).replace('T', ' '); }
 }
 
 function _timeAgo(ms) {

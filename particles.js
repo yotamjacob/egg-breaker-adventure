@@ -54,9 +54,84 @@ const Particles = (() => {
     }
     _tryStart();
   }
+  // ── Star rain (Starfall) ────────────────────────────────────────
+  // A separate list so it is never starved by MAX_PARTICLES. Stars are
+  // emitted over `durationMs`, fall with a gentle sway, spin, twinkle and
+  // leave a short soft trail. Two depth layers: small dim stars in the back
+  // fall faster and fainter; big bright ones in front carry the moment.
+  // Motion is dt-scaled so 120 Hz screens are not twice as fast.
+  let rain = [], rainW = 0, rainH = 0, rainEmitUntil = 0, rainPerMs = 0, rainAcc = 0, rainCol = null;
+  function starRain(w, h, durationMs, count, colors) {
+    rainW = w; rainH = h; rainCol = colors || null;
+    rainEmitUntil = performance.now() + (durationMs || 1400);
+    rainPerMs = (count || 80) / (durationMs || 1400);
+    rainAcc = 1;   // first star this frame
+    _tryStart();
+  }
+  function _spawnRainStar() {
+    const back = Math.random() < .4;
+    const cols = rainCol || (back ? ['#ffe9a3', '#fff3c4'] : ['#FFD700', '#ffe27a', '#fff8dc']);
+    rain.push({
+      x: Math.random() * (rainW + 60) - 30, y: -14 - Math.random() * 60,
+      vy: back ? 3.2 + Math.random() * 1.6 : 4.4 + Math.random() * 2.6,
+      sz: back ? 2.5 + Math.random() * 2.5 : 5 + Math.random() * 6,
+      sway: 4 + Math.random() * 10, ph: Math.random() * Math.PI * 2, sp: .05 + Math.random() * .05,
+      rot: Math.random() * Math.PI * 2, rv: (Math.random() - .5) * .12,
+      tw: Math.random() * Math.PI * 2, back,
+      col: cols[Math.random() * cols.length | 0],
+      a: back ? .55 : 1, t: 0,
+    });
+  }
+  function _drawStar(r) {
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const ang = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r;
+      if (i === 0) ctx.moveTo(Math.cos(ang) * rr, Math.sin(ang) * rr); else ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+  function _stepRain(dt, h) {
+    const k = Math.min(3, dt / 16.667);
+    const now = performance.now();
+    if (now < rainEmitUntil) {
+      rainAcc += rainPerMs * dt;
+      while (rainAcc >= 1) { rainAcc -= 1; _spawnRainStar(); }
+    }
+    for (let i = rain.length - 1; i >= 0; i--) {
+      const s = rain[i];
+      s.t += k; s.ph += s.sp * k; s.tw += .25 * k; s.rot += s.rv * k;
+      s.y += s.vy * k;
+      s.x += Math.cos(s.ph) * s.sway * .06 * k;
+      if (s.y > h + 30) { rain.splice(i, 1); continue; }
+      const fadeIn = Math.min(1, s.t / 8);
+      const alpha = s.a * fadeIn * (.7 + .3 * Math.sin(s.tw));
+      ctx.save();
+      // trail: soft line behind the star, fading out
+      const tl = s.vy * (s.back ? 3 : 5);
+      const g = ctx.createLinearGradient(s.x, s.y - tl, s.x, s.y);
+      g.addColorStop(0, 'rgba(255,225,120,0)');
+      g.addColorStop(1, 'rgba(255,225,120,' + (alpha * .55).toFixed(3) + ')');
+      ctx.strokeStyle = g; ctx.lineWidth = Math.max(1, s.sz * .45); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(s.x, s.y - tl); ctx.lineTo(s.x, s.y); ctx.stroke();
+      ctx.translate(s.x, s.y);
+      // halo
+      ctx.globalAlpha = alpha * (s.back ? .06 : .13);
+      ctx.fillStyle = '#FFE27A';
+      ctx.beginPath(); ctx.arc(0, 0, s.sz * 1.5, 0, Math.PI * 2); ctx.fill();
+      // star body + white core
+      ctx.rotate(s.rot);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = s.col; _drawStar(s.sz);
+      if (!s.back) { ctx.globalAlpha = alpha * .9; ctx.fillStyle = '#FFFFFF'; _drawStar(s.sz * .42); }
+      ctx.restore();
+    }
+  }
+  function _busy() { return ps.length > 0 || rain.length > 0 || performance.now() < rainEmitUntil; }
+
   function resume() { resize(); running = false; _tryStart(); }
   function _tryStart() {
-    if (ps.length === 0 || document.hidden) return;
+    if (!_busy() || document.hidden) return;
     if (!running || performance.now() - _lastTick > 500) { running = false; loop(); }
   }
   document.addEventListener('visibilitychange', function() {
@@ -65,10 +140,13 @@ const Particles = (() => {
   function loop() {
     if (document.hidden) { running = false; return; }
     running = true;
-    _lastTick = performance.now();
+    const now = performance.now();
+    const dt = _lastTick ? Math.min(100, now - _lastTick) : 16.667;
+    _lastTick = now;
     const w = canvas.width / (window.devicePixelRatio || 1);
     const h = canvas.height / (window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, w, h);
+    if (rain.length || now < rainEmitUntil) _stepRain(dt, h);
     for (let i = ps.length - 1; i >= 0; i--) {
       const p = ps[i];
       p.vx *= .98; p.vy += p.grav; p.x += p.vx; p.y += p.vy;
@@ -94,7 +172,7 @@ const Particles = (() => {
       }
       ctx.restore();
     }
-    if (ps.length > 0) requestAnimationFrame(loop); else running = false;
+    if (_busy()) requestAnimationFrame(loop); else running = false;
   }
-  return { init, emit, sparkle, resize, resume };
+  return { init, emit, sparkle, starRain, resize, resume };
 })();
