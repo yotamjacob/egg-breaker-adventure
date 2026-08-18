@@ -14,8 +14,12 @@ const { execSync } = require('child_process');
 // into /dist-itch (+ dist-itch.zip). `--gamejolt` does the same for Game
 // Jolt (+ dist-gamejolt.zip). Without a flag the build is identical — the
 // Vercel/Android pipeline is untouched.
-const ITCH     = process.argv.includes('--itch');
-const GAMEJOLT = process.argv.includes('--gamejolt');
+const ITCH       = process.argv.includes('--itch');
+const GAMEJOLT   = process.argv.includes('--gamejolt');
+// `--newgrounds` assembles the Newgrounds build into /dist-newgrounds
+// (+ dist-newgrounds.zip): no Play-Store funnel, Newgrounds.io medals +
+// scoreboards, portal pacing. Shim lives in /ng and is never bundled.
+const NEWGROUNDS = process.argv.includes('--newgrounds');
 
 const JS_FILES = [
   'lz-string.min.js',
@@ -90,8 +94,9 @@ async function build() {
 
   console.log('Build complete.');
 
-  if (ITCH)     await buildItch();
-  if (GAMEJOLT) await buildGameJolt();
+  if (ITCH)       await buildItch();
+  if (GAMEJOLT)   await buildGameJolt();
+  if (NEWGROUNDS) await buildNewgrounds();
 }
 
 // ============================================================
@@ -217,8 +222,11 @@ function optimizeAudio(outDir) {
 // opts.optimizeAssets — re-encode img/ and audio/ into the build (see above).
 // Off by default so the itch build keeps byte-for-byte parity with what is
 // already published there.
+// opts.shim — { files: [...], head: '<link…>', body: '<script…>' } to swap the
+// itch.io shim for another portal's. Defaults to the itch shim.
 async function assembleWebBuild(OUT, zipName, opts) {
   opts = opts || {};
+  const shim = opts.shim || ITCH_SHIM;
 
   // 1. Clean output dir.
   fs.rmSync(OUT, { recursive: true, force: true });
@@ -231,10 +239,7 @@ async function assembleWebBuild(OUT, zipName, opts) {
     'favicon.ico',
     'icon-192.png',
     'icon-512.png',
-    'itch/itch.css',          // → OUT/itch.css
-    'itch/itch.js',           // → OUT/itch.js
-    'itch/google-play-badge.png',
-  ];
+  ].concat(shim.files);      // e.g. itch/itch.css → OUT/itch.css
   for (const f of FILES) {
     fs.copyFileSync(f, path.join(OUT, path.basename(f)));
   }
@@ -268,14 +273,10 @@ async function assembleWebBuild(OUT, zipName, opts) {
     ''
   );
 
-  // 3d. Inject the itch-only stylesheet (before </head>) and scripts
+  // 3d. Inject the portal-only stylesheet (before </head>) and scripts
   //     (before </body>, after bundle.min.js has already executed).
-  html = html.replace(
-    '</head>',
-    '  <link rel="stylesheet" href="./itch.css" />\n</head>'
-  );
-  html = html.replace('</body>',
-    '  <script defer src="./itch.js"></script>\n</body>');
+  html = html.replace('</head>', shim.head + '</head>');
+  html = html.replace('</body>', shim.body + '</body>');
 
   fs.writeFileSync(path.join(OUT, 'index.html'), html);
 
@@ -296,6 +297,22 @@ async function assembleWebBuild(OUT, zipName, opts) {
   console.log('  index.html at root: ' + (fs.existsSync(path.join(OUT, 'index.html')) ? 'YES' : 'NO'));
 }
 
+const ITCH_SHIM = {
+  files: ['itch/itch.css', 'itch/itch.js', 'itch/google-play-badge.png'],
+  head:  '  <link rel="stylesheet" href="./itch.css" />\n',
+  body:  '  <script defer src="./itch.js"></script>\n',
+};
+
+// Newgrounds shim: config → NGIO library → ng.js, all deferred so they run
+// after bundle.min.js (ng.js hooks globals the bundle defines).
+const NG_SHIM = {
+  files: ['ng/ng.css', 'ng/ng-config.js', 'ng/NewgroundsIO.min.js', 'ng/ng.js'],
+  head:  '  <link rel="stylesheet" href="./ng.css" />\n',
+  body:  '  <script defer src="./ng-config.js"></script>\n' +
+         '  <script defer src="./NewgroundsIO.min.js"></script>\n' +
+         '  <script defer src="./ng.js"></script>\n',
+};
+
 // itch.io build  (node build.js --itch)
 // Assets left untouched so the package stays identical to what is already
 // published on itch. Pass optimizeAssets:true to shrink it ~6x if that build
@@ -312,6 +329,18 @@ async function buildItch() {
 // impression worth having.
 async function buildGameJolt() {
   await assembleWebBuild('dist-gamejolt', 'dist-gamejolt.zip', { optimizeAssets: true });
+}
+
+// Newgrounds build  (node build.js --newgrounds)
+// Same static assembly, different shim: NG rejects games that funnel to an
+// external store, so ng.js removes the Premium tab / Play banner and instead
+// wires Newgrounds.io medals + scoreboards (see ng/README.md). Optimised
+// assets — it is a browser portal, load time is the first impression.
+async function buildNewgrounds() {
+  if (!/appId:\s*'[^']+'/.test(fs.readFileSync('ng/ng-config.js', 'utf8'))) {
+    console.warn('\n  ⚠ ng/ng-config.js has no appId — medals/scoreboards will be disabled in this build.');
+  }
+  await assembleWebBuild('dist-newgrounds', 'dist-newgrounds.zip', { optimizeAssets: true, shim: NG_SHIM });
 }
 
 function listFiles(dir, base) {

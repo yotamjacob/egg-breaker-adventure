@@ -20,6 +20,8 @@
 | `sw.js` | Service worker — cache versioning, network-first fetch strategy |
 | `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css; `--itch` assembles the static itch.io build; also generates `sitemap.xml` |
 | `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by the `--itch` build) |
+| `ng/` | Newgrounds-only shim (`ng.js`, `ng.css`, `ng-config.js`, vendored `NewgroundsIO.min.js`) — loaded by the `--newgrounds` build only. Removes the store funnel, portal pacing, NG medals + scoreboards. See `ng/README.md` |
+| `tools/ng-medals.js` | Prints the curated 29-medal / 500-point set (+ `ng-config.js` template) from `ACHIEVEMENT_DATA` |
 | `payments.js` | Google Play Billing, purchase verification, restore-purchases flow, PREMIUM_PRODUCTS |
 | `cloud.js` | Supabase auth + cloud save — `_syncToCloud`, autosave timer (default OFF), session caching |
 | `admin.html` | Standalone admin dashboard (not bundled) — Players/Purchases/Analytics tabs; calls admin-* edge fns with `x-admin-secret` |
@@ -34,6 +36,7 @@
 node build.js                    # bundle JS + CSS (always run before commit)
 node build.js --itch             # + assemble itch.io build → dist-itch.zip
 node build.js --gamejolt         # + assemble Game Jolt build → dist-gamejolt.zip (itch features, optimised assets)
+node build.js --newgrounds       # + assemble Newgrounds build → dist-newgrounds.zip (no store funnel, NG medals/scoreboards, portal pacing)
 git add -A && git commit && git push   # Vercel auto-deploys on push
 supabase functions deploy <name> # deploy a single edge function
 ```
@@ -209,6 +212,21 @@ Marketing pages, analytics and the share loop. All organic — no paid ads.
 | Referral banner is `position:fixed` above `#app`, z-index 890 | It must not shift layout — `renderEggTray` computes from laid-out dimensions and only re-runs on tab switch. 890 keeps it under `.overlay` (900) so modals still cover it |
 | Banner waits for the splash to clear (~4.6s) | The splash is z-index 9999; showing immediately burns most of the banner's 11s life behind it |
 | Share code lives in its own `localStorage` key | Must survive `resetGame()` |
+
+### Newgrounds build (`ng/`)
+Newgrounds rejected the first submission ("not enough content / not developed enough")
+— the game's depth was invisible in the first five minutes and the itch shim reads as
+a Play-Store advert. `ng.js` fixes this **from the outside** (runtime hooks on globals),
+so the web/Android game is untouched:
+| Rule | Why |
+|------|-----|
+| The NG shim is only ever injected into `dist-newgrounds/index.html` by `NG_SHIM` in `build.js` — never into `JS_FILES` | Web/Android must not change; that is the whole contract of the NG build |
+| Premium tab/panel, "Support Us" and `#web-banner` are removed at runtime; nothing links to Google Play | NG declines games that primarily funnel to an external store |
+| Pacing (`NG_CONFIG.pacing`) overrides `CONFIG.regenInterval` after load, and clamps the already-seeded `G.regenCD` | Portal players judge in one sitting; the 30s regen wall after ~2 min is the classic "not developed" trigger |
+| Medals hook `window.checkAchievements` (wrap, not replace) and re-sync every 60s; scores post only when a value increases | Achievements stay the single source of truth; the wrap must call the original |
+| `checkHostLicense:false` in `NGIO.init` | A host-license hiccup must never brick the build |
+| `ng/ng-config.js` holds the App ID / key / medal ids — the build warns when `appId` is empty | Without it medals/scoreboards are silently disabled |
+Setup steps (create project, medals, scoreboards, embed size) are in `ng/README.md`.
 
 ### Marketing asset tooling (run manually, not in the deploy)
 ```bash
