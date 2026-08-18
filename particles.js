@@ -1,14 +1,28 @@
 // ============================================================
 //  Egg Smash Adventures – Particle System
 //  particles.js  (requires config.js loaded first)
+//
+//  One canvas (#particle-canvas, over the egg tray), one rAF loop, several
+//  particle families:
+//    emit()      egg-break burst — shell shards + glowing sparks + an impact
+//                ring + a few lingering motes
+//    sparkle()   glowing star burst (prizes, item finds)
+//    starRain()  Starfall — a rain of stars across the tray
+//    confetti()  Banana Shake — radial confetti + sparks + ring
+//    setAmbient('rage'|'goose'|null) — continuous emitters while a skill is
+//                active: rising embers / drifting gold dust
+//  All motion is dt-scaled (k = dt/16.667) so 120 Hz screens are not twice
+//  as fast, and everything eases out rather than popping away.
 // ============================================================
 
 const Particles = (() => {
-  const MAX_PARTICLES = 300;
+  const MAX_PARTICLES = 420;
   let canvas, ctx, ps = [], running = false, _lastTick = 0;
   // Particle colors derived from egg registry
   const COLORS = {};
   CONFIG.eggTypes.forEach(function(def) { COLORS[def.id] = def.particles; });
+  const R = Math.random;
+
   function init(c) { canvas = c; ctx = c.getContext('2d'); resize(); window.addEventListener('resize', resize); }
   function resize() {
     if (!canvas || !canvas.parentElement) return;
@@ -21,45 +35,114 @@ const Particles = (() => {
     canvas.style.width = r.width + 'px'; canvas.style.height = r.height + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
+  function _push(p) { if (ps.length < MAX_PARTICLES) ps.push(p); }
+
+  // ── Egg break ────────────────────────────────────────────────────
   function emit(cx, cy, type, count) {
     const cols = COLORS[type] || COLORS.normal;
-    const toAdd = Math.min(count, MAX_PARTICLES - ps.length);
-    for (let i = 0; i < toAdd; i++) {
-      const isSpark = i % 4 === 0; // mix 1-in-4 as bright sparkles
-      const a = (Math.PI * 2 / count) * i + (Math.random() - .5) * .9;
-      const sp = isSpark ? 5 + Math.random() * 6 : 4 + Math.random() * 7;
-      ps.push({
-        x: cx, y: cy,
-        vx: Math.cos(a) * sp * (.8 + Math.random() * .5),
-        vy: Math.sin(a) * sp - 2.5 - Math.random() * 3,
-        life: 1, decay: isSpark ? .015 + Math.random() * .008 : .010 + Math.random() * .007,
-        sz: isSpark ? 2 + Math.random() * 3 : 4 + Math.random() * 6,
-        rot: Math.random() * Math.PI * 2, rv: (Math.random() - .5) * .4,
-        grav: .10 + Math.random() * .06,
-        col: isSpark ? '#FFFFFF' : cols[Math.random() * cols.length | 0],
-        sh: isSpark ? 'star' : 'shell',
+    const main = cols[0] || '#FFF';
+    // impact ring — a quick expanding hoop in the egg's colour
+    _push({ sh: 'ring', x: cx, y: cy, r: 4, vr: 2.6, life: 1, decay: .085, col: main, lw: 3 });
+    // shell shards — pixel squares, radial spread, drag + gravity, tumble
+    const shards = Math.max(4, Math.round(count * .7));
+    for (let i = 0; i < shards; i++) {
+      const a = (Math.PI * 2 / shards) * i + (R() - .5) * .9;
+      const sp = 3.5 + R() * 6.5;
+      _push({
+        sh: 'shell', x: cx, y: cy,
+        vx: Math.cos(a) * sp * (.8 + R() * .5), vy: Math.sin(a) * sp - 2.5 - R() * 3,
+        life: 1, decay: .010 + R() * .007, sz: 3.5 + R() * 5.5,
+        rot: R() * Math.PI * 2, rv: (R() - .5) * .35, grav: .11 + R() * .06, drag: .975,
+        col: cols[R() * cols.length | 0],
+      });
+    }
+    // sparks — additive glowing stars, faster, shorter
+    const sparks = Math.max(3, Math.round(count * .45));
+    for (let i = 0; i < sparks; i++) {
+      const a = R() * Math.PI * 2, sp = 5 + R() * 7;
+      _push({
+        sh: 'star', add: true, x: cx, y: cy,
+        vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, life: 1, decay: .022 + R() * .014,
+        sz: 2 + R() * 3, rot: R() * Math.PI, rv: (R() - .5) * .3, grav: .06, drag: .96,
+        col: i % 3 === 0 ? '#FFFFFF' : '#FFE27A',
+      });
+    }
+    // motes — a few slow drifting dots that linger after the burst
+    for (let i = 0; i < 4; i++) {
+      _push({
+        sh: 'mote', add: true, x: cx + (R() - .5) * 20, y: cy + (R() - .5) * 12,
+        vx: (R() - .5) * .6, vy: -.5 - R() * .7, life: 1, decay: .008 + R() * .006,
+        sz: 1.5 + R() * 1.5, ph: R() * Math.PI * 2, grav: 0, drag: 1, col: main,
       });
     }
     _tryStart();
   }
+
+  // ── Sparkle burst (prizes) ───────────────────────────────────────
   function sparkle(cx, cy, count, col) {
-    const toAdd = Math.min(count, MAX_PARTICLES - ps.length);
-    for (let i = 0; i < toAdd; i++) {
-      const a = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 5;
-      ps.push({
-        x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.5,
-        life: 1, decay: .014 + Math.random() * .012, sz: 2 + Math.random() * 3.5,
-        rot: 0, rv: 0, grav: .025, col: col || '#FFD700', sh: 'star',
+    for (let i = 0; i < count; i++) {
+      const a = R() * Math.PI * 2, sp = 2 + R() * 5;
+      _push({
+        sh: 'star', add: true, x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.5,
+        life: 1, decay: .014 + R() * .012, sz: 2 + R() * 3.5,
+        rot: R() * Math.PI, rv: (R() - .5) * .2, grav: .03, drag: .97, col: col || '#FFD700',
       });
     }
     _tryStart();
   }
+
+  // ── Confetti burst (Banana Shake) ────────────────────────────────
+  function confetti(cx, cy, colors, count) {
+    const cols = colors || ['#FFE135', '#FFD700', '#FFF3B0', '#F5C542', '#FFFFFF'];
+    _push({ sh: 'ring', x: cx, y: cy, r: 10, vr: 7, life: 1, decay: .05, col: '#FFE135', lw: 4 });
+    for (let i = 0; i < (count || 70); i++) {
+      const a = R() * Math.PI * 2, sp = 4 + R() * 9;
+      _push({
+        sh: 'paper', x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 4,
+        life: 1, decay: .007 + R() * .006, w: 3 + R() * 4, hgt: 6 + R() * 6,
+        rot: R() * Math.PI * 2, rv: (R() - .5) * .5, ph: R() * Math.PI * 2, grav: .12, drag: .965,
+        col: cols[R() * cols.length | 0],
+      });
+    }
+    for (let i = 0; i < 24; i++) {
+      const a = R() * Math.PI * 2, sp = 6 + R() * 8;
+      _push({ sh: 'star', add: true, x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, life: 1, decay: .02 + R() * .012, sz: 2 + R() * 3, rot: 0, rv: .2, grav: .05, drag: .96, col: '#FFFFFF' });
+    }
+    _tryStart();
+  }
+
+  // ── Ambient emitters (skills) ────────────────────────────────────
+  // rage: embers rising from the bottom, flickering orange/red.
+  // goose: fine gold dust drifting down and swaying.
+  let ambient = null, ambW = 0, ambH = 0, ambAcc = 0;
+  function setAmbient(kind, w, h) {
+    ambient = kind || null;
+    if (w) ambW = w; if (h) ambH = h;
+    if (ambient) _tryStart();
+  }
+  function _spawnAmbient() {
+    if (ambient === 'rage') {
+      _push({
+        sh: 'ember', add: true, x: R() * ambW, y: ambH + 4 + R() * 10,
+        vx: (R() - .5) * .4, vy: -(1.2 + R() * 1.8), life: 1, decay: .006 + R() * .006,
+        sz: 1.5 + R() * 2.5, ph: R() * Math.PI * 2, tw: R() * Math.PI * 2, grav: -.004, drag: 1,
+        col: ['#ff6b35', '#ff3b3b', '#ffb347', '#ffd27a'][R() * 4 | 0],
+      });
+    } else if (ambient === 'goose') {
+      _push({
+        sh: 'dust', add: true, x: R() * ambW, y: -6, vx: 0, vy: .5 + R() * .7,
+        life: 1, decay: .0035 + R() * .003, sz: 1 + R() * 2.2, ph: R() * Math.PI * 2, tw: R() * Math.PI * 2, grav: 0, drag: 1,
+        col: ['#FFD700', '#FFE27A', '#FFF6C8'][R() * 3 | 0],
+      });
+    }
+  }
+  const AMBIENT_RATE = { rage: .09, goose: .05 };   // particles per ms
+
   // ── Star rain (Starfall) ────────────────────────────────────────
   // A separate list so it is never starved by MAX_PARTICLES. Stars are
   // emitted over `durationMs`, fall with a gentle sway, spin, twinkle and
   // leave a short soft trail. Two depth layers: small dim stars in the back
   // fall faster and fainter; big bright ones in front carry the moment.
-  // Motion is dt-scaled so 120 Hz screens are not twice as fast.
   let rain = [], rainW = 0, rainH = 0, rainEmitUntil = 0, rainPerMs = 0, rainAcc = 0, rainCol = null;
   function starRain(w, h, durationMs, count, colors) {
     rainW = w; rainH = h; rainCol = colors || null;
@@ -69,16 +152,16 @@ const Particles = (() => {
     _tryStart();
   }
   function _spawnRainStar() {
-    const back = Math.random() < .4;
+    const back = R() < .4;
     const cols = rainCol || (back ? ['#ffe9a3', '#fff3c4'] : ['#FFD700', '#ffe27a', '#fff8dc']);
     rain.push({
-      x: Math.random() * (rainW + 60) - 30, y: -14 - Math.random() * 60,
-      vy: back ? 3.2 + Math.random() * 1.6 : 4.4 + Math.random() * 2.6,
-      sz: back ? 2.5 + Math.random() * 2.5 : 5 + Math.random() * 6,
-      sway: 4 + Math.random() * 10, ph: Math.random() * Math.PI * 2, sp: .05 + Math.random() * .05,
-      rot: Math.random() * Math.PI * 2, rv: (Math.random() - .5) * .12,
-      tw: Math.random() * Math.PI * 2, back,
-      col: cols[Math.random() * cols.length | 0],
+      x: R() * (rainW + 60) - 30, y: -14 - R() * 60,
+      vy: back ? 3.2 + R() * 1.6 : 4.4 + R() * 2.6,
+      sz: back ? 2.5 + R() * 2.5 : 5 + R() * 6,
+      sway: 4 + R() * 10, ph: R() * Math.PI * 2, sp: .05 + R() * .05,
+      rot: R() * Math.PI * 2, rv: (R() - .5) * .12,
+      tw: R() * Math.PI * 2, back,
+      col: cols[R() * cols.length | 0],
       a: back ? .55 : 1, t: 0,
     });
   }
@@ -91,8 +174,7 @@ const Particles = (() => {
     ctx.closePath();
     ctx.fill();
   }
-  function _stepRain(dt, h) {
-    const k = Math.min(3, dt / 16.667);
+  function _stepRain(k, dt, h) {
     const now = performance.now();
     if (now < rainEmitUntil) {
       rainAcc += rainPerMs * dt;
@@ -107,7 +189,6 @@ const Particles = (() => {
       const fadeIn = Math.min(1, s.t / 8);
       const alpha = s.a * fadeIn * (.7 + .3 * Math.sin(s.tw));
       ctx.save();
-      // trail: soft line behind the star, fading out
       const tl = s.vy * (s.back ? 3 : 5);
       const g = ctx.createLinearGradient(s.x, s.y - tl, s.x, s.y);
       g.addColorStop(0, 'rgba(255,225,120,0)');
@@ -115,11 +196,9 @@ const Particles = (() => {
       ctx.strokeStyle = g; ctx.lineWidth = Math.max(1, s.sz * .45); ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(s.x, s.y - tl); ctx.lineTo(s.x, s.y); ctx.stroke();
       ctx.translate(s.x, s.y);
-      // halo
       ctx.globalAlpha = alpha * (s.back ? .06 : .13);
       ctx.fillStyle = '#FFE27A';
       ctx.beginPath(); ctx.arc(0, 0, s.sz * 1.5, 0, Math.PI * 2); ctx.fill();
-      // star body + white core
       ctx.rotate(s.rot);
       ctx.globalAlpha = alpha;
       ctx.fillStyle = s.col; _drawStar(s.sz);
@@ -127,12 +206,80 @@ const Particles = (() => {
       ctx.restore();
     }
   }
-  function _busy() { return ps.length > 0 || rain.length > 0 || performance.now() < rainEmitUntil; }
+
+  // ── Generic particle step/draw ───────────────────────────────────
+  function _stepParticles(k, w, h) {
+    for (let i = ps.length - 1; i >= 0; i--) {
+      const p = ps[i];
+      if (p.sh === 'ring') {
+        p.r += p.vr * k; p.life -= p.decay * k;
+        if (p.life <= 0) { ps.splice(i, 1); continue; }
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life) * .85;
+        ctx.strokeStyle = p.col; ctx.lineWidth = Math.max(1, p.lw * p.life);
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+        continue;
+      }
+      // physics
+      const drag = Math.pow(p.drag == null ? .98 : p.drag, k);
+      p.vx *= drag; p.vy = p.vy * drag + (p.grav || 0) * k;
+      p.x += p.vx * k; p.y += p.vy * k;
+      if (p.ph != null) { p.ph += .08 * k; p.x += Math.sin(p.ph) * .35 * k; }
+      if (p.tw != null) p.tw += .3 * k;
+      if (p.rv) p.rot += p.rv * k;
+      p.life -= p.decay * k;
+      if (p.life <= 0 || p.y > h + 40 || p.y < -60) { ps.splice(i, 1); continue; }
+      const life = p.life;
+      let alpha = Math.min(1, life * 2.2);
+      if (p.tw != null) alpha *= .6 + .4 * Math.sin(p.tw);
+      ctx.save();
+      if (p.add) ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = alpha;
+      ctx.translate(p.x, p.y);
+      ctx.fillStyle = p.col;
+      if (p.sh === 'shell') {
+        // pixel-art shard: square with a dark edge, shrinking as it dies
+        ctx.rotate(p.rot);
+        const s = Math.max(1, Math.round(p.sz * (.55 + .45 * life)));
+        ctx.fillRect(-s, -s, s * 2, s * 2);
+        ctx.fillStyle = 'rgba(0,0,0,.28)';
+        ctx.fillRect(-s, s - 1, s * 2, 1);
+        ctx.fillRect(s - 1, -s, 1, s * 2);
+      } else if (p.sh === 'star') {
+        // glowing cross with a soft halo
+        ctx.rotate(p.rot || 0);
+        const s = Math.max(1, Math.round(p.sz));
+        ctx.globalAlpha = alpha * .35;
+        ctx.beginPath(); ctx.arc(0, 0, s * 1.6, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = alpha;
+        ctx.fillRect(-1, -s, 2, s * 2);
+        ctx.fillRect(-s, -1, s * 2, 2);
+      } else if (p.sh === 'mote' || p.sh === 'dust' || p.sh === 'ember') {
+        const s = p.sz;
+        ctx.globalAlpha = alpha * .3;
+        ctx.beginPath(); ctx.arc(0, 0, s * 2.2, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = alpha;
+        ctx.beginPath(); ctx.arc(0, 0, s, 0, Math.PI * 2); ctx.fill();
+        if (p.sh === 'ember') { ctx.globalAlpha = alpha * .8; ctx.fillStyle = '#fff1a8'; ctx.beginPath(); ctx.arc(0, 0, s * .45, 0, Math.PI * 2); ctx.fill(); }
+      } else if (p.sh === 'paper') {
+        // confetti: a rectangle that flutters by scaling its width with a phase
+        ctx.rotate(p.rot);
+        const fl = Math.abs(Math.sin(p.ph * 2)) * .8 + .2;
+        ctx.fillRect(-p.w * fl / 2, -p.hgt / 2, p.w * fl, p.hgt);
+        ctx.fillStyle = 'rgba(0,0,0,.18)';
+        ctx.fillRect(-p.w * fl / 2, p.hgt / 2 - 1, p.w * fl, 1);
+      }
+      ctx.restore();
+    }
+  }
+
+  function _busy() { return ps.length > 0 || rain.length > 0 || performance.now() < rainEmitUntil || !!ambient; }
 
   function resume() { resize(); running = false; _tryStart(); }
   function _tryStart() {
     if (!_busy() || document.hidden) return;
-    if (!running || performance.now() - _lastTick > 500) { running = false; loop(); }
+    if (!running || performance.now() - _lastTick > 500) { running = false; _lastTick = 0; loop(); }
   }
   document.addEventListener('visibilitychange', function() {
     if (!document.hidden) resume();
@@ -143,36 +290,18 @@ const Particles = (() => {
     const now = performance.now();
     const dt = _lastTick ? Math.min(100, now - _lastTick) : 16.667;
     _lastTick = now;
+    const k = Math.min(3, dt / 16.667);
     const w = canvas.width / (window.devicePixelRatio || 1);
     const h = canvas.height / (window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, w, h);
-    if (rain.length || now < rainEmitUntil) _stepRain(dt, h);
-    for (let i = ps.length - 1; i >= 0; i--) {
-      const p = ps[i];
-      p.vx *= .98; p.vy += p.grav; p.x += p.vx; p.y += p.vy;
-      p.rot += p.rv; p.life -= p.decay;
-      if (p.life <= 0) { ps.splice(i, 1); continue; }
-      ctx.save();
-      ctx.globalAlpha = Math.min(1, p.life * 2.5);
-      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-      ctx.fillStyle = p.col;
-      if (p.sh === 'shell') {
-        // Pixel-art: draw as small squares
-        const s = Math.round(p.sz);
-        ctx.fillRect(-s, -s, s * 2, s * 2);
-        // Dark pixel border
-        ctx.fillStyle = 'rgba(0,0,0,.25)';
-        ctx.fillRect(-s, s, s * 2, 1);
-        ctx.fillRect(s, -s, 1, s * 2);
-      } else {
-        // Pixel-art sparkle: cross/plus shape
-        const s = Math.round(p.sz);
-        ctx.fillRect(-1, -s, 2, s * 2); // vertical
-        ctx.fillRect(-s, -1, s * 2, 2); // horizontal
-      }
-      ctx.restore();
+    if (ambient) {
+      if (!ambW || !ambH) { ambW = w; ambH = h; }
+      ambAcc += (AMBIENT_RATE[ambient] || 0) * dt;
+      while (ambAcc >= 1) { ambAcc -= 1; _spawnAmbient(); }
     }
+    if (rain.length || now < rainEmitUntil) _stepRain(k, dt, h);
+    _stepParticles(k, w, h);
     if (_busy()) requestAnimationFrame(loop); else running = false;
   }
-  return { init, emit, sparkle, starRain, resize, resume };
+  return { init, emit, sparkle, starRain, confetti, setAmbient, resize, resume };
 })();

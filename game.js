@@ -774,7 +774,7 @@ function activateMonkeyRage() {
     _rageActive = true;
     G.totalRageUses = (G.totalRageUses || 0) + 1;
     const _trayWrap = $id('egg-tray-wrap');
-    if (_trayWrap) _trayWrap.classList.add('rage-tray-active');
+    if (_trayWrap) { _trayWrap.classList.add('rage-tray-active'); const _r = _trayWrap.getBoundingClientRect(); Particles.setAmbient('rage', _r.width, _r.height); }
     updateResources();
     msg('MONKEY RAGE! ' + _rageHammersLeft + ' hammers unleashed!', 'specials');
     SFX.play('starfall');
@@ -921,6 +921,7 @@ function _finishRage() {
   G.skillLastUsedAt[0] = G.totalEggs; // cooldown starts from when rage ends
   const _trayWrap = $id('egg-tray-wrap');
   if (_trayWrap) _trayWrap.classList.remove('rage-tray-active');
+  Particles.setAmbient(_gooseActive ? 'goose' : null);
   updateResources();
   checkAchievements();
   if (typeof regenInt !== 'undefined' && !regenInt && G.hammers < G.maxH) startRegen();
@@ -952,7 +953,8 @@ function activateGoldenGoose() {
     _gooseEggsLeft = 50;
     G._gooseEggsLeft = 50;
     G.totalGooseUses = (G.totalGooseUses || 0) + 1;
-    const _gt = $id('egg-tray-wrap'); if (_gt) _gt.classList.add('goose-tray-active');
+    const _gt = $id('egg-tray-wrap');
+    if (_gt) { _gt.classList.add('goose-tray-active'); const _r = _gt.getBoundingClientRect(); Particles.setAmbient('goose', _r.width, _r.height); Particles.sparkle(_r.width / 2, _r.height / 2, 30, '#FFD700'); }
     updateResources();
     msg('GOLDEN GOOSE! Next 50 eggs give 3× rewards!', 'specials');
     SFX.play('starfall');
@@ -983,6 +985,7 @@ function _finishGoose() {
   _gooseEggsLeft = 0;
   G._gooseEggsLeft = 0;
   const _gt2 = $id('egg-tray-wrap'); if (_gt2) _gt2.classList.remove('goose-tray-active');
+  Particles.setAmbient(_rageActive ? 'rage' : null);
   if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
   G.skillLastUsedAt[1] = G.totalEggs;
   msg('Golden Goose ended — cooldown started.', 'specials');
@@ -1015,7 +1018,13 @@ function activateBananaShake() {
     const _bb = $id('banana-btn');
     if (_bb) { _bb.classList.add('skill-glow-blue'); setTimeout(() => _bb.classList.remove('skill-glow-blue'), 1600); }
     const _tw = $id('egg-tray-wrap');
-    if (_tw) { _tw.classList.add('shake-tray-wiggle'); setTimeout(() => _tw.classList.remove('shake-tray-wiggle'), 1100); }
+    if (_tw) {
+      _tw.classList.add('shake-tray-wiggle'); setTimeout(() => _tw.classList.remove('shake-tray-wiggle'), 1100);
+      const _r = _tw.getBoundingClientRect();
+      Particles.confetti(_r.width / 2, _r.height * .45, null, 80);
+      setTimeout(() => Particles.confetti(_r.width * .3, _r.height * .55, null, 30), 180);
+      setTimeout(() => Particles.confetti(_r.width * .7, _r.height * .55, null, 30), 320);
+    }
     flyHammers();
   };
 
@@ -2215,7 +2224,7 @@ if ((G._rageHammersLeft || 0) > 0) {
 if ((G._gooseEggsLeft || 0) > 0) {
   _gooseActive = true;
   _gooseEggsLeft = G._gooseEggsLeft;
-  const _gt = $id('egg-tray-wrap'); if (_gt) _gt.classList.add('goose-tray-active');
+  const _gt = $id('egg-tray-wrap'); if (_gt) { _gt.classList.add('goose-tray-active'); const _r = _gt.getBoundingClientRect(); Particles.setAmbient('goose', _r.width, _r.height); }
 }
 
 renderAll();
