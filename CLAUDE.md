@@ -123,6 +123,7 @@ Always end every response to the user with the current version: **"Current versi
 4. `onNewIntent` detects `access_token` in the fragment → calls `handleAndroidOAuthCallback(fragment)` via `evaluateJavascript` (no page reload). **Do NOT use `webView.loadUrl()` for this — it reloads the page, clearing sessionStorage.**
 5. `handleAndroidOAuthCallback` calls `_sbClient.auth.setSession()` → fires `onAuthStateChange(SIGNED_IN)`.
 6. `_onCloudSignIn` reads `sessionStorage._oauthPending` → shows "linked!" snack and reopens cloud modal.
+7. If a cloud save exists, `_onCloudSignIn` **always asks** before touching local progress (v3.4.6): a confirm showing both saves' exact timestamps (`_fmtCloudTs`), eggs/gold peeked from the blob (`_peekCloudSave`), and which is newer — "Load cloud" / "Keep this device". Nothing is loaded silently, not even on an empty device. Keeping local means the 15-min autosave syncs local → cloud.
 
 ### How unlinking works
 - `linkGoogleAccount()` (when already linked) → confirm → sets `_cloudUnlinking = true` and `localStorage._cloudLinkPref = 'unlinked'` → calls `signOut()`.
