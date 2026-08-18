@@ -33,6 +33,7 @@ function _questMsUntilNextWeek() {
 // ---- metrics --------------------------------------------------------
 function questMetric(name) {
   if (name === 'skillUses') return (G.totalRageUses || 0) + (G.totalGooseUses || 0) + (G.totalShakeUses || 0);
+  if (name === 'dailyQuestsCompleted') return G.dailyQuestsCompleted || 0;
   const v = G[name];
   return typeof v === 'number' ? v : 0;
 }
@@ -148,31 +149,39 @@ function ensureQuests() {
   if (!cfg) return null;
   const day = questDayKey(), week = questWeekKey();
   let q = G.quests;
-  if (!q || typeof q !== 'object') q = G.quests = { day: null, daily: [], week: null, weekly: null };
+  if (!q || typeof q !== 'object') q = G.quests = { day: null, daily: [], week: null, weekly: [] };
+  // v3.10.0: `weekly` went from one object to an array — migrate in place
+  if (q.weekly && !Array.isArray(q.weekly)) q.weekly = [q.weekly];
+  if (!Array.isArray(q.weekly)) q.weekly = [];
   let changed = false;
   if (q.day !== day) {
-    if (q.day && Array.isArray(q.daily)) q.daily.forEach(a => _questAutoClaim(a));
+    if (q.day && Array.isArray(q.daily)) q.daily.forEach(a => _questAutoClaim(a, 'daily'));
     q.day = day;
     q.daily = questPick(cfg.daily, cfg.dailyCount, day).map(_questAssign);
     changed = true;
   }
   if (q.week !== week) {
-    if (q.week && q.weekly) _questAutoClaim(q.weekly);
+    if (q.week) q.weekly.forEach(a => _questAutoClaim(a, 'weekly'));
     q.week = week;
-    const w = questPick(cfg.weekly, 1, 'w' + week)[0];
-    q.weekly = w ? _questAssign(w) : null;
+    q.weekly = questPick(cfg.weekly, cfg.weeklyCount || 1, 'w' + week).map(_questAssign);
+    changed = true;
+  } else if (q.weekly.length < (cfg.weeklyCount || 1)) {
+    // Count went up mid-week (config change): top up without disturbing existing ones
+    const have = new Set(q.weekly.map(a => a.id));
+    questPick(cfg.weekly, cfg.weeklyCount || 1, 'w' + week).forEach(t => { if (!have.has(t.id) && q.weekly.length < cfg.weeklyCount) q.weekly.push(_questAssign(t)); });
     changed = true;
   }
   if (changed) { saveGame(); updateQuestPip(); }
   return q;
 }
-function _questAutoClaim(a) {
+function _questAutoClaim(a, kind) {
   if (!a || a.claimed) return;
   const t = questTemplate(a.id); if (!t) return;
   if (questProgress(a, t) >= t.target) {
     // (progress here is gameplay-only — non-gameplay gains are discounted by questCredit)
     _questGrant(t);
     a.claimed = true;
+    if (kind === 'daily') G.dailyQuestsCompleted = (G.dailyQuestsCompleted || 0) + 1;
     msg('📜 Quest auto-claimed: ' + t.name, 'trophies');
   }
 }
@@ -205,6 +214,8 @@ function _questGrant(t) {
   if (r.maxHammers) { G.maxH += r.maxHammers; G.hammers += r.maxHammers; }
   G.questsCompleted = (G.questsCompleted || 0) + 1;
 }
+/** Metric for "complete N daily quests": daily claims only. */
+function questDailyDone() { return G.dailyQuestsCompleted || 0; }
 
 /**
  * Discount `amount` of a counter from quest progress — call this wherever a
@@ -217,19 +228,20 @@ function questCredit(metric, amount) {
   if (!amount) return;
   const q = G.quests; if (!q) return;
   const bump = a => { if (!a) return; const t = questTemplate(a.id); if (t && t.metric === metric) a.base = (a.base || 0) + amount; };
-  (q.daily || []).forEach(bump); bump(q.weekly);
+  (q.daily || []).forEach(bump); (q.weekly || []).forEach(bump);
 }
 var _questBumpBases = questCredit;   // legacy alias
 
 /** Claim button handler. kind: 'daily' index or 'weekly'. */
 function claimQuest(kind, idx) {
   const q = ensureQuests(); if (!q) return;
-  const a = kind === 'weekly' ? q.weekly : q.daily[idx];
+  const a = kind === 'weekly' ? (q.weekly || [])[idx] : q.daily[idx];
   if (!a || a.claimed) return;
   const t = questTemplate(a.id); if (!t) return;
   if (questProgress(a, t) < t.target) return;
   _questGrant(t);
   a.claimed = true;
+  if (kind === 'daily') G.dailyQuestsCompleted = (G.dailyQuestsCompleted || 0) + 1;
   SFX.play('achieve');
   msg('📜 Quest complete: ' + t.name + ' — ' + questRewardLabel(t), 'trophies');
   if (typeof checkAchievements === 'function') checkAchievements();
@@ -243,7 +255,7 @@ function questsClaimable() {
   const q = G.quests; if (!q) return 0;
   let n = 0;
   const check = a => { if (!a || a.claimed) return; const t = questTemplate(a.id); if (t && questProgress(a, t) >= t.target) n++; };
-  (q.daily || []).forEach(check); check(q.weekly);
+  (q.daily || []).forEach(check); (q.weekly || []).forEach(check);
   return n;
 }
 /** Nav pip: highlight the Quests tab when something can be claimed. */
@@ -283,8 +295,8 @@ function renderQuests() {
   const q = ensureQuests(); if (!q) { el.innerHTML = ''; return; }
   let html = '<div class="quest-header">📜 Daily Quests <span class="quest-timer">resets in ' + _questFmtLeft(_questMsUntilTomorrow()) + '</span></div>';
   q.daily.forEach((a, i) => { const t = questTemplate(a.id); if (t) html += _questCard(a, t, 'daily', i); });
-  html += '<div class="quest-header quest-header-weekly">🏔️ Weekly Quest <span class="quest-timer">resets in ' + _questFmtLeft(_questMsUntilNextWeek()) + '</span></div>';
-  if (q.weekly) { const t = questTemplate(q.weekly.id); if (t) html += _questCard(q.weekly, t, 'weekly', 0); }
+  html += '<div class="quest-header quest-header-weekly">🏔️ Weekly Quests <span class="quest-timer">resets in ' + _questFmtLeft(_questMsUntilNextWeek()) + '</span></div>';
+  (q.weekly || []).forEach((a, i) => { const t = questTemplate(a.id); if (t) html += _questCard(a, t, 'weekly', i); });
   html += '<div class="quest-foot">Completed quests: ' + (G.questsCompleted || 0) + '</div>';
   el.innerHTML = html;
 }

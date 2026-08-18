@@ -142,15 +142,23 @@ function _autoTapTick() {
     if (_spawningRound || _roundPending) return;
     if (G.hammers < 1 || !G.roundEggs) return;
     if (!$id('egg-tray').children.length) return;   // tray not rendered (play panel collapsed) — wait
-    // Skips balloon eggs (long-press only) and Century eggs — the 100-hit
-    // jackpot is left for the player, online and offline alike.
+    // Skips Century eggs — the 100-hit jackpot is left for the player, online
+    // and offline alike. Balloon eggs are popped outright (one hit, v3.10.0)
+    // instead of the long-press a finger needs.
     const idxs = [];
     G.roundEggs.forEach((e, i) => {
-      if (!e.broken && !e.expired && !e._smashing && e.type !== 'century' && !(e.effects || []).includes('balloon')) idxs.push(i);
+      if (!e.broken && !e.expired && !e._smashing && e.type !== 'century') idxs.push(i);
     });
     if (!idxs.length) return;
+    const idx = idxs[Math.floor(Math.random() * idxs.length)];
+    const egg = G.roundEggs[idx];
     const before = G.totalEggs;
-    smashEgg(idxs[Math.floor(Math.random() * idxs.length)]);
+    if ((egg.effects || []).includes('balloon') && typeof popBalloonEgg === 'function') {
+      const slot = $id('egg-tray').children[idx];
+      if (slot) popBalloonEgg(idx, slot);
+    } else {
+      smashEgg(idx);
+    }
     if (G.totalEggs > before) G.autoTapEggs = (G.autoTapEggs || 0) + (G.totalEggs - before);
   } catch (e) { /* never let the idle loop take the game down */ }
 }
@@ -165,10 +173,7 @@ function showAutoTapLockedInfo() {
     function () {
       const tab = document.querySelector('[data-tab="shop"]');
       if (tab) tab.click();
-      setTimeout(function () {
-        const sec = $id('shop-autotap');
-        if (sec && sec.scrollIntoView) sec.scrollIntoView({ block: 'start', behavior: 'smooth' });
-      }, 120);
+      setTimeout(function () { if (typeof setShopTab === 'function') setShopTab('autotap'); }, 120);
     }, 'Take me there', 'Later');
 }
 

@@ -11,7 +11,7 @@
 | `particles.js` | Canvas particle system (dt-scaled, one rAF loop): `emit` egg-break burst (shards + additive sparks), `sparkle`, `starRain` (Starfall), `confetti` (Banana Shake), `setAmbient('rage'\|'goose'\|null)` continuous emitters while a skill is active |
 | `hammers.js` | Hammer regeneration logic — regen interval, fast regen, max hammer tracking |
 | `mastery.js` | Hammer mastery ("train your hammer") — the equipped special hammer earns XP per hit/break/rare item, levels 1→10 from `CONFIG.hammerMastery`; every owned hammer's own bonus scales with ITS level, L5 = 3% free hits, L10 = a unique perk. Bundled after quests.js |
-| `quests.js` | Quests — 3 daily + 1 weekly from `CONFIG.quests`, deterministic per day/week, progress = counter delta since assignment, manual claim (auto-claim on rollover). Owns the **Quests tab** (replaced the Log tab). Bundled after achievements.js |
+| `quests.js` | Quests — 5 daily + 3 weekly (`weekly` is an array; legacy single object migrates) from `CONFIG.quests`, deterministic per day/week, progress = counter delta since assignment, manual claim (auto-claim on rollover). Owns the **Quests tab** (replaced the Log tab). Bundled after achievements.js |
 | `idle.js` | Auto-Smasher (idle) — gold-shop helper that taps eggs with hammers: online loop, offline simulation, "while you were away" report, leveled shop upgrades. **Bundled after achievements.js** (its boot block needs everything before it) |
 | `analytics.js` | Umami event wrapper + traffic attribution — `track()`, `openPlayStore()`, `playStoreUrl()`, first-touch source. Bundled after `config.js`. Every call is fail-safe |
 | `share.js` | Share/referral loop — `shareGame()`, share-link builder, arrival banner. **Bundled after `game.js`** (see Promotion below) |
@@ -250,7 +250,7 @@ top, so idle income is bounded by time × speed × efficiency + the item cap, no
 | The visibility handler saves on hide and runs the sim on show | Android suspends the WebView instead of closing it — that path is what mobile actually hits |
 Invariants are checked by `tests/autotap.test.js` (vm sandbox, no browser).
 
-## Quests (`quests.js`, `CONFIG.quests`, v3.7.0)
+## Quests (`quests.js`, `CONFIG.quests`, v3.7.0; 5 daily / 3 weekly since v3.10.0)
 | Rule | Why |
 |------|-----|
 | Progress is `metric(now) − base` where `base` is snapshotted at assignment; new templates must name an existing `G` counter (or `skillUses`) | Nothing new is tracked; adding a quest is data only |
@@ -260,6 +260,8 @@ Invariants are checked by `tests/autotap.test.js` (vm sandbox, no browser).
 | Day key = `localDateStr()`, week key = the local Monday; `ensureQuests()` runs at boot, every 60s and on render — rollover **auto-claims** completed unclaimed quests before re-rolling | Same clock as the daily login; nothing earned is ever lost |
 | Reward gold calls `_questBumpBases('totalGold', …)` | Quest gold must not progress "earn gold" quests |
 | Templates with `need:` are filtered *before* the deterministic pick, so two players on the same day can differ only by what they have unlocked | Never hand a starfall quest to someone without Starfall |
+| Rage refunds (`stopMonkeyRage`, boot restore) are the full remaining pool, never clamped to `maxH` | Overflow hammers (tier refills, quests, daily rewards) belong to the player; clamping silently deleted them when a rage was stopped mid-way (v3.10.0) |
+| Runny eggs write `egg._pos` every drift tick | Re-renders and teleport read `_pos`; without the sync a smashed/re-rendered runny egg snapped back to its spawn spot |
 | The Log **tab and the full activity log are gone** (v3.9.2) — `data-tab="quests"` took the slot and the tray's 5-line mini-log is the only history | Nav real estate; the filtered history was dead weight nobody opened twice |
 Guarded by `tests/quests.test.js` (vm sandbox).
 

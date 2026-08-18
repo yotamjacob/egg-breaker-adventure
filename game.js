@@ -116,6 +116,7 @@ const DEFAULT_STATE = {
   // Quests (quests.js) — { day, daily:[{id,base,claimed}], week, weekly:{id,base,claimed} }
   quests: null,
   questsCompleted: 0,
+  dailyQuestsCompleted: 0,
   autoTapEggs: 0,        // eggs broken by the Auto-Smasher (online + offline)
   autoTapUpgrades: 0,    // upgrade purchases (achievements)
   offlineReports: 0,     // "while you were away" reports shown
@@ -881,10 +882,14 @@ function _finishRage() {
 
 function stopMonkeyRage() {
   if (!_rageActive) return;
-  const refund = Math.min(_rageHammersLeft, G.maxH - G.hammers);
+  // Refund EVERYTHING left: the pool was the player's (possibly above max —
+  // tier refills, quests and daily rewards can overflow). Capping the refund at
+  // maxH used to silently delete the overflow whenever a rage was stopped early
+  // (v3.10.0 fix).
+  const refund = _rageHammersLeft;
   _rageHammersLeft = 0; // causes _doRageBatch to call _finishRage after current batch
   if (refund > 0) {
-    G.hammers = Math.min(G.maxH, G.hammers + refund);
+    G.hammers += refund;
     msg('Rage stopped — ' + refund + ' hammers refunded.', 'specials');
   } else {
     msg('Rage stopped.', 'specials');
@@ -2165,8 +2170,7 @@ if (!G.roundEggs || G.roundEggs.length === 0) newRound();
 
 // Restore Monkey Rage interruption — refund remaining hammers and start cooldown
 if ((G._rageHammersLeft || 0) > 0) {
-  const _rageRefund = Math.min(G._rageHammersLeft, G.maxH - G.hammers);
-  if (_rageRefund > 0) G.hammers = Math.min(G.maxH, G.hammers + _rageRefund);
+  G.hammers += G._rageHammersLeft;   // full refund, overflow included (see stopMonkeyRage)
   G._rageHammersLeft = 0;
   if (!G.skillLastUsedAt) G.skillLastUsedAt = [-999,-999,-999];
   if (G.skillLastUsedAt[0] === -999) G.skillLastUsedAt[0] = G.totalEggs;

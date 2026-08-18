@@ -285,13 +285,13 @@
    level label and perk line sits at the same height across the grid. */
 #shop-hammers .shop-card{justify-content:flex-start}
 #shop-hammers .shop-card .s-hammer{height:52px;flex:0 0 auto}
-#shop-hammers .shop-card .s-name{height:30px;display:flex;align-items:center;justify-content:center;line-height:1.25}
+#shop-hammers .shop-card .s-name{height:34px;display:flex;align-items:center;justify-content:center;line-height:1.25;overflow:hidden}
 /* 5 lines fits the longest hammer description without truncating; every card
    uses the same band so the level rows and XP bars stay on one line. */
 #shop-hammers .shop-card .s-desc{height:68px;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;
   overflow:hidden;line-height:1.35}
 #shop-hammers{grid-auto-rows:1fr}
-#shop-hammers .shop-card .hm-row{margin-top:auto}
+#shop-hammers .shop-card .hm-row{margin-top:6px;height:16px;align-items:center}
 #shop-hammers .shop-card .s-status,
 #shop-hammers .shop-card .s-cost{height:18px;display:flex;align-items:center;justify-content:center;white-space:nowrap}
 /* Owned hammers: art / name / desc / level+bar / perk / status all in fixed
@@ -457,9 +457,20 @@
 .hm-lv.hlv-silver{color:#d8dde3}
 .hm-lv.hlv-gold{color:var(--gold)}
 .hm-lv.hlv-prism{color:#fff;animation:hm-prism 2.4s linear infinite}
+.hm-lv,.hm-xp{line-height:16px;white-space:nowrap}
 @keyframes hm-prism{0%{color:#ff8fd0}25%{color:#ffe27a}50%{color:#8bf59a}75%{color:#8fd8ff}100%{color:#ff8fd0}}
 .hm-xp{font-size:8px;color:var(--gray)}
 .hm-track{margin-top:4px}
-.hm-perk{font-size:8px;color:var(--gold);margin-top:5px;line-height:1.45;
-  height:36px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hm-perk{font-size:8px;color:var(--gold);margin-top:4px;line-height:1.4;text-align:left;width:100%;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:22px}
 .hm-perk-dim{color:var(--gray)}
+.hm-now{color:#c9d6e8}
+.hm-got{color:var(--green)}
+
+/* ---------- Shop sub-tabs ---------- */
+.shop-tabs{display:flex;gap:3px;margin:4px 0 8px;background:var(--dark);border:2px solid var(--gold3);border-radius:2px;padding:3px;box-shadow:2px 2px 0 rgba(0,0,0,.5)}
+.shop-tab{flex:1;min-width:0;padding:8px 2px;border:none;border-radius:1px;background:var(--panel);color:var(--gray);
+  font-family:var(--px);font-size:8px;cursor:pointer;text-shadow:1px 1px 0 var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .08s}
+.shop-tab:hover:not(.active){color:var(--white);background:var(--panel2)}
+.shop-tab.active{background:var(--gold);color:var(--dark);text-shadow:none;box-shadow:inset 1px 1px 0 rgba(255,255,255,.3)}
+.shop-section.hidden{display:none}

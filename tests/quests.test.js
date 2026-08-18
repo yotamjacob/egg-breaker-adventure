@@ -38,14 +38,15 @@ function world(over) {
   return ctx;
 }
 
-test('boot assigns 3 daily + 1 weekly for today, deterministically, skipping gated templates', () => {
+test('boot assigns 5 daily + 3 weekly for today, deterministically, skipping gated templates', () => {
   const a = world(), b = world();
   assert.equal(a.G.quests.daily.length, a.CONFIG.quests.dailyCount);
-  assert.ok(a.G.quests.weekly);
+  assert.equal(a.G.quests.weekly.length, a.CONFIG.quests.weeklyCount);
+  assert.equal(new Set(Array.from(a.G.quests.weekly, x => x.id)).size, a.CONFIG.quests.weeklyCount, 'distinct weeklies');
   assert.deepEqual(Array.from(a.G.quests.daily, x => x.id), Array.from(b.G.quests.daily, x => x.id), 'same day → same set');
   const gated = new Set(a.CONFIG.quests.daily.filter(t => t.need).map(t => t.id));
   assert.ok(a.G.quests.daily.every(x => !gated.has(x.id)), 'no starfall/skills/autotap quests before they are unlocked');
-  assert.equal(new Set(a.G.quests.daily.map(x => x.id)).size, 3, 'distinct');
+  assert.equal(new Set(a.G.quests.daily.map(x => x.id)).size, a.CONFIG.quests.dailyCount, 'distinct');
   const metrics = Array.from(a.G.quests.daily, x => a.questTemplate(x.id).metric);
   assert.equal(new Set(metrics).size, metrics.length, 'no two daily quests on the same counter: ' + metrics);
 });
@@ -133,7 +134,7 @@ test('non-gameplay gains do not progress quests (items bought, trophy/daily/ques
   w.G.totalGold += 5000;     w.questCredit('totalGold', 5000);
   assert.equal(w.questsClaimable(), 0, 'nothing became claimable from rewards/purchases');
   // …and real gameplay still counts
-  w.G.totalItems += 5;
+  w.G.totalItems += w.questTemplate('items_5').target;
   assert.equal(w.questsClaimable(), 1);
 });
 
@@ -146,4 +147,15 @@ test('rollover cannot auto-claim a quest that only "progressed" via credited sou
   w.ensureQuests();
   assert.equal(w.G.questsCompleted, done, 'no auto-claim');
   assert.equal(w.G.gold, gold);
+});
+
+test('legacy save with a single weekly object migrates to an array and tops up to weeklyCount', () => {
+  const w = world();
+  const t = w.CONFIG.quests.weekly[0];
+  w.G.quests.weekly = { id: t.id, base: 0, claimed: false };   // pre-v3.10.0 shape
+  w.ensureQuests();
+  assert.ok(Array.isArray(w.G.quests.weekly));
+  assert.equal(w.G.quests.weekly.length, w.CONFIG.quests.weeklyCount);
+  assert.equal(w.G.quests.weekly[0].id, t.id, 'existing weekly kept in slot 0');
+  assert.equal(w.questsClaimable(), 0);
 });

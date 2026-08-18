@@ -460,11 +460,14 @@ function teleportEgg(index, slot) {
   const maxY = Math.max(padTop, tH - padBot - eH);
   const from = egg._pos || { x: parseFloat(slot.style.left) || 0, y: parseFloat(slot.style.top) || 0 };
 
-  // Pick the farthest of a few candidates that does not overlap another egg
+  // Land FAR away: sample many candidates, drop the ones that overlap another
+  // egg or sit within 45% of the tray diagonal of the start, take the farthest.
+  const minD = Math.hypot(maxX - padX, maxY - padTop) * 0.45;
   let best = null, bestD = -1;
-  for (let k = 0; k < 12; k++) {
+  for (let k = 0; k < 40; k++) {
     const x = padX + Math.random() * (maxX - padX);
     const y = padTop + Math.random() * (maxY - padTop);
+    if (k < 32 && Math.hypot(x - from.x, y - from.y) < minD) continue;   // last few tries: any distance
     let clash = false;
     for (let j = 0; j < G.roundEggs.length; j++) {
       if (j === index) continue;

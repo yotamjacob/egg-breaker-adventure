@@ -6,6 +6,22 @@
 // ============================================================
 
 
+// ---- Shop sub-tabs (Supplies / Upgrades / Auto / Hammers / Hats) ----
+// One section visible at a time instead of one long scroll. renderShop()
+// still fills every grid (cheap), we only toggle visibility. `var` for the
+// boot-time TDZ rule (see CLAUDE.md).
+var _shopTab = 'consumables';
+function setShopTab(name) {
+  _shopTab = name || 'consumables';
+  document.querySelectorAll('#panel-shop .shop-tab').forEach(b => b.classList.toggle('active', b.dataset.shop === _shopTab));
+  document.querySelectorAll('#panel-shop .shop-section').forEach(sec => sec.classList.toggle('hidden', sec.dataset.shop !== _shopTab));
+  const panel = $id('panel-shop'); if (panel) panel.scrollTop = 0;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('#panel-shop .shop-tab');
+  if (b) setShopTab(b.dataset.shop);
+});
+
 function buyShopItem(category, id) {
   // Confirmation for non-consumable items when auto-buy is off
   const isConsumable = category === 'supply' && !SHOP_SUPPLIES.find(s => s.id === id)?.unique;

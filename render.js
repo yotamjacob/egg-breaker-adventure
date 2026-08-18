@@ -371,6 +371,7 @@ function renderEggTray() {
     slot.className = cls;
     slot.style.left = pos.x + 'px';
     slot.style.top = pos.y + 'px';
+    slot.style.translate = '';   // fresh slot: drift (if any) re-applies its own translate
     if (spawnFx && alive) {
       // Summon effect: pop on the SVG child (NOT the slot — the slot's own
       // `animation` belongs to the smash feedback cascade, see CLAUDE.md) and
@@ -483,6 +484,10 @@ function startRunnyDrift(runnySlots, trayW, trayH) {
       if (len > 0) { r.vx /= len; r.vy /= len; }
 
       r.slot.style.translate = r.x + 'px ' + r.y + 'px';
+      // Keep the egg's stored position in step with where it actually is, so
+      // any re-render (tab switch, tier change) — and teleport's "from" point —
+      // uses the drifted spot instead of snapping back to the spawn point.
+      egg._pos = { x: r.x, y: r.y };
     }
     if (anyAlive) _runnyRAF = requestAnimationFrame(tick);
     else _runnyRAF = null;
