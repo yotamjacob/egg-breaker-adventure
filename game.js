@@ -1759,7 +1759,7 @@ function copyStatsToClipboard() {
     row('Hit wall (0 left)', String(G.hammersDepleted || 0)),
     row('Bought +5 hammers', String(G.shopHammers5 || 0)),
     row('Bought +20 hammers', String(G.shopHammers20 || 0)),
-    row('Tier refills',      String(G.tierHammerRefills || 0)),
+    row('Milestone hammers', String(G.tierHammerRefills || 0)),
     row('Daily hammers',     String(G.dailyHammerTotal || 0)),
     '',
     '── Multipliers ' + '─'.repeat(21),
@@ -1980,7 +1980,7 @@ function showPlayInfo() {
       '<div class="info-block">' +
         '<span class="info-block-title">🥚 basics</span>' +
         '<div class="info-row"><span class="info-row-icon">🔨</span><span>Tap an egg — costs <span class="info-highlight">1 hammer</span></span></div>' +
-        '<div class="info-row"><span class="info-row-icon">📦</span><span>Collect all items to advance tiers</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">📦</span><span>Collect items to unlock stages and bonuses — all of them to complete the stage</span></div>' +
         '<div class="info-row"><span class="info-row-icon">⭐</span><span>Fill <span class="info-highlight">7 star pieces</span> to trigger Starfall</span></div>' +
       '</div>' +
       '<div class="info-block">' +

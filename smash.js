@@ -348,9 +348,9 @@ function _maybeStuckHint() {
       const tt = CONFIG.tierThresholds;
       const nextThresh = Math.ceil(total * [tt.bronze, tt.silver][tier]);
       const needed = nextThresh - found;
-      const tierName = tier === 0 ? 'Silver' : 'Gold';
+      const goal = tier === 0 ? 'a hammer bonus' : 'unlocking the next stage';
       if (needed > 0 && needed <= 5) {
-        msg('⚡ ' + needed + (needed === 1 ? ' item' : ' items') + ' from ' + tierName + ' tier — a Hammer Pack would get you there!', 'tiers');
+        msg('⚡ ' + needed + (needed === 1 ? ' item' : ' items') + ' from ' + goal + ' — a Hammer Pack would get you there!', 'tiers');
         return;
       }
     }

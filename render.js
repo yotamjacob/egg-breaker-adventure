@@ -723,8 +723,6 @@ function updateStageBar() {
   const found = collected.filter(Boolean).length;
   const total = items.length;
   const tier = (prog.tiers && prog.tiers[si]) || 0;
-  const tierNames = ['Bronze', 'Silver', 'Gold'];
-  const tierIdx = Math.min(tier, 2);
 
   $id('stage-name').textContent = 'Stage ' + (si + 1) + ': ' + stage.name;
   const tierEl = $id('stage-tier');
@@ -1168,7 +1166,7 @@ function renderStats() {
     ['Hit wall (0 left)', G.hammersDepleted || 0],
     ['Bought +5 hammers', G.shopHammers5 || 0],
     ['Bought +20 hammers', G.shopHammers20 || 0],
-    ['Tier refills', G.tierHammerRefills || 0],
+    ['Milestone hammers', G.tierHammerRefills || 0],
     ['Daily hammers', G.dailyHammerTotal || 0],
     ['— multipliers —', ''],
     ['Mults dropped', G.multDropped || 0],

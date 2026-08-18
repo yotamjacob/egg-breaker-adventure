@@ -85,6 +85,10 @@ Edit `prizes:` inside the relevant egg type in `CONFIG.eggTypes`. Weights are re
 ### Tier rewards
 `CONFIG.tierRewards.silver` = Bronze→Silver (currently unused in code — wired but not called)
 `CONFIG.tierRewards.gold` = Silver→Gold (gives maxHammers + hammerRefill)
+**Bronze/Silver/Gold are internal names only (v3.3.0).** The mechanism stays, but no
+player-facing string, tip, stat label, achievement text or guide page may name the tiers —
+players see "hammer bonus", "unlock the next stage", "stage complete". Album stage-button
+colours (`tier-bronze/silver/gold` classes) are fine; they carry no text.
 
 ### Mr Monkey item boost
 `game.js rollPrize()` — `if (monkey && monkey.id === 'mr_monkey') w.item *= 1.5`
