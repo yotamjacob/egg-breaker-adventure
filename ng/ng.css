@@ -24,7 +24,8 @@ html.ng-build body {
   display: flex;
   align-items: center;
   gap: 8px;
-  max-width: calc(100% - 20px);
+  width: calc(100% - 20px);
+  max-width: 520px;
   padding: 8px 10px 8px 12px;
   border-radius: 12px;
   background: rgba(15, 52, 96, 0.96);
@@ -37,7 +38,7 @@ html.ng-build body {
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 .ng-loginbar.show { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
-.ng-loginbar-text { flex: 1 1 auto; min-width: 0; }
+.ng-loginbar-text { flex: 1 1 auto; min-width: 0; line-height: 1.3; }
 .ng-loginbar-btn {
   flex: 0 0 auto;
   border: 0;

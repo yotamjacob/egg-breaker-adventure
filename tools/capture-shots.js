@@ -19,7 +19,9 @@ const fs   = require('fs');
 
 const SITE     = process.env.SHOT_SITE || 'https://egg-breaker-adventures.vercel.app/';
 const ROOT_DIR = path.join(__dirname, '..');
-const OUT      = path.join(ROOT_DIR, 'marketing', 'shots');
+// SHOT_OUT overrides the output dir (e.g. captures of the Newgrounds build);
+// when set, the /shots web copies for the content pages are NOT rewritten.
+const OUT      = process.env.SHOT_OUT || path.join(ROOT_DIR, 'marketing', 'shots');
 const VP       = { width: 390, height: 844 };
 
 fs.mkdirSync(OUT, { recursive: true });
@@ -109,9 +111,18 @@ async function boot(page) {
     }
     const sp = document.getElementById('splash-screen');
     if (sp) sp.style.display = 'none';
-    if (typeof G === 'object' && G) G._welcomeDone = true;
+    if (typeof G === 'object' && G) { G._welcomeDone = true; G._firstRareSeen = true; }
   });
   await page.waitForTimeout(500);
+}
+
+/** Hides one-off popups/bars that can fire on a timer between steps. */
+async function clean(page) {
+  await page.evaluate(() => {
+    const c = document.getElementById('overlay-confirm');
+    if (c) c.classList.add('hidden');
+    document.querySelectorAll('.ng-loginbar').forEach(el => el.remove());
+  });
 }
 
 async function clickTab(page, name) {
@@ -155,22 +166,27 @@ async function smashSome(page, count) {
   await smashSome(page, 8);
   await page.evaluate(() => { newRound(); });
   await page.waitForTimeout(1200);
+  await clean(page);
   await page.screenshot({ path: path.join(OUT, 'play.png') });
 
   // ── Album: collections filled in ──
   await clickTab(page, 'album');
+  await clean(page);
   await page.screenshot({ path: path.join(OUT, 'album.png') });
 
   // ── Monkeys ──
   await clickTab(page, 'monkeys');
+  await clean(page);
   await page.screenshot({ path: path.join(OUT, 'monkeys.png') });
 
   // ── Shop ──
   await clickTab(page, 'shop');
+  await clean(page);
   await page.screenshot({ path: path.join(OUT, 'shop.png') });
 
   // ── Trophies ──
   await clickTab(page, 'achieve');
+  await clean(page);
   await page.screenshot({ path: path.join(OUT, 'trophies.png') });
 
   await browser.close();
@@ -186,6 +202,7 @@ async function smashSome(page, count) {
   // The full-res 1170x2532 captures are 300-700KB each. Content pages
   // are the top of the funnel and must stay fast, so they get 440px-wide
   // palette-quantised copies (~40-70KB) served from /shots/.
+  if (process.env.SHOT_OUT) return;
   const sharp = require('sharp');
   const WEB = path.join(ROOT_DIR, 'shots');
   fs.mkdirSync(WEB, { recursive: true });
