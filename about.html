@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About Egg Smash Adventures — What the app is and what it does</title>
+  <title>Egg Smash Adventures</title>
   <meta name="description" content="Egg Smash Adventures is a free egg-smashing collection game for web and Android: crack eggs with a hammer, win prizes, complete 353 collectibles across 53 stages. What the app does, what it costs, and what Google sign-in is used for." />
   <link rel="canonical" href="https://www.eggbreakeradventure.com/about" />
   <meta property="og:site_name" content="Egg Smash Adventures" />
@@ -97,17 +97,20 @@
           </ul>
         </div>
 
-        <div class="card">
-          <h3>Your progress and Google sign-in</h3>
+        <div class="card" id="google-data">
+          <h3>Why Egg Smash Adventures asks for Google user data</h3>
           <p>
-            Progress is saved on your device automatically. If you want to carry it between your
-            phone and your browser, or protect it against losing the device, you can optionally
-            <b>link a Google account</b> in Settings → Cloud Save. Signing in with Google is used
-            for exactly one thing: identifying you so your game save can be stored and restored.
-            We request only your basic profile (email address) — no contacts, no Drive, no calendar
-            — and we never post on your behalf. You can unlink at any time from the same screen.
+            Progress is saved on your device automatically. Optionally, you can <b>sign in with
+            Google</b> (Settings → Cloud Save) to back your save up and carry it between your phone
+            and your browser. That is the only reason the app requests Google user data.
           </p>
-          <p>Details: <a href="/privacy">Privacy policy</a> · <a href="/terms">Terms of service</a> · <a href="/refund">Refund policy</a></p>
+          <ul>
+            <li><b>What we request:</b> your basic profile — email address and Google account ID — via the <code>openid</code>, <code>email</code> and <code>profile</code> scopes. Nothing else: no contacts, no Drive, no Gmail, no calendar.</li>
+            <li><b>What it is used for:</b> identifying your account so your game save can be stored and restored. Your email is not shown to other players, not used for marketing, and never sold.</li>
+            <li><b>What we never do:</b> post on your behalf, read your data from other Google services, or share your data with third parties beyond the hosting providers named in the privacy policy.</li>
+            <li><b>Your control:</b> unlink Google at any time from the same screen; you can also delete your cloud save there. The game is fully playable without ever signing in.</li>
+          </ul>
+          <p>Full details: <a href="/privacy">Privacy policy</a> · <a href="/terms">Terms of service</a> · <a href="/refund">Refund policy</a></p>
         </div>
 
         <div class="card">
