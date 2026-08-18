@@ -366,6 +366,7 @@ function renderEggTray() {
     if (egg.broken || egg.expired) cls += ' broken';
     if (alive && fx.includes('runny')) cls += ' runny';
     if (alive && fx.includes('timer')) cls += ' timed';
+    if (alive && fx.includes('teleport')) cls += ' teleporter';
     if (alive && fx.includes('balloon')) cls += ' balloon';
     slot.className = cls;
     slot.style.left = pos.x + 'px';

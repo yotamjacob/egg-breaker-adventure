@@ -346,25 +346,54 @@ function _fmtAway(sec) {
   return Math.max(1, m) + 'm';
 }
 
+/** Count a number up to `to` over `ms`, ease-out, integer steps. */
+function _countUp(el, to, ms, prefix) {
+  if (!el) return;
+  if (!(to > 0)) { el.textContent = (prefix || '') + formatNum(to); return; }
+  const t0 = performance.now();
+  (function step(now) {
+    const p = Math.min(1, (now - t0) / ms);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = (prefix || '') + formatNum(Math.round(to * eased));
+    if (p < 1) requestAnimationFrame(step);
+  })(t0);
+}
+
 function showOfflineReport(sum) {
   const ov = $id('overlay-offline');
   if (!ov || !sum || sum.taps <= 0) return;
   $id('offline-time').textContent = 'Away ' + _fmtAway(sum.elapsed)
     + (sum.capped ? ' — smashed for the first ' + _fmtAway(sum.simulated) : '');
+  // Values start at 0 and count up, staggered top to bottom (v3.9.0)
   const rows = [];
-  const row = (icon, label, val) => rows.push('<div class="offline-row"><span class="offline-ic">' + icon + '</span><span class="offline-lbl">' + label + '</span><strong class="offline-val">' + val + '</strong></div>');
-  row('🥚', 'Eggs smashed', formatNum(sum.eggs));
-  if (sum.gold)     row('🪙', 'Gold', '+' + formatNum(sum.gold));
-  if (sum.stars)    row('⭐', 'Star pieces', '+' + sum.stars);
-  if (sum.feathers) row('🪶', 'Feathers', '+' + sum.feathers);
-  if (sum.hammers)  row('🔨', 'Hammers found', '+' + sum.hammers);
-  if (sum.mults)    row('✖️', 'Multipliers', '+' + sum.mults);
-  if (sum.bananas)  row('🍌', 'Crystal bananas', '+' + sum.bananas);
-  if (sum.maxH)     row('🔨', 'Max hammers', '+' + sum.maxH);
+  const nums = [];
+  const row = (icon, label, val, prefix) => {
+    const i = rows.length;
+    if (typeof val === 'number') nums.push({ i, val, prefix: prefix || '' });
+    rows.push('<div class="offline-row"><span class="offline-ic">' + icon + '</span><span class="offline-lbl">' + label +
+      '</span><strong class="offline-val" data-i="' + i + '">' + (typeof val === 'number' ? (prefix || '') + '0' : val) + '</strong></div>');
+  };
+  row('🥚', 'Eggs smashed', sum.eggs);
+  if (sum.gold)     row('🪙', 'Gold', sum.gold, '+');
+  if (sum.stars)    row('⭐', 'Star pieces', sum.stars, '+');
+  if (sum.feathers) row('🪶', 'Feathers', sum.feathers, '+');
+  if (sum.hammers)  row('🔨', 'Hammers found', sum.hammers, '+');
+  if (sum.mults)    row('✖️', 'Multipliers', sum.mults, '+');
+  if (sum.bananas)  row('🍌', 'Crystal bananas', sum.bananas, '+');
+  if (sum.maxH)     row('🔨', 'Max hammers', sum.maxH, '+');
   if (sum.items.length) {
     row('📦', 'New items', sum.items.map(i => i.emoji).join(' '));
   }
-  $id('offline-rows').innerHTML = rows.join('');
+  const host = $id('offline-rows');
+  host.innerHTML = rows.join('');
+  nums.forEach((n, k) => {
+    const el = host.querySelector('.offline-val[data-i="' + n.i + '"]');
+    setTimeout(() => {
+      if (el) el.parentNode.classList.add('offline-row-pop');
+      _countUp(el, n.val, 700, n.prefix);
+      try { SFX.play('coin'); } catch (e) {}
+    }, 220 + k * 260);
+  });
   const hint = $id('offline-hint');
   if (hint) {
     hint.textContent = autoTapIsMaxed()
@@ -373,6 +402,32 @@ function showOfflineReport(sum) {
   }
   ov.classList.remove('hidden');
   SFX.play('achieve');
+  // Gold lands the way an egg prize lands: floating text + coins flying to the
+  // counter — fired when the report is dismissed so it is not hidden behind it.
+  _offlineGoldPending = sum.gold || 0;
+}
+
+var _offlineGoldPending = 0;
+
+/** Called from the report's Continue button — plays the gold payout over the tray. */
+function collectOfflineReport() {
+  closeOverlay('overlay-offline');
+  const gold = _offlineGoldPending; _offlineGoldPending = 0;
+  if (!gold) return;
+  try {
+    const play = document.querySelector('[data-tab="play"]');
+    if (play && !$id('panel-play').classList.contains('active')) play.click();
+    setTimeout(function () {
+      const wrap = $id('egg-tray-wrap'); if (!wrap) return;
+      const r = wrap.getBoundingClientRect();
+      const cx = r.width / 2, cy = r.height * 0.42;
+      spawnFloat($id('prize-zone'), '+' + formatNum(gold) + ' 🪙', '#d97706', 'mega', cx, cy);
+      Particles.sparkle(cx, cy, 22, '#FFD700');
+      spawnCoinFly(cx, cy, gold);
+      SFX.play('coin');
+      msg('🤖 Away rewards collected: +' + formatNum(gold) + ' 🪙', 'prizes');
+    }, 220);
+  } catch (e) {}
 }
 
 // ---------------------------------------------------------------

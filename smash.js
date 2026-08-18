@@ -67,6 +67,12 @@ function newRound() {
     } else {
       if (mrStage >= 1 && Math.random() < 0.05 && type !== 'century') effects.push('runny');  // Stage 2
       if (mrStage >= 2 && Math.random() < 0.05 && ['normal','silver','gold','crystal'].includes(type)) effects.push('timer'); // Stage 3
+      // Teleport (Stage 5): silver & gold only — each hit warps it across the
+      // tray, and it pays 4x when it finally breaks. Never with a timer (you
+      // cannot chase a clock) — see CONFIG.teleportEgg.
+      if (mrStage >= CONFIG.teleportEgg.unlockStage && !effects.includes('timer')
+          && CONFIG.teleportEgg.types.indexOf(type) !== -1
+          && Math.random() < CONFIG.teleportEgg.chance) effects.push('teleport');
       const hexChance = mrStage >= 3 ? Math.min(0.015, 0.006 + (mrStage - 3) * 0.0015) : 0;  // 0.6%→0.75%→0.9%→1.05%→1.2%→1.35%→1.5%
       if (hexChance > 0 && Math.random() < hexChance && type !== 'ruby' && type !== 'black' && type !== 'crystal' && type !== 'century' && !G['owned_cleanse']) effects.push('hex');
     }
@@ -437,6 +443,66 @@ function cancelBalloonInflate(slot) {
   }
 }
 
+/**
+ * Warp a teleport egg to another spot on the tray: beam out where it stands,
+ * reappear (beam in) somewhere else. The new position is stored on the egg so
+ * a re-render (tab switch) keeps it there. Purely visual + positional — the
+ * hit that triggered it has already been applied.
+ */
+function teleportEgg(index, slot) {
+  const egg = G.roundEggs[index];
+  const tray = $id('egg-tray');
+  if (!egg || !slot || !tray) return;
+  const tW = tray.offsetWidth, tH = tray.offsetHeight;
+  if (!tW || !tH) return;
+  const eW = 76, eH = 110, padX = 12, padTop = 10, padBot = 80;
+  const maxX = Math.max(padX, tW - padX - eW);
+  const maxY = Math.max(padTop, tH - padBot - eH);
+  const from = egg._pos || { x: parseFloat(slot.style.left) || 0, y: parseFloat(slot.style.top) || 0 };
+
+  // Pick the farthest of a few candidates that does not overlap another egg
+  let best = null, bestD = -1;
+  for (let k = 0; k < 12; k++) {
+    const x = padX + Math.random() * (maxX - padX);
+    const y = padTop + Math.random() * (maxY - padTop);
+    let clash = false;
+    for (let j = 0; j < G.roundEggs.length; j++) {
+      if (j === index) continue;
+      const o = G.roundEggs[j]; if (!o || o.broken || o.expired || !o._pos) continue;
+      if (Math.abs(o._pos.x - x) < eW * 0.85 && Math.abs(o._pos.y - y) < eH * 0.7) { clash = true; break; }
+    }
+    if (clash) continue;
+    const d = Math.hypot(x - from.x, y - from.y);
+    if (d > bestD) { bestD = d; best = { x, y }; }
+  }
+  if (!best) best = { x: padX + Math.random() * (maxX - padX), y: padTop + Math.random() * (maxY - padTop) };
+
+  const beam = (x, y, cls) => {
+    const b = document.createElement('div');
+    b.className = 'tele-beam ' + cls;
+    b.style.left = (x + eW / 2) + 'px';
+    b.style.top  = (y + 44) + 'px';
+    tray.appendChild(b);
+    setTimeout(() => b.remove(), 620);
+  };
+
+  slot.classList.add('tele-out');
+  beam(from.x, from.y, 'tele-beam-out');
+  SFX.play('starfall');
+  Particles.sparkle(from.x + eW / 2, from.y + 44, 14, '#8fd8ff');
+
+  setTimeout(() => {
+    egg._pos = best;
+    slot.style.left = best.x + 'px';
+    slot.style.top  = best.y + 'px';
+    slot.classList.remove('tele-out');
+    slot.classList.add('tele-in');
+    beam(best.x, best.y, 'tele-beam-in');
+    Particles.sparkle(best.x + eW / 2, best.y + 44, 18, '#a9d6ff');
+    setTimeout(() => slot.classList.remove('tele-in'), 420);
+  }, 200);
+}
+
 function popBalloonEgg(index, slot) {
   const egg = G.roundEggs[index];
   if (!egg || egg.broken) return;
@@ -658,6 +724,12 @@ function smashEgg(index) {
     : 8 + (egg.maxHp - egg.hp) * 5;
   Particles.emit(cx, cy, egg.type, particleCount);
 
+  // Teleport egg: every landed hit warps it to a free spot on the tray
+  if (egg.hp > 0 && egg.effects && egg.effects.includes('teleport')) {
+    G.teleportsChased = (G.teleportsChased || 0) + 1;
+    teleportEgg(index, slot);
+  }
+
   if (egg.hp > 0) {
     // Timer eggs: stop countdown after first hit (keep in effects for 3x prize at break)
     if (egg.effects && egg.effects.includes('timer')) {
@@ -701,6 +773,28 @@ function smashEgg(index) {
 
   // Roll prize (century egg uses fixed multi-reward, not random roll)
   const prize = egg.type !== 'century' ? rollPrize(egg.type) : null;
+  // Teleport egg pays CONFIG.teleportEgg.rewardMult× — same shape as the balloon bonus
+  if (prize && egg.effects && egg.effects.includes('teleport')) {
+    const tm = CONFIG.teleportEgg.rewardMult;
+    G.teleportsCaught = (G.teleportsCaught || 0) + 1;
+    if (prize.type === 'mult') {
+      prize.count = (prize.count || 1) * tm;
+      prize.label = prize.count + '× x' + prize.value + ' mult!';
+    } else if (['gold','star','feather','hammers','banana','maxHammers'].includes(prize.type)) {
+      const chipTotal = G.activeMult > 1 ? G.activeMult : 0;
+      if (chipTotal > 0) {
+        prize.value = Math.round(prize.value * (tm + chipTotal) / chipTotal);
+        prize.balloonMult = tm + chipTotal;
+        prize.usedMult = null;
+      } else {
+        if (prize.value) prize.value *= tm;
+        prize.balloonMult = tm;
+      }
+      if (prize.type === 'banana')     prize.label = '+' + prize.value + ' 🍌!';
+      if (prize.type === 'maxHammers') prize.label = '+' + prize.value + ' max hammers!';
+    }
+    prize.popPrefix = '✨ CAUGHT! ';
+  }
 
   // Effect eggs get bonus rewards
   const fx = egg.effects || [];

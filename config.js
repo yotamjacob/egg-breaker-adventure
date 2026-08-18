@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.8.0';
+const VERSION = '3.9.0';
 
 const CONFIG = {
 
@@ -274,6 +274,19 @@ const CONFIG = {
       { id: 'w_gold_50k',   icon: '💰', name: 'Treasury',        desc: 'Earn 50,000 gold this week',        metric: 'totalGold',        target: 50000, reward: { starPieces: 14, feathers: 10 } },
       { id: 'w_starfall_8', icon: '🌌', name: 'Meteor Season',   desc: 'Use Starfall 8 times this week',    metric: 'starfallsUsed',    target: 8,     reward: { gold: 9000, maxHammers: 3 }, need: 'starfall' },
     ],
+  },
+
+  // ----------------------------------------------------------
+  // 20. TELEPORT EGG — silver & gold eggs that warp across the tray on every
+  //     hit and pay `rewardMult`× when finally broken. Never rolled together
+  //     with a timer effect (chasing a clock is not fun). See smash.js
+  //     teleportEgg() and `.tele-*` in play.css.
+  // ----------------------------------------------------------
+  teleportEgg: {
+    unlockStage: 4,                 // Mr. Monkey stage index (0-based → stage 5)
+    chance:      0.07,              // per eligible egg at spawn
+    types:       ['silver', 'gold'],
+    rewardMult:  4,
   },
 
   // ----------------------------------------------------------

@@ -701,6 +701,9 @@ const ACHIEVEMENT_DATA = [
   { id:'auto_maxed',    name:'Fully Automated',       desc:'Max out every Auto-Smasher upgrade', icon:'🏭', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
   { id:'auto_eggs_1000',name:'Robot Army',            desc:'Auto-Smasher breaks 1,000 eggs',     icon:'🦾', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'auto_away_10',  name:'Sleep Rich',            desc:'Come back to 10 away reports',       icon:'😴', reward:{type:'gold',val:2000,     label:'+2,000 gold'} },
+  // -- Teleport eggs --
+  { id:'tele_1',        name:'Gotcha!',               desc:'Catch a teleporting egg',            icon:'✨', reward:{type:'gold',val:800,      label:'+800 gold'} },
+  { id:'tele_25',       name:'Warp Hunter',           desc:'Catch 25 teleporting eggs',          icon:'🌀', reward:{type:'maxH',val:4,        label:'+4 max hammers'} },
   // -- Hammer mastery (mastery.js) --
   { id:'hammer_l5',     name:'Apprentice Smith',      desc:'Train any hammer to Lv 5',           icon:'⚒️', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
   { id:'hammer_l10',    name:'Master Smith',          desc:'Train any hammer to Lv 10',          icon:'🔥', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },

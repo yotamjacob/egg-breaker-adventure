@@ -407,5 +407,9 @@ body{
 
 
 /* ---------- Full activity log sub-modal (quests.js openFullLog) ---------- */
-.pop-fulllog{max-width:340px;max-height:80vh;display:flex;flex-direction:column;font-size:9px}
-.pop-fulllog .full-log-list{max-height:55vh}
+/* Fixed size so switching filter tabs never resizes/jumps the modal */
+.pop-fulllog{width:340px;max-width:calc(100% - 32px);height:76vh;max-height:560px;display:flex;flex-direction:column;font-size:9px}
+.pop-fulllog .submodal-header{flex:0 0 auto}
+.pop-fulllog .log-controls{flex:0 0 auto}
+.pop-fulllog .full-log-list{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto}
+.pop-fulllog .full-log-list:empty::after{content:'Nothing here yet.';color:var(--gray);font-size:9px}

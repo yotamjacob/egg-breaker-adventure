@@ -337,3 +337,12 @@
 /* .popup strong{width:100%;text-align:center} would otherwise stretch the value across the row */
 .popup .offline-row .offline-val{width:auto;flex:0 0 auto;color:var(--gold);font-size:9px;text-shadow:1px 1px 0 var(--dark);text-align:right;letter-spacing:1px;white-space:nowrap}
 .offline-hint{margin-top:6px;font-size:8px;color:#8fa3bf}
+
+/* Away-report rows land one by one as their number counts up (idle.js) */
+.offline-row{opacity:.35;transition:opacity .25s ease}
+.offline-row-pop{opacity:1;animation:offline-pop .32s ease}
+@keyframes offline-pop{0%{transform:scale(1)}45%{transform:scale(1.045)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){
+  .offline-row{opacity:1}
+  .offline-row-pop{animation:none}
+}

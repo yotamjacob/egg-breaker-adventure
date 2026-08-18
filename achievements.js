@@ -166,6 +166,9 @@ function checkAchievements() {
     auto_maxed:     () => typeof autoTapIsMaxed === 'function' && autoTapIsMaxed(),
     auto_eggs_1000: () => (G.autoTapEggs || 0) >= 1000,
     auto_away_10:   () => (G.offlineReports || 0) >= 10,
+    // Teleport eggs
+    tele_1:   () => (G.teleportsCaught || 0) >= 1,
+    tele_25:  () => (G.teleportsCaught || 0) >= 25,
     // Hammer mastery
     hammer_l5:    () => typeof hammerMasteryStats === 'function' && hammerMasteryStats().best >= 5,
     hammer_l10:   () => typeof hammerMasteryStats === 'function' && hammerMasteryStats().best >= 10,

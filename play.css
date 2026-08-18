@@ -558,3 +558,44 @@
 #hammer.hlv-gold{filter:drop-shadow(0 0 8px rgba(245,197,66,.95))}
 #hammer.hlv-prism{filter:drop-shadow(0 0 9px rgba(255,255,255,.9));animation:hammer-prism 2s linear infinite}
 @keyframes hammer-prism{0%{filter:drop-shadow(0 0 9px #ff8fd0)}25%{filter:drop-shadow(0 0 9px #ffe27a)}50%{filter:drop-shadow(0 0 9px #8bf59a)}75%{filter:drop-shadow(0 0 9px #8fd8ff)}100%{filter:drop-shadow(0 0 9px #ff8fd0)}}
+
+/* ---------- Teleport egg (CONFIG.teleportEgg / smash.js teleportEgg) ----------
+   The slot animates on its OWN transform via .tele-out/.tele-in — these do not
+   set `animation` on .egg-slot, so the smash-feedback cascade is untouched
+   (see CLAUDE.md "Smash animation invariants"): the shimmer lives on the SVG. */
+.egg-slot.teleporter > svg{animation:tele-shimmer 2.2s ease-in-out infinite}
+@keyframes tele-shimmer{
+  0%,100%{filter:drop-shadow(0 0 3px rgba(143,216,255,.55))}
+  50%    {filter:drop-shadow(0 0 9px rgba(143,216,255,.95))}
+}
+.egg-slot.tele-out{transition:transform .18s ease-in,opacity .18s ease-in;transform:scale(.15) translateY(-14px);opacity:0}
+.egg-slot.tele-in{transition:none;animation:none}
+.egg-slot.tele-in > svg{animation:tele-arrive .4s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes tele-arrive{
+  0%  {transform:scale(.2) translateY(10px);opacity:0}
+  60% {transform:scale(1.18) translateY(-4px);opacity:1}
+  100%{transform:scale(1) translateY(0)}
+}
+/* Beam: a column of light that stabs down (out) or up (in) */
+.tele-beam{
+  position:absolute;width:30px;height:150px;margin-left:-15px;margin-top:-96px;
+  pointer-events:none;z-index:6;border-radius:50% 50% 6px 6px;
+  background:linear-gradient(180deg,rgba(169,214,255,0) 0%,rgba(143,216,255,.65) 35%,rgba(255,255,255,.95) 100%);
+  filter:blur(1px);transform-origin:50% 100%;
+}
+.tele-beam-out{animation:tele-beam-out .5s ease-in forwards}
+.tele-beam-in {animation:tele-beam-in  .55s ease-out forwards}
+@keyframes tele-beam-out{
+  0%  {transform:scaleY(0) scaleX(1);opacity:0}
+  35% {transform:scaleY(1) scaleX(1);opacity:1}
+  100%{transform:scaleY(1.1) scaleX(.15);opacity:0}
+}
+@keyframes tele-beam-in{
+  0%  {transform:scaleY(1.1) scaleX(.15);opacity:0}
+  30% {transform:scaleY(1) scaleX(1);opacity:1}
+  100%{transform:scaleY(0) scaleX(1.4);opacity:0}
+}
+@media (prefers-reduced-motion: reduce){
+  .egg-slot.teleporter > svg{animation:none}
+  .tele-beam{display:none}
+}
