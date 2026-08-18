@@ -1032,8 +1032,10 @@ function renderMonkeys() {
       });
       const pct = totalItems > 0 ? Math.floor(foundItems / totalItems * 100) : 0;
       const isDone = mp.completed;
+      // One line in both states so the progress bars line up across cards
+      // ("✅ Stage 9/9 — 100%" used to wrap and push the bar down).
       inner += '<span class="m-progress' + (isDone ? ' done' : '') + '">' +
-        (isDone ? '✅ ' : '') + 'Stage ' + stageNum + '/' + m.stages.length + ' — ' + pct + '%</span>';
+        (isDone ? '✅ Complete' : 'Stage ' + stageNum + '/' + m.stages.length + ' — ' + pct + '%') + '</span>';
       inner += '<div class="m-prog-track"><div class="m-prog-fill' + (isDone ? ' done' : '') + '" style="width:' + pct + '%"></div></div>';
       if (i === 0 && !mp.completed) inner += '<span class="m-monkey-note">Complete stages to unlock features</span>';
       inner += '<button class="monkey-enter-btn' + (isActive ? ' monkey-btn-active' : '') + '" data-enter="' + i + '">' +

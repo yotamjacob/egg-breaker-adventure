@@ -36,6 +36,11 @@
   }
 
   function sizeFor(el) {
+    // Explicit override: data-px-size="16|24|32" on the element or an ancestor
+    for (let n = el; n && n.nodeType === 1; n = n.parentNode) {
+      const v = n.getAttribute && n.getAttribute('data-px-size');
+      if (v && SIZES.indexOf(+v) !== -1) return +v;
+    }
     let fs = 12;
     try { fs = parseFloat(getComputedStyle(el).fontSize) || 12; } catch (e) {}
     const want = fs * 1.35;
