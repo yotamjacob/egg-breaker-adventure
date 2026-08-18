@@ -218,8 +218,6 @@ function optimizeAudio(outDir) {
 }
 
 // opts.optimizeAssets — re-encode img/ and audio/ into the build (see above).
-// Off by default so the itch build keeps byte-for-byte parity with what is
-// already published there.
 // opts.shim — { files: [...], head: '<link…>', body: '<script…>' } to swap the
 // itch.io shim for another portal's. Defaults to the itch shim.
 async function assembleWebBuild(OUT, zipName, opts) {
@@ -302,11 +300,12 @@ const ITCH_SHIM = {
 };
 
 // itch.io build  (node build.js --itch)
-// Assets left untouched so the package stays identical to what is already
-// published on itch. Pass optimizeAssets:true to shrink it ~6x if that build
-// is ever re-uploaded.
+// Ships optimised assets (v3.10.2+): a browser-portal player waits for the
+// whole package before the first egg, and 11MB vs 63MB is the difference
+// between "loading" and "left". Pass optimizeAssets:false to reproduce the
+// old full-size package.
 async function buildItch() {
-  await assembleWebBuild('dist-itch', 'dist-itch.zip');
+  await assembleWebBuild('dist-itch', 'dist-itch.zip', { optimizeAssets: true });
 }
 
 function listFiles(dir, base) {

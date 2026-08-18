@@ -35,7 +35,7 @@
 ## Build & deploy
 ```bash
 node build.js                    # bundle JS + CSS (always run before commit)
-node build.js --itch             # + assemble itch.io build → dist-itch.zip
+node build.js --itch             # + assemble itch.io build → dist-itch.zip (optimised assets, ~10MB; --itch was full-size before v3.10.2)
 git add -A && git commit && git push   # Vercel auto-deploys on push
 supabase functions deploy <name> # deploy a single edge function
 ```
