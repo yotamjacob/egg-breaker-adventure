@@ -391,6 +391,9 @@ body{
   box-shadow:1px 1px 0 var(--dark);transition:background .1s,color .1s,border-color .1s;
 }
 .auto-toggle.hidden{display:none}
+.auto-toggle.locked{opacity:.45;border-style:dashed}
+.auto-toggle.locked .auto-toggle-txt::after{content:' 🔒';font-size:8px}
+.auto-toggle.locked:hover{opacity:.8}
 .auto-toggle .auto-toggle-cd{min-width:18px;text-align:right;color:#4ee3e3;opacity:.9}
 .auto-toggle:not(.on) .auto-toggle-cd{display:none}
 .auto-toggle:hover{background:rgba(40,60,90,.95);color:#fff}

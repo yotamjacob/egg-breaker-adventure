@@ -333,6 +333,7 @@
 .offline-rows{width:100%;margin-top:6px;display:flex;flex-direction:column;gap:3px}
 .offline-row{display:flex;align-items:center;gap:6px;background:var(--bg);border:2px solid var(--gold3);border-radius:2px;padding:5px 8px;font-size:8px;font-family:var(--px)}
 .offline-ic{flex:0 0 auto;font-size:13px;font-family:system-ui,sans-serif}
-.offline-lbl{flex:1;color:var(--gray);text-align:left}
-.offline-val{color:var(--gold);font-size:9px;text-shadow:1px 1px 0 var(--dark);flex:0 0 auto;text-align:right;letter-spacing:1px}
+.offline-lbl{flex:1 1 auto;min-width:0;color:var(--gray);text-align:left;white-space:nowrap}
+/* .popup strong{width:100%;text-align:center} would otherwise stretch the value across the row */
+.popup .offline-row .offline-val{width:auto;flex:0 0 auto;color:var(--gold);font-size:9px;text-shadow:1px 1px 0 var(--dark);text-align:right;letter-spacing:1px;white-space:nowrap}
 .offline-hint{margin-top:6px;font-size:8px;color:#8fa3bf}

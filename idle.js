@@ -154,9 +154,26 @@ function _autoTapTick() {
   } catch (e) { /* never let the idle loop take the game down */ }
 }
 
+/** Locked pill tap: explain + jump to the shop section. */
+function showAutoTapLockedInfo() {
+  const need = !autoTapUnlockAvailable()
+    ? '<br><span style="color:var(--gray)">Unlocks in the Shop once Mr. Monkey reaches stage ' + (CONFIG.autoTap.unlockStage + 1) + '.</span>'
+    : '<br><span style="color:var(--gray)">Buy it in the Shop → Auto-Smasher for ' + formatNum(CONFIG.autoTap.unlockCost) + ' 🪙.</span>';
+  showConfirm('🤖', 'Auto-Smasher',
+    'Taps eggs for you — even while you are away — and reports what it found when you come back.' + need,
+    function () {
+      const tab = document.querySelector('[data-tab="shop"]');
+      if (tab) tab.click();
+      setTimeout(function () {
+        const sec = $id('shop-autotap');
+        if (sec && sec.scrollIntoView) sec.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }, 120);
+    }, 'Take me there', 'Later');
+}
+
 function toggleAutoTap() {
   const st = autoTapState();
-  if (!st.unlocked) return;
+  if (!st.unlocked) { showAutoTapLockedInfo(); return; }
   st.on = !st.on;
   if (st.on) startAutoTap(); else stopAutoTap();
   updateAutoBtn();
@@ -169,10 +186,19 @@ function updateAutoBtn() {
   const btn = $id('auto-btn');
   if (!btn) return;
   const st = autoTapState();
-  if (!st.unlocked) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
-  btn.classList.toggle('on', !!st.on);
   const txt = $id('auto-btn-txt');
+  if (!st.unlocked) {
+    // Visible but faded before purchase — tapping explains and links to the shop
+    btn.classList.add('locked');
+    btn.classList.remove('on');
+    if (txt) txt.textContent = 'AUTO';
+    btn.title = 'Auto-Smasher — unlock in the Shop';
+    _autoTapCountdown();
+    return;
+  }
+  btn.classList.remove('locked');
+  btn.classList.toggle('on', !!st.on);
   if (txt) txt.textContent = st.on ? 'AUTO ON' : 'AUTO OFF';
   _autoTapCountdown();
   btn.title = st.on
