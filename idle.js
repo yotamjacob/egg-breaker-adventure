@@ -148,6 +148,8 @@ function updateAutoBtn() {
   if (!st.unlocked) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
   btn.classList.toggle('on', !!st.on);
+  const txt = $id('auto-btn-txt');
+  if (txt) txt.textContent = st.on ? 'AUTO ON' : 'AUTO OFF';
   btn.title = st.on
     ? 'Auto-Smasher: on (a tap every ' + autoTapSecPerTap() + 's) — tap to pause'
     : 'Auto-Smasher: paused — tap to resume';

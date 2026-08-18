@@ -1129,8 +1129,10 @@ function renderShop() {
     (s.unique ? uGrid : cGrid).appendChild(card);
   });
 
-  // Auto-Smasher (idle.js) — leveled upgrades, gold only
-  if (typeof SHOP_AUTOTAP !== 'undefined') {
+  // Auto-Smasher (idle.js) — its own section, leveled upgrades, gold only
+  const aGrid = $id('shop-autotap');
+  if (aGrid) aGrid.innerHTML = '';
+  if (typeof SHOP_AUTOTAP !== 'undefined' && aGrid) {
     const st = autoTapState();
     const available = autoTapUnlockAvailable();
     SHOP_AUTOTAP.forEach(s => {
@@ -1160,7 +1162,7 @@ function renderShop() {
             ? '<span class="s-status">🔒</span>'
             : '<span class="s-cost">' + formatNum(price) + ' 🪙</span>');
       if (!maxed && !locked) card.addEventListener('click', () => buyShopItem('autotap', s.id));
-      uGrid.appendChild(card);
+      aGrid.appendChild(card);
     });
   }
 }

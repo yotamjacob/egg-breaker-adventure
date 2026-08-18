@@ -381,9 +381,21 @@ body{
   .subtitle{font-size:10px}
 }
 
-/* ---------- Auto-Smasher tray toggle (idle.js) ---------- */
-.auto-btn{background:rgba(30,60,90,.9);border:2px solid #7f8c8d;box-shadow:1px 1px 0 var(--dark);filter:grayscale(.6);opacity:.75}
-.auto-btn:hover:not(:disabled){background:rgba(40,80,120,.95);transform:scale(1.08)}
-.auto-btn.on{background:rgba(20,110,140,.92);border-color:#4ee3e3;filter:none;opacity:1;
-  box-shadow:0 0 10px rgba(78,227,227,.5),1px 1px 0 var(--dark);animation:auto-pulse 1.6s ease-in-out infinite}
-@keyframes auto-pulse{0%,100%{box-shadow:0 0 6px rgba(78,227,227,.35),1px 1px 0 var(--dark)}50%{box-shadow:0 0 14px rgba(78,227,227,.75),1px 1px 0 var(--dark)}}
+/* ---------- Auto-Smasher tray toggle (idle.js) — top-left pill ---------- */
+.auto-toggle{
+  position:absolute;top:7px;left:7px;z-index:10;
+  display:flex;align-items:center;gap:4px;height:22px;padding:0 8px 0 5px;
+  border-radius:11px;cursor:pointer;line-height:1;
+  background:rgba(20,30,50,.9);border:1px solid #7f8c8d;
+  color:#9aa7b3;font-family:var(--px);font-size:7px;letter-spacing:1px;
+  box-shadow:1px 1px 0 var(--dark);transition:background .1s,color .1s,border-color .1s;
+}
+.auto-toggle.hidden{display:none}
+.auto-toggle .auto-toggle-ic{font-size:12px;filter:grayscale(.7);opacity:.75}
+.auto-toggle:hover{background:rgba(40,60,90,.95);color:#fff}
+.auto-toggle.on{
+  background:rgba(20,110,140,.92);border-color:#4ee3e3;color:#e8ffff;
+  box-shadow:0 0 8px rgba(78,227,227,.45),1px 1px 0 var(--dark);animation:auto-pulse 1.6s ease-in-out infinite;
+}
+.auto-toggle.on .auto-toggle-ic{filter:none;opacity:1}
+@keyframes auto-pulse{0%,100%{box-shadow:0 0 5px rgba(78,227,227,.3),1px 1px 0 var(--dark)}50%{box-shadow:0 0 12px rgba(78,227,227,.7),1px 1px 0 var(--dark)}}

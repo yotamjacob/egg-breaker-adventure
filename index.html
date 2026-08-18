@@ -183,8 +183,8 @@
             <button class="rage-btn hidden" id="rage-btn" onclick="_rageActive ? stopMonkeyRage() : activateMonkeyRage()" title="Monkey Rage"><img src="img/rage_monkey.png" class="rage-btn-img" alt=""></button>
             <button class="skill-tray-btn goose-btn hidden" id="goose-btn" onclick="activateGoldenGoose()" title="Golden Goose"></button>
             <button class="skill-tray-btn banana-btn hidden" id="banana-btn" onclick="activateBananaShake()" title="Banana Shake"></button>
-            <button class="skill-tray-btn auto-btn hidden" id="auto-btn" onclick="toggleAutoTap()" title="Auto-Smasher">🤖</button>
           </div>
+          <button class="auto-toggle hidden" id="auto-btn" onclick="toggleAutoTap()" title="Auto-Smasher"><span class="auto-toggle-ic">🤖</span><span class="auto-toggle-txt" id="auto-btn-txt">AUTO</span></button>
           <div class="reward-log" id="reward-log">
             <div class="rlog-title">Log</div>
           </div>
@@ -227,6 +227,8 @@
       <div class="shop-grid" id="shop-consumables"></div>
       <h3 class="section-title">Upgrades</h3>
       <div class="shop-grid" id="shop-upgrades"></div>
+      <h3 class="section-title">Auto-Smasher</h3>
+      <div class="shop-grid" id="shop-autotap"></div>
       <h3 class="section-title">Special Hammers</h3>
       <div class="shop-grid" id="shop-hammers"></div>
       <h3 class="section-title">Hats</h3>

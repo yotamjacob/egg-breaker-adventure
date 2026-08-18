@@ -121,7 +121,9 @@ function doBuyShopItem(category, id) {
   updateResources();
   // Re-render immediately (no delay), then flash the fresh card
   renderShop(); renderPremiumShop(); saveGame();
-  const grids = (category === 'supply' || category === 'autotap')
+  const grids = category === 'autotap'
+    ? [...$id('shop-autotap').children]
+    : category === 'supply'
     ? [...$id('shop-consumables').children, ...$id('shop-upgrades').children]
     : [...$id('shop-' + (category === 'hammer' ? 'hammers' : 'hats')).children];
   for (const c of grids) {
