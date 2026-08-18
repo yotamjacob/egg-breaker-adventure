@@ -130,6 +130,10 @@ Always end every response to the user with the current version: **"Current versi
 - `linkGoogleAccount()` (when already linked) → confirm → sets `_cloudUnlinking = true` and `localStorage._cloudLinkPref = 'unlinked'` → calls `signOut()`.
 - `_cloudUnlinking` prevents a racing `SIGNED_IN` event (token refresh) from re-linking mid-unlink.
 
+**Consent-screen branding:** Google shows `<project-ref>.supabase.co` until the OAuth
+client is branded + published in Google Cloud Console (free; no Supabase custom domain
+needed). Steps in `docs-google-oauth-branding.md`.
+
 ### Invariants — never break these
 | Invariant | Why |
 |-----------|-----|
