@@ -121,6 +121,7 @@ const SITEMAP_PAGES = [
   { file: 'what-happened-to-egg-breaker.html', url: '/what-happened-to-egg-breaker', priority: '0.9', changefreq: 'monthly' },
   { file: 'egg-breaker-guide.html',            url: '/egg-breaker-guide',           priority: '0.8', changefreq: 'monthly' },
   { file: 'egg-breaker-vs-original.html',      url: '/egg-breaker-vs-original',     priority: '0.7', changefreq: 'monthly' },
+  { file: 'about.html',                        url: '/about',                       priority: '0.7', changefreq: 'monthly' },
   { file: 'press.html',                        url: '/press',                       priority: '0.6', changefreq: 'monthly' },
   { file: 'privacy.html',                      url: '/privacy',                     priority: '0.3', changefreq: 'yearly'  },
   { file: 'terms.html',                        url: '/terms',                       priority: '0.3', changefreq: 'yearly'  },

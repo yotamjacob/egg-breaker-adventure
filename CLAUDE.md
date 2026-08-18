@@ -193,7 +193,11 @@ Marketing pages, analytics and the share loop. All organic — no paid ads.
 
 ### Content pages (SEO)
 `/what-happened-to-egg-breaker`, `/play-egg-breaker-online`, `/egg-breaker-guide`,
-`/egg-breaker-vs-original`. Plain static HTML sharing `content.css`.
+`/egg-breaker-vs-original`, `/about`. Plain static HTML sharing `content.css`.
+`/about` is also the **OAuth consent-screen home page** — Google requires visible page
+text with the exact app name + purpose, which the game root cannot provide without UI
+changes. Keep its H1 exactly `Egg Smash Adventures` and keep the "Google sign-in is used
+for cloud save only" paragraph (see `docs-google-oauth-branding.md`).
 - Facts in these pages (egg tiers, hat/hammer prices, monkey perks, the 353-item
   total) come from `config.js`/`data.js`. **If you retune those, update the guide** —
   nothing enforces it automatically.

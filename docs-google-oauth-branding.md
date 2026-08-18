@@ -32,7 +32,19 @@ So a domain purchase is unavoidable for branded Google sign-in.
 | Game served on it | ✅ `/`, `/privacy`, `/terms` all 200 with the game |
 | DNS host | **Vercel** (`ns1/ns2.vercel-dns.com`) — records are added in the Vercel dashboard, *not* at the registrar |
 | Search Console TXT | ✅ added 18 Aug 2026 (`rec_11ae4e4f29babc9d22fc56ba`) — live on Vercel's nameservers and both public resolvers |
-| OAuth home page URL to use | `https://www.eggbreakeradventure.com/` (the `www` form: the apex redirects) |
+| OAuth home page URL to use | **`https://www.eggbreakeradventure.com/about`** — see below |
+
+### Second rejection (after the domain was fixed)
+> *Your home page does not explain the purpose of your app.*
+> *The app name "Egg Smash Adventures" … does not match the app name on your home page.*
+
+The root URL is the game itself: the name exists only in `<title>`/JSON-LD and on a
+splash that fades, and nothing on screen says what the app is. Google's reviewer needs
+**visible page text** with the exact app name and a description of purpose. Rather than
+put marketing copy on the play screen, `/about` is a dedicated page for this: `<h1>Egg
+Smash Adventures</h1>`, what the app does, and — the thing reviewers look for — what
+Google sign-in is used for (cloud save, email only). Use it as the **Application home
+page** in the consent screen. Privacy/terms stay `/privacy` and `/terms`.
 
 ### The TXT record (already added)
 Added with the Vercel CLI, which refreshes the stored OAuth token by itself even
@@ -97,7 +109,7 @@ that.
    - User support email: your address
    - App logo: 120×120 square PNG (use `icon-512.png` downscaled — must be the
      same logo the store listing uses)
-   - Application home page: `https://<your-domain>/`
+   - Application home page: `https://www.eggbreakeradventure.com/about`
    - Privacy policy: `https://<your-domain>/privacy`
    - Terms of service: `https://<your-domain>/terms`
    - **Authorized domains**: `<your-domain>` (registrable domain, no subdomain)
