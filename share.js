@@ -227,20 +227,36 @@ function dismissReferralBanner() {
 // Own key, never inside SAVE_KEY — same reasoning as _cloudLinkPref and
 // _ebaAttribution: a resetGame() must not bring the nag back.
 const WEB_BANNER_KEY = '_ebaWebBanner';   // '1' once the player closes the card — permanent
+// Legacy values (< v3.9.2) were a snooze deadline in ms. Anything numeric is
+// therefore an OLD dismissal: honour it while it has not expired, then clear
+// it. Without this, everyone who ever closed the old banner would never see
+// the card again (v3.9.3 fix).
+function _webBannerDismissed() {
+  let v;
+  try { v = localStorage.getItem(WEB_BANNER_KEY); } catch (e) { return true; }
+  if (!v) return false;
+  if (v === '1') return true;
+  const until = parseInt(v, 10);
+  if (isFinite(until) && until > Date.now()) return true;   // old snooze still running
+  try { localStorage.removeItem(WEB_BANNER_KEY); } catch (e) {}
+  return false;
+}
 
 /**
  * Shows the "get the app" card on the plain web/PWA build only:
  *  - never inside the Android app (AndroidBridge present) — they already have it
  *  - never on the itch.io build — itch.js paints its own Play CTA
  *  - not while the referral greeting is up (both are fixed elements)
- *  - never again once the player has closed it (v3.9.2: it used to auto-hide
+ *  - never again once the player has closed it in v3.9.2+ (an expired legacy
+ *    snooze from the old banner is cleared, see _webBannerDismissed)
+ *  - (v3.9.2: it used to auto-hide
  *    after 14s and return a week later; it now floats at the side of the
  *    viewport, out of the game column, and simply stays until dismissed)
  */
 function initWebBanner() {
   try {
     if (window.AndroidBridge) return;
-    if (localStorage.getItem(WEB_BANNER_KEY)) return;   // dismissed for good
+    if (_webBannerDismissed()) return;
   } catch (e) { return; }
 
   _whenSplashGone(function tryShow() {
