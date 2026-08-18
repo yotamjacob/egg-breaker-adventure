@@ -286,8 +286,10 @@
 #shop-hammers .shop-card{justify-content:flex-start}
 #shop-hammers .shop-card .s-hammer{height:52px;flex:0 0 auto}
 #shop-hammers .shop-card .s-name{height:30px;display:flex;align-items:center;justify-content:center;line-height:1.25}
-#shop-hammers .shop-card .s-desc{height:40px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
-  overflow:hidden;align-items:center;line-height:1.35}
+/* 5 lines fits the longest hammer description without truncating; every card
+   uses the same band so the level rows and XP bars stay on one line. */
+#shop-hammers .shop-card .s-desc{height:68px;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;
+  overflow:hidden;line-height:1.35}
 #shop-hammers{grid-auto-rows:1fr}
 #shop-hammers .shop-card .hm-row{margin-top:auto}
 #shop-hammers .shop-card .s-status,
@@ -458,6 +460,6 @@
 @keyframes hm-prism{0%{color:#ff8fd0}25%{color:#ffe27a}50%{color:#8bf59a}75%{color:#8fd8ff}100%{color:#ff8fd0}}
 .hm-xp{font-size:8px;color:var(--gray)}
 .hm-track{margin-top:4px}
-.hm-perk{font-size:7px;color:var(--gold);margin-top:5px;line-height:1.4;
-  min-height:30px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hm-perk{font-size:8px;color:var(--gold);margin-top:5px;line-height:1.45;
+  height:36px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .hm-perk-dim{color:var(--gray)}

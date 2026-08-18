@@ -226,22 +226,21 @@ function dismissReferralBanner() {
 
 // Own key, never inside SAVE_KEY — same reasoning as _cloudLinkPref and
 // _ebaAttribution: a resetGame() must not bring the nag back.
-const WEB_BANNER_KEY = '_ebaWebBanner';
-const WEB_BANNER_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;   // dismissed → quiet for a week
-const WEB_BANNER_TTL_MS = 14000;                        // sits over the top bar, so it must go away
+const WEB_BANNER_KEY = '_ebaWebBanner';   // '1' once the player closes the card — permanent
 
 /**
- * Shows the banner on the plain web/PWA build only:
+ * Shows the "get the app" card on the plain web/PWA build only:
  *  - never inside the Android app (AndroidBridge present) — they already have it
- *  - never on the itch.io / Game Jolt builds — itch.js paints its own Play CTA
- *  - not while the referral greeting is up (both are fixed to the top)
- *  - not for a week after the player closes it
+ *  - never on the itch.io build — itch.js paints its own Play CTA
+ *  - not while the referral greeting is up (both are fixed elements)
+ *  - never again once the player has closed it (v3.9.2: it used to auto-hide
+ *    after 14s and return a week later; it now floats at the side of the
+ *    viewport, out of the game column, and simply stays until dismissed)
  */
 function initWebBanner() {
   try {
     if (window.AndroidBridge) return;
-    const until = parseInt(localStorage.getItem(WEB_BANNER_KEY) || '0', 10);
-    if (until && Date.now() < until) return;
+    if (localStorage.getItem(WEB_BANNER_KEY)) return;   // dismissed for good
   } catch (e) { return; }
 
   _whenSplashGone(function tryShow() {
@@ -259,17 +258,16 @@ function _showWebBanner() {
   el.classList.remove('hidden');
   requestAnimationFrame(() => el.classList.add('show'));
   track('web-banner-shown');
-  setTimeout(() => dismissWebBanner(false), WEB_BANNER_TTL_MS);
 }
 
-/** @param {boolean} byUser - explicit close snoozes it; the auto-hide does not. */
+/** Closing it is permanent — the key lives outside SAVE_KEY so a reset cannot bring it back. */
 function dismissWebBanner(byUser) {
   const el = $id('web-banner');
   if (!el || el.classList.contains('hidden')) return;
   el.classList.remove('show');
-  setTimeout(() => el.classList.add('hidden'), 320);
+  setTimeout(() => el.classList.add('hidden'), 380);
   if (byUser) {
-    try { localStorage.setItem(WEB_BANNER_KEY, String(Date.now() + WEB_BANNER_SNOOZE_MS)); } catch (e) {}
+    try { localStorage.setItem(WEB_BANNER_KEY, '1'); } catch (e) {}
     track('web-banner-dismissed');
   }
 }

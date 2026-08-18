@@ -11,7 +11,7 @@
 | `particles.js` | Canvas particle system (dt-scaled, one rAF loop): `emit` egg-break burst (shards + additive sparks), `sparkle`, `starRain` (Starfall), `confetti` (Banana Shake), `setAmbient('rage'\|'goose'\|null)` continuous emitters while a skill is active |
 | `hammers.js` | Hammer regeneration logic — regen interval, fast regen, max hammer tracking |
 | `mastery.js` | Hammer mastery ("train your hammer") — the equipped special hammer earns XP per hit/break/rare item, levels 1→10 from `CONFIG.hammerMastery`; every owned hammer's own bonus scales with ITS level, L5 = 3% free hits, L10 = a unique perk. Bundled after quests.js |
-| `quests.js` | Quests — 3 daily + 1 weekly from `CONFIG.quests`, deterministic per day/week, progress = counter delta since assignment, manual claim (auto-claim on rollover). Owns the **Quests tab** (replaced the Log tab) and `openFullLog()` (activity log sub-modal from the tray's mini-log title). Bundled after achievements.js |
+| `quests.js` | Quests — 3 daily + 1 weekly from `CONFIG.quests`, deterministic per day/week, progress = counter delta since assignment, manual claim (auto-claim on rollover). Owns the **Quests tab** (replaced the Log tab). Bundled after achievements.js |
 | `idle.js` | Auto-Smasher (idle) — gold-shop helper that taps eggs with hammers: online loop, offline simulation, "while you were away" report, leveled shop upgrades. **Bundled after achievements.js** (its boot block needs everything before it) |
 | `analytics.js` | Umami event wrapper + traffic attribution — `track()`, `openPlayStore()`, `playStoreUrl()`, first-touch source. Bundled after `config.js`. Every call is fail-safe |
 | `share.js` | Share/referral loop — `shareGame()`, share-link builder, arrival banner. **Bundled after `game.js`** (see Promotion below) |
@@ -23,8 +23,6 @@
 | `sw.js` | Service worker — cache versioning, network-first fetch strategy |
 | `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css; `--itch` assembles the static itch.io build; also generates `sitemap.xml` |
 | `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by the `--itch` build) |
-| `ng/` | Newgrounds-only shim (`ng.js`, `ng.css`, `ng-config.js`, vendored `NewgroundsIO.min.js`) — loaded by the `--newgrounds` build only. Removes the store funnel, portal pacing, NG medals + scoreboards. See `ng/README.md` |
-| `tools/ng-medals.js` | Prints the curated 29-medal / 500-point set (+ `ng-config.js` template) from `ACHIEVEMENT_DATA` |
 | `payments.js` | Google Play Billing, purchase verification, restore-purchases flow, PREMIUM_PRODUCTS |
 | `cloud.js` | Supabase auth + cloud save — `_syncToCloud`, autosave timer (default OFF), session caching |
 | `admin.html` | Standalone admin dashboard (not bundled) — Players/Purchases/Analytics tabs; calls admin-* edge fns with `x-admin-secret` |
@@ -38,8 +36,6 @@
 ```bash
 node build.js                    # bundle JS + CSS (always run before commit)
 node build.js --itch             # + assemble itch.io build → dist-itch.zip
-node build.js --gamejolt         # + assemble Game Jolt build → dist-gamejolt.zip (itch features, optimised assets)
-node build.js --newgrounds       # + assemble Newgrounds build → dist-newgrounds.zip (no store funnel, NG medals/scoreboards, portal pacing)
 git add -A && git commit && git push   # Vercel auto-deploys on push
 supabase functions deploy <name> # deploy a single edge function
 ```
@@ -213,7 +209,7 @@ Marketing pages, analytics and the share loop. All organic — no paid ads.
 | Attribution lives in its own `localStorage` key (`_ebaAttribution`), never `SAVE_KEY` | `resetGame()` clears the save; losing the original acquisition source silently corrupts reporting. Same reasoning as `_cloudLinkPref` / `PREMIUM_KEY` |
 | `track()` must stay fail-safe | The itch.io build ships the same bundle and may load without umami. Analytics must never break play |
 | Event names: `game-started`, `play-store-click`, `play-web-click`, `share-click`, `share-completed`, `referral-arrival`, `web-banner-shown`, `web-banner-dismissed` | Content pages fire these declaratively via `data-umami-event`; keep names in sync when adding surfaces |
-| Web banner (`#web-banner`, `share.js initWebBanner`) shows only when `AndroidBridge` is absent AND no `.itch-cta` exists; user-dismiss snoozes 7 days in `_ebaWebBanner`; auto-hides after 14s | It is `position:fixed` over the top bar, so it must go away on its own; itch/Game Jolt already paint a Play CTA; the snooze key lives outside `SAVE_KEY` so a reset doesn't bring the nag back |
+| Web card (`#web-banner`, `.web-card`, `share.js initWebBanner`) shows only when `AndroidBridge` is absent AND no `.itch-cta` exists; **no auto-hide** — closing it writes `_ebaWebBanner='1'` permanently (v3.9.2) | It floats beside the game column (right edge, z-index 880 under `.overlay`) instead of over the top bar, so it never needs to time out. Below 880px there is no side room and it docks as a slim bottom bar. The key lives outside `SAVE_KEY` so a reset doesn't bring the nag back |
 
 ### Share / referral loop
 | Invariant | Why |
@@ -223,21 +219,6 @@ Marketing pages, analytics and the share loop. All organic — no paid ads.
 | Referral banner is `position:fixed` above `#app`, z-index 890 | It must not shift layout — `renderEggTray` computes from laid-out dimensions and only re-runs on tab switch. 890 keeps it under `.overlay` (900) so modals still cover it |
 | Banner waits for the splash to clear (~4.6s) | The splash is z-index 9999; showing immediately burns most of the banner's 11s life behind it |
 | Share code lives in its own `localStorage` key | Must survive `resetGame()` |
-
-### Newgrounds build (`ng/`)
-Newgrounds rejected the first submission ("not enough content / not developed enough")
-— the game's depth was invisible in the first five minutes and the itch shim reads as
-a Play-Store advert. `ng.js` fixes this **from the outside** (runtime hooks on globals),
-so the web/Android game is untouched:
-| Rule | Why |
-|------|-----|
-| The NG shim is only ever injected into `dist-newgrounds/index.html` by `NG_SHIM` in `build.js` — never into `JS_FILES` | Web/Android must not change; that is the whole contract of the NG build |
-| Premium tab/panel, "Support Us" and `#web-banner` are removed at runtime; nothing links to Google Play | NG declines games that primarily funnel to an external store |
-| Pacing (`NG_CONFIG.pacing`) overrides `CONFIG.regenInterval` after load, and clamps the already-seeded `G.regenCD` | Portal players judge in one sitting; the 30s regen wall after ~2 min is the classic "not developed" trigger |
-| Medals hook `window.checkAchievements` (wrap, not replace) and re-sync every 60s; scores post only when a value increases | Achievements stay the single source of truth; the wrap must call the original |
-| `checkHostLicense:false` in `NGIO.init` | A host-license hiccup must never brick the build |
-| App ID + encryption key live in git-ignored `ng/ng.secrets.json` (or `NG_APP_ID`/`NG_ENC_KEY`) and are injected into `dist-newgrounds/ng-config.js` at build time; medal ids stay in `ng/ng-config.js` | Public repo — never commit the key. The build warns when `appId` is empty (medals silently disabled) |
-Setup steps (create project, medals, scoreboards, embed size) are in `ng/README.md`.
 
 ### Marketing asset tooling (run manually, not in the deploy)
 ```bash
@@ -275,7 +256,7 @@ Invariants are checked by `tests/autotap.test.js` (vm sandbox, no browser).
 | Day key = `localDateStr()`, week key = the local Monday; `ensureQuests()` runs at boot, every 60s and on render — rollover **auto-claims** completed unclaimed quests before re-rolling | Same clock as the daily login; nothing earned is ever lost |
 | Reward gold calls `_questBumpBases('totalGold', …)` | Quest gold must not progress "earn gold" quests |
 | Templates with `need:` are filtered *before* the deterministic pick, so two players on the same day can differ only by what they have unlocked | Never hand a starfall quest to someone without Starfall |
-| The Log **tab is gone** (`data-tab="quests"` took its slot); the full log lives in `#overlay-fulllog`, opened by tapping the tray's `Log ▸` title | Nav real estate; history stays reachable |
+| The Log **tab and the full activity log are gone** (v3.9.2) — `data-tab="quests"` took the slot and the tray's 5-line mini-log is the only history | Nav real estate; the filtered history was dead weight nobody opened twice |
 Guarded by `tests/quests.test.js` (vm sandbox).
 
 ## Hammer mastery (`mastery.js`, `CONFIG.hammerMastery`, v3.8.0)

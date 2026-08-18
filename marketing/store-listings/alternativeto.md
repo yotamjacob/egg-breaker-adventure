@@ -1,7 +1,7 @@
 # AlternativeTo.net — submission pack
 
 One entry only, covering **both** the web build and the Android build. Do **not** submit
-the itch.io or Game Jolt builds separately — AlternativeTo treats repackaged versions of
+the itch.io build separately — AlternativeTo treats repackaged versions of
 the same app as duplicates and declines them.
 
 Rules this pack is written against: <https://alternativeto.net/faq/#why-wasn-t-my-software-app-approved>
@@ -17,7 +17,7 @@ Rules this pack is written against: <https://alternativeto.net/faq/#why-wasn-t-m
 | **URLs / emails / phone numbers in the description** — explicit rejection reason | The Play Store copy ends with `egg-breaker-adventures.vercel.app` | The description below contains zero URLs. Links go in the dedicated URL fields, which is where they are allowed |
 | **Non-English apps** | — | Game is English-first; fine |
 | **Closed beta / geo-restricted** | — | Live on Play and on the open web, no region gate; fine |
-| **Duplicate entries** | itch.io, Game Jolt, web and Android builds all exist | One entry, platforms ticked as Web + Android |
+| **Duplicate entries** | itch.io, web and Android builds all exist | One entry, platforms ticked as Web + Android |
 | **Self-promotion on the profile** — explicit rule | Tempting to put the game link in the bio | Leave the profile bio empty of product links. Instead claim the listing through the official developer flow once it's approved |
 | **Incentivised voting** — explicit rule | — | Never ask anyone to upvote the entry. This gets listings pulled, not just declined |
 
@@ -119,7 +119,7 @@ Egg Smash Adventures is an independent recreation of Egg Breaker Adventures, a F
 
 It is live and public on both platforms, not a beta or a closed test: Google Play (com.eggbreakeradventures.app) and the web build at the homepage URL, which loads directly into the playable game rather than a landing page. English only, no region restrictions. Free to play, with optional one-time in-app purchases on Android, hence the Freemium license.
 
-This is a single entry covering the web and Android builds together. Repackaged builds of the same game exist on itch.io and Game Jolt; I have deliberately not submitted those as separate entries.
+This is a single entry covering the web and Android builds together. A repackaged build of the same game exists on itch.io; I have deliberately not submitted those as separate entries.
 
 Happy to provide anything else that helps.
 ```

@@ -105,15 +105,22 @@ function hammerMasteryStats() {
   SHOP_HAMMERS.forEach(h => { if (h.cost === 0 || !hammerOwned(h.id)) return; owned++; const l = hammerLevel(h.id); if (l > best) best = l; if (l >= CONFIG.hammerMastery.maxLevel) maxed++; });
   return { best, maxed, owned, total: SHOP_HAMMERS.filter(h => h.cost > 0).length };
 }
-/** Shop-card fragment: "Lv 3 · 120/400" + bar (owned hammers only). */
+/**
+ * Shop-card fragment: "Lv 3 · 120/400", bar, and the NEXT milestone only —
+ * showing both L5 and L10 at once overflowed the card (v3.9.2).
+ */
 function hammerCardMastery(id) {
   if (!hammerOwned(id)) return '';
   const i = hammerXpInfo(id);
-  const perkNow = i.maxed ? hammerPerkDesc(id) : null;
+  const next = i.maxed
+    ? '<div class="hm-perk">★ ' + hammerPerkDesc(id) + '</div>'
+    : i.lvl >= 5
+      ? '<div class="hm-perk hm-perk-dim">Lv 10: ' + hammerPerkDesc(id) + '</div>'
+      : '<div class="hm-perk hm-perk-dim">Lv 5: 3% free hits</div>';
   return '<div class="hm-row"><span class="hm-lv ' + hammerTierClass(i.lvl) + '">Lv ' + i.lvl + (i.maxed ? ' MAX' : '') + '</span>' +
     (i.maxed ? '' : '<span class="hm-xp">' + formatNum(i.cur) + '/' + formatNum(i.need) + '</span>') + '</div>' +
     '<div class="m-prog-track hm-track"><div class="m-prog-fill' + (i.maxed ? ' done' : '') + '" style="width:' + i.pct + '%"></div></div>' +
-    (perkNow ? '<div class="hm-perk">★ ' + perkNow + '</div>' : (i.lvl >= 5 ? '<div class="hm-perk hm-perk-dim">3% free hits · L10: ' + hammerPerkDesc(id) + '</div>' : '<div class="hm-perk hm-perk-dim">L5: 3% free hits · L10: ' + hammerPerkDesc(id) + '</div>'));
+    next;
 }
 
 (function _masteryBoot() { try { applyHammerGlow(); } catch (e) {} })();

@@ -1,7 +1,7 @@
 // ============================================================
 //  Egg Smash Adventures — Store cover art generator
 //
-//  Renders the two cover sizes Game Jolt asks for:
+//  Renders the two cover sizes used for store/press listings:
 //    landscape 16:9  1920x1080
 //    portrait  2:3    800x1200
 //

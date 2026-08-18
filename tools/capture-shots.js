@@ -19,7 +19,7 @@ const fs   = require('fs');
 
 const SITE     = process.env.SHOT_SITE || 'https://egg-breaker-adventures.vercel.app/';
 const ROOT_DIR = path.join(__dirname, '..');
-// SHOT_OUT overrides the output dir (e.g. captures of the Newgrounds build);
+// SHOT_OUT overrides the output dir (e.g. captures of a portal build);
 // when set, the /shots web copies for the content pages are NOT rewritten.
 const OUT      = process.env.SHOT_OUT || path.join(ROOT_DIR, 'marketing', 'shots');
 const VP       = { width: 390, height: 844 };

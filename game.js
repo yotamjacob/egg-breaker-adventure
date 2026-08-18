@@ -306,7 +306,6 @@ function resetGame() {
     };
     loadPremium(); // restore premium on top of fresh state
     _logLines.length = 0;
-    _fullLog.length  = 0;
     renderLog();
     if (regenInt) { clearInterval(regenInt); regenInt = null; }
     invalidateBonusCache();
@@ -461,8 +460,6 @@ let _balloonHold     = null;
 const _stageEggsCache = {};
 
 const _logLines = [];
-const _fullLog   = [];   // timestamped history, max 200 entries
-const _FULL_LOG_MAX = 200;
 
 function msg(text, cat) {
   const show = CONFIG.logShow || {};
@@ -473,15 +470,13 @@ function msg(text, cat) {
   // Full log — skip noisy no-hammer noise, keep everything else
   if (cat !== 'noHammers') {
     const eggType = (typeof _prizeEggType !== 'undefined' && _prizeEggType) ? _prizeEggType : null;
-    _fullLog.unshift({ text, cat: cat || '', ts: Date.now(), eggType });
-    if (_fullLog.length > _FULL_LOG_MAX) _fullLog.length = _FULL_LOG_MAX;
   }
 }
 function renderLog() {
   const el = $id('reward-log');
   if (!el) return;
   el.style.display = (typeof G !== 'undefined' && G.showLog === false) ? 'none' : '';
-  el.innerHTML = '<div class="rlog-title" onclick="openFullLog()" title="Full activity log">Log ▸</div>' +
+  el.innerHTML = '<div class="rlog-title">Log</div>' +
     _logLines.map(function(l) {
       var cls = 'log-line';
       if (l.cat === 'noHammers' || l.cat === 'hex') cls += ' log-err';
@@ -497,58 +492,6 @@ function renderLog() {
       return '<div class="' + cls + '">' + l.text + '</div>';
     }).join('');
 }
-
-let _logFilter = '';
-
-function renderFullLog() {
-  const el = $id('full-log-list');
-  if (!el) return;
-  const _SPECIALS_CATS = new Set(['specials', 'cucumber', 'mjolnir', 'freehit', 'gavel']);
-  const entries = _logFilter
-    ? _fullLog.filter(e => _logFilter === 'specials' ? _SPECIALS_CATS.has(e.cat) : e.cat === _logFilter)
-    : _fullLog;
-  if (!entries.length) {
-    el.innerHTML = '<div class="flog-empty">No activity recorded yet.</div>';
-    return;
-  }
-  const now = Date.now();
-  el.innerHTML = entries.map(e => {
-    const age  = now - e.ts;
-    const mins = Math.floor(age / 60000);
-    const hrs  = Math.floor(mins / 60);
-    const time = mins < 1  ? 'just now'
-               : mins < 60 ? mins + 'm ago'
-               : hrs  < 24 ? hrs + 'h ' + (mins % 60) + 'm ago'
-               : Math.floor(hrs / 24) + 'd ago';
-    const cls = e.cat === 'trophies'                        ? 'log-trophy'
-              : e.cat === 'tiers'                            ? 'log-green'
-              : e.cat === 'items'                            ? 'log-blue'
-              : e.cat === 'discovery'                        ? 'log-purple'
-              : e.cat === 'empty'                            ? 'log-gray'
-              : e.cat === 'noHammers' || e.cat === 'hex'      ? 'log-err'
-              : e.cat === 'cucumber'                         ? 'log-cucumber'
-              : e.cat === 'mjolnir'                          ? 'log-mjolnir'
-              : e.cat === 'freehit'                          ? 'log-freehit'
-              : e.cat === 'gavel'                           ? 'log-gavel'
-              : '';
-    let prefix = '';
-    if (e.eggType) {
-      const eCfg = CONFIG.eggTypes.find(t => t.id === e.eggType);
-      if (eCfg) prefix = `<span class="flog-egg">${eCfg.name} › </span>`;
-    }
-    return `<div class="flog-row ${cls}"><span class="flog-time">${time}</span><span class="flog-text">${prefix}${e.text}</span></div>`;
-  }).join('');
-}
-
-// Filter buttons for the log panel
-document.addEventListener('click', e => {
-  const btn = e.target.closest('.log-filter-btn');
-  if (!btn) return;
-  document.querySelectorAll('.log-filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  _logFilter = btn.dataset.cat;
-  renderFullLog();
-});
 
 function spawnFloat(zone, text, color, cls, cx, cy) {
   if (!zone || !zone.isConnected) return;

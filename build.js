@@ -11,15 +11,9 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // `node build.js --itch` also assembles an upload-ready itch.io build
-// into /dist-itch (+ dist-itch.zip). `--gamejolt` does the same for Game
-// Jolt (+ dist-gamejolt.zip). Without a flag the build is identical — the
-// Vercel/Android pipeline is untouched.
-const ITCH       = process.argv.includes('--itch');
-const GAMEJOLT   = process.argv.includes('--gamejolt');
-// `--newgrounds` assembles the Newgrounds build into /dist-newgrounds
-// (+ dist-newgrounds.zip): no Play-Store funnel, Newgrounds.io medals +
-// scoreboards, portal pacing. Shim lives in /ng and is never bundled.
-const NEWGROUNDS = process.argv.includes('--newgrounds');
+// into /dist-itch (+ dist-itch.zip). Without the flag the build is identical —
+// the Vercel/Android pipeline is untouched.
+const ITCH = process.argv.includes('--itch');
 
 const JS_FILES = [
   'lz-string.min.js',
@@ -99,9 +93,7 @@ async function build() {
 
   console.log('Build complete.');
 
-  if (ITCH)       await buildItch();
-  if (GAMEJOLT)   await buildGameJolt();
-  if (NEWGROUNDS) await buildNewgrounds();
+  if (ITCH) await buildItch();
 }
 
 // ============================================================
@@ -308,59 +300,12 @@ const ITCH_SHIM = {
   body:  '  <script defer src="./itch.js"></script>\n',
 };
 
-// Newgrounds shim: config → NGIO library → ng.js, all deferred so they run
-// after bundle.min.js (ng.js hooks globals the bundle defines).
-const NG_SHIM = {
-  files: ['ng/ng.css', 'ng/ng-config.js', 'ng/NewgroundsIO.min.js', 'ng/ng.js'],
-  head:  '  <link rel="stylesheet" href="./ng.css" />\n',
-  body:  '  <script defer src="./ng-config.js"></script>\n' +
-         '  <script defer src="./NewgroundsIO.min.js"></script>\n' +
-         '  <script defer src="./ng.js"></script>\n',
-};
-
 // itch.io build  (node build.js --itch)
 // Assets left untouched so the package stays identical to what is already
 // published on itch. Pass optimizeAssets:true to shrink it ~6x if that build
 // is ever re-uploaded.
 async function buildItch() {
   await assembleWebBuild('dist-itch', 'dist-itch.zip');
-}
-
-// Game Jolt build  (node build.js --gamejolt)
-// Identical feature set to the itch build — Game Jolt permits outbound links,
-// so cloud save, the premium shop and the Google Play CTA all stay. The only
-// difference is optimised assets: Game Jolt is a browser-games portal where
-// load time is most of the first impression, and 78MB is not a first
-// impression worth having.
-async function buildGameJolt() {
-  await assembleWebBuild('dist-gamejolt', 'dist-gamejolt.zip', { optimizeAssets: true });
-}
-
-// Newgrounds build  (node build.js --newgrounds)
-// Same static assembly, different shim: NG rejects games that funnel to an
-// external store, so ng.js removes the Premium tab / Play banner and instead
-// wires Newgrounds.io medals + scoreboards (see ng/README.md). Optimised
-// assets — it is a browser portal, load time is the first impression.
-// App ID / encryption key are NOT committed (public repo). They come from
-// the git-ignored ng/ng.secrets.json ({ "appId", "encKey" }) or the env vars
-// NG_APP_ID / NG_ENC_KEY, and are written into dist-newgrounds/ng-config.js
-// only. Medal/scoreboard ids stay in ng/ng-config.js — they are not secret.
-async function buildNewgrounds() {
-  await assembleWebBuild('dist-newgrounds', 'dist-newgrounds.zip', { optimizeAssets: true, shim: NG_SHIM });
-  let secrets = {};
-  try { secrets = JSON.parse(fs.readFileSync('ng/ng.secrets.json', 'utf8')); } catch (e) {}
-  const appId  = process.env.NG_APP_ID  || secrets.appId  || '';
-  const encKey = process.env.NG_ENC_KEY || secrets.encKey || '';
-  const cfgPath = path.join('dist-newgrounds', 'ng-config.js');
-  let cfg = fs.readFileSync(cfgPath, 'utf8');
-  cfg = cfg.replace(/appId:\s*'[^']*'/, "appId:  '" + appId.replace(/'/g, '') + "'")
-           .replace(/encKey:\s*'[^']*'/, "encKey: '" + encKey.replace(/'/g, '') + "'");
-  fs.writeFileSync(cfgPath, cfg);
-  // Re-zip so the archive carries the injected config.
-  fs.rmSync('dist-newgrounds.zip', { force: true });
-  execSync('zip -r -X ../dist-newgrounds.zip .', { cwd: 'dist-newgrounds', stdio: 'ignore' });
-  if (!appId) console.warn('\n  ⚠ No Newgrounds appId (ng/ng.secrets.json or NG_APP_ID) — medals/scoreboards will be disabled in this build.');
-  else console.log('  ng-config: appId + encKey injected' + (encKey ? '' : ' (no encKey)'));
 }
 
 function listFiles(dir, base) {

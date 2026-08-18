@@ -289,13 +289,6 @@ function renderQuests() {
   el.innerHTML = html;
 }
 
-// ---- full activity log (moved out of the old Log tab into a sub-modal) ----
-function openFullLog() {
-  const ov = $id('overlay-fulllog'); if (!ov) return;
-  if (typeof renderFullLog === 'function') renderFullLog();
-  ov.classList.remove('hidden');
-}
-
 // ---- boot --------------------------------------------------------------
 (function _questsBoot() {
   try { ensureQuests(); updateQuestPip(); } catch (e) { console.error('quests boot failed', e); }

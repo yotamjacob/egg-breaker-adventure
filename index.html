@@ -108,13 +108,16 @@
     <button class="referral-banner-close" onclick="dismissReferralBanner()" aria-label="Dismiss">✕</button>
   </div>
 
-  <!-- ===== WEB BANNER (web/PWA only — never inside the Android app) ===== -->
-  <div class="referral-banner web-banner hidden" id="web-banner">
-    <span class="referral-banner-icon">📱</span>
-    <span class="referral-banner-text">Looks best on mobile — and don't forget to <strong>sync to cloud</strong>!</span>
-    <button class="web-banner-cta" onclick="openPlayStore('web-banner')">▶ Google Play</button>
-    <button class="referral-banner-close" onclick="dismissWebBanner(true)" aria-label="Dismiss">✕</button>
-  </div>
+  <!-- ===== WEB CARD (web/PWA only — never inside the Android app) =====
+       Floats against the side of the viewport, clear of the game column, and
+       stays until the player closes it (permanent, see share.js). -->
+  <aside class="web-card hidden" id="web-banner">
+    <button class="web-card-close" onclick="dismissWebBanner(true)" aria-label="Dismiss">✕</button>
+    <span class="web-card-icon">📱</span>
+    <span class="web-card-title">Get the app</span>
+    <span class="web-card-text">Plays best on mobile — and your progress syncs to the cloud.</span>
+    <button class="web-card-cta" onclick="openPlayStore('web-banner')">▶ Google Play</button>
+  </aside>
 
   <div id="app">
 
@@ -186,7 +189,7 @@
           </div>
           <button class="auto-toggle hidden" id="auto-btn" onclick="toggleAutoTap()" title="Auto-Smasher"><span class="auto-toggle-txt" id="auto-btn-txt">AUTO</span><span class="auto-toggle-cd" id="auto-btn-cd"></span></button>
           <div class="reward-log" id="reward-log">
-            <div class="rlog-title" onclick="openFullLog()" title="Full activity log">Log ▸</div>
+            <div class="rlog-title">Log</div>
           </div>
         </div>
         <div id="overlay-layer" style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:visible">
@@ -469,25 +472,6 @@
           <button class="pop-btn" onclick="closeOverlay('overlay-congrats');document.querySelector('[data-tab=premium]').click()">💎 Support Us</button>
         </div>
         <button class="pop-btn congrats-dismiss" onclick="closeOverlay('overlay-congrats')">Close</button>
-      </div>
-    </div>
-
-    <!-- ===== FULL ACTIVITY LOG (was the Log tab; opened from the tray's mini-log title) ===== -->
-    <div class="overlay hidden" id="overlay-fulllog" onclick="if(event.target===this)closeOverlay('overlay-fulllog')">
-      <div class="popup pop-submodal pop-fulllog">
-        <div class="submodal-header">
-          <span class="submodal-title">Activity Log</span>
-          <button class="submodal-close" onclick="closeOverlay('overlay-fulllog')">✕</button>
-        </div>
-        <div class="log-controls">
-          <button class="log-filter-btn active" data-cat="">All</button>
-          <button class="log-filter-btn" data-cat="prizes">Prizes</button>
-          <button class="log-filter-btn" data-cat="trophies">Trophies</button>
-          <button class="log-filter-btn" data-cat="items">Items</button>
-          <button class="log-filter-btn" data-cat="discovery">Discoveries</button>
-          <button class="log-filter-btn" data-cat="specials">Specials</button>
-        </div>
-        <div class="full-log-list" id="full-log-list"></div>
       </div>
     </div>
 
