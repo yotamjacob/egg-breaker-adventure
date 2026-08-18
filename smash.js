@@ -84,6 +84,7 @@ function newRound() {
   G.roundEggs = eggs;
   // Start cooldown if a century egg was rolled this round
   if (eggs.some(e => e.type === 'century')) _centuryCooldown = 100;
+  _spawnFxPending = true;   // renderEggTray plays the summon effect for this render only
   renderEggTray();
   updateResources();
   saveGame();

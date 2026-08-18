@@ -287,6 +287,7 @@ because both failures were **CSS cascade** failures: two rules set `animation` o
 | `shake()` must strip `idle-wiggle` before adding its own class | `.egg-slot.idle-wiggle` is specificity (0,2,0); `.shake-*` is (0,1,0). A tap landing inside an egg's 0.5s idle wiggle showed no reaction at all |
 | Special eggs (`crystal`/`ruby`/`black`/`century`) must resolve to `egg-crunch`, not `egg-smash-retro` | `.egg-slot.egg-crunching` and `.egg-slot.smashing` tie on specificity, so **source order in the bundle decides**. `egg-crunching` is earlier and would lose — the normal path must therefore never set `smashing` on a special egg |
 | Any new `.egg-slot.<state>` rule that sets `animation` must not outrank the smash feedback | This is the whole bug class. Adding one is silent |
+| The summon effect (v3.4.5, `.egg-slot.spawning > svg` + `.spawn-burst` child) animates **children**, never `.egg-slot` | Keeps it out of the cascade entirely. It plays only when `newRound()` sets `_spawnFxPending` before `renderEggTray()` — never on tab-switch/resize re-renders. Tiers via `.spawn-t0…t6` (`SPAWN_TIER` in render.js) |
 
 Guarded by `tests/smash-animation.test.js`, which asserts the **resolved**
 `getComputedStyle().animationName` after a real tap — source greps cannot catch a

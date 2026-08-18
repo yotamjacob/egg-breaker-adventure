@@ -255,6 +255,14 @@ function initEggWiggles() {
   });
 }
 
+// Set by newRound() right before it calls renderEggTray(): eggs get the
+// summon pop + a per-tier burst on that render only (never on tab-switch or
+// resize re-renders). `var` — read during boot before this file's top level
+// has necessarily run for callers hoisted from game.js.
+var _spawnFxPending = false;
+// Egg tier → burst class. Higher tiers get bigger, brighter, longer summons.
+const SPAWN_TIER = { normal: 0, silver: 1, gold: 2, crystal: 3, ruby: 4, black: 5, century: 6 };
+
 function renderEggTray() {
   const tray = $id('egg-tray');
   if (!G.roundEggs || G.roundEggs.length === 0) {
@@ -341,6 +349,8 @@ function renderEggTray() {
 
   const runnySlots = [];
   const timerSlots = [];
+  const spawnFx = _spawnFxPending;
+  _spawnFxPending = false;
   G.roundEggs.forEach((egg, i) => {
     const pos = positions[i];
     const slot = document.createElement('div');
@@ -357,10 +367,25 @@ function renderEggTray() {
     slot.className = cls;
     slot.style.left = pos.x + 'px';
     slot.style.top = pos.y + 'px';
+    if (spawnFx && alive) {
+      // Summon effect: pop on the SVG child (NOT the slot — the slot's own
+      // `animation` belongs to the smash feedback cascade, see CLAUDE.md) and
+      // a burst ring/sparkles behind it. Staggered left→right.
+      slot.classList.add('spawning', 'spawn-t' + (SPAWN_TIER[egg.type] || 0));
+      slot.style.setProperty('--spawn-delay', (i * 70) + 'ms');
+      slot.addEventListener('animationend', function onEnd(ev) {
+        if (ev.target.classList && ev.target.classList.contains('spawn-burst')) {
+          ev.target.remove();
+          slot.classList.remove('spawning');
+          slot.removeEventListener('animationend', onEnd);
+        }
+      });
+    }
     const damage = egg.maxHp - egg.hp;
     const balloonExtra = alive && fx.includes('balloon')
       ? '<div class="balloon-rope"><div class="balloon-knot"></div><svg class="balloon-string" width="14" height="44" viewBox="0 0 14 44"><path d="M7,0 Q13,11 7,22 Q1,33 7,44" stroke="#aaa" stroke-width="1.5" fill="none"/></svg></div>' : '';
-    slot.innerHTML = makeEggSVG(egg.type, (egg.broken || egg.expired) ? egg.maxHp : damage) +
+    slot.innerHTML = (spawnFx && alive ? '<span class="spawn-burst" aria-hidden="true"></span>' : '') +
+      makeEggSVG(egg.type, (egg.broken || egg.expired) ? egg.maxHp : damage) +
       balloonExtra +
       eggLabel(egg.type, egg.hp, egg.maxHp, egg.broken || egg.expired) +
       (alive && fx.includes('timer') ? '<span class="egg-timer">' + formatTimer(egg.timer) + '</span>' : '');

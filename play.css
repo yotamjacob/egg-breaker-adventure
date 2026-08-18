@@ -472,3 +472,67 @@
   .mult-bar{padding:9px 8px}
 }
 .item-toast-quote{font-size:9px;color:var(--gray);font-style:italic;margin-top:2px;line-height:1.4}
+
+/* ---------- Egg summon effect (newRound → renderEggTray) ----------
+   The pop animates the SVG child, never .egg-slot itself: the slot's own
+   `animation` slot belongs to the smash-feedback cascade (see CLAUDE.md
+   "Smash animation invariants"), so this can never win/lose against it.
+   The burst is a z-index:-1 child (the slot's drop-shadow filter makes it a
+   stacking context), so it paints behind the egg. Tiers escalate via vars. */
+.egg-slot.spawning > svg{
+  animation:egg-summon .48s cubic-bezier(.34,1.56,.64,1) both;
+  animation-delay:var(--spawn-delay,0ms);
+  transform-origin:50% 88%;
+}
+@keyframes egg-summon{
+  0%  {transform:scale(0) translateY(14px);opacity:0}
+  55% {transform:scale(1.16) translateY(-5px);opacity:1}
+  78% {transform:scale(.94) translateY(1px)}
+  100%{transform:scale(1) translateY(0)}
+}
+.spawn-burst{
+  position:absolute;left:50%;top:44%;z-index:-1;pointer-events:none;
+  width:var(--bs,56px);height:var(--bs,56px);
+  margin-left:calc(var(--bs,56px) / -2);margin-top:calc(var(--bs,56px) / -2);
+}
+.spawn-burst::before{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  border:3px solid var(--bc,#fff);
+  box-shadow:0 0 10px var(--bc,#fff),inset 0 0 10px var(--bc,#fff);
+  opacity:0;
+  animation:burst-ring var(--bd,.5s) ease-out both;animation-delay:var(--spawn-delay,0ms);
+}
+@keyframes burst-ring{0%{transform:scale(.15);opacity:.95}70%{opacity:.5}100%{transform:scale(1);opacity:0}}
+/* Sparks: one dot cloned around the ring with box-shadow, flung outward by scaling the whole thing */
+.spawn-burst::after{
+  content:'';position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2px 0 0 -2px;border-radius:50%;
+  background:var(--bc,#fff);opacity:0;
+  box-shadow:
+    0 -22px 0 0 var(--bc,#fff), 16px -16px 0 -1px var(--bc,#fff), 22px 0 0 0 var(--bc,#fff), 16px 16px 0 -1px var(--bc,#fff),
+    0 22px 0 0 var(--bc,#fff), -16px 16px 0 -1px var(--bc,#fff), -22px 0 0 0 var(--bc,#fff), -16px -16px 0 -1px var(--bc,#fff);
+  animation:burst-sparks var(--bd,.5s) ease-out both;animation-delay:var(--spawn-delay,0ms);
+}
+@keyframes burst-sparks{0%{transform:scale(.2) rotate(0deg);opacity:1}100%{transform:scale(1.7) rotate(40deg);opacity:0}}
+/* Tiers */
+.egg-slot.spawn-t0 .spawn-burst{--bs:44px;--bc:rgba(255,255,255,.55);--bd:.5s}
+.egg-slot.spawn-t0 .spawn-burst::after,
+.egg-slot.spawn-t1 .spawn-burst::after{display:none}                     /* no sparks for normal/silver */
+.egg-slot.spawn-t1 .spawn-burst{--bs:64px;--bc:#d8dde3;--bd:.55s}
+.egg-slot.spawn-t2 .spawn-burst{--bs:80px;--bc:#FFD700;--bd:.65s}
+.egg-slot.spawn-t3 .spawn-burst{--bs:92px;--bc:#a78bfa;--bd:.75s}
+.egg-slot.spawn-t4 .spawn-burst{--bs:104px;--bc:#ff4d6d;--bd:.85s}
+.egg-slot.spawn-t5 .spawn-burst{--bs:118px;--bc:#8B5CF6;--bd:.95s}
+.egg-slot.spawn-t5 .spawn-burst::before{border-color:#1a1a1a;box-shadow:0 0 14px #8B5CF6,inset 0 0 14px #8B5CF6}
+.egg-slot.spawn-t6 .spawn-burst{--bs:150px;--bc:#FFF1A8;--bd:1.1s}
+/* Gold and up: thicker ring plus a soft glow fill that fades with it */
+.egg-slot.spawn-t2 .spawn-burst::before,.egg-slot.spawn-t3 .spawn-burst::before,.egg-slot.spawn-t4 .spawn-burst::before,
+.egg-slot.spawn-t5 .spawn-burst::before,.egg-slot.spawn-t6 .spawn-burst::before{
+  border-width:4px;
+  background:radial-gradient(circle,var(--bc,#fff) 0%,rgba(0,0,0,0) 62%);
+}
+.egg-slot.spawn-t2 .spawn-burst::after,.egg-slot.spawn-t3 .spawn-burst::after,.egg-slot.spawn-t4 .spawn-burst::after,
+.egg-slot.spawn-t5 .spawn-burst::after,.egg-slot.spawn-t6 .spawn-burst::after{width:7px;height:7px;margin:-3px 0 0 -3px}
+@media (prefers-reduced-motion: reduce){
+  .egg-slot.spawning > svg{animation:none}
+  .spawn-burst{display:none}
+}
