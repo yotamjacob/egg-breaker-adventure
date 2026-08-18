@@ -14,6 +14,3 @@ dist-gamejolt.zip
 dist-newgrounds/
 dist-newgrounds.zip
 ng/ng.secrets.json
-.env
-marketing/emails/unsubscribed.txt
-marketing/emails/sent-*.log
