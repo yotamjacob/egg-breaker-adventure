@@ -433,3 +433,16 @@
 .quest-track{margin-top:7px}
 .quest-reward{font-size:8px;color:var(--amber);margin-top:5px}
 .quest-foot{font-size:8px;color:var(--gray);text-align:center;margin-top:12px}
+
+/* ---------- Hammer mastery (mastery.js) — shop card block ---------- */
+.hm-row{display:flex;justify-content:space-between;align-items:baseline;width:100%;margin-top:6px}
+.hm-lv{font-size:9px;color:var(--gray);text-shadow:1px 1px 0 var(--dark)}
+.hm-lv.hlv-bronze{color:#d19a66}
+.hm-lv.hlv-silver{color:#d8dde3}
+.hm-lv.hlv-gold{color:var(--gold)}
+.hm-lv.hlv-prism{color:#fff;animation:hm-prism 2.4s linear infinite}
+@keyframes hm-prism{0%{color:#ff8fd0}25%{color:#ffe27a}50%{color:#8bf59a}75%{color:#8fd8ff}100%{color:#ff8fd0}}
+.hm-xp{font-size:8px;color:var(--gray)}
+.hm-track{margin-top:4px}
+.hm-perk{font-size:7px;color:var(--gold);margin-top:5px;line-height:1.4}
+.hm-perk-dim{color:var(--gray)}

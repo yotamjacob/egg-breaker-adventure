@@ -36,6 +36,68 @@ function questMetric(name) {
   const v = G[name];
   return typeof v === 'number' ? v : 0;
 }
+/**
+ * Can this quest still be finished at all? Templates that ask for something
+ * the player has exhausted (all items found, all collections complete) or
+ * cannot reach yet (egg type not spawnable) are never offered.
+ */
+function questFeasible(t) {
+  if (!t) return false;
+  if (t.metric === 'totalItems')            return _questItemsLeft() > 0;
+  if (t.metric === 'collectionsCompleted')  return _questIncompleteCollections() > 0;
+  if (t.metric === 'stagesCompleted')       return _questStagesLeft() > 0;
+  if (t.metric === 'crystalSmashed')        return _questEggReachable('crystal');
+  return true;
+}
+function _questReachableStages(mp, m) {
+  const last = Math.min((mp.stage || 0), m.stages.length - 1);
+  const out = []; for (let i = 0; i <= last; i++) out.push(i); return out;
+}
+function _questItemsLeft() {
+  if (!G.monkeys || typeof MONKEY_DATA === 'undefined') return 1;
+  let left = 0;
+  G.monkeys.forEach((mp, mi) => {
+    if (!mp || !mp.unlocked) return;
+    const m = MONKEY_DATA[mi]; if (!m) return;
+    _questReachableStages(mp, m).forEach(si => {
+      const items = m.stages[si].collection.items, got = (mp.collections && mp.collections[si]) || [];
+      for (let i = 0; i < items.length; i++) if (!got[i]) left++;
+    });
+  });
+  return left;
+}
+function _questIncompleteCollections() {
+  if (!G.monkeys || typeof MONKEY_DATA === 'undefined') return 1;
+  let n = 0;
+  G.monkeys.forEach((mp, mi) => {
+    if (!mp || !mp.unlocked) return;
+    const m = MONKEY_DATA[mi]; if (!m) return;
+    _questReachableStages(mp, m).forEach(si => {
+      const items = m.stages[si].collection.items, got = (mp.collections && mp.collections[si]) || [];
+      if (items.some((_, i) => !got[i])) n++;
+    });
+  });
+  return n;
+}
+function _questStagesLeft() {
+  if (!G.monkeys || typeof MONKEY_DATA === 'undefined') return 1;
+  let n = 0;
+  G.monkeys.forEach((mp, mi) => {
+    if (!mp || !mp.unlocked) return;
+    const m = MONKEY_DATA[mi]; if (!m) return;
+    const tiers = mp.tiers || [];
+    for (let i = 0; i < m.stages.length; i++) if ((tiers[i] || 0) < 3) n++;
+  });
+  return n;
+}
+function _questEggReachable(type) {
+  if (typeof CONFIG === 'undefined' || !CONFIG.eggTypes) return true;
+  const def = CONFIG.eggTypes.find(d => d.id === type); if (!def) return false;
+  const mp = G.monkeys && G.monkeys[G.activeMonkey || 0];
+  const stage = mp ? (mp.stage || 0) : 0;
+  return (def.unlockStage || 0) <= stage;
+}
+
 function _questNeedMet(need) {
   if (!need) return true;
   if (need === 'starfall') return typeof isStarfallUnlocked === 'function' && isStarfallUnlocked();
@@ -55,13 +117,22 @@ function _questRng(seed) {
   let s = seed || 1;
   return function () { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
 }
-/** Pick `n` distinct templates from `pool` for `key`, skipping unmet needs (deterministic). */
+/**
+ * Pick `n` templates from `pool` for `key` (deterministic): skips templates
+ * whose `need` is unmet or that cannot be finished, and never picks two
+ * quests measuring the same counter ("break 60 eggs" + "break 150 eggs" on
+ * one day is one quest wearing two hats).
+ */
 function questPick(pool, n, key) {
-  const eligible = pool.filter(t => _questNeedMet(t.need));
+  let eligible = pool.filter(t => _questNeedMet(t.need) && questFeasible(t));
+  if (!eligible.length) eligible = pool.filter(t => _questNeedMet(t.need));   // never hand back an empty day
   const rng = _questRng(_questHash('q:' + key));
   const arr = eligible.slice();
   for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); const t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
-  return arr.slice(0, n);
+  const out = [], used = {};
+  for (const t of arr) { if (out.length >= n) break; if (used[t.metric]) continue; used[t.metric] = 1; out.push(t); }
+  for (const t of arr) { if (out.length >= n) break; if (out.indexOf(t) === -1) out.push(t); }   // tiny pool fallback
+  return out;
 }
 function questTemplate(id) {
   const q = CONFIG.quests;
@@ -99,6 +170,7 @@ function _questAutoClaim(a) {
   if (!a || a.claimed) return;
   const t = questTemplate(a.id); if (!t) return;
   if (questProgress(a, t) >= t.target) {
+    // (progress here is gameplay-only — non-gameplay gains are discounted by questCredit)
     _questGrant(t);
     a.claimed = true;
     msg('📜 Quest auto-claimed: ' + t.name, 'trophies');
@@ -125,24 +197,29 @@ function questRewardLabel(t) {
 function _questGrant(t) {
   const r = t.reward || {};
   const gold = questGoldReward(t);
-  if (gold) {
-    G.gold += gold; G.totalGold += gold;
-    // Don't let quest gold count towards "earn gold" quests
-    _questBumpBases('totalGold', gold);
-  }
-  if (r.feathers)   { G.feathers += r.feathers; G.totalFeathers += r.feathers; }
-  if (r.starPieces) { G.starPieces += r.starPieces; G.totalStarPieces += r.starPieces; }
+  // Quest rewards must never progress other quests
+  if (gold)         { G.gold += gold; G.totalGold += gold; questCredit('totalGold', gold); }
+  if (r.feathers)   { G.feathers += r.feathers; G.totalFeathers += r.feathers; questCredit('totalFeathers', r.feathers); }
+  if (r.starPieces) { G.starPieces += r.starPieces; G.totalStarPieces += r.starPieces; questCredit('totalStarPieces', r.starPieces); }
   if (r.hammers)    { G.hammers += r.hammers; }
   if (r.maxHammers) { G.maxH += r.maxHammers; G.hammers += r.maxHammers; }
   G.questsCompleted = (G.questsCompleted || 0) + 1;
 }
 
-/** Shift the baseline of every active quest on `metric` by `amount` (reward gold must not self-progress). */
-function _questBumpBases(metric, amount) {
+/**
+ * Discount `amount` of a counter from quest progress — call this wherever a
+ * counter grows for a NON-gameplay reason: rewards (quest, trophy, daily
+ * login), shop purchases (star piece, album item bought with feathers).
+ * Without it a player can complete "find 5 items" by buying items, or
+ * "collect 10 star pieces" by claiming a trophy (v3.8.0 fix).
+ */
+function questCredit(metric, amount) {
+  if (!amount) return;
   const q = G.quests; if (!q) return;
   const bump = a => { if (!a) return; const t = questTemplate(a.id); if (t && t.metric === metric) a.base = (a.base || 0) + amount; };
   (q.daily || []).forEach(bump); bump(q.weekly);
 }
+var _questBumpBases = questCredit;   // legacy alias
 
 /** Claim button handler. kind: 'daily' index or 'weekly'. */
 function claimQuest(kind, idx) {

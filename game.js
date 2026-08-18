@@ -110,6 +110,8 @@ const DEFAULT_STATE = {
   cloudAutoSave: false,
   // Auto-Smasher (idle) — see idle.js / CONFIG.autoTap
   autoTap: { unlocked: false, on: false, speedLvl: 0, capLvl: 0, effLvl: 0 },
+  // Hammer mastery (mastery.js) — { hammerId: xp }
+  hammerXp: null,
   // Quests (quests.js) — { day, daily:[{id,base,claimed}], week, weekly:{id,base,claimed} }
   quests: null,
   questsCompleted: 0,
@@ -372,10 +374,11 @@ function claimDaily() {
 
   // Apply reward (Double Daily doubles the value, except premium items)
   const dv = G['owned_doubledaily'] ? reward.val * 2 : reward.val;
-  if (reward.type === 'gold')       { G.gold += dv; G.totalGold += dv; }
+  // questCredit(): daily login rewards must not progress quests (quests.js)
+  if (reward.type === 'gold')       { G.gold += dv; G.totalGold += dv; if (typeof questCredit === 'function') questCredit('totalGold', dv); }
   if (reward.type === 'hammers')    { G.hammers += dv; G.dailyHammerTotal = (G.dailyHammerTotal || 0) + dv; }
   if (reward.type === 'maxH')       { G.maxH += dv; if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + dv); }
-  if (reward.type === 'feathers')   { G.feathers += dv; G.totalFeathers += dv; }
+  if (reward.type === 'feathers')   { G.feathers += dv; G.totalFeathers += dv; if (typeof questCredit === 'function') questCredit('totalFeathers', dv); }
   if (reward.type === 'goldmagnet') {
     if (!G.owned_goldmagnet) {
       G.owned_goldmagnet = true;
@@ -387,7 +390,7 @@ function claimDaily() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ device_id: getDeviceId(), user_id: _cloudUser ? _cloudUser.id : null, product_id: 'goldmagnet' }),
       }).then(r => r.json()).then(d => _payLog('grant-daily goldmagnet: ' + JSON.stringify(d))).catch(e => _payLog('grant-daily ERR: ' + e.message));
-    } else { G.gold += 2000; G.totalGold += 2000; } // consolation if already purchased
+    } else { G.gold += 2000; G.totalGold += 2000; if (typeof questCredit === 'function') questCredit('totalGold', 2000); } // consolation if already purchased
   }
 
   G.dailyClaimed = true;
@@ -606,7 +609,9 @@ function curStage() { return curMonkey().stages[curActiveStage()]; }
 
 // ==================== STARFALL ====================
 function starfallCost() {
-  return G['owned_starsaver'] ? CONFIG.starPiecesForStarfall - 1 : CONFIG.starPiecesForStarfall;
+  let c = G['owned_starsaver'] ? CONFIG.starPiecesForStarfall - 1 : CONFIG.starPiecesForStarfall;
+  if (typeof hammerPerk === 'function' && hammerPerk('mjolnir')) c = Math.min(c, 5);   // Thunderclap
+  return c;
 }
 
 function isStarfallUnlocked() {

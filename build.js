@@ -40,6 +40,7 @@ const JS_FILES = [
   'shop.js',
   'achievements.js',
   'quests.js',
+  'mastery.js',
   // AFTER game.js/smash.js/shop.js/achievements.js: its boot block runs the
   // offline Auto-Smasher simulation and needs all of them executed.
   'idle.js',

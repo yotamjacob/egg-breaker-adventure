@@ -7,13 +7,16 @@
 // ==================== ACHIEVEMENTS ====================
 let toastTimeout = null;
 
+function _qc(metric, amount) { if (typeof questCredit === 'function') questCredit(metric, amount); }
+
 function grantAchievementReward(a) {
   if (!a.reward) return;
   const r = a.reward;
   if (r.type === 'maxH')       { G.maxH += r.val; if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + r.val); }
-  if (r.type === 'gold')       { G.gold += r.val; G.totalGold += r.val; }
-  if (r.type === 'feathers')   { G.feathers += r.val; G.totalFeathers += r.val; }
-  if (r.type === 'starPieces') { G.starPieces += r.val; G.totalStarPieces += r.val; }
+  // questCredit(): trophy rewards must not progress quests (quests.js)
+  if (r.type === 'gold')       { G.gold += r.val; G.totalGold += r.val; _qc('totalGold', r.val); }
+  if (r.type === 'feathers')   { G.feathers += r.val; G.totalFeathers += r.val; _qc('totalFeathers', r.val); }
+  if (r.type === 'starPieces') { G.starPieces += r.val; G.totalStarPieces += r.val; _qc('totalStarPieces', r.val); }
   // goldPct, itemPct, starPct are passive — applied in getAchievementBonuses()
 }
 
@@ -163,6 +166,10 @@ function checkAchievements() {
     auto_maxed:     () => typeof autoTapIsMaxed === 'function' && autoTapIsMaxed(),
     auto_eggs_1000: () => (G.autoTapEggs || 0) >= 1000,
     auto_away_10:   () => (G.offlineReports || 0) >= 10,
+    // Hammer mastery
+    hammer_l5:    () => typeof hammerMasteryStats === 'function' && hammerMasteryStats().best >= 5,
+    hammer_l10:   () => typeof hammerMasteryStats === 'function' && hammerMasteryStats().best >= 10,
+    hammer_all10: () => { if (typeof hammerMasteryStats !== 'function') return false; const s = hammerMasteryStats(); return s.total > 0 && s.maxed >= s.total; },
     // Quests
     quest_5:    () => (G.questsCompleted || 0) >= 5,
     quest_25:   () => (G.questsCompleted || 0) >= 25,

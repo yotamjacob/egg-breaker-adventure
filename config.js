@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.7.1';
+const VERSION = '3.8.0';
 
 const CONFIG = {
 
@@ -274,6 +274,33 @@ const CONFIG = {
       { id: 'w_gold_50k',   icon: '💰', name: 'Treasury',        desc: 'Earn 50,000 gold this week',        metric: 'totalGold',        target: 50000, reward: { starPieces: 14, feathers: 10 } },
       { id: 'w_starfall_8', icon: '🌌', name: 'Meteor Season',   desc: 'Use Starfall 8 times this week',    metric: 'starfallsUsed',    target: 8,     reward: { gold: 9000, maxHammers: 3 }, need: 'starfall' },
     ],
+  },
+
+  // ----------------------------------------------------------
+  // 19. HAMMER MASTERY — "train your hammer" (mastery.js).
+  //     The EQUIPPED special hammer earns XP per hit / break / rare item and
+  //     levels 1→10. Each owned hammer's own bonus scales with ITS level
+  //     (bonuses stay always-active, as before). L5: universal 3% hammer
+  //     refund on hit; L10: a unique perk per hammer (see mastery.js).
+  //     `xpTable[i]` = cumulative XP needed to reach level i+1 (L1 = 0).
+  // ----------------------------------------------------------
+  hammerMastery: {
+    maxLevel: 10,
+    xpHit: 1, xpBreak: 2, xpRare: 10,
+    xpTable: [0, 150, 400, 800, 1400, 2200, 3300, 4800, 6600, 9000],
+    refundChanceL5: 0.03,     // any hammer at L5+: chance a hit costs nothing
+    // How far each hammer's identity grows from L1 → L10 (linear per level).
+    // Multipliers are ON TOP of the base bonus the hammer already gives.
+    scale: {
+      drumstick: { starWeight: 0.25 },      // +15% → ~+40% star pieces
+      bat:       { emptyCut: 0.875 },       // 0.4× empties → 0.05×
+      crystal:   { featherWeight: 0.25 },   // +20% → ~+50% feathers
+      golden:    { goldMult: 0.60 },        // +60% gold at L10 on top
+      rainbow:   { itemWeight: 0.15, goldMult: 0.15 },
+      cucumber:  { doubleHit: 0.10 },       // 5% → 15%
+      mjolnir:   { starfall: 0.05 },        // 3% → 8%
+      gavel:     { verdict: 0.06 },         // 4% → 10%
+    },
   },
 
   autoTap: {

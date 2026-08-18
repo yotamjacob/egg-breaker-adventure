@@ -404,4 +404,5 @@ function makeHammerSVG(hammerId) {
 
 function updateHammerSVG() {
   $id('hammer').innerHTML = makeHammerSVG(G.hammer);
+  if (typeof applyHammerGlow === 'function') applyHammerGlow();
 }

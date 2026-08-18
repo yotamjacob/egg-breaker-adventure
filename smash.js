@@ -103,6 +103,7 @@ function multEquation(base, multVals, result, unit, balloonMult, customPrefix) {
 // Set by idle.js while simulating offline smashes: rollPrize() must not
 // touch the DOM or the log. `var` so it is never in a TDZ for boot-time callers.
 var _quietRoll = false;
+var _lastGoldJackpot = false;   // set by resolvePrize (Golden Hammer L10), consumed by applyPrize
 
 function rollPrize(eggType) {
   // Sun Wukong: 72 Transformations — 15% chance to roll prizes from the next egg tier up
@@ -150,6 +151,14 @@ function rollPrize(eggType) {
   if (ab.itemPct > 0) w.item *= (1 + ab.itemPct / 100);
   if (ab.starPct > 0) w.star *= (1 + ab.starPct / 100);
 
+  // Hammer mastery (mastery.js): each owned hammer's identity grows with its level
+  if (typeof hammerBoost === 'function') {
+    w.star    *= 1 + hammerBoost('drumstick', 'starWeight');
+    w.empty   *= 1 - hammerBoost('bat', 'emptyCut');
+    w.feather *= 1 + hammerBoost('crystal', 'featherWeight');
+    w.item    *= 1 + hammerBoost('rainbow', 'itemWeight');
+  }
+
   const total = Object.values(w).reduce((a, b) => a + b, 0);
   let r = Math.random() * total;
   for (const [type, weight] of Object.entries(w)) {
@@ -184,6 +193,10 @@ function resolvePrize(type, eggType) {
     const _mk = curMonkey();
     if (_mk && _mk.goldScale != null) base *= _mk.goldScale;
     if (G['owned_goldmagnet']) base *= 1.2;
+    if (typeof hammerBoost === 'function') {
+      base *= 1 + hammerBoost('golden', 'goldMult') + hammerBoost('rainbow', 'goldMult');
+      if (hammerPerk('golden') && Math.random() < 0.05) { base *= 5; _lastGoldJackpot = true; }
+    }
     const baseVal = Math.round(base);   // round once
     const val = baseVal * G.activeMult; // exact — no rounding drift
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
@@ -192,7 +205,8 @@ function resolvePrize(type, eggType) {
 
   if (type === 'feather') {
     const fRange = CONFIG.featherDropRange;
-    const baseVal = Math.ceil((fRange[0] + Math.random() * (fRange[1] - fRange[0])) * featherMult);
+    const baseVal = Math.ceil((fRange[0] + Math.random() * (fRange[1] - fRange[0])) * featherMult)
+      + (typeof hammerPerk === 'function' && hammerPerk('crystal') ? 1 : 0);
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'feather', value: val, baseVal, usedMult, label: '+' + val + ' 🪶', color: '#059669' };
@@ -206,7 +220,7 @@ function resolvePrize(type, eggType) {
   }
 
   if (type === 'star') {
-    const baseVal = eDef.starPieces || 1;
+    const baseVal = (eDef.starPieces || 1) + (typeof hammerPerk === 'function' && hammerPerk('drumstick') && Math.random() < 0.25 ? 1 : 0);
     const val = G.activeMult > 1 ? Math.round(baseVal * G.activeMult) : baseVal;
     const usedMult = G.activeMult > 1 ? getSelectedMultValues() : null;
     return { type: 'star', value: val, baseVal, usedMult, label: '+' + val + ' ⭐', color: '#f59e0b' };
@@ -599,15 +613,30 @@ function smashEgg(index) {
 
   egg.hp -= 1;
 
-  // Cucumber double hit: 5% chance for a bonus hit
-  if (hasBonus('doubleHit') && Math.random() < 0.05 && egg.hp > 0) {
+  // Hammer mastery: XP for the equipped hammer + L5 free-hit refund + spark trail
+  if (typeof addHammerXp === 'function') {
+    addHammerXp(CONFIG.hammerMastery.xpHit);
+    const _hl = hammerOwned(G.hammer) ? hammerLevel(G.hammer) : 0;
+    if (_hl >= 5) {
+      if (Math.random() < CONFIG.hammerMastery.refundChanceL5) { G.hammers += 1; spawnFloat($id('prize-zone'), '⚒️ free hit', '#ffe27a', '', cx, cy - 26); }
+      Particles.sparkle(cx, cy - 10, _hl >= 10 ? 8 : 4, hammerSparkColor(G.hammer));
+    }
+  }
+
+  // Cucumber double hit: 5% chance for a bonus hit (grows with mastery; L10 can chain a third)
+  if (hasBonus('doubleHit') && Math.random() < 0.05 + hammerBoost('cucumber', 'doubleHit') && egg.hp > 0) {
     egg.hp -= 1;
     spawnFloat($id('prize-zone'), '🥒 Double hit!', '#4ade80', 'big', cx, cy - 30);
     msg('🥒 Cucumbah! Double hit!', 'cucumber');
+    if (hammerPerk('cucumber') && egg.hp > 0 && Math.random() < 0.5) {
+      egg.hp -= 1;
+      spawnFloat($id('prize-zone'), '🥒🥒 Triple!', '#4ade80', 'mega', cx, cy - 50);
+      msg('🥒 Salad days! Triple hit!', 'cucumber');
+    }
   }
 
-  // Mjǫllnir: 3% chance to grant +7 star pieces
-  if (hasBonus('mjolnirStarfall') && Math.random() < 0.03) {
+  // Mjǫllnir: 3% chance to grant +7 star pieces (grows with mastery)
+  if (hasBonus('mjolnirStarfall') && Math.random() < 0.03 + hammerBoost('mjolnir', 'starfall')) {
     G.starPieces += 7;
     G.totalStarPieces += 7;
     updateStarBtn();
@@ -616,11 +645,12 @@ function smashEgg(index) {
   }
 
   // Judge Gavel: Order! — 4% chance: instant verdict, egg breaks immediately (not on century)
-  if (hasBonus('gavelVerdict') && egg.hp > 0 && egg.type !== 'century' && Math.random() < 0.04) {
+  if (hasBonus('gavelVerdict') && egg.hp > 0 && egg.type !== 'century' && Math.random() < 0.04 + hammerBoost('gavel', 'verdict')) {
     egg.hp = 0;
     spawnFloat($id('prize-zone'), 'Order!', '#d8a0ff', 'mega', cx, cy - 50);
     msg('⚖️ Order! Verdict: Guilty. The egg is sentenced to break.', 'gavel');
     SFX.play('crunch');
+    if (hammerPerk('gavel')) { G.hammers += 1; msg('⚖️ Appeal granted — hammer refunded', 'gavel'); }
   }
 
   const particleCount = isSpecial
@@ -655,6 +685,7 @@ function smashEgg(index) {
   // === Egg broken! ===
   egg.broken = true;
   G.totalEggs++;
+  if (typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpBreak);
   checkReviewPrompt();
   if (egg.effects && egg.effects.includes('runny')) G.runnySmashed = (G.runnySmashed || 0) + 1;
   if (egg.effects && egg.effects.includes('timer')) {
@@ -778,6 +809,10 @@ function applyPrize(prize, cx, cy) {
   if (prize.type === 'empty') {
     const emptyCount = G.activeMult > 1 ? G.activeMult : 1;
     G.totalEmpties = (G.totalEmpties || 0) + emptyCount;
+    if (typeof hammerPerk === 'function' && hammerPerk('bat')) {
+      G.gold += 25; G.totalGold += 25;
+      spawnFloat(zone, '🦇 +25 🪙 consolation', '#d97706', '', cx, cy - 22);
+    }
     if (emptyCount > 1) {
       spawnFloat(zone, emptyCount + ' empties!', '#9ca3af', '', cx, cy);
       msg(emptyCount + ' empties!', 'empty');
@@ -794,6 +829,7 @@ function applyPrize(prize, cx, cy) {
     G.gold += prize.value;
     G.totalGold += prize.value;
     G.biggestWin = Math.max(G.biggestWin, prize.value);
+    if (_lastGoldJackpot) { _lastGoldJackpot = false; spawnFloat(zone, '⭐ JACKPOT ×5', '#FFD700', 'mega', cx, cy - 56); msg('⭐ Golden Hammer jackpot! ×5 gold', 'specials'); }
     const cls = prize.value >= 300 ? 'mega' : prize.value >= 80 ? 'big' : '';
     if (prize.balloonMult || prize.usedMult) {
       const eq = multEquation(prize.baseVal, prize.usedMult, prize.value, '🪙', prize.balloonMult, prize.popPrefix);
@@ -906,6 +942,7 @@ function applyPrize(prize, cx, cy) {
     if (wasNew) {
       prog.collections[si][prize.index] = true;
       G.totalItems++;
+      if (prize.rarity === 3 && typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpRare);
     }
     if (!wasNew) spawnFloat(zone, prize.label, prize.color, '', cx, cy);
     if (wasNew) {
@@ -929,7 +966,8 @@ function applyPrize(prize, cx, cy) {
     } else {
       // Duplicate - give gold scaled by rarity × egg goldMult (ruby=3x, black=4x, century=100x)
       const dRange = (CONFIG.duplicateGoldByRarity || {})[prize.rarity] || [20, 60];
-      const dupeGold = Math.round((dRange[0] + Math.floor(Math.random() * (dRange[1] - dRange[0] + 1))) * (prize.goldMult || 1));
+      const dupeGold = Math.round((dRange[0] + Math.floor(Math.random() * (dRange[1] - dRange[0] + 1))) * (prize.goldMult || 1))
+        * (typeof hammerPerk === 'function' && hammerPerk('rainbow') ? 2 : 1);
       G.gold += dupeGold;
       G.totalGold += dupeGold;
       msg('Duplicate! +' + dupeGold + ' 🪙', 'duplicates');

@@ -10,6 +10,7 @@
 | `audio.js` | Sound effects and music — loaded separately, not bundled |
 | `particles.js` | Canvas particle system (dt-scaled, one rAF loop): `emit` egg-break burst (shards + additive sparks), `sparkle`, `starRain` (Starfall), `confetti` (Banana Shake), `setAmbient('rage'\|'goose'\|null)` continuous emitters while a skill is active |
 | `hammers.js` | Hammer regeneration logic — regen interval, fast regen, max hammer tracking |
+| `mastery.js` | Hammer mastery ("train your hammer") — the equipped special hammer earns XP per hit/break/rare item, levels 1→10 from `CONFIG.hammerMastery`; every owned hammer's own bonus scales with ITS level, L5 = 3% free hits, L10 = a unique perk. Bundled after quests.js |
 | `quests.js` | Quests — 3 daily + 1 weekly from `CONFIG.quests`, deterministic per day/week, progress = counter delta since assignment, manual claim (auto-claim on rollover). Owns the **Quests tab** (replaced the Log tab) and `openFullLog()` (activity log sub-modal from the tray's mini-log title). Bundled after achievements.js |
 | `idle.js` | Auto-Smasher (idle) — gold-shop helper that taps eggs with hammers: online loop, offline simulation, "while you were away" report, leveled shop upgrades. **Bundled after achievements.js** (its boot block needs everything before it) |
 | `analytics.js` | Umami event wrapper + traffic attribution — `track()`, `openPlayStore()`, `playStoreUrl()`, first-touch source. Bundled after `config.js`. Every call is fail-safe |
@@ -264,11 +265,24 @@ Invariants are checked by `tests/autotap.test.js` (vm sandbox, no browser).
 | Rule | Why |
 |------|-----|
 | Progress is `metric(now) − base` where `base` is snapshotted at assignment; new templates must name an existing `G` counter (or `skillUses`) | Nothing new is tracked; adding a quest is data only |
+| **Any non-gameplay counter gain must call `questCredit(metric, amount)`** — trophy rewards, daily-login rewards, quest rewards, shop star pieces, album items bought with feathers | Otherwise a quest completes without doing the thing: buying album items finished "find 5 items", claiming a trophy finished "collect 10 star pieces", and rollover then auto-granted the reward (v3.8.0 fix) |
+| `questFeasible(t)` filters templates the player cannot finish (album complete → no item quests, all collections done, egg type not spawnable yet) before the deterministic pick | Never offer an impossible quest |
+| Two daily quests never share a `metric` | "Break 60 eggs" + "break 150 eggs" is one quest wearing two hats |
 | Day key = `localDateStr()`, week key = the local Monday; `ensureQuests()` runs at boot, every 60s and on render — rollover **auto-claims** completed unclaimed quests before re-rolling | Same clock as the daily login; nothing earned is ever lost |
 | Reward gold calls `_questBumpBases('totalGold', …)` | Quest gold must not progress "earn gold" quests |
 | Templates with `need:` are filtered *before* the deterministic pick, so two players on the same day can differ only by what they have unlocked | Never hand a starfall quest to someone without Starfall |
 | The Log **tab is gone** (`data-tab="quests"` took its slot); the full log lives in `#overlay-fulllog`, opened by tapping the tray's `Log ▸` title | Nav real estate; history stays reachable |
 Guarded by `tests/quests.test.js` (vm sandbox).
+
+## Hammer mastery (`mastery.js`, `CONFIG.hammerMastery`, v3.8.0)
+| Rule | Why |
+|------|-----|
+| Only the **equipped**, owned, non-default hammer gains XP (`addHammerXp`) | Choosing what to train is the decision; the Basic Hammer never levels |
+| Bonuses stay always-active as before; mastery only **scales** them via `hammerBoost(id, key)` = `CONFIG.hammerMastery.scale[id][key] × hammerScale(id)` | Never gate an existing bonus behind a level — that would nerf owned hammers |
+| Every scaling hook sits next to the base bonus it extends in `smash.js` (weights in `rollPrize`, gold in `resolvePrize`, procs in `smashEgg`) | One place per effect; grep `hammerBoost(` to find them all |
+| L10 perks read `hammerPerk(id)` and are per hammer (see `hammerPerkDesc`) | Adding a hammer means adding a perk + a `scale` entry, nothing else |
+| `hammerXp` is a plain `{id: xp}` map in the save; missing = 0 | Old saves and new hammers need no migration |
+Guarded by `tests/mastery.test.js`.
 
 ## Common pitfalls
 - **Programmatic smashes while the play panel is collapsed.** `renderEggTray()` empties the tray when the panel has no size (another tab open) and defers. `smashEgg()` therefore returns *before* taking the per-egg `_smashing` lock if the slot element is missing, `renderEggTray()` clears every `_smashing` on rebuild, and the Auto-Smasher tick skips when the tray is empty. v3.6.4 fixed "eggs randomly unclickable after coming back from a tab" — the lock was being set and then a throw on the missing slot left it set forever.

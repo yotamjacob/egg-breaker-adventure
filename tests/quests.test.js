@@ -27,6 +27,10 @@ function world(over) {
     function isStarfallUnlocked() { return false; }
     function msg() {} function formatNum(n) { return String(n); } function updateResources() {} function checkAchievements() {}
     var SFX = { play() {} }; function $id() { return null; } function renderFullLog() {}
+    // Minimal album so feasibility checks have something to read
+    var MONKEY_DATA = [{ stages: [ { collection: { items: [['a','A',1],['b','B',1],['c','C',2]] } }, { collection: { items: [['d','D',1],['e','E',3]] } } ] }];
+    G.monkeys = [{ unlocked: true, stage: 1, tiers: [0,0], collections: [[false,false,false],[false,false]] }];
+    G.activeMonkey = 0;
   `, ctx);
   if (over) vm.runInContext(over, ctx);
   vm.runInContext(read('quests.js'), ctx);
@@ -42,6 +46,8 @@ test('boot assigns 3 daily + 1 weekly for today, deterministically, skipping gat
   const gated = new Set(a.CONFIG.quests.daily.filter(t => t.need).map(t => t.id));
   assert.ok(a.G.quests.daily.every(x => !gated.has(x.id)), 'no starfall/skills/autotap quests before they are unlocked');
   assert.equal(new Set(a.G.quests.daily.map(x => x.id)).size, 3, 'distinct');
+  const metrics = Array.from(a.G.quests.daily, x => a.questTemplate(x.id).metric);
+  assert.equal(new Set(metrics).size, metrics.length, 'no two daily quests on the same counter: ' + metrics);
 });
 
 test('progress is the delta since assignment; claim pays once and counts', () => {
@@ -99,4 +105,45 @@ test('gold reward scales with stages completed, capped', () => {
 
 test('quests.js has no top-level let/const (boot-time TDZ rule)', () => {
   assert.deepEqual(read('quests.js').split('\n').filter(l => /^(let|const)\s/.test(l)), []);
+});
+
+test('impossible quests are never offered: album fully collected → no item/collection quests', () => {
+  const w = world(`
+    G.monkeys = [{ unlocked: true, stage: 1, tiers: [3,3], collections: [[true,true,true],[true,true]] }];
+  `);
+  const ids = Array.from(w.G.quests.daily, a => a.id);
+  const cfg = w.CONFIG.quests;
+  const byId = id => cfg.daily.find(t => t.id === id);
+  assert.ok(ids.every(id => byId(id).metric !== 'totalItems'), 'no "find N items" with a complete album: ' + ids);
+  assert.ok(ids.every(id => byId(id).metric !== 'collectionsCompleted'), 'no "complete a collection" either');
+  assert.equal(w.questFeasible(byId('items_5')), false);
+  assert.equal(w.questFeasible(byId('eggs_60')), true);
+});
+
+test('non-gameplay gains do not progress quests (items bought, trophy/daily/quest rewards)', () => {
+  const w = world();
+  // Force known quests: items, star pieces, gold
+  w.G.quests.daily[0] = { id: 'items_5',   base: w.questMetric('totalItems'),      claimed: false };
+  w.G.quests.daily[1] = { id: 'stars_10',  base: w.questMetric('totalStarPieces'), claimed: false };
+  w.G.quests.daily[2] = { id: 'gold_5000', base: w.questMetric('totalGold'),       claimed: false };
+  // Album item bought with feathers (shop.js) — counter goes up, quest must not
+  w.G.totalItems += 5;  w.questCredit('totalItems', 5);
+  // Trophy reward (achievements.js) / daily login (game.js)
+  w.G.totalStarPieces += 10; w.questCredit('totalStarPieces', 10);
+  w.G.totalGold += 5000;     w.questCredit('totalGold', 5000);
+  assert.equal(w.questsClaimable(), 0, 'nothing became claimable from rewards/purchases');
+  // …and real gameplay still counts
+  w.G.totalItems += 5;
+  assert.equal(w.questsClaimable(), 1);
+});
+
+test('rollover cannot auto-claim a quest that only "progressed" via credited sources', () => {
+  const w = world();
+  w.G.quests.daily[0] = { id: 'items_5', base: w.questMetric('totalItems'), claimed: false };
+  w.G.totalItems += 5; w.questCredit('totalItems', 5);
+  const gold = w.G.gold, done = w.G.questsCompleted;
+  w.G.quests.day = '2000-01-01';
+  w.ensureQuests();
+  assert.equal(w.G.questsCompleted, done, 'no auto-claim');
+  assert.equal(w.G.gold, gold);
 });

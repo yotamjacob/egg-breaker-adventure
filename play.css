@@ -551,3 +551,10 @@
   .egg-slot.spawning > svg{animation:none}
   .spawn-burst,.spawn-beam{display:none}
 }
+
+/* ---------- Hammer mastery — cursor hammer glow by level tier ---------- */
+#hammer.hlv-bronze{filter:drop-shadow(0 0 4px rgba(209,154,102,.85))}
+#hammer.hlv-silver{filter:drop-shadow(0 0 6px rgba(216,221,227,.9))}
+#hammer.hlv-gold{filter:drop-shadow(0 0 8px rgba(245,197,66,.95))}
+#hammer.hlv-prism{filter:drop-shadow(0 0 9px rgba(255,255,255,.9));animation:hammer-prism 2s linear infinite}
+@keyframes hammer-prism{0%{filter:drop-shadow(0 0 9px #ff8fd0)}25%{filter:drop-shadow(0 0 9px #ffe27a)}50%{filter:drop-shadow(0 0 9px #8bf59a)}75%{filter:drop-shadow(0 0 9px #8fd8ff)}100%{filter:drop-shadow(0 0 9px #ff8fd0)}}
