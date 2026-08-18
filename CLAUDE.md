@@ -275,6 +275,19 @@ Guarded by `tests/quests.test.js` (vm sandbox).
 | `hammerXp` is a plain `{id: xp}` map in the save; missing = 0 | Old saves and new hammers need no migration |
 Guarded by `tests/mastery.test.js`.
 
+## UI/UX quality bar (project rule, v3.10.1)
+The game's UI is a product surface, not a debug view. Every change that touches something a
+player sees must meet this bar before it ships — the hammer card in v3.10.0 (a 68px "band" holding
+one line of text, 7–8px type, misaligned rows) is the reference for what NOT to ship.
+| Rule | How to check |
+|------|--------------|
+| **No dead space.** Never reserve fixed-height bands "so things align"; size bands to real content, and align siblings by giving them the same *shape* (equal grid rows + same element order) | Screenshot at 390px and compare cards side by side |
+| **Type is readable.** Pixel font: body ≥ 9px, labels ≥ 10px, never below 8px anywhere; sans-serif fallback for long prose | Zoom the screenshot 2× — if you squint, it's too small |
+| **One rhythm.** 4px spacing steps (4/8/12/16); consistent gaps inside a component; text-align left inside dense info blocks, centred for hero elements | Measure `getBoundingClientRect` offsets in a Playwright pass — siblings should return one value |
+| **Nothing clips.** Long labels wrap to a bounded number of lines or are shortened at the source (data) — never ellipsised into meaninglessness | Assert `scrollHeight <= clientHeight` on text nodes in the check script |
+| **Verify visually before shipping.** Every UI change gets a real screenshot at 390px (phone) and 1280px (desktop) and a measurement pass; describe what was seen, not what was intended | The `.tmp.js` Playwright checks used throughout this project are the pattern |
+| **Respect the game's language.** Gold `--gold` for value/primary, green `--green` for owned/done, `--gray` for secondary, hard 2–3px borders with `--dark` drop shadows; no new colours or radii without reason | Compare with an adjacent, existing component |
+
 ## Common pitfalls
 - **Programmatic smashes while the play panel is collapsed.** `renderEggTray()` empties the tray when the panel has no size (another tab open) and defers. `smashEgg()` therefore returns *before* taking the per-egg `_smashing` lock if the slot element is missing, `renderEggTray()` clears every `_smashing` on rebuild, and the Auto-Smasher tick skips when the tray is empty. v3.6.4 fixed "eggs randomly unclickable after coming back from a tab" — the lock was being set and then a throw on the missing slot left it set forever.
 - `renderEggTray` must run inside `requestAnimationFrame` when switching to play tab (needs laid-out dimensions)

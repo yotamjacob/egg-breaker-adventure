@@ -526,8 +526,8 @@ const SHOP_HAMMERS = [
   { id: 'golden',     name: 'Golden Hammer',     emoji: '⭐', desc: '2x gold from eggs',           cost: 120000, currency: 'gold', bonus: 'moreGold' },
   { id: 'rainbow',    name: 'Rainbow Hammer',    emoji: '🌈', desc: '+10% items, +15% gold',       cost: 220000, currency: 'gold', bonus: ['moreItems', 'goldBoost15'] },
   { id: 'cucumber',   name: 'Cucumber Hammer',   emoji: '🥒', desc: '5% double hit, +25% gold',   cost: 300000, currency: 'gold', bonus: ['doubleHit', 'goldBoost25'] },
-  { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% chance: full Starfall + 7 star pieces, +40% gold', cost: 420000, currency: 'gold', bonus: ['mjolnirStarfall', 'goldBoost40'] },
-  { id: 'gavel',     name: 'Judge Gavel',        emoji: '⚖️', desc: 'Order! 4% chance to instantly break any egg. +50% gold', cost: 700000, currency: 'gold', bonus: ['gavelVerdict', 'goldBoost50'] },
+  { id: 'mjolnir',   name: 'Mjǫllnir',          emoji: '⚡', desc: '3% Starfall +7 stars, +40% gold', cost: 420000, currency: 'gold', bonus: ['mjolnirStarfall', 'goldBoost40'] },
+  { id: 'gavel',     name: 'Judge Gavel',        emoji: '⚖️', desc: '4% instant break, +50% gold', cost: 700000, currency: 'gold', bonus: ['gavelVerdict', 'goldBoost50'] },
 ];
 
 const SHOP_HATS = [

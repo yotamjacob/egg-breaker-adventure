@@ -86,7 +86,20 @@ function _hammerLevelUp(id, lvl) {
 function hammerSparkColor(id) {
   return ({ drumstick: '#ffd27a', bat: '#b39ddb', crystal: '#c4b5fd', golden: '#FFD700', rainbow: '#ff8fd0', cucumber: '#8bf59a', mjolnir: '#ffe033', gavel: '#d8a0ff' })[id] || '#FFD700';
 }
-/** Human text for the unique L10 perk (shop card + level-up message). */
+/** Short perk label for the shop card row (one line at 9px on a 170px card). */
+function hammerPerkShort(id) {
+  return ({
+    drumstick: '25%: +1 star piece',
+    bat:       'Empties pay 25 gold',
+    crystal:   '+1 feather per drop',
+    golden:    '5% gold jackpot ×5',
+    rainbow:   'Dupes pay 2× gold',
+    cucumber:  'Triple hits',
+    mjolnir:   'Starfall costs 5',
+    gavel:     'Verdict refunds hit',
+  })[id] || '';
+}
+/** Human text for the unique L10 perk (level-up message, guide). */
 function hammerPerkDesc(id) {
   return ({
     drumstick: 'Encore: 25% chance of +1 star piece',
@@ -111,32 +124,36 @@ function hammerMasteryNow(id) {
   const pct = k => '+' + Math.round(hammerBoost(id, k) * 100) + '%';
   const pts = (k, base) => '+' + Math.round((base + hammerBoost(id, k)) * 100) + '%';
   return ({
-    drumstick: pct('starWeight') + ' star pieces',
-    bat:       Math.round(hammerBoost('bat', 'emptyCut') * 100) + '% fewer empties',
+    drumstick: pct('starWeight') + ' stars',
+    bat:       '-' + Math.round(hammerBoost('bat', 'emptyCut') * 100) + '% empties',
     crystal:   pct('featherWeight') + ' feathers',
     golden:    pct('goldMult') + ' gold',
-    rainbow:   pct('itemWeight') + ' items, ' + pct('goldMult') + ' gold',
-    cucumber:  'double hit ' + pts('doubleHit', 0.05),
-    mjolnir:   'Starfall proc ' + pts('starfall', 0.03),
+    rainbow:   pct('itemWeight') + ' items ' + pct('goldMult') + ' gold',
+    cucumber:  'dbl hit ' + pts('doubleHit', 0.05),
+    mjolnir:   'Starfall ' + pts('starfall', 0.03),
     gavel:     'verdict ' + pts('verdict', 0.04),
   })[id] || '';
 }
 /**
- * Shop-card fragment (owned hammers): level + XP bar, what mastery adds right
- * now, and BOTH milestones with a tick when reached — everything about the
- * hammer in one box (v3.10.0).
+ * Shop-card fragment (owned hammers): level + XP bar, then three fixed
+ * single-line rows — what mastery adds right now, the L5 perk, the L10 perk —
+ * each tagged and ticked when reached. Same shape on every card, so equal
+ * grid rows line up without padding bands (v3.10.1).
  */
 function hammerCardMastery(id) {
   if (!hammerOwned(id)) return '';
   const i = hammerXpInfo(id);
   const now = hammerMasteryNow(id);
   const l5 = i.lvl >= 5, l10 = i.maxed;
-  return '<div class="hm-row"><span class="hm-lv ' + hammerTierClass(i.lvl) + '">Lv ' + i.lvl + (i.maxed ? ' MAX' : '') + '</span>' +
-    (i.maxed ? '' : '<span class="hm-xp">' + formatNum(i.cur) + '/' + formatNum(i.need) + '</span>') + '</div>' +
+  const line = (cls, tag, txt) => '<div class="hm-line ' + cls + '"><span class="hm-tag">' + tag + '</span><span class="hm-txt">' + txt + '</span></div>';
+  return '<div class="hm">' +
+    '<div class="hm-row"><span class="hm-lv ' + hammerTierClass(i.lvl) + '">Lv ' + i.lvl + (i.maxed ? ' MAX' : '') + '</span>' +
+      (i.maxed ? '<span class="hm-xp">mastered</span>' : '<span class="hm-xp">' + formatNum(i.cur) + '/' + formatNum(i.need) + '</span>') + '</div>' +
     '<div class="m-prog-track hm-track"><div class="m-prog-fill' + (i.maxed ? ' done' : '') + '" style="width:' + i.pct + '%"></div></div>' +
-    '<div class="hm-perk hm-now">' + (now ? '⚒️ mastery: ' + now : '⚒️ mastery: trains as you smash') + '</div>' +
-    '<div class="hm-perk ' + (l5 ? 'hm-got' : 'hm-perk-dim') + '">' + (l5 ? '✓' : 'Lv 5') + ' · 3% free hits</div>' +
-    '<div class="hm-perk ' + (l10 ? 'hm-got' : 'hm-perk-dim') + '">' + (l10 ? '★' : 'Lv 10') + ' · ' + hammerPerkDesc(id) + '</div>';
+    line('hm-now', 'NOW', now || 'train by using it') +
+    line(l5 ? 'hm-got' : '', l5 ? '✓ L5' : 'L5', '3% free hits') +
+    line(l10 ? 'hm-got' : '', l10 ? '★ L10' : 'L10', hammerPerkShort(id)) +
+  '</div>';
 }
 
 (function _masteryBoot() { try { applyHammerGlow(); } catch (e) {} })();
