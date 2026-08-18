@@ -163,6 +163,10 @@ function checkAchievements() {
     auto_maxed:     () => typeof autoTapIsMaxed === 'function' && autoTapIsMaxed(),
     auto_eggs_1000: () => (G.autoTapEggs || 0) >= 1000,
     auto_away_10:   () => (G.offlineReports || 0) >= 10,
+    // Quests
+    quest_5:    () => (G.questsCompleted || 0) >= 5,
+    quest_25:   () => (G.questsCompleted || 0) >= 25,
+    quest_100:  () => (G.questsCompleted || 0) >= 100,
     // Secrets
     secret_speed:    () => G._secretSpeed,
     secret_sweep:    () => G._secretSweep,
@@ -187,5 +191,6 @@ function checkAchievements() {
       SFX.play('achieve');
     }
   }
+  if (typeof updateQuestPip === 'function') updateQuestPip();
 }
 

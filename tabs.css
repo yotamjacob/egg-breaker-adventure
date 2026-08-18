@@ -411,3 +411,25 @@
 .skill-skip-label{display:flex;align-items:center;gap:6px;font-size:9px;color:rgba(255,255,255,.45);cursor:pointer;justify-content:center;margin-top:2px}
 .skill-skip-label input[type=checkbox]{cursor:pointer;width:12px;height:12px;accent-color:var(--gold)}
 @keyframes rage-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18) rotate(-4deg)}}
+
+/* ---------- Quests tab (quests.js) ---------- */
+.quests-panel{padding:6px 2px 12px}
+.quest-header{font-size:10px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin:8px 0 6px;text-shadow:1px 1px 0 var(--dark);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.quest-header-weekly{margin-top:16px}
+.quest-timer{font-size:7px;color:var(--gray);letter-spacing:0;text-transform:none;white-space:nowrap}
+.quest-card{background:var(--panel);border:2px solid var(--gold3);border-radius:2px;padding:8px 10px;margin-bottom:6px;box-shadow:2px 2px 0 var(--dark)}
+.quest-card.done{border-color:var(--gold);box-shadow:0 0 8px rgba(245,197,66,.35),2px 2px 0 var(--dark)}
+.quest-card.claimed{opacity:.6;border-color:var(--green)}
+.quest-top{display:flex;align-items:center;gap:8px}
+.quest-icon{font-size:20px;flex:0 0 auto;line-height:1}
+.quest-text{flex:1;min-width:0}
+.quest-name{font-size:10px;color:var(--white);text-shadow:1px 1px 0 var(--dark)}
+.quest-desc{font-size:8px;color:var(--gray);margin-top:3px;line-height:1.4}
+.quest-count{font-size:9px;color:var(--gold);flex:0 0 auto;white-space:nowrap}
+.quest-status{font-size:14px;flex:0 0 auto}
+.quest-claim{flex:0 0 auto;background:linear-gradient(180deg,var(--gold),var(--gold2));color:var(--dark);border:2px solid var(--gold);border-radius:2px;
+  padding:5px 10px;font-size:9px;font-family:var(--px);cursor:pointer;box-shadow:2px 2px 0 var(--dark);animation:daily-pulse 1.4s ease-in-out infinite}
+.quest-claim:active{transform:translate(1px,1px);box-shadow:0 0 0 transparent}
+.quest-track{margin-top:7px}
+.quest-reward{font-size:8px;color:var(--amber);margin-top:5px}
+.quest-foot{font-size:8px;color:var(--gray);text-align:center;margin-top:12px}

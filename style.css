@@ -269,6 +269,8 @@ body{
 @keyframes daily-pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,197,66,.0)}50%{box-shadow:0 0 6px 2px rgba(245,197,66,.45)}}
 .nav-tab.daily-ready{animation:daily-pulse 2s ease-in-out infinite;color:var(--gold)}
 .nav-tab.daily-ready.active{animation:none;color:var(--dark)}
+.nav-tab.quest-ready{animation:daily-pulse 2s ease-in-out infinite;color:var(--gold)}
+.nav-tab.quest-ready.active{animation:none;color:var(--dark)}
 @keyframes shop-nudge{
   0%,100%{background:transparent;color:inherit}
   50%{background:var(--gold3);color:#000}
@@ -403,3 +405,7 @@ body{
 }
 @keyframes auto-pulse{0%,100%{box-shadow:0 0 5px rgba(78,227,227,.3),1px 1px 0 var(--dark)}50%{box-shadow:0 0 12px rgba(78,227,227,.7),1px 1px 0 var(--dark)}}
 
+
+/* ---------- Full activity log sub-modal (quests.js openFullLog) ---------- */
+.pop-fulllog{max-width:340px;max-height:80vh;display:flex;flex-direction:column;font-size:9px}
+.pop-fulllog .full-log-list{max-height:55vh}

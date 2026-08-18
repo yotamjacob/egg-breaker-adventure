@@ -145,7 +145,7 @@
       </div>
       <button class="nav-play active" data-tab="play">Play</button>
       <div class="nav-grid">
-        <button class="nav-tab" data-tab="log">Log</button>
+        <button class="nav-tab" data-tab="quests">Quests</button>
         <button class="nav-tab" data-tab="daily">Daily</button>
         <button class="nav-tab" data-tab="achieve">Trophies</button>
         <button class="nav-tab locked" id="nav-skills" data-tab="skills" disabled>?</button>
@@ -186,7 +186,7 @@
           </div>
           <button class="auto-toggle hidden" id="auto-btn" onclick="toggleAutoTap()" title="Auto-Smasher"><span class="auto-toggle-txt" id="auto-btn-txt">AUTO</span><span class="auto-toggle-cd" id="auto-btn-cd"></span></button>
           <div class="reward-log" id="reward-log">
-            <div class="rlog-title">Log</div>
+            <div class="rlog-title" onclick="openFullLog()" title="Full activity log">Log ▸</div>
           </div>
         </div>
         <div id="overlay-layer" style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:visible">
@@ -251,17 +251,8 @@
     </section>
 
     <!-- ===== LOG TAB ===== -->
-    <section class="tab-panel" id="panel-log">
-      <h3 class="section-title">Activity Log</h3>
-      <div class="log-controls">
-        <button class="log-filter-btn active" data-cat="">All</button>
-        <button class="log-filter-btn" data-cat="prizes">Prizes</button>
-        <button class="log-filter-btn" data-cat="trophies">Trophies</button>
-        <button class="log-filter-btn" data-cat="items">Items</button>
-        <button class="log-filter-btn" data-cat="discovery">Discoveries</button>
-        <button class="log-filter-btn" data-cat="specials">Specials</button>
-      </div>
-      <div class="full-log-list" id="full-log-list"></div>
+    <section class="tab-panel" id="panel-quests">
+      <div class="quests-panel" id="quests-list"></div>
     </section>
 
     <!-- ===== ACHIEVEMENTS TAB ===== -->
@@ -478,6 +469,25 @@
           <button class="pop-btn" onclick="closeOverlay('overlay-congrats');document.querySelector('[data-tab=premium]').click()">💎 Support Us</button>
         </div>
         <button class="pop-btn congrats-dismiss" onclick="closeOverlay('overlay-congrats')">Close</button>
+      </div>
+    </div>
+
+    <!-- ===== FULL ACTIVITY LOG (was the Log tab; opened from the tray's mini-log title) ===== -->
+    <div class="overlay hidden" id="overlay-fulllog" onclick="if(event.target===this)closeOverlay('overlay-fulllog')">
+      <div class="popup pop-submodal pop-fulllog">
+        <div class="submodal-header">
+          <span class="submodal-title">Activity Log</span>
+          <button class="submodal-close" onclick="closeOverlay('overlay-fulllog')">✕</button>
+        </div>
+        <div class="log-controls">
+          <button class="log-filter-btn active" data-cat="">All</button>
+          <button class="log-filter-btn" data-cat="prizes">Prizes</button>
+          <button class="log-filter-btn" data-cat="trophies">Trophies</button>
+          <button class="log-filter-btn" data-cat="items">Items</button>
+          <button class="log-filter-btn" data-cat="discovery">Discoveries</button>
+          <button class="log-filter-btn" data-cat="specials">Specials</button>
+        </div>
+        <div class="full-log-list" id="full-log-list"></div>
       </div>
     </div>
 

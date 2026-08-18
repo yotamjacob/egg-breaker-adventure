@@ -701,6 +701,10 @@ const ACHIEVEMENT_DATA = [
   { id:'auto_maxed',    name:'Fully Automated',       desc:'Max out every Auto-Smasher upgrade', icon:'🏭', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
   { id:'auto_eggs_1000',name:'Robot Army',            desc:'Auto-Smasher breaks 1,000 eggs',     icon:'🦾', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'auto_away_10',  name:'Sleep Rich',            desc:'Come back to 10 away reports',       icon:'😴', reward:{type:'gold',val:2000,     label:'+2,000 gold'} },
+  // -- Quests (quests.js) --
+  { id:'quest_5',       name:'Errand Runner',         desc:'Complete 5 quests',                  icon:'📜', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
+  { id:'quest_25',      name:'Quest Hound',           desc:'Complete 25 quests',                 icon:'🗺️', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  { id:'quest_100',     name:'Legend of the Ledger',  desc:'Complete 100 quests',                icon:'📚', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
 ];
 
 // Secret achievements — hidden until discovered

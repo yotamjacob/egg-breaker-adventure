@@ -346,7 +346,8 @@
   line-height:1.5;padding:2px 4px;
   pointer-events:none;
 }
-.rlog-title{font-size:8px;color:var(--gold3);letter-spacing:1px;margin-bottom:1px}
+.rlog-title{font-size:8px;color:var(--gold3);letter-spacing:1px;margin-bottom:1px;pointer-events:auto;cursor:pointer}
+.rlog-title:hover{color:var(--gold)}
 .reward-log .log-line{color:var(--gold);text-shadow:0 0 4px #000, 1px 1px 0 #000, -1px -1px 0 #000}
 .reward-log .log-line.log-err{color:var(--red)}
 .reward-log .log-line.log-green{color:#86efac}

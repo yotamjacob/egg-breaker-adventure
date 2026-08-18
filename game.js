@@ -110,6 +110,9 @@ const DEFAULT_STATE = {
   cloudAutoSave: false,
   // Auto-Smasher (idle) — see idle.js / CONFIG.autoTap
   autoTap: { unlocked: false, on: false, speedLvl: 0, capLvl: 0, effLvl: 0 },
+  // Quests (quests.js) — { day, daily:[{id,base,claimed}], week, weekly:{id,base,claimed} }
+  quests: null,
+  questsCompleted: 0,
   autoTapEggs: 0,        // eggs broken by the Auto-Smasher (online + offline)
   autoTapUpgrades: 0,    // upgrade purchases (achievements)
   offlineReports: 0,     // "while you were away" reports shown
@@ -474,7 +477,7 @@ function renderLog() {
   const el = $id('reward-log');
   if (!el) return;
   el.style.display = (typeof G !== 'undefined' && G.showLog === false) ? 'none' : '';
-  el.innerHTML = '<div class="rlog-title">Log</div>' +
+  el.innerHTML = '<div class="rlog-title" onclick="openFullLog()" title="Full activity log">Log ▸</div>' +
     _logLines.map(function(l) {
       var cls = 'log-line';
       if (l.cat === 'noHammers' || l.cat === 'hex') cls += ' log-err';
@@ -2062,7 +2065,7 @@ $id('nav-tabs').addEventListener('click', (e) => {
       restorePurchases({ silent: true });
     }
   }
-  if (name === 'log') renderFullLog();
+  if (name === 'quests') renderQuests();
   if (name === 'skills') renderSkills();
 });
 
