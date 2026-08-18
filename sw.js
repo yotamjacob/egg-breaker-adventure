@@ -3,14 +3,10 @@
 //  Update CACHE_VERSION whenever assets change (matches game version).
 // ============================================================
 
-const CACHE_VERSION = '3.6.2';
+const CACHE_VERSION = '3.6.3';
 const CACHE_NAME    = 'esa-' + CACHE_VERSION;
 
 const STATIC_ASSETS = [
-  '/img/px12.png',
-  '/img/px16.png',
-  '/img/px24.png',
-  '/img/px32.png',
   '/',
   '/manifest.json',
   '/bundle.min.css',

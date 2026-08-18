@@ -8,7 +8,6 @@
 | `game.js` | Game engine — DEFAULT_STATE, smash logic, prize rolling, shop, cloud save, payments |
 | `render.js` | All DOM rendering — renderEggTray, renderAlbum, renderShop, renderPremiumShop, etc. |
 | `audio.js` | Sound effects and music — loaded separately, not bundled |
-| `pxicons.js` + `pxicons-map.js` | Pixel icons — a MutationObserver swaps every emoji text node for a sprite cell of `img/px{12,16,24,32}.png` (built from Twemoji by `tools/build-icons.js`). **Rollback: `CONFIG.pixelIcons=false`** (or git tag `pre-pixel-icons`). Bundled right after config.js |
 | `particles.js` | Canvas particle system (dt-scaled, one rAF loop): `emit` egg-break burst (shards + additive sparks), `sparkle`, `starRain` (Starfall), `confetti` (Banana Shake), `setAmbient('rage'\|'goose'\|null)` continuous emitters while a skill is active |
 | `hammers.js` | Hammer regeneration logic — regen interval, fast regen, max hammer tracking |
 | `idle.js` | Auto-Smasher (idle) — gold-shop helper that taps eggs with hammers: online loop, offline simulation, "while you were away" report, leveled shop upgrades. **Bundled after achievements.js** (its boot block needs everything before it) |
@@ -259,17 +258,6 @@ top, so idle income is bounded by time × speed × efficiency + the item cap, no
 | Clock guard: nothing simulated below `offlineMinSeconds` or above `offlineMaxSeconds`; time beyond the cap gets plain `applyOfflineRegen` | Tab switches don't nag; a clock jump can't mint 30 days; a capped absence never loses regen |
 | The visibility handler saves on hide and runs the sim on show | Android suspends the WebView instead of closing it — that path is what mobile actually hits |
 Invariants are checked by `tests/autotap.test.js` (vm sandbox, no browser).
-
-## Pixel icons (`pxicons.js`, v3.6.0)
-Emoji stay in the source as the single source of truth; the observer only changes how they *render*.
-| Rule | Why |
-|------|-----|
-| Never rewrite render code to emit `<i class="px">` directly — keep emoji strings | The observer covers every surface uniformly and `CONFIG.pixelIcons=false` must restore emoji everywhere in one flip |
-| New emoji in source → run `node tools/build-icons.js` (needs network once; SVGs cache in git-ignored `tools/.twemoji-cache/`) and commit the regenerated `img/px*.png` + `pxicons-map.js` | An emoji missing from the map just renders as emoji — harmless but inconsistent |
-| Sheets are used at fixed 12/16/24/32 px chosen from the parent font-size (`sizeFor`), never scaled by CSS `em` | Non-integer scaling turns pixel art to mud |
-| `data-nopx` on an element opts its subtree out; `<svg>`, `<canvas>`, form fields are always skipped | Text inside SVG can't hold an `<i>`; the Twemoji credit line must stay text |
-| Twemoji is CC-BY 4.0 — the credit line in the settings panel stays | Licence requirement |
-| The 4 sheets are in `sw.js STATIC_ASSETS` | Offline PWA/Android must have them; delete/rename → update in the same commit |
 
 ## Common pitfalls
 - `renderEggTray` must run inside `requestAnimationFrame` when switching to play tab (needs laid-out dimensions)

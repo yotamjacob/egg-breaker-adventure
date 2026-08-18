@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.6.2';
+const VERSION = '3.6.3';
 
 const CONFIG = {
 
@@ -232,13 +232,6 @@ const CONFIG = {
   //     Level arrays are indexed by the player's level; costs[i] is the price
   //     to go from level i to i+1. All gold-shop, no premium.
   // ----------------------------------------------------------
-  // ----------------------------------------------------------
-  // 18. PIXEL ICONS — emoji → pixel-art sprites at runtime (pxicons.js).
-  //     ROLLBACK SWITCH: set to false and every emoji renders as before.
-  //     Sheets: img/px{12,16,24,32}.png, built by tools/build-icons.js.
-  // ----------------------------------------------------------
-  pixelIcons: true,
-
   autoTap: {
     unlockCost:   15000,           // gold
     unlockStage:  2,               // Mr. Monkey stage index that must be reached (0-based → stage 3)
