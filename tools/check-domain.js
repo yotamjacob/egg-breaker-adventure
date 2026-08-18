@@ -29,15 +29,22 @@ function dig(type, name) {
   try { return execSync(`dig +short ${type} ${name}`, { encoding: 'utf8' }).trim().split('\n').filter(Boolean); }
   catch (e) { return []; }
 }
-function head(url) {
+/** GET that follows redirects (apex → www is normal on Vercel) and reports the final URL. */
+function head(url, depth) {
+  depth = depth || 0;
   return new Promise(res => {
     const req = https.get(url, { timeout: 12000 }, r => {
+      if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location && depth < 4) {
+        r.resume();
+        const next = r.headers.location.startsWith('http') ? r.headers.location : new URL(r.headers.location, url).href;
+        return res(head(next, depth + 1).then ? head(next, depth + 1) : null);
+      }
       let body = '';
       r.on('data', d => { if (body.length < 4000) body += d; });
-      r.on('end', () => res({ status: r.statusCode, location: r.headers.location, body }));
+      r.on('end', () => res({ status: r.statusCode, url, body, redirected: depth > 0 }));
     });
-    req.on('timeout', () => { req.destroy(); res({ status: 0, error: 'timeout' }); });
-    req.on('error', e => res({ status: 0, error: e.message }));
+    req.on('timeout', () => { req.destroy(); res({ status: 0, url, error: 'timeout' }); });
+    req.on('error', e => res({ status: 0, url, error: e.message }));
   });
 }
 
@@ -60,33 +67,36 @@ function head(url) {
 
   // 2. Vercel DNS
   console.log('\n2. DNS pointing at Vercel');
-  // Vercel has used several apex IPs (76.76.21.21 historically, 216.198.79.x /
-  // 64.29.17.x now) — compare against whatever the live project resolves to
-  // rather than a hardcoded address that ages badly.
-  const vercelIps = new Set(dig('A', 'egg-breaker-adventures.vercel.app').concat(['76.76.21.21']));
-  const a = dig('A', domain), cname = dig('CNAME', 'www.' + domain);
-  if (a.some(ip => vercelIps.has(ip))) console.log(ok('apex A → ' + a.join(', ') + ' (Vercel)'));
-  else if (a.length) console.log(warn('apex A → ' + a.join(', ') + ' — expected one of: ' + [...vercelIps].join(', ')));
+  // Vercel serves from several ranges (76.76.21.21 historically, 216.198.79.x /
+  // 64.29.17.x now) — match by range, not by one address that ages badly.
+  const isVercelIp = ip => /^(76\.76\.21\.|216\.198\.79\.|64\.29\.17\.)/.test(ip);
+  const ns = dig('NS', domain);
+  if (ns.some(n => /vercel-dns/.test(n))) console.log(ok('nameservers are Vercel (' + ns.join(', ') + ') → manage DNS in the Vercel dashboard, not the registrar'));
+  else if (ns.length) console.log(warn('nameservers: ' + ns.join(', ') + ' → add DNS records at that provider'));
+  const a = dig('A', domain), aw = dig('A', 'www.' + domain), cname = dig('CNAME', 'www.' + domain);
+  if (a.some(isVercelIp)) console.log(ok('apex A → ' + a.join(', ') + ' (Vercel)'));
+  else if (a.length) console.log(warn('apex A → ' + a.join(', ') + ' (not a Vercel range)'));
   else console.log(warn('no apex A record yet'));
-  if (cname.some(c => /vercel-dns\.com|vercel\.app/.test(c))) console.log(ok('www CNAME → ' + cname.join(', ')));
-  else if (cname.length) console.log(warn('www CNAME → ' + cname.join(', ')));
-  else console.log(warn('no www CNAME (optional)'));
+  if (cname.length) console.log(ok('www CNAME → ' + cname.join(', ')));
+  else if (aw.some(isVercelIp)) console.log(ok('www A → ' + aw.join(', ') + ' (Vercel)'));
+  else console.log(warn('www does not resolve to Vercel'));
 
   // 3 + 4. The URLs Google will fetch
   console.log('\n3. URLs the OAuth consent screen needs');
+  let canonical = null;
   for (const path of ['/', '/privacy', '/terms']) {
     const r = await head('https://' + domain + path);
-    if (r.status === 200) {
+    if (r && r.status === 200) {
       const titled = /Egg Smash|Egg Breaker/i.test(r.body || '');
-      console.log(ok('https://' + domain + path + ' → 200' + (titled ? ' (game content found)' : '')));
+      if (path === '/') canonical = r.url;
+      console.log(ok(r.url + ' → 200' + (titled ? ' (game content found)' : '') + (r.redirected ? '  [redirected]' : '')));
       if (path === '/' && !titled) console.log(warn('  home page did not mention the game — Google requires an obviously relevant home page'));
-    } else if (r.status >= 300 && r.status < 400) {
-      console.log(warn('https://' + domain + path + ' → ' + r.status + ' redirect to ' + r.location));
     } else {
-      console.log(bad('https://' + domain + path + ' → ' + (r.error || r.status)));
+      console.log(bad('https://' + domain + path + ' → ' + ((r && (r.error || r.status)) || 'failed')));
       fatal++;
     }
   }
+  if (canonical) console.log('\n  Use this exact URL as the OAuth home page: ' + canonical);
 
   console.log('\n' + (fatal
     ? '\x1b[31mNot ready.\x1b[0m Fix the ✗ items, then re-run. DNS can take minutes to hours to propagate.'

@@ -24,6 +24,29 @@ property in Search Console does **not** satisfy it, and Google explicitly exclud
 home pages hosted on third-party platforms whose subdomain you cannot prove you own.
 So a domain purchase is unavoidable for branded Google sign-in.
 
+## Current state (eggbreakeradventure.com)
+
+| Item | Status |
+|------|--------|
+| Domain live on Vercel | ✅ apex + `www` resolve to Vercel; apex 308s to `https://www.eggbreakeradventure.com/` |
+| Game served on it | ✅ `/`, `/privacy`, `/terms` all 200 with the game |
+| DNS host | **Vercel** (`ns1/ns2.vercel-dns.com`) — records are added in the Vercel dashboard, *not* at the registrar |
+| Search Console TXT | ❌ not present yet — this is the only thing blocking verification |
+| OAuth home page URL to use | `https://www.eggbreakeradventure.com/` (the `www` form: the apex redirects) |
+
+### Add the TXT record (Vercel dashboard)
+Vercel → the `eggbreakeradventure.com` domain → **DNS Records** → Add:
+
+| Field | Value |
+|-------|-------|
+| Type | `TXT` |
+| Name | leave **empty** (that is the apex `@`) |
+| Value | `google-site-verification=yaYt8e-eL8BzbBgTxkdCxKV4a3vRcLQJAI97BUUgfTE` |
+| TTL | 60 (or default) |
+
+Then Search Console → **Domain** property → Verify. A Domain property covers the
+apex and every subdomain, so `www` is included automatically.
+
 Check progress at any time with:
 
 ```bash
