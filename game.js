@@ -2274,6 +2274,21 @@ if (!G._welcomeDone && G.totalEggs === 0) {
   setTimeout(() => $id('overlay-welcome').classList.remove('hidden'), 4800);
 }
 
+// Preload every monkey portrait (all hat variants) once the splash is out of
+// the way, so equipping a hat or switching monkey swaps the avatar instantly
+// instead of fetching the image on demand (v3.7.1).
+setTimeout(function () {
+  try {
+    const seen = new Set();
+    MONKEY_DATA.forEach(m => {
+      [m.img].concat(Object.values(m.hatImgs || {})).forEach(src => {
+        if (!src || seen.has(src)) return; seen.add(src);
+        const im = new Image(); im.decoding = 'async'; im.src = src;
+      });
+    });
+  } catch (e) {}
+}, 5500);
+
 // Splash screen tip — show a random tip while the splash is visible (every load)
 const _SPLASH_TIPS = [
   'Use feathers to unlock album items directly.',

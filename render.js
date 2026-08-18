@@ -374,20 +374,36 @@ function renderEggTray() {
       // Summon effect: pop on the SVG child (NOT the slot — the slot's own
       // `animation` belongs to the smash feedback cascade, see CLAUDE.md) and
       // a burst ring/sparkles behind it. Staggered left→right.
-      slot.classList.add('spawning', 'spawn-t' + (SPAWN_TIER[egg.type] || 0));
-      slot.style.setProperty('--spawn-delay', (i * 70) + 'ms');
-      slot.addEventListener('animationend', function onEnd(ev) {
-        if (ev.target.classList && ev.target.classList.contains('spawn-burst')) {
-          ev.target.remove();
-          slot.classList.remove('spawning');
-          slot.removeEventListener('animationend', onEnd);
-        }
-      });
+      // Cleanup is TIMER-based, not animationend: a hit during the burst
+      // rebuilds slot.innerHTML (cracks), which used to remove the burst
+      // before its animationend fired and leave `spawning` on the slot — so
+      // every later rebuild replayed the pop (v3.7.1 fix).
+      const tier = SPAWN_TIER[egg.type] || 0;
+      const delay = i * 70;
+      slot.classList.add('spawning', 'spawn-t' + tier);
+      slot.style.setProperty('--spawn-delay', delay + 'ms');
+      setTimeout(() => {
+        slot.classList.remove('spawning');
+        const b = slot.querySelector('.spawn-burst'); if (b) b.remove();
+        const bm = slot.querySelector('.spawn-beam'); if (bm) bm.remove();
+      }, delay + 1400);
+      // Higher tiers get canvas sparkles at the egg's position, timed to the pop
+      if (tier >= 2 && typeof Particles !== 'undefined') {
+        const cx = pos.x + 38, cy = pos.y + 44;
+        const col = tier === 2 ? '#FFD700' : tier === 3 ? '#c4b5fd' : tier === 4 ? '#ff7b6b' : tier === 5 ? '#9b6cff' : '#fff1a8';
+        setTimeout(() => {
+          Particles.sparkle(cx, cy, tier === 6 ? 46 : 10 + tier * 4, col);
+          if (tier === 6) {
+            Particles.starRain(tW, tH, 900, 40, null, { x0: pos.x - 30, x1: pos.x + 106 });
+            setTimeout(() => Particles.sparkle(cx, cy, 30, '#FFFFFF'), 350);
+          }
+        }, delay + 120);
+      }
     }
     const damage = egg.maxHp - egg.hp;
     const balloonExtra = alive && fx.includes('balloon')
       ? '<div class="balloon-rope"><div class="balloon-knot"></div><svg class="balloon-string" width="14" height="44" viewBox="0 0 14 44"><path d="M7,0 Q13,11 7,22 Q1,33 7,44" stroke="#aaa" stroke-width="1.5" fill="none"/></svg></div>' : '';
-    slot.innerHTML = (spawnFx && alive ? '<span class="spawn-burst" aria-hidden="true"></span>' : '') +
+    slot.innerHTML = (spawnFx && alive ? '<span class="spawn-burst" aria-hidden="true"></span>' + (egg.type === 'century' ? '<span class="spawn-beam" aria-hidden="true"></span>' : '') : '') +
       makeEggSVG(egg.type, (egg.broken || egg.expired) ? egg.maxHp : damage) +
       balloonExtra +
       eggLabel(egg.type, egg.hp, egg.maxHp, egg.broken || egg.expired) +

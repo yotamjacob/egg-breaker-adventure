@@ -132,9 +132,11 @@ const Particles = (() => {
   // emitted over `durationMs`, fall with a gentle sway, spin, twinkle and
   // leave a short soft trail. Two depth layers: small dim stars in the back
   // fall faster and fainter; big bright ones in front carry the moment.
-  let rain = [], rainW = 0, rainH = 0, rainEmitUntil = 0, rainPerMs = 0, rainAcc = 0, rainCol = null;
-  function starRain(w, h, durationMs, count, colors) {
+  let rain = [], rainW = 0, rainH = 0, rainEmitUntil = 0, rainPerMs = 0, rainAcc = 0, rainCol = null, rainX0 = null, rainX1 = null;
+  function starRain(w, h, durationMs, count, colors, opts) {
     rainW = w; rainH = h; rainCol = colors || null;
+    rainX0 = opts && opts.x0 != null ? opts.x0 : null;   // optional column: only rain between x0..x1
+    rainX1 = opts && opts.x1 != null ? opts.x1 : null;
     rainEmitUntil = performance.now() + (durationMs || 1400);
     rainPerMs = (count || 80) / (durationMs || 1400);
     rainAcc = 1;   // first star this frame
@@ -143,8 +145,9 @@ const Particles = (() => {
   function _spawnRainStar() {
     const back = R() < .4;
     const cols = rainCol || (back ? ['#ffe9a3', '#fff3c4'] : ['#FFD700', '#ffe27a', '#fff8dc']);
+    const x = rainX0 != null ? rainX0 + R() * ((rainX1 != null ? rainX1 : rainW) - rainX0) : R() * (rainW + 60) - 30;
     rain.push({
-      x: R() * (rainW + 60) - 30, y: -14 - R() * 60,
+      x, y: -14 - R() * 60,
       vy: back ? 4.2 + R() * 2 : 5.8 + R() * 3.2,
       sz: back ? 2.5 + R() * 2.5 : 5 + R() * 6,
       sway: 4 + R() * 10, ph: R() * Math.PI * 2, sp: .05 + R() * .05,

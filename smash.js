@@ -642,6 +642,7 @@ function smashEgg(index) {
       SFX.play('coin');
     }
     const damage = egg.maxHp - egg.hp;
+    slot.classList.remove('spawning');   // a hit ends the summon pop for good (see render.js)
     slot.innerHTML = makeEggSVG(egg.type, damage) +
       eggLabel(egg.type, egg.hp, egg.maxHp, false) +
       (egg.effects && egg.effects.includes('timer') ? '<span class="egg-timer">' + formatTimer(egg.timer) + '</span>' : '');
