@@ -483,10 +483,24 @@
    "Smash animation invariants"), so this can never win/lose against it.
    The burst is a z-index:-1 child (the slot's drop-shadow filter makes it a
    stacking context), so it paints behind the egg. Tiers escalate via vars. */
-.egg-slot.spawning > svg{
+/* The whole egg unit summons together: shell, its name/taps label, the timer
+   chip and the balloon string+knot — otherwise the label and tail pop in
+   instantly while the egg is still scaling up. */
+.egg-slot.spawning > svg,
+.egg-slot.spawning > .balloon-rope{
   animation:egg-summon .48s cubic-bezier(.34,1.56,.64,1) both;
   animation-delay:var(--spawn-delay,0ms);
   transform-origin:50% 88%;
+}
+.egg-slot.spawning > .egg-label,
+.egg-slot.spawning > .egg-timer{
+  animation:egg-summon-label .46s ease-out both;
+  animation-delay:calc(var(--spawn-delay,0ms) + 120ms);
+}
+@keyframes egg-summon-label{
+  0%  {transform:translateY(-6px) scale(.7);opacity:0}
+  60% {transform:translateY(1px) scale(1.06);opacity:1}
+  100%{transform:translateY(0) scale(1);opacity:1}
 }
 @keyframes egg-summon{
   0%  {transform:scale(0) translateY(14px);opacity:0}

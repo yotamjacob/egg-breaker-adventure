@@ -1,5 +1,9 @@
 # Welcome email — new joiners
 
+**HTML version:** `marketing/emails/new-joiner-welcome.html` (designed, app palette,
+Play Store badge; images served from `/email/*.png` on the live site).
+The text below is the plain-text alternative sent alongside it.
+
 Send to new players / early joiners. Plain text, no emoji clutter.
 The Play link carries `referrer=` attribution so installs from this email show up
 in Play Console as `utm_source=email / utm_medium=welcome` (a bare `?utm_source=`
@@ -46,7 +50,7 @@ A quick tour of what's new, because a lot has landed recently:
   light now.
 
 That sits on top of what was already there: 6 monkeys, 53 stages, 353
-collectible items and 121 trophies to chase.
+collectible items and 123 trophies to chase.
 
 Two small things I'd love from you:
 
@@ -73,7 +77,7 @@ Egg Smash Adventures
 - Swap the three gift items if you'd rather offer different ones; those three
   are the least balance-sensitive.
 - Keep the numbers in sync if you retune: 6 monkeys / 53 stages / 353 items /
-  121 trophies (`node tools/ng-medals.js` and `data.js` are the source of truth).
+  123 trophies (`node tools/ng-medals.js` and `data.js` are the source of truth).
 - If you send this to web players who have never installed the app, the
   Play link is the call to action; for existing Android players, lead with the
   rating ask instead.

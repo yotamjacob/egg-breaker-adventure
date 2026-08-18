@@ -1119,7 +1119,7 @@ function renderShop() {
       '<span class="s-name">' + h.name + '</span>' +
       '<span class="s-desc">' + h.desc + '</span>' +
       (owned
-        ? (typeof hammerCardMastery === 'function' ? hammerCardMastery(h.id) : '') + '<span class="s-status">' + (isCursor ? 'EQUIPPED · TRAINING' : 'OWNED') + '</span>'
+        ? (typeof hammerCardMastery === 'function' ? hammerCardMastery(h.id) : '') + '<span class="s-status">' + (isCursor ? 'TRAINING' : 'OWNED') + '</span>'
         : '<span class="s-cost">' + formatNum(h.cost) + ' 🪙</span>');
     card.addEventListener('click', () => buyShopItem('hammer', h.id));
     hGrid.appendChild(card);
