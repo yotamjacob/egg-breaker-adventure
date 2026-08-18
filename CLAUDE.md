@@ -252,6 +252,7 @@ so shop prices never needed retuning.
 | `game.js` boot skips `applyOfflineRegen` when the sim will run and leaves `_bootElapsedSec`; `idle.js`'s boot block does the sim after the whole bundle executed | The sim walks regen tap by tap itself; crediting regen first would double-count. `idle.js` must stay **after** game/smash/shop/achievements in `JS_FILES` |
 | Module-level state in `idle.js` that boot-time code can reach must be `var` (see `SHOP_AUTOTAP`) | `renderShop()` runs during game.js boot; a `const` there is in its TDZ and even `typeof` throws, which aborts every later top-level statement in the bundle |
 | Offline rolls run with `_quietRoll = true` and `G.activeMult = 1` | No DOM/log/SFX from the sim; multipliers are never spent while away |
+| The Auto-Smasher never touches Century eggs — `availableEggTypes(si, true)` offline, `e.type !== 'century'` filter online | The 100-hit jackpot stays a hands-on moment; the bot must not sink 100 hammers into it either |
 | Offline items: max `offlineMaxItems` new per report, never rarity 3 | Collection completion stays a hands-on moment; the rest converts to duplicate gold |
 | Clock guard: nothing simulated below `offlineMinSeconds` or above `offlineMaxSeconds`; time beyond the cap gets plain `applyOfflineRegen` | Tab switches don't nag; a clock jump can't mint 30 days; a capped absence never loses regen |
 | The visibility handler saves on hide and runs the sim on show | Android suspends the WebView instead of closing it — that path is what mobile actually hits |

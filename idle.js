@@ -137,9 +137,11 @@ function _autoTapTick() {
     if (typeof _rageActive !== 'undefined' && _rageActive) return;
     if (_spawningRound || _roundPending) return;
     if (G.hammers < 1 || !G.roundEggs) return;
+    // Skips balloon eggs (long-press only) and Century eggs — the 100-hit
+    // jackpot is left for the player, online and offline alike.
     const idxs = [];
     G.roundEggs.forEach((e, i) => {
-      if (!e.broken && !e.expired && !e._smashing && !(e.effects || []).includes('balloon')) idxs.push(i);
+      if (!e.broken && !e.expired && !e._smashing && e.type !== 'century' && !(e.effects || []).includes('balloon')) idxs.push(i);
     });
     if (!idxs.length) return;
     const before = G.totalEggs;
