@@ -24,6 +24,14 @@ property in Search Console does **not** satisfy it, and Google explicitly exclud
 home pages hosted on third-party platforms whose subdomain you cannot prove you own.
 So a domain purchase is unavoidable for branded Google sign-in.
 
+Check progress at any time with:
+
+```bash
+node tools/check-domain.js <your-domain> "google-site-verification=<value>"
+```
+It reports the Search Console TXT record, whether DNS points at Vercel, and whether
+`/`, `/privacy` and `/terms` answer 200 with the game on them.
+
 ### The cheap path (~$12/yr, no code changes, no Android impact)
 1. **Buy a domain** (e.g. `eggsmashadventures.com`). Any registrar.
 2. **Add it to the existing Vercel project** (Project → Settings → Domains) as an
