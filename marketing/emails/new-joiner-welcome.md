@@ -1,7 +1,7 @@
 # Welcome email — new joiners
 
-**HTML version:** `marketing/emails/new-joiner-welcome.html` (designed, app palette,
-Play Store badge; images served from `/email/*.png` on the live site).
+**HTML version:** `marketing/emails/new-joiner-welcome.html` (light, minimal; short list of
+what's new, Play Store badge; images served from `/email/*.png` on the live site).
 The text below is the plain-text alternative sent alongside it.
 
 Send to new players / early joiners. Plain text, no emoji clutter.
