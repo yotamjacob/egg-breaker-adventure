@@ -246,11 +246,12 @@ save show "0/5 items" and "???" placeholders and sell the game badly. Eggs are
 `.egg-slot`, **not** `.egg`.
 
 ## Auto-Smasher (idle) — `idle.js`, `CONFIG.autoTap` (v3.4.0)
-Gold-shop only (no premium, by decision). Hammers are the fuel: idle income is bounded by regen,
-so shop prices never needed retuning.
+Gold-shop only (no premium, by decision). Online the smasher spends hammers like a tap; **offline
+taps are free (v3.6.1)** — the bar regenerates to full for the whole absence and the report comes on
+top, so idle income is bounded by time × speed × efficiency + the item cap, not by regen.
 | Rule | Why |
 |------|-----|
-| `game.js` boot skips `applyOfflineRegen` when the sim will run and leaves `_bootElapsedSec`; `idle.js`'s boot block does the sim after the whole bundle executed | The sim walks regen tap by tap itself; crediting regen first would double-count. `idle.js` must stay **after** game/smash/shop/achievements in `JS_FILES` |
+| `game.js` boot skips `applyOfflineRegen` when the sim will run and leaves `_bootElapsedSec`; `idle.js`'s boot block does the sim after the whole bundle executed and calls `applyOfflineRegen(elapsed)` itself | Regen must be credited exactly once; `idle.js` must stay **after** game/smash/shop/achievements in `JS_FILES` |
 | **All** module-level state in `idle.js` is `var`, never `let`/`const` | game.js boot calls `renderShop()` and `updateSkillBtns()` → `updateAutoBtn()` before idle.js's top level executes; a `let`/`const` there is in its TDZ and throws, aborting every later top-level statement in the bundle. v3.4.2 shipped this exact bug (`_autoTapNextAt`) — every player who had unlocked the smasher got a blank tray on reload; fresh saves never hit it because `updateAutoBtn` returns early when locked. Test the unlocked-then-reload path for any idle change |
 | Offline rolls run with `_quietRoll = true` and `G.activeMult = 1` | No DOM/log/SFX from the sim; multipliers are never spent while away |
 | The Auto-Smasher never touches Century eggs — `availableEggTypes(si, true)` offline, `e.type !== 'century'` filter online | The 100-hit jackpot stays a hands-on moment; the bot must not sink 100 hammers into it either |

@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.6.0';
+const VERSION = '3.6.1';
 
 const CONFIG = {
 
@@ -225,8 +225,10 @@ const CONFIG = {
   //     Online: a timer taps a random egg every `speed` seconds.
   //     Offline: on return, the same rate is simulated for the away time
   //     (capped by `offlineCap`), and gold/items are credited at
-  //     `efficiency`. Hammers are the fuel, so idle income can never exceed
-  //     what hammer regen would have paid a present player.
+  //     `efficiency`.
+  //     Offline taps do NOT spend hammers (v3.6.1): the bar regenerates to
+  //     full while away and the report comes on top. Bounded by time × speed,
+  //     efficiency and the item cap instead.
   //     Level arrays are indexed by the player's level; costs[i] is the price
   //     to go from level i to i+1. All gold-shop, no premium.
   // ----------------------------------------------------------

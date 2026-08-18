@@ -8,8 +8,8 @@
 //             the real smashEgg() path (animations, log, trophies for free).
 //    Offline: on return, the same rate is simulated for the away time
 //             (capped) and a "While you were away" report is shown.
-//  Hammers are the fuel, so idle income is bounded by hammer regen — the
-//  same ceiling a present player has. Tuning lives in CONFIG.autoTap.
+//  Online it spends hammers like a finger; offline its taps are free and the
+//  hammer bar regenerates to full underneath it. Tuning lives in CONFIG.autoTap.
 // ============================================================
 
 // ---------------------------------------------------------------
@@ -211,14 +211,16 @@ function updateAutoBtn() {
 // ---------------------------------------------------------------
 /**
  * Simulate what the Auto-Smasher would have done during `elapsedSec` away.
- * Mutates G (gold, items, counters, hammer pool) and returns a summary for
- * the report, or null when nothing should be simulated (locked, paused,
- * too short, absurd clock jump).
+ * Mutates G (gold, items, counters) and returns a summary for the report, or
+ * null when nothing should be simulated (locked, paused, too short, absurd
+ * clock jump).
  *
- * The hammer pool is walked tap by tap: regen accrues at the live rate but
- * only while below maxH, exactly as it would have with a player present.
- * Regen for any time beyond the cap is credited afterwards via
- * applyOfflineRegen(), so a capped absence never loses plain regen.
+ * Offline taps are FREE (v3.6.1): they do not spend hammers, so the player
+ * comes back to a full hammer bar AND the report. Taps are bounded only by
+ * time (speed level × capped away time); gold is scaled by efficiency, items
+ * are capped. Hammer regen for the whole absence is credited via
+ * applyOfflineRegen() exactly as if the smasher were not there. Hammers the
+ * smasher finds in eggs are added on top (may overflow maxH, as online).
  *
  * `deps` (tests only): { rng, rollPrize }.
  */
@@ -254,20 +256,17 @@ function simulateOffline(elapsedSec, deps) {
     gold: 0, stars: 0, feathers: 0, hammers: 0, mults: 0, bananas: 0, maxH: 0,
     items: [], dupes: 0, efficiency: eff,
   };
-  const pool = { h: G.hammers };
+  // Plain regen for the whole absence first — the smasher never touches the pool.
+  if (G.hammers < G.maxH) applyOfflineRegen(elapsedSec);
+  G.regenCD = regen;
+  const pool = { h: 0 };      // hammers FOUND in eggs while away (credited at the end)
   let eggs = newEggs();
-  let regenAcc = 0;
   const nTaps = Math.floor(simSec / secPerTap);
   const savedMult = G.activeMult;
   G.activeMult = 1;           // no multipliers while away
   _quietRoll = true;
   try {
     for (let k = 0; k < nTaps; k++) {
-      regenAcc += secPerTap / regen;
-      const whole = Math.floor(regenAcc);
-      if (whole > 0) { regenAcc -= whole; if (pool.h < G.maxH) pool.h = Math.min(G.maxH, pool.h + whole); }
-      if (pool.h < 1) continue;
-      pool.h -= 1;
       sum.taps++;
       const egg = eggs.find(e => e.hp > 0);
       egg.hp -= 1;
@@ -283,9 +282,7 @@ function simulateOffline(elapsedSec, deps) {
     G.activeMult = savedMult;
     _quietRoll = false;
   }
-  G.hammers = pool.h;
-  G.regenCD = regen;
-  if (elapsedSec > simSec && G.hammers < G.maxH) applyOfflineRegen(elapsedSec - simSec);
+  G.hammers += pool.h;        // found hammers on top of the regenerated bar
   G.offlineReports = (G.offlineReports || 0) + 1;
   G.offlineGold = (G.offlineGold || 0) + sum.gold;
   if (typeof checkCollectionComplete === 'function') checkCollectionComplete(true);

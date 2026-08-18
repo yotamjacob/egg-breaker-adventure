@@ -3,8 +3,8 @@
 //  Runs idle.js in a vm sandbox with the real CONFIG/data and stubbed
 //  game globals, so the balance rules can be checked without a browser:
 //    - nothing is simulated when locked / paused / too short / clock jump
-//    - taps never exceed hammers-in (start pool + regen over the window)
-//    - the away-time cap is honoured and the remainder gets plain regen
+//    - offline taps are free (bounded by time × speed), the bar regenerates
+//    - the away-time cap bounds taps but regen covers the whole absence
 //    - gold is scaled by efficiency, star pieces are not
 //    - at most offlineMaxItems new items, never a rare one
 //  Run: node --test tests/autotap.test.js
@@ -79,17 +79,15 @@ test('nothing simulated when locked, paused, too short, or after a clock jump', 
   assert.equal(w.G.totalEggs, 0);
 });
 
-test('taps never exceed hammers-in (start pool + regen over the simulated window)', () => {
-  const w = makeWorld();
+test('offline taps are free: bounded by time × speed, and the hammer bar is not spent', () => {
+  const w = makeWorld('G.hammers = 10;');
   const rep = w.simulateOffline(H);
-  const regenIn = Math.floor(H / w.CONFIG.regenInterval);
-  assert.ok(rep.taps > 0);
-  assert.ok(rep.taps <= 50 + regenIn, `taps ${rep.taps} > ${50 + regenIn}`);
-  assert.ok(rep.taps <= Math.floor(H / w.CONFIG.autoTap.speed.levels[0]));
+  assert.equal(rep.taps, Math.floor(H / w.CONFIG.autoTap.speed.levels[0]), 'one tap per speed interval, no hammer limit');
   assert.equal(rep.eggs, w.G.totalEggs);
   assert.equal(rep.eggs, w.G.autoTapEggs);
   assert.equal(w.G.offlineReports, 1);
-  assert.ok(w.G.hammers >= 0 && w.G.hammers <= 50 + 1, 'pool never goes negative or far above max');
+  assert.deepEqual(Array.from(w.regenCalls), [H], 'plain regen credited for the whole absence');
+  assert.ok(w.G.hammers >= 10, 'the smasher never draws the bar down');
 });
 
 test('gold is scaled by efficiency; star pieces are not', () => {
@@ -108,14 +106,14 @@ test('gold is scaled by efficiency; star pieces are not', () => {
   assert.equal(w.G.offlineGold, rep.gold);
 });
 
-test('away time is capped and the remainder still gets plain hammer regen', () => {
-  const w = makeWorld();
+test('away time is capped for taps, but hammer regen covers the whole absence', () => {
+  const w = makeWorld('G.hammers = 5;');
   const cap = w.CONFIG.autoTap.offlineCap.levels[0] * H;
   const rep = w.simulateOffline(10 * H);
   assert.equal(rep.simulated, cap);
   assert.equal(rep.capped, true);
-  assert.ok(rep.taps <= 50 + Math.floor(cap / w.CONFIG.regenInterval));
-  assert.deepEqual(Array.from(w.regenCalls), [10 * H - cap], 'regen credited for the uncapped remainder');
+  assert.equal(rep.taps, Math.floor(cap / w.CONFIG.autoTap.speed.levels[0]));
+  assert.deepEqual(Array.from(w.regenCalls), [10 * H], 'regen for all 10h, not just the capped window');
 });
 
 test('at most offlineMaxItems new items, never a rare; the rest pay out as duplicates', () => {
