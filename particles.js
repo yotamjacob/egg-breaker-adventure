@@ -4,8 +4,8 @@
 //
 //  One canvas (#particle-canvas, over the egg tray), one rAF loop, several
 //  particle families:
-//    emit()      egg-break burst — shell shards + glowing sparks + an impact
-//                ring + a few lingering motes
+//    emit()      egg-break burst — shell shards + glowing sparks (the classic
+//                effect, dt-scaled with drag/tumble/shrink easing)
 //    sparkle()   glowing star burst (prizes, item finds)
 //    starRain()  Starfall — a rain of stars across the tray
 //    confetti()  Banana Shake — radial confetti + sparks + ring
@@ -40,9 +40,6 @@ const Particles = (() => {
   // ── Egg break ────────────────────────────────────────────────────
   function emit(cx, cy, type, count) {
     const cols = COLORS[type] || COLORS.normal;
-    const main = cols[0] || '#FFF';
-    // impact ring — a quick expanding hoop in the egg's colour
-    _push({ sh: 'ring', x: cx, y: cy, r: 4, vr: 2.6, life: 1, decay: .085, col: main, lw: 3 });
     // shell shards — pixel squares, radial spread, drag + gravity, tumble
     const shards = Math.max(4, Math.round(count * .7));
     for (let i = 0; i < shards; i++) {
@@ -65,14 +62,6 @@ const Particles = (() => {
         vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, life: 1, decay: .022 + R() * .014,
         sz: 2 + R() * 3, rot: R() * Math.PI, rv: (R() - .5) * .3, grav: .06, drag: .96,
         col: i % 3 === 0 ? '#FFFFFF' : '#FFE27A',
-      });
-    }
-    // motes — a few slow drifting dots that linger after the burst
-    for (let i = 0; i < 4; i++) {
-      _push({
-        sh: 'mote', add: true, x: cx + (R() - .5) * 20, y: cy + (R() - .5) * 12,
-        vx: (R() - .5) * .6, vy: -.5 - R() * .7, life: 1, decay: .008 + R() * .006,
-        sz: 1.5 + R() * 1.5, ph: R() * Math.PI * 2, grav: 0, drag: 1, col: main,
       });
     }
     _tryStart();
