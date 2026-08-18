@@ -1128,6 +1128,41 @@ function renderShop() {
     if (!isOwned) card.addEventListener('click', () => buyShopItem('supply', s.id));
     (s.unique ? uGrid : cGrid).appendChild(card);
   });
+
+  // Auto-Smasher (idle.js) — leveled upgrades, gold only
+  if (typeof SHOP_AUTOTAP !== 'undefined') {
+    const st = autoTapState();
+    const available = autoTapUnlockAvailable();
+    SHOP_AUTOTAP.forEach(s => {
+      const price = autoTapPrice(s.id);
+      const isUnlockCard = s.id === 'autotap';
+      const locked = isUnlockCard ? !available : !st.unlocked;
+      const maxed = price == null;
+      const lvl = s.track ? (st[s.lvlKey] | 0) : 0;
+      const maxLvl = s.track ? autoTapMaxLevel(s.track) : 0;
+      let desc;
+      if (isUnlockCard) {
+        desc = locked ? 'Unlocks at Mr. Monkey stage ' + (CONFIG.autoTap.unlockStage + 1) : s.desc;
+      } else {
+        const now = s.fmt(_atLevelVal(s.track, lvl));
+        desc = 'Lv ' + lvl + '/' + maxLvl + ' · ' + now + (maxed ? '' : ' → ' + s.fmt(_atLevelVal(s.track, lvl + 1)));
+      }
+      const card = document.createElement('div');
+      card.className = 'shop-card' + (maxed ? ' owned' : '') + (locked ? ' locked' : '') + (!maxed && !locked && G.gold >= price ? ' can-afford' : '');
+      card.dataset.id = s.id;
+      card.innerHTML =
+        '<span class="s-emoji">' + s.emoji + '</span>' +
+        '<span class="s-name">' + s.name + '</span>' +
+        '<span class="s-desc">' + desc + '</span>' +
+        (maxed
+          ? '<span class="s-status">' + (isUnlockCard ? 'OWNED' : 'MAXED') + '</span>'
+          : locked
+            ? '<span class="s-status">🔒</span>'
+            : '<span class="s-cost">' + formatNum(price) + ' 🪙</span>');
+      if (!maxed && !locked) card.addEventListener('click', () => buyShopItem('autotap', s.id));
+      uGrid.appendChild(card);
+    });
+  }
 }
 
 // ==================== STATS / ACHIEVEMENTS ====================

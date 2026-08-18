@@ -327,3 +327,12 @@
   text-decoration:none;box-sizing:border-box;
 }
 .settings-link-btn:hover{background:rgba(245,197,66,.1)!important;text-decoration:none}
+
+/* ---------- "While you were away" report (idle.js) ---------- */
+.pop-offline{max-width:300px}
+.offline-rows{width:100%;margin-top:6px;display:flex;flex-direction:column;gap:3px}
+.offline-row{display:flex;align-items:center;gap:6px;background:var(--bg);border:2px solid var(--gold3);border-radius:2px;padding:5px 8px;font-size:8px;font-family:var(--px)}
+.offline-ic{flex:0 0 auto;font-size:13px;font-family:system-ui,sans-serif}
+.offline-lbl{flex:1;color:var(--gray);text-align:left}
+.offline-val{color:var(--gold);font-size:9px;text-shadow:1px 1px 0 var(--dark);flex:0 0 auto;text-align:right;letter-spacing:1px}
+.offline-hint{margin-top:6px;font-size:8px;color:#8fa3bf}

@@ -10,9 +10,16 @@ function buyShopItem(category, id) {
   // Confirmation for non-consumable items when auto-buy is off
   const isConsumable = category === 'supply' && !SHOP_SUPPLIES.find(s => s.id === id)?.unique;
   if (!G.autoBuy && !isConsumable) {
-    const item = category === 'hammer' ? SHOP_HAMMERS.find(h => h.id === id)
-              : category === 'hat' ? SHOP_HATS.find(h => h.id === id)
-              : SHOP_SUPPLIES.find(s => s.id === id);
+    let item = category === 'hammer' ? SHOP_HAMMERS.find(h => h.id === id)
+             : category === 'hat' ? SHOP_HATS.find(h => h.id === id)
+             : category === 'autotap' ? SHOP_AUTOTAP.find(s => s.id === id)
+             : SHOP_SUPPLIES.find(s => s.id === id);
+    if (item && category === 'autotap') {
+      // Leveled upgrades: price depends on the current level; null = maxed/owned
+      const price = autoTapPrice(id);
+      if (price == null) { doBuyShopItem(category, id); return; }
+      item = { ...item, cost: price };
+    }
     if (item && item.cost > 0) {
       const alreadyOwned = (category === 'hammer' && G.ownedHammers.includes(id))
                         || (category === 'hat' && G.ownedHats.includes(id))
@@ -82,6 +89,10 @@ function doBuyShopItem(category, id) {
     return;
   }
 
+  if (category === 'autotap') {
+    if (!buyAutoTapUpgrade(id)) return;
+  }
+
   if (category === 'supply') {
     const item = SHOP_SUPPLIES.find(s => s.id === id);
     if (!item) return;
@@ -110,7 +121,7 @@ function doBuyShopItem(category, id) {
   updateResources();
   // Re-render immediately (no delay), then flash the fresh card
   renderShop(); renderPremiumShop(); saveGame();
-  const grids = category === 'supply'
+  const grids = (category === 'supply' || category === 'autotap')
     ? [...$id('shop-consumables').children, ...$id('shop-upgrades').children]
     : [...$id('shop-' + (category === 'hammer' ? 'hammers' : 'hats')).children];
   for (const c of grids) {

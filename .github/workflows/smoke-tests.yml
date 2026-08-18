@@ -79,7 +79,7 @@ jobs:
           echo "Timed out waiting for deployment." && exit 1
 
       - name: Run smoke tests
-        run: node --test tests/smoke.test.js tests/sw-health.test.js tests/smash-animation.test.js
+        run: node --test tests/smoke.test.js tests/sw-health.test.js tests/smash-animation.test.js tests/autotap.test.js
         env:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 

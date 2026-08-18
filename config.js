@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.3.1';
+const VERSION = '3.4.0';
 
 const CONFIG = {
 
@@ -219,4 +219,26 @@ const CONFIG = {
   // ----------------------------------------------------------
   secretOuchChance:    0.0002,  // 1/5000 — egg says "ouch!"
   secretChickenChance: 0.0005,  // 1/2000 — runaway chicken appears
+
+  // ----------------------------------------------------------
+  // 17. AUTO-SMASHER (idle) — taps eggs for the player using hammers.
+  //     Online: a timer taps a random egg every `speed` seconds.
+  //     Offline: on return, the same rate is simulated for the away time
+  //     (capped by `offlineCap`), and gold/items are credited at
+  //     `efficiency`. Hammers are the fuel, so idle income can never exceed
+  //     what hammer regen would have paid a present player.
+  //     Level arrays are indexed by the player's level; costs[i] is the price
+  //     to go from level i to i+1. All gold-shop, no premium.
+  // ----------------------------------------------------------
+  autoTap: {
+    unlockCost:   15000,           // gold
+    unlockStage:  2,               // Mr. Monkey stage index that must be reached (0-based → stage 3)
+    speed:      { levels: [20, 12, 8, 5, 3],       costs: [25000, 60000, 150000, 400000] },  // seconds per tap
+    offlineCap: { levels: [2, 4, 8, 12, 24],       costs: [20000, 50000, 120000, 300000] },  // hours simulated
+    efficiency: { levels: [0.5, 0.65, 0.8, 1.0],   costs: [30000, 90000, 250000] },          // offline gold share
+    offlineMinSeconds: 60,         // shorter absences are not simulated / reported
+    offlineMaxItems:   3,          // new collection items per offline report
+    offlineAllowRare:  false,      // rare items are found by hand only
+    offlineMaxSeconds: 30 * 86400, // clock-jump guard: ignore absurd gaps entirely
+  },
 };

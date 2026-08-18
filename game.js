@@ -108,6 +108,12 @@ const DEFAULT_STATE = {
   _savedAt: 0,
   _cloudSavedAt: 0,
   cloudAutoSave: false,
+  // Auto-Smasher (idle) — see idle.js / CONFIG.autoTap
+  autoTap: { unlocked: false, on: false, speedLvl: 0, capLvl: 0, effLvl: 0 },
+  autoTapEggs: 0,        // eggs broken by the Auto-Smasher (online + offline)
+  autoTapUpgrades: 0,    // upgrade purchases (achievements)
+  offlineReports: 0,     // "while you were away" reports shown
+  offlineGold: 0,        // gold earned while away
 };
 
 let G = {};
@@ -196,6 +202,7 @@ function saveGame() {
 }
 
 function migrateSave(state) {
+  state.autoTap = { ...DEFAULT_STATE.autoTap, ...(state.autoTap || {}) };
   if (state.monkeys) {
     state.monkeys.forEach((mp, mi) => {
       if (!MONKEY_DATA[mi]) return; // guard against downgrade/corrupt extra entries
@@ -240,7 +247,7 @@ function migrateSave(state) {
 }
 
 function loadGame() {
-  G = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null };
+  G = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null, autoTap: { ...DEFAULT_STATE.autoTap } };
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return;
@@ -268,7 +275,7 @@ function loadGame() {
   } catch (e) {
     // Save data unreadable — start fresh but warn the player
     console.error('loadGame parse error:', e);
-    G = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null };
+    G = { ...DEFAULT_STATE, monkeys: initMonkeys(), roundEggs: null, autoTap: { ...DEFAULT_STATE.autoTap } };
     setTimeout(() => showShopSnack('⚠️ Save data unreadable — starting fresh. Use Report Issue if this repeats.', 6000), 1500);
   }
   loadPremium(); // premium store always wins — survives save corruption or wipes
@@ -279,6 +286,7 @@ function resetGame() {
     localStorage.removeItem(SAVE_KEY);
     G = {
       ...DEFAULT_STATE,
+      autoTap: { ...DEFAULT_STATE.autoTap },
       achieved: [],
       discoveredEggs: ['normal','silver','gold'],
       multQueue: [],
@@ -1414,6 +1422,7 @@ function updateSkillBtns() {
   updateRageBtn();
   updateGooseBtn();
   updateBananaBtn();
+  if (typeof updateAutoBtn === 'function') updateAutoBtn();
 }
 
 function goToSkills() {
@@ -2169,10 +2178,21 @@ if (!G.firstPlayDate) { G.firstPlayDate = Date.now(); }
 // Never throws — see analytics.js.
 trackGameStarted();
 
-// Offline hammer regen — apply hammers earned while the app was closed
-if (G._savedAt > 0 && G.hammers < G.maxH) {
-  const elapsed = Math.floor((Date.now() - G._savedAt) / 1000);
-  applyOfflineRegen(elapsed);
+// Offline hammer regen — apply hammers earned while the app was closed.
+// When the Auto-Smasher (idle.js) is going to simulate this absence, the
+// hammer pool is left alone: the simulation walks regen tap by tap itself
+// and reads _bootElapsedSec once the whole bundle has executed.
+let _bootElapsedSec = 0;
+if (G._savedAt > 0) {
+  _bootElapsedSec = Math.floor((Date.now() - G._savedAt) / 1000);
+  const _at = G.autoTap || {};
+  const _simWillRun = _at.unlocked && _at.on
+    && _bootElapsedSec >= CONFIG.autoTap.offlineMinSeconds
+    && _bootElapsedSec <= CONFIG.autoTap.offlineMaxSeconds;
+  if (!_simWillRun) {
+    _bootElapsedSec = 0;
+    if (G.hammers < G.maxH) applyOfflineRegen(Math.floor((Date.now() - G._savedAt) / 1000));
+  }
 }
 
 if (G.soundOn === false && SFX.isOn()) SFX.toggle();
@@ -2271,11 +2291,22 @@ document.addEventListener('visibilitychange', () => {
     // Stop the 1 Hz regen loop while backgrounded — no point waking the JS thread every
     // second when applyOfflineRegen handles the catch-up math instantly on resume.
     if (regenInt) { clearInterval(regenInt); regenInt = null; }
+    if (typeof stopAutoTap === 'function') stopAutoTap();
+    saveGame();   // _savedAt: Android may kill the WebView without a pagehide
   } else if (_hiddenAt > 0) {
     const elapsed = Math.floor((Date.now() - _hiddenAt) / 1000);
     // Always clear first (the hex-pause callback may have restarted regen while backgrounded)
     if (regenInt) { clearInterval(regenInt); regenInt = null; }
-    if (elapsed > 0 && G.hammers < G.maxH) {
+    // The Auto-Smasher simulates the absence itself (regen included); otherwise plain regen.
+    let _report = null;
+    if (typeof simulateOffline === 'function') {
+      try { _report = simulateOffline(elapsed); } catch (e) { console.error('offline sim failed', e); }
+    }
+    if (_report) {
+      saveGame();
+      updateResources();
+      if (_report.taps > 0) showOfflineReport(_report);
+    } else if (elapsed > 0 && G.hammers < G.maxH) {
       applyOfflineRegen(elapsed);
       updateResources();
     }
@@ -2283,6 +2314,7 @@ document.addEventListener('visibilitychange', () => {
     if (G.hammers < G.maxH && !regenInt && !_regenPauseTimer) startRegen(true);
     _hiddenAt = 0;
     Particles.resume();
+    if (typeof startAutoTap === 'function') startAutoTap();
   }
 });
 

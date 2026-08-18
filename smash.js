@@ -12,21 +12,15 @@
 // Set before applyPrize, read by msg() to tag full-log entries with their source egg
 var _prizeEggType = null;
 
-function newRound() {
-  _roundPending  = false;
-  _spawningRound = true;
-  setTimeout(() => { _spawningRound = false; updateStarBtn(); }, 250);
-  if (_centuryCooldown > 0) _centuryCooldown--;
-  const prog = curProgress();
-  const stage = curStage();
-  const count = stage.eggs;
-  const eggs = [];
-  const si = curActiveStage();
-  // Build available egg types for this stage from registry
+/** Egg types (with spawn weights) that can appear on stage `si`.
+ *  `noCentury` excludes the century jackpot egg — the offline Auto-Smasher
+ *  simulation (idle.js) never rolls it. */
+function availableEggTypes(si, noCentury) {
   const available = [];
   for (const def of CONFIG.eggTypes) {
     // Special unlock: century requires Mr. Monkey completed + cooldown elapsed
     if (def.unlockMonkey0) {
+      if (noCentury) continue;
       if (!G.monkeys || !G.monkeys[0] || !G.monkeys[0].completed) continue;
       if (_centuryCooldown > 0) continue;
     } else if (def.unlockStage > si) {
@@ -37,6 +31,20 @@ function newRound() {
     if (G['owned_eggradar'] && def.id !== 'normal' && def.id !== 'silver') w *= 1.5;
     available.push({ type: def.id, weight: w });
   }
+  return available;
+}
+
+function newRound() {
+  _roundPending  = false;
+  _spawningRound = true;
+  setTimeout(() => { _spawningRound = false; updateStarBtn(); }, 250);
+  if (_centuryCooldown > 0) _centuryCooldown--;
+  const prog = curProgress();
+  const stage = curStage();
+  const count = stage.eggs;
+  const eggs = [];
+  const si = curActiveStage();
+  const available = availableEggTypes(si, false);
   const spawnTotal = available.reduce((s, e) => s + e.weight, 0);
   let centuryUsedThisRound = false;
   for (let i = 0; i < count; i++) {
@@ -91,6 +99,10 @@ function multEquation(base, multVals, result, unit, balloonMult, customPrefix) {
 }
 
 // ==================== PRIZE ROLLING ====================
+// Set by idle.js while simulating offline smashes: rollPrize() must not
+// touch the DOM or the log.
+let _quietRoll = false;
+
 function rollPrize(eggType) {
   // Sun Wukong: 72 Transformations — 15% chance to roll prizes from the next egg tier up
   if (hasBonus('wukong') && Math.random() < 0.15) {
@@ -98,8 +110,10 @@ function rollPrize(eggType) {
     const idx = order.indexOf(eggType);
     if (idx >= 0 && idx < order.length - 1) {
       eggType = order[idx + 1];
-      spawnFloat($id('prize-zone'), '🐒 72 Transformations!', '#f5c542', 'big');
-      msg('🐒 72 Transformations! ' + eggType.charAt(0).toUpperCase() + eggType.slice(1) + ' egg prizes!', 'specials');
+      if (!_quietRoll) {
+        spawnFloat($id('prize-zone'), '🐒 72 Transformations!', '#f5c542', 'big');
+        msg('🐒 72 Transformations! ' + eggType.charAt(0).toUpperCase() + eggType.slice(1) + ' egg prizes!', 'specials');
+      }
     }
   }
   const w = { ...PRIZE_WEIGHTS[eggType] };

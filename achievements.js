@@ -156,6 +156,13 @@ function checkAchievements() {
     shake_10:       () => (G.totalShakeUses || 0) >= 10,
     shake_upgrade:  () => ((G.skillUpgrades || [0,0,0])[2] || 0) >= 1,
     skills_maxed:   () => (G.skillsUnlocked || []).every(Boolean) && (G.skillUpgrades || [0,0,0]).every(u => u >= 2),
+    // Auto-Smasher
+    auto_unlock:    () => !!(G.autoTap && G.autoTap.unlocked),
+    auto_upgrade1:  () => (G.autoTapUpgrades || 0) >= 1,
+    auto_upgrade5:  () => (G.autoTapUpgrades || 0) >= 5,
+    auto_maxed:     () => typeof autoTapIsMaxed === 'function' && autoTapIsMaxed(),
+    auto_eggs_1000: () => (G.autoTapEggs || 0) >= 1000,
+    auto_away_10:   () => (G.offlineReports || 0) >= 10,
     // Secrets
     secret_speed:    () => G._secretSpeed,
     secret_sweep:    () => G._secretSweep,

@@ -10,6 +10,7 @@
 | `audio.js` | Sound effects and music — loaded separately, not bundled |
 | `particles.js` | Particle effects for egg breaking animations |
 | `hammers.js` | Hammer regeneration logic — regen interval, fast regen, max hammer tracking |
+| `idle.js` | Auto-Smasher (idle) — gold-shop helper that taps eggs with hammers: online loop, offline simulation, "while you were away" report, leveled shop upgrades. **Bundled after achievements.js** (its boot block needs everything before it) |
 | `analytics.js` | Umami event wrapper + traffic attribution — `track()`, `openPlayStore()`, `playStoreUrl()`, first-touch source. Bundled after `config.js`. Every call is fail-safe |
 | `share.js` | Share/referral loop — `shareGame()`, share-link builder, arrival banner. **Bundled after `game.js`** (see Promotion below) |
 | `play.css` | Play-tab styles — egg tray, hammer bar, log, mult bar, stage chip, particles |
@@ -28,7 +29,7 @@
 | `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications, admin-players, admin-purchases |
 | `agents/digest.js` | Weekly promotion digest — two web-search research agents (communities + "Egg Breaker" mentions), de-dupes via `agents/seen.json`, emails HTML via Resend. Run by `.github/workflows/weekly-digest.yml` |
 | `agents/prompts.js` | Research prompts for the digest. Reddit is excluded here AND via `blocked_domains` AND by a URL filter in digest.js |
-| `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live), `smash-animation.test.js` (tap-feedback cascade, drives real Chromium) |
+| `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live), `smash-animation.test.js` (tap-feedback cascade, drives real Chromium), `autotap.test.js` (offline-simulation accounting invariants, vm sandbox) |
 | `.github/workflows/smoke-tests.yml` | CI: runs all tests 3× daily (08/14/20 UTC) + on every push to main; emails on failure |
 
 ## Build & deploy
@@ -242,6 +243,19 @@ node tools/check-listings.js   # validate store listings against Play's limits
 `capture-shots.js` injects a rich save state on purpose — captures taken on an empty
 save show "0/5 items" and "???" placeholders and sell the game badly. Eggs are
 `.egg-slot`, **not** `.egg`.
+
+## Auto-Smasher (idle) — `idle.js`, `CONFIG.autoTap` (v3.4.0)
+Gold-shop only (no premium, by decision). Hammers are the fuel: idle income is bounded by regen,
+so shop prices never needed retuning.
+| Rule | Why |
+|------|-----|
+| `game.js` boot skips `applyOfflineRegen` when the sim will run and leaves `_bootElapsedSec`; `idle.js`'s boot block does the sim after the whole bundle executed | The sim walks regen tap by tap itself; crediting regen first would double-count. `idle.js` must stay **after** game/smash/shop/achievements in `JS_FILES` |
+| Module-level state in `idle.js` that boot-time code can reach must be `var` (see `SHOP_AUTOTAP`) | `renderShop()` runs during game.js boot; a `const` there is in its TDZ and even `typeof` throws, which aborts every later top-level statement in the bundle |
+| Offline rolls run with `_quietRoll = true` and `G.activeMult = 1` | No DOM/log/SFX from the sim; multipliers are never spent while away |
+| Offline items: max `offlineMaxItems` new per report, never rarity 3 | Collection completion stays a hands-on moment; the rest converts to duplicate gold |
+| Clock guard: nothing simulated below `offlineMinSeconds` or above `offlineMaxSeconds`; time beyond the cap gets plain `applyOfflineRegen` | Tab switches don't nag; a clock jump can't mint 30 days; a capped absence never loses regen |
+| The visibility handler saves on hide and runs the sim on show | Android suspends the WebView instead of closing it — that path is what mobile actually hits |
+Invariants are checked by `tests/autotap.test.js` (vm sandbox, no browser).
 
 ## Common pitfalls
 - `renderEggTray` must run inside `requestAnimationFrame` when switching to play tab (needs laid-out dimensions)

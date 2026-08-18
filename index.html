@@ -183,6 +183,7 @@
             <button class="rage-btn hidden" id="rage-btn" onclick="_rageActive ? stopMonkeyRage() : activateMonkeyRage()" title="Monkey Rage"><img src="img/rage_monkey.png" class="rage-btn-img" alt=""></button>
             <button class="skill-tray-btn goose-btn hidden" id="goose-btn" onclick="activateGoldenGoose()" title="Golden Goose"></button>
             <button class="skill-tray-btn banana-btn hidden" id="banana-btn" onclick="activateBananaShake()" title="Banana Shake"></button>
+            <button class="skill-tray-btn auto-btn hidden" id="auto-btn" onclick="toggleAutoTap()" title="Auto-Smasher">🤖</button>
           </div>
           <div class="reward-log" id="reward-log">
             <div class="rlog-title">Log</div>
@@ -475,6 +476,18 @@
           <button class="pop-btn" onclick="closeOverlay('overlay-congrats');document.querySelector('[data-tab=premium]').click()">💎 Support Us</button>
         </div>
         <button class="pop-btn congrats-dismiss" onclick="closeOverlay('overlay-congrats')">Close</button>
+      </div>
+    </div>
+
+    <!-- ===== AUTO-SMASHER: "while you were away" report (idle.js) ===== -->
+    <div class="overlay hidden" id="overlay-offline" onclick="if(event.target===this)closeOverlay('overlay-offline')">
+      <div class="popup pop-offline">
+        <div class="pop-icon">🤖</div>
+        <strong>While you were away</strong>
+        <span class="pop-sub" id="offline-time"></span>
+        <div class="offline-rows" id="offline-rows"></div>
+        <span class="pop-sub offline-hint" id="offline-hint"></span>
+        <button class="pop-btn" onclick="closeOverlay('overlay-offline')">Continue</button>
       </div>
     </div>
 

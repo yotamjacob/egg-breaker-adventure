@@ -694,6 +694,13 @@ const ACHIEVEMENT_DATA = [
   { id:'shake_10',      name:'Blended Master',        desc:'Use Banana Shake 10 times',          icon:'🔨', reward:{type:'maxH',val:2,        label:'+2 max hammers'} },
   { id:'shake_upgrade', name:'Supercharged Shake',    desc:'Upgrade Banana Shake',               icon:'⚙️', reward:{type:'feathers',val:8,    label:'+8 feathers'} },
   { id:'skills_maxed',  name:'Fully Loaded',          desc:'Max out all 3 skills',               icon:'👑', reward:{type:'goldPct',val:10,    label:'+10% gold from eggs'} },
+  // -- Auto-Smasher (idle.js) --
+  { id:'auto_unlock',   name:'Hands Free',            desc:'Unlock the Auto-Smasher',            icon:'🤖', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
+  { id:'auto_upgrade1', name:'Tinkerer',              desc:'Upgrade the Auto-Smasher',           icon:'🔧', reward:{type:'gold',val:500,      label:'+500 gold'} },
+  { id:'auto_upgrade5', name:'Engineer',              desc:'Upgrade the Auto-Smasher 5 times',   icon:'⚙️', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
+  { id:'auto_maxed',    name:'Fully Automated',       desc:'Max out every Auto-Smasher upgrade', icon:'🏭', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
+  { id:'auto_eggs_1000',name:'Robot Army',            desc:'Auto-Smasher breaks 1,000 eggs',     icon:'🦾', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  { id:'auto_away_10',  name:'Sleep Rich',            desc:'Come back to 10 away reports',       icon:'😴', reward:{type:'gold',val:2000,     label:'+2,000 gold'} },
 ];
 
 // Secret achievements — hidden until discovered
