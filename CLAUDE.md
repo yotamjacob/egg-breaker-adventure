@@ -13,7 +13,8 @@
 | `mastery.js` | Hammer mastery ("train your hammer") — the equipped special hammer earns XP per hit/break/rare item, levels 1→10 from `CONFIG.hammerMastery`; every owned hammer's own bonus scales with ITS level, L5 = 3% free hits, L10 = a unique perk. Bundled after quests.js |
 | `quests.js` | Quests — 5 daily + 3 weekly (`weekly` is an array; legacy single object migrates) from `CONFIG.quests`, deterministic per day/week, progress = counter delta since assignment, manual claim (auto-claim on rollover). Owns the **Quests tab** (replaced the Log tab). Bundled after achievements.js |
 | `idle.js` | Auto-Smasher (idle) — gold-shop helper that taps eggs with hammers: online loop, offline simulation, "while you were away" report, leveled shop upgrades. **Bundled after achievements.js** (its boot block needs everything before it) |
-| `analytics.js` | Umami event wrapper + traffic attribution — `track()`, `openPlayStore()`, `playStoreUrl()`, first-touch source. Bundled after `config.js`. Every call is fail-safe |
+| `analytics.js` | Umami event wrapper + traffic attribution — `track()`, `openPlayStore()`, `playStoreUrl()` (forwards first-touch utm into the Play `referrer`), first-touch source; Meta Pixel: `initMetaPixel()` / `metaTrack()`, inert unless `META_PIXEL_ID` (config.js) is set and only on our own hostnames. Bundled after `config.js`. Every call is fail-safe |
+| `art-masters/` | Hi-res source art (2048² PNGs, stereo MP3s) — **never served** (`.vercelignore`). `img/` + `audio/` are generated from it by `tools/optimize-assets.js` (≤512px palette PNG / mozjpeg / 96k mono); re-run it after adding or replacing a master |
 | `share.js` | Share/referral loop — `shareGame()`, share-link builder, arrival banner. **Bundled after `game.js`** (see Promotion below) |
 | `play.css` | Play-tab styles — egg tray, hammer bar, log, mult bar, stage chip, particles |
 | `style.css` | Global styles — CSS variables, nav, resource bar, tab panels, modals |
@@ -25,7 +26,7 @@
 | `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by the `--itch` build) |
 | `payments.js` | Google Play Billing, purchase verification, restore-purchases flow, PREMIUM_PRODUCTS |
 | `cloud.js` | Supabase auth + cloud save — `_syncToCloud`, autosave timer (default OFF), session caching |
-| `admin.html` | Standalone admin dashboard (not bundled) — Players/Purchases/Analytics tabs; calls admin-* edge fns with `x-admin-secret` |
+| `admin.html` | Standalone admin dashboard (not bundled) — Players/Purchases/Analytics tabs; calls admin-* edge fns with `x-admin-secret`. **Save-derived stats are player-controlled**: `admin-players` coerces every field to number/bool (`num()`/`arr()`, per-row `safeStats`) and `playerCard()` re-coerces + `esc()`s before `innerHTML` (stored-XSS fix v3.10.10) |
 | `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications, admin-players, admin-purchases |
 | `agents/digest.js` | Weekly promotion digest — two web-search research agents (communities + "Egg Breaker" mentions), de-dupes via `agents/seen.json`, emails HTML via Resend. Run by `.github/workflows/weekly-digest.yml` |
 | `agents/prompts.js` | Research prompts for the digest. Reddit is excluded here AND via `blocked_domains` AND by a URL filter in digest.js |
@@ -40,6 +41,8 @@ git add -A && git commit && git push   # Vercel auto-deploys on push
 supabase functions deploy <name> # deploy a single edge function
 ```
 Never run `npx vercel --prod` manually.
+`.vercelignore` keeps `CLAUDE.md`, `supabase/`, `tests/`, `agents/`, `tools/`, `art-masters/`, `README.md`, `.github/` out of the deploy — `outputDirectory` is `.`, so anything not listed there is publicly served from the game domain (v3.10.10; CLAUDE.md had been reachable at `/CLAUDE.md`). Verify with `curl -I <domain>/CLAUDE.md` → 404 after changing it.
+Supabase migrations: the remote history was repaired in v3.10.10, so `supabase db push --linked` applies only new files. Keep versions unique (no more `20260415_x.sql` + `20260415_y.sql`).
 
 ## Version bumping (every commit)
 - `config.js` near top: `const VERSION = 'X.Y.Z'`
@@ -105,6 +108,7 @@ colours (`tier-bronze/silver/gold` classes) are fine; they carry no text.
 - Project: `hhpikvqeopscjdzuhbfk` (EU West)
 - CORS: production origin `https://egg-breaker-adventures.vercel.app` hardcoded in each function
 - `purchases` table: device_id, product_id, paypal_order_id, amount, status
+- `push_subscriptions` has RLS enabled and **no anon policy** (v3.10.10; it was `using(true) with check(true)` — world read/write). All access goes through the service-role `subscribe-push` / `send-notifications` functions; never add a client-side query on it
 
 ## CSS variables (style.css)
 `--gold:#f5c542` `--gold2:#d4a017` `--gold3:#a67c00` `--green:#2ecc71` `--panel:#0f3460` `--dark:#0a0a18` `--bg:#1a1a2e` `--bg2:#16213e` `--amber:#e88d2a` `--gray:#7f8c8d`
@@ -215,7 +219,11 @@ for cloud save only" paragraph (see the Google OAuth notes above).
 | Play Store links use `&referrer=` with URL-encoded `utm_*` inside | Bare `?utm_source=` on a Play listing URL is **dropped**. Play Console reads campaign data out of `referrer` |
 | Attribution lives in its own `localStorage` key (`_ebaAttribution`), never `SAVE_KEY` | `resetGame()` clears the save; losing the original acquisition source silently corrupts reporting. Same reasoning as `_cloudLinkPref` / `PREMIUM_KEY` |
 | `track()` must stay fail-safe | The itch.io build ships the same bundle and may load without umami. Analytics must never break play |
-| Event names: `game-started`, `play-store-click`, `play-web-click`, `share-click`, `share-completed`, `referral-arrival`, `web-banner-shown`, `web-banner-dismissed` | Content pages fire these declaratively via `data-umami-event`; keep names in sync when adding surfaces |
+| Event names: `game-started` (carries `daysSinceFirstPlay`), `first-smash`, `first-break`, `welcome-dismissed`, `play-store-click`, `play-web-click`, `share-click`, `share-completed`, `referral-arrival`, `web-banner-shown`, `web-banner-dismissed` | Content pages fire these declaratively via `data-umami-event`; keep names in sync when adding surfaces |
+| **No PII in analytics** — `track()` never attaches the cloud e-mail (removed v3.10.8) | `privacy.html` promises no personal data is collected |
+| Meta Pixel (v3.10.8): `META_PIXEL_ID` in config.js, empty = nothing loads. Events: `PageView`, custom `GameStarted`/`FirstSmash`/`PlayStoreClick`, standard `Lead` on cloud link. Only on `eggbreakeradventure.com` / `egg-breaker-adventures.vercel.app`, never with `AndroidBridge` | Ads Manager needs conversions to optimise; itch/localhost/app must not pollute the ad account. Enabling it sets `_fbp` → EU/UK traffic needs consent or geo-exclusion |
+| Content pages forward `utm_*`/`fbclid` into their `href="/"` CTAs (inline script before `</body>`); `share.js` strips `fbclid` after `trackGameStarted()` read it | Campaign params must survive the content-page hop; fbclid would fragment the Umami pages report |
+| Quota hygiene: no per-load `Sentry.captureMessage`; boot `subscribe-push` DELETE only when a stale row can exist (pending flag / dropped local sub / one-time legacy cleanup) | A traffic spike would otherwise burn the GlitchTip quota (dropping real errors) and spend one edge-fn call per anonymous visitor for nothing (v3.10.9) |
 | Web card (`#web-banner`, `.web-card`, `share.js initWebBanner`) shows only when `AndroidBridge` is absent AND no `.itch-cta` exists; **no auto-hide** — closing it writes `_ebaWebBanner='1'` permanently (v3.9.2) | It floats beside the game column (right edge, z-index 880 under `.overlay`) instead of over the top bar, so it never needs to time out. Below 880px there is no side room and it docks as a slim bottom bar. The key lives outside `SAVE_KEY` so a reset doesn't bring the nag back |
 
 ### Share / referral loop
@@ -293,6 +301,7 @@ one line of text, 7–8px type, misaligned rows) is the reference for what NOT t
 
 ## Common pitfalls
 - **Programmatic smashes while the play panel is collapsed.** `renderEggTray()` empties the tray when the panel has no size (another tab open) and defers. `smashEgg()` therefore returns *before* taking the per-egg `_smashing` lock if the slot element is missing, `renderEggTray()` clears every `_smashing` on rebuild, and the Auto-Smasher tick skips when the tray is empty. v3.6.4 fixed "eggs randomly unclickable after coming back from a tab" — the lock was being set and then a throw on the missing slot left it set forever.
+- **Boot budget (v3.10.9):** splash fades when `#egg-tray .egg-slot` exists (min 1.2 s, max 4 s; `index.html` 6 s safety net remains); welcome modal follows `window._splashFadeAt`; SW registers on `DOMContentLoaded`, not `load`; music `Audio` gets `preload='none'` and is not `play()`ed before the first gesture (`audio.js _hadGesture`); portrait preload covers unlocked monkeys only. Measured cold mobile: 0.57 MB / playable 2.4 s wifi, 3.8 s Fast 3G (was 43 MB / 5.5 s / 7.6 s, and `load` never fired on 3G). Don't add boot-time fetches of anything a new player can't see.
 - `renderEggTray` must run inside `requestAnimationFrame` when switching to play tab (needs laid-out dimensions)
 - Tab panels use `visibility:hidden + flex:0 0 0` (not `display:none`) to keep animations alive
 - `_sbClient.auth.getSession()` can hang on Android — always use cached `_cloudSession` from `onAuthStateChange`
