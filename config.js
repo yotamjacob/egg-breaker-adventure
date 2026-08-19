@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.10.9';
+const VERSION = '3.10.10';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.

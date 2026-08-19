@@ -1,2 +1,9 @@
 .git
 art-masters/
+supabase/
+tests/
+agents/
+tools/
+CLAUDE.md
+README.md
+.github/

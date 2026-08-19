@@ -444,8 +444,14 @@ function playerCard(p) {
     </div>`
   }
 
-  const s = p.stats
-  const tier = Math.min(3, s.monkeyTier)
+  // Defense in depth: the edge fn already coerces, but never trust a stat
+  // that came out of a player-written save — numbers only, text escaped.
+  const s = Object.assign({}, p.stats)
+  ;['totalEggs','totalGold','totalPlayTime','stagesCompleted','totalItems','consecutiveDays',
+    'longestStreak','monkeyStage','monkeyTier','monkeysUnlocked','totalMonkeys','ownedHammers',
+    'ownedHats','premiumPurchases'].forEach(k => { const n = Number(s[k]); s[k] = Number.isFinite(n) ? n : 0 })
+  s.monkeyEmoji = esc(s.monkeyEmoji || '')
+  const tier = Math.max(0, Math.min(3, Math.floor(s.monkeyTier)))
   const shopLine = [
     s.ownedHammers ? s.ownedHammers + ' 🔨' : '',
     s.ownedHats    ? s.ownedHats    + ' 🎩' : '',

@@ -30,29 +30,39 @@ function parseSave(saveData: string | null): any | null {
   }
 }
 
+// Save data is player-controlled JSON (anyone signed in can write arbitrary
+// values into their own row). Every field is coerced to a number/boolean here
+// so the admin dashboard only ever receives primitives it can render safely.
+function num(v: unknown): number {
+  const n = typeof v === 'number' ? v : Number(v)
+  return Number.isFinite(n) ? n : 0
+}
+function arr(v: unknown): any[] { return Array.isArray(v) ? v : [] }
+
 function extractStats(g: any) {
-  const activeMonkey = g.activeMonkey ?? 0
-  const mp = g.monkeys?.[activeMonkey]
-  const activeStage = mp?.activeStage ?? 0
+  const activeMonkey = Math.max(0, Math.floor(num(g.activeMonkey)))
+  const monkeys = arr(g.monkeys)
+  const mp = monkeys[activeMonkey]
+  const activeStage = Math.max(0, Math.floor(num(mp?.activeStage)))
   const ml = MONKEY_LABELS[activeMonkey] ?? { emoji: '🐵', name: `Monkey ${activeMonkey}` }
   return {
-    totalEggs:            g.totalEggs          || 0,
-    totalGold:            g.totalGold          || 0,
-    gold:                 g.gold               || 0,
-    totalPlayTime:        g.totalPlayTime      || 0,
-    stagesCompleted:      g.stagesCompleted    || 0,
-    totalItems:           g.totalItems         || 0,
-    consecutiveDays:      g.consecutiveDays    || 0,
-    longestStreak:        g.longestStreak      || 0,
-    totalDailyClaims:     g.totalDailyClaims   || 0,
+    totalEggs:            num(g.totalEggs),
+    totalGold:            num(g.totalGold),
+    gold:                 num(g.gold),
+    totalPlayTime:        num(g.totalPlayTime),
+    stagesCompleted:      num(g.stagesCompleted),
+    totalItems:           num(g.totalItems),
+    consecutiveDays:      num(g.consecutiveDays),
+    longestStreak:        num(g.longestStreak),
+    totalDailyClaims:     num(g.totalDailyClaims),
     monkeyEmoji:          ml.emoji,
     monkeyName:           ml.name,
     monkeyStage:          activeStage + 1,
-    monkeyTier:           mp?.tiers?.[activeStage] ?? 0,
-    monkeysUnlocked:      (g.monkeys || []).filter((m: any) => m.unlocked).length,
-    totalMonkeys:         (g.monkeys || []).length,
-    ownedHammers:         Math.max(0, (g.ownedHammers || []).length - 1),
-    ownedHats:            Math.max(0, (g.ownedHats    || []).length - 1),
+    monkeyTier:           num(arr(mp?.tiers)[activeStage]),
+    monkeysUnlocked:      monkeys.filter((m: any) => m && m.unlocked).length,
+    totalMonkeys:         monkeys.length,
+    ownedHammers:         Math.max(0, arr(g.ownedHammers).length - 1),
+    ownedHats:            Math.max(0, arr(g.ownedHats).length - 1),
     fastRegen:            !!g.fastRegen,
     owned_spyglass:       !!g.owned_spyglass,
     owned_luckycharm:     !!g.owned_luckycharm,
@@ -60,10 +70,15 @@ function extractStats(g: any) {
     owned_doubledaily:    !!g.owned_doubledaily,
     owned_starsaver:      !!g.owned_starsaver,
     owned_goldmagnet:     !!g.owned_goldmagnet,
-    premiumPurchases:     g.premiumPurchases   || 0,
+    premiumPurchases:     num(g.premiumPurchases),
     premium_starter_pack: !!g.premium_starter_pack,
-    firstPlayDate:        g.firstPlayDate      || 0,
+    firstPlayDate:        typeof g.firstPlayDate === 'string' ? g.firstPlayDate.slice(0, 32) : num(g.firstPlayDate),
   }
+}
+
+// One malformed save must not 500 the whole Players tab.
+function safeStats(g: any) {
+  try { return g && typeof g === 'object' ? extractStats(g) : null } catch { return null }
 }
 
 serve(async (req) => {
@@ -108,7 +123,7 @@ serve(async (req) => {
       email:        emailMap[row.user_id] ?? null,
       saved_at:     row.saved_at,
       last_seen_at: row.last_seen_at,
-      stats:        g ? extractStats(g) : null,
+      stats:        safeStats(g),
     }
   })
 
