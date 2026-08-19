@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.10.12';
+const VERSION = '3.10.13';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -333,7 +333,12 @@ const CONFIG = {
     unlockStage:  2,               // Mr. Monkey stage index that must be reached (0-based → stage 3)
     speed:      { levels: [20, 12, 8, 5, 3],       costs: [25000, 60000, 150000, 400000] },  // seconds per tap
     offlineCap: { levels: [2, 4, 8, 12, 24],       costs: [20000, 50000, 120000, 300000] },  // hours simulated
-    efficiency: { levels: [0.5, 0.65, 0.8, 1.0],   costs: [30000, 90000, 250000] },          // offline gold share
+    efficiency: { levels: [0.3, 0.4, 0.5, 0.65],   costs: [30000, 90000, 250000] },          // offline gold share (was 0.5→1.0 before v3.10.13)
+    // Diminishing returns on away time (v3.10.13): the first `offlineFullRateSeconds`
+    // are simulated at the full tap rate; beyond that the effective time grows
+    // logarithmically — 4h away ≈ 2.4h of taps, 8h ≈ 3.1h, 24h ≈ 4.2h. Four
+    // hours used to pay a whole session's worth of gold for free.
+    offlineFullRateSeconds: 3600,
     offlineMinSeconds: 60,         // shorter absences are not simulated / reported
     offlineMaxItems:   3,          // new collection items per offline report
     offlineAllowRare:  false,      // rare items are found by hand only

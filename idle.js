@@ -26,6 +26,16 @@ function _atLevelVal(track, lvl) {
 function autoTapSecPerTap()  { return _atLevelVal('speed',      autoTapState().speedLvl); }
 function autoTapCapSeconds() { return _atLevelVal('offlineCap', autoTapState().capLvl) * 3600; }
 function autoTapEfficiency() { return _atLevelVal('efficiency', autoTapState().effLvl); }
+/**
+ * Away seconds → seconds actually simulated at the full tap rate (v3.10.13).
+ * Full rate for the first `offlineFullRateSeconds`, logarithmic after that, so
+ * a long absence still pays more than a short one but nowhere near linearly.
+ */
+function autoTapEffectiveSeconds(simSec) {
+  const full = CONFIG.autoTap.offlineFullRateSeconds || 0;
+  if (!(full > 0) || simSec <= full) return simSec;
+  return full + full * Math.log(1 + (simSec - full) / full);
+}
 function autoTapMaxLevel(track) { return CONFIG.autoTap[track].levels.length - 1; }
 function autoTapIsMaxed() {
   const st = autoTapState();
@@ -223,7 +233,8 @@ function updateAutoBtn() {
  *
  * Offline taps are FREE (v3.6.1): they do not spend hammers, so the player
  * comes back to a full hammer bar AND the report. Taps are bounded only by
- * time (speed level × capped away time); gold is scaled by efficiency, items
+ * time (speed level × capped away time, tapered past the first hour by
+ * autoTapEffectiveSeconds, v3.10.13); gold is scaled by efficiency, items
  * are capped. Hammer regen for the whole absence is credited via
  * applyOfflineRegen() exactly as if the smasher were not there. Hammers the
  * smasher finds in eggs are added on top (may overflow maxH, as online).
@@ -241,6 +252,7 @@ function simulateOffline(elapsedSec, deps) {
 
   const capSec = autoTapCapSeconds();
   const simSec = Math.min(elapsedSec, capSec);
+  const effSec = autoTapEffectiveSeconds(simSec);   // diminishing returns past the first hour
   const secPerTap = autoTapSecPerTap();
   const regen = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
   const eff = autoTapEfficiency();
@@ -260,14 +272,14 @@ function simulateOffline(elapsedSec, deps) {
     elapsed: elapsedSec, simulated: simSec, capped: elapsedSec > capSec,
     taps: 0, eggs: 0, roundClears: 0, empties: 0,
     gold: 0, stars: 0, feathers: 0, hammers: 0, mults: 0, bananas: 0, maxH: 0,
-    items: [], dupes: 0, efficiency: eff,
+    items: [], dupes: 0, efficiency: eff, effective: effSec,
   };
   // Plain regen for the whole absence first — the smasher never touches the pool.
   if (G.hammers < G.maxH) applyOfflineRegen(elapsedSec);
   G.regenCD = regen;
   const pool = { h: 0 };      // hammers FOUND in eggs while away (credited at the end)
   let eggs = newEggs();
-  const nTaps = Math.floor(simSec / secPerTap);
+  const nTaps = Math.floor(effSec / secPerTap);
   const savedMult = G.activeMult;
   G.activeMult = 1;           // no multipliers while away
   _quietRoll = true;

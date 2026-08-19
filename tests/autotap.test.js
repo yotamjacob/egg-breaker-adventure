@@ -112,7 +112,8 @@ test('away time is capped for taps, but hammer regen covers the whole absence', 
   const rep = w.simulateOffline(10 * H);
   assert.equal(rep.simulated, cap);
   assert.equal(rep.capped, true);
-  assert.equal(rep.taps, Math.floor(cap / w.CONFIG.autoTap.speed.levels[0]));
+  assert.equal(rep.effective, w.autoTapEffectiveSeconds(cap));
+  assert.equal(rep.taps, Math.floor(w.autoTapEffectiveSeconds(cap) / w.CONFIG.autoTap.speed.levels[0]));
   assert.deepEqual(Array.from(w.regenCalls), [10 * H], 'regen for all 10h, not just the capped window');
 });
 
@@ -135,6 +136,24 @@ test('at most offlineMaxItems new items, never a rare; the rest pay out as dupli
   assert.equal(w.G.monkeys[0].collections[0][3], false, 'the rare slot is untouched');
   assert.equal(w.G.totalItems, rep.items.length);
   assert.ok(rep.dupes > 0 && rep.gold > 0, 'rejected/duplicate items convert to gold');
+});
+
+test('away time has diminishing returns: full rate for the first hour, logarithmic after (v3.10.13)', () => {
+  const w = makeWorld();
+  const full = w.CONFIG.autoTap.offlineFullRateSeconds;
+  assert.equal(full, H, 'first hour at full rate');
+  assert.equal(w.autoTapEffectiveSeconds(30 * 60), 30 * 60, 'short absences are not tapered');
+  assert.equal(w.autoTapEffectiveSeconds(H), H);
+  const e4 = w.autoTapEffectiveSeconds(4 * H), e8 = w.autoTapEffectiveSeconds(8 * H), e24 = w.autoTapEffectiveSeconds(24 * H);
+  assert.ok(e4 < 2.5 * H && e4 > 2 * H, `4h away ≈ 2.4h of taps, got ${(e4 / H).toFixed(2)}h`);
+  assert.ok(e8 > e4 && e24 > e8, 'still monotonic');
+  assert.ok(e24 < 4.5 * H, `24h away stays under 4.5h of taps, got ${(e24 / H).toFixed(2)}h`);
+  // A 4h absence at max cap pays well under 4× a 1h one.
+  const a = makeWorld('G.autoTap.capLvl = 4;').simulateOffline(H);
+  const b = makeWorld('G.autoTap.capLvl = 4;').simulateOffline(4 * H);
+  assert.ok(b.gold > a.gold && b.gold < 2.6 * a.gold, `${b.gold} vs ${a.gold}`);
+  // Efficiency never reaches 100%: offline gold is always a discount on playing.
+  assert.ok(Math.max(...w.CONFIG.autoTap.efficiency.levels) < 1);
 });
 
 test('faster speed and longer cap levels strictly increase what a long absence yields', () => {

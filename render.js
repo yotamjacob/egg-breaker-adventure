@@ -745,14 +745,17 @@ function updateOverallProgress() {
   const pct = grand > 0 ? Math.floor((grandFound / grand) * 100) : 0;
   $id('overall-pct').textContent = pct + '%';
   $id('overall-fill').style.width = pct + '%';
+  // Label left / value right rows: the long "Hammers mastered" label used to
+  // overflow the modal on a phone as a single nowrap line (v3.10.13).
+  const row = (label, a, b) => '<span><em>' + label + '</em><strong>' + a + '/' + b + '</strong></span>';
   $id('overall-detail').innerHTML =
-    '<span>Items: <strong>' + foundItems + '/' + totalItems + '</strong></span>' +
-    '<span>Stages: <strong>' + doneStages + '/' + totalStages + '</strong></span>' +
-    '<span>Monkeys: <strong>' + unlockedMonkeys + '/' + MONKEY_DATA.length + '</strong></span>' +
-    '<span>Shop: <strong>' + ownedShop + '/' + totalShop + '</strong></span>' +
-    '<span>Goals: <strong>' + doneGoals + '/' + totalGoals + '</strong></span>' +
-    '<span>Skills mastered: <strong>' + masteredSkills + '/' + totalSkills + '</strong></span>' +
-    '<span>Hammers mastered: <strong>' + masteredHammers + '/' + totalHammerMastery + '</strong></span>';
+    row('Items', foundItems, totalItems) +
+    row('Stages', doneStages, totalStages) +
+    row('Monkeys', unlockedMonkeys, MONKEY_DATA.length) +
+    row('Shop', ownedShop, totalShop) +
+    row('Goals', doneGoals, totalGoals) +
+    row('Skills mastered', masteredSkills, totalSkills) +
+    row('Hammers mastered', masteredHammers, totalHammerMastery);
 
   const quoteEl = $id('overall-quote');
   if (quoteEl) {

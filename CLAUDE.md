@@ -260,6 +260,7 @@ top, so idle income is bounded by time × speed × efficiency + the item cap, no
 | Offline rolls run with `_quietRoll = true` and `G.activeMult = 1` | No DOM/log/SFX from the sim; multipliers are never spent while away |
 | The Auto-Smasher never touches Century eggs — `availableEggTypes(si, true)` offline, `e.type !== 'century'` filter online | The 100-hit jackpot stays a hands-on moment; the bot must not sink 100 hammers into it either |
 | Offline items: max `offlineMaxItems` new per report, never rarity 3 | Collection completion stays a hands-on moment; the rest converts to duplicate gold |
+| Away time has **diminishing returns** (v3.10.13): `autoTapEffectiveSeconds()` simulates the first `offlineFullRateSeconds` (1h) at the full tap rate and grows logarithmically after (4h ≈ 2.4h of taps, 24h ≈ 4.2h); `efficiency` tops out at 0.65, never 1.0 | A 4h nap used to pay a whole session's gold for free. Idle income must stay a discount on playing, and the Away Time upgrade should extend it, not multiply it. `tests/autotap.test.js` pins the curve |
 | Clock guard: nothing simulated below `offlineMinSeconds` or above `offlineMaxSeconds`; time beyond the cap gets plain `applyOfflineRegen` | Tab switches don't nag; a clock jump can't mint 30 days; a capped absence never loses regen |
 | The visibility handler saves on hide and runs the sim on show | Android suspends the WebView instead of closing it — that path is what mobile actually hits |
 Invariants are checked by `tests/autotap.test.js` (vm sandbox, no browser).
