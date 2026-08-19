@@ -383,10 +383,12 @@ function showOfflineReport(sum) {
     + (sum.capped ? ' — smashed for the first ' + _fmtAway(sum.simulated) : '');
   // Values start at 0 and count up, staggered top to bottom (v3.9.0)
   const rows = [];
-  const nums = [];
+  const anims = [];   // EVERY row animates in (rows start at opacity .35 in CSS);
+                      // numeric values also count up. String rows (New items)
+                      // used to be skipped and stayed greyed out forever (v3.10.14 fix).
   const row = (icon, label, val, prefix) => {
     const i = rows.length;
-    if (typeof val === 'number') nums.push({ i, val, prefix: prefix || '' });
+    anims.push(typeof val === 'number' ? { i, val, prefix: prefix || '' } : { i });
     rows.push('<div class="offline-row"><span class="offline-ic">' + icon + '</span><span class="offline-lbl">' + label +
       '</span><strong class="offline-val" data-i="' + i + '">' + (typeof val === 'number' ? (prefix || '') + '0' : val) + '</strong></div>');
   };
@@ -403,11 +405,11 @@ function showOfflineReport(sum) {
   }
   const host = $id('offline-rows');
   host.innerHTML = rows.join('');
-  nums.forEach((n, k) => {
+  anims.forEach((n, k) => {
     const el = host.querySelector('.offline-val[data-i="' + n.i + '"]');
     setTimeout(() => {
       if (el) el.parentNode.classList.add('offline-row-pop');
-      _countUp(el, n.val, 700, n.prefix);
+      if (typeof n.val === 'number') _countUp(el, n.val, 700, n.prefix);
       try { SFX.play('coin'); } catch (e) {}
     }, 220 + k * 260);
   });
