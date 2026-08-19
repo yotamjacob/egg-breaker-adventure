@@ -6,7 +6,14 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.10.7';
+const VERSION = '3.10.8';
+
+// Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
+// never loads (no script, no beacon). Set it before the campaign goes live.
+// Only loads on our own hostnames (never itch / localhost / the Android app),
+// see analytics.js initMetaPixel(). Enabling it sets the `_fbp` cookie → EU/UK
+// traffic then needs consent or must be geo-excluded in the campaign.
+const META_PIXEL_ID = '';
 
 const CONFIG = {
 

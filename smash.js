@@ -676,6 +676,11 @@ function smashEgg(index) {
 
   // Now do logic
   G.hammers -= 1;
+  if (!G._firstSmashAt) {          // activation signal for the acquisition funnel
+    G._firstSmashAt = Date.now();
+    track('first-smash');
+    if (typeof metaTrack === 'function') metaTrack('FirstSmash');
+  }
   if (hasBonus('freeEgg') && Math.random() < 0.03) {
     G.hammers = Math.min(G.maxH, G.hammers + 1);
     spawnFloat($id('prize-zone'), 'Free hit!', '#b0bec5', 'big', cx, cy - 30);
@@ -764,6 +769,7 @@ function smashEgg(index) {
   // === Egg broken! ===
   egg.broken = true;
   G.totalEggs++;
+  if (G.totalEggs === 1) track('first-break');
   if (typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpBreak);
   checkReviewPrompt();
   if (egg.effects && egg.effects.includes('runny')) G.runnySmashed = (G.runnySmashed || 0) + 1;

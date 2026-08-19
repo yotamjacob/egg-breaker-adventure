@@ -525,6 +525,7 @@ async function deleteCloudData() {
 async function _onCloudSignIn() {
   if (!_sbClient || !_cloudUser) return;
   track('cloud-save', { action: 'link' });
+  if (typeof metaTrack === 'function') metaTrack('Lead', { content_name: 'cloud-link' }, true);
   _startCloudAutoSave();
   _renderCloudModal();
   // localStorage flag with timestamp set by linkGoogleAccount() — 5-min TTL guards against

@@ -36,11 +36,61 @@ const ATTRIBUTION_KEY = '_ebaAttribution';
  * @param {string} content - utm_content, i.e. which button was clicked.
  */
 function playStoreUrl(content) {
-  const referrer = 'utm_source=web' +
-                   '&utm_medium=cta' +
-                   '&utm_campaign=play_install' +
+  // Forward the FIRST source that brought this browser here (e.g. a paid
+  // campaign) so Play Console credits the install to it; `utm_content`
+  // stays the button that was clicked. Falls back to the old web/cta tag.
+  const first = firstTouchSource();
+  const src = (first && first.source) || 'web';
+  const med = (first && first.medium) || 'cta';
+  const cmp = (first && first.campaign) || 'play_install';
+  const referrer = 'utm_source=' + encodeURIComponent(src) +
+                   '&utm_medium=' + encodeURIComponent(med) +
+                   '&utm_campaign=' + encodeURIComponent(cmp) +
                    '&utm_content=' + encodeURIComponent(content || 'unknown');
   return PLAY_LISTING_URL + '&referrer=' + encodeURIComponent(referrer);
+}
+
+// ── Meta Pixel ───────────────────────────────────────────────
+// Inert unless META_PIXEL_ID (config.js) is set. Loads only on our own
+// hostnames so the itch build, localhost and the Android WebView never
+// report into the ad account. Every call is fail-safe like track().
+const _META_HOSTS = /(^|\.)(eggbreakeradventure\.com|egg-breaker-adventures\.vercel\.app)$/;
+
+function _metaAllowed() {
+  try {
+    if (typeof META_PIXEL_ID === 'undefined' || !META_PIXEL_ID) return false;
+    if (window.AndroidBridge) return false;
+    return _META_HOSTS.test(window.location.hostname);
+  } catch (e) { return false; }
+}
+
+/** Injects the pixel (standard fbevents loader) and fires PageView. Idempotent. */
+function initMetaPixel() {
+  try {
+    if (!_metaAllowed() || window._metaPixelInit) return;
+    window._metaPixelInit = true;
+    const w = window; const n = w.fbq = function () {
+      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+    };
+    if (!w._fbq) w._fbq = n;
+    n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+    const t = document.createElement('script'); t.async = true;
+    t.src = 'https://connect.facebook.net/en_US/fbevents.js';
+    document.head.appendChild(t);
+    w.fbq('init', META_PIXEL_ID);
+    w.fbq('track', 'PageView');
+  } catch (e) { /* never break the game */ }
+}
+
+/**
+ * Fire a Meta event. `standard` = true → fbq('track', name) (PageView, Lead…),
+ * otherwise fbq('trackCustom', name). Never throws.
+ */
+function metaTrack(name, data, standard) {
+  try {
+    if (!_metaAllowed() || typeof window.fbq !== 'function') return;
+    window.fbq(standard ? 'track' : 'trackCustom', name, data || {});
+  } catch (e) { /* analytics must never break the game */ }
 }
 
 /** Fire an analytics event. Never throws. */
@@ -56,6 +106,7 @@ function track(event, data) {
 /** Opens the Play listing with attribution and records the click. */
 function openPlayStore(source) {
   track('play-store-click', { source: source || 'unknown', platform: _platform() });
+  metaTrack('PlayStoreClick', { source: source || 'unknown' });
   openExternalUrl(playStoreUrl(source || 'unknown'));
 }
 
@@ -129,6 +180,7 @@ function trackGameStarted() {
   const src = _readSource();
   _recordFirstTouch(src);
   const first = firstTouchSource();
+  initMetaPixel();
 
   track('game-started', {
     source:       src.source,
@@ -137,5 +189,16 @@ function trackGameStarted() {
     platform:     _platform(),
     firstSource:  first ? first.source : src.source,
     returning:    (G && G.totalEggs > 0) ? 'yes' : 'no',
+    daysSinceFirstPlay: _daysSinceFirstPlay(),
   });
+  metaTrack('GameStarted', { returning: (G && G.totalEggs > 0) ? 'yes' : 'no' });
+}
+
+/** Whole days since G.firstPlayDate (YYYY-MM-DD); undefined when unknown. */
+function _daysSinceFirstPlay() {
+  try {
+    if (!G || !G.firstPlayDate) return undefined;
+    const d = Math.floor((Date.now() - new Date(G.firstPlayDate).getTime()) / 86400000);
+    return d >= 0 && d < 10000 ? d : undefined;
+  } catch (e) { return undefined; }
 }

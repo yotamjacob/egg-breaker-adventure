@@ -166,9 +166,10 @@ function initReferralBanner() {
   // immediately would burn most of its life hidden behind it.
   if (!own) _whenSplashGone(() => _showReferralBanner(stage, album));
 
-  // Strip only the referral params; leave anything else (utm_*, ?tab=) intact.
+  // Strip only the referral params (+ Meta's fbclid, which would otherwise make
+  // every ad click a distinct URL in the pageview report); leave utm_*/?tab= intact.
   try {
-    ['ref', 'st', 'al', 'mk'].forEach(k => q.delete(k));
+    ['ref', 'st', 'al', 'mk', 'fbclid'].forEach(k => q.delete(k));
     const rest = q.toString();
     window.history.replaceState({}, '',
       window.location.pathname + (rest ? '?' + rest : '') + window.location.hash);

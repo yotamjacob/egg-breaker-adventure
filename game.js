@@ -22,9 +22,8 @@
 function track(event, props) {
   try {
     if (typeof umami !== 'undefined') {
-      const p = Object.assign({}, props)
-      if (typeof _cloudUser !== 'undefined' && _cloudUser?.email) p.user = _cloudUser.email
-      const r = umami.track(event, p)
+      // No PII: never attach the cloud e-mail (privacy page promises none is collected).
+      const r = umami.track(event, Object.assign({}, props))
       if (r && typeof r.catch === 'function') r.catch(() => {})
     }
   } catch(e) {}
@@ -2221,6 +2220,7 @@ function dismissWelcome(goToCloud) {
   closeOverlay('overlay-welcome');
   G._welcomeDone = true;
   saveGame();
+  track('welcome-dismissed', { choice: goToCloud ? 'cloud' : 'play' });
   if (goToCloud) openCloudSaveModal();
 }
 if (!G._welcomeDone && G.totalEggs === 0) {

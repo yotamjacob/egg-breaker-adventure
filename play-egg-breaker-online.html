@@ -218,5 +218,20 @@
     </div>
     <p>© 2026 YotJac · Egg Smash Adventures is an independent fan revival and is not affiliated with Codename Entertainment (formerly DJArts Games) or Meta.</p>
   </footer>
+  <script>
+    // Carry campaign params (utm_*, fbclid) across the hop into the game so
+    // first-touch attribution still sees them. Same-origin links to "/" only.
+    (function () {
+      try {
+        var q = new URLSearchParams(location.search), keep = new URLSearchParams();
+        q.forEach(function (v, k) { if (/^utm_/.test(k) || k === 'fbclid') keep.set(k, v); });
+        var qs = keep.toString(); if (!qs) return;
+        document.querySelectorAll('a[href="/"], a[href^="/?"]').forEach(function (a) {
+          var h = a.getAttribute('href');
+          a.setAttribute('href', h + (h.indexOf('?') === -1 ? '?' : '&') + qs);
+        });
+      } catch (e) {}
+    })();
+  </script>
 </body>
 </html>
