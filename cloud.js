@@ -854,13 +854,14 @@ async function _sendFcmSubscription(token) {
   });
 }
 
-function _sendPushUnsubscribe() {
+function _sendPushUnsubscribe(onDone) {
   fetch(_SUPABASE_URL + '/functions/v1/subscribe-push', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': _SUPABASE_ANON, 'Authorization': 'Bearer ' + _SUPABASE_ANON },
     body:    JSON.stringify({ device_id: getDeviceId(), user_id: _cloudUser ? _cloudUser.id : null, unsubscribe: true }),
   }).then(() => {
     localStorage.removeItem('_eba_push_pending_unsub');
+    if (typeof onDone === 'function') onDone();
   }).catch(() => {
     // Leave _eba_push_pending_unsub set — startup will retry
   });
@@ -984,10 +985,14 @@ function _initNotifBtn() {
     if (hasSub) localStorage.removeItem('eba_push_sub');
     label.textContent = 'OFF';
     label.classList.remove('on');
-    // Always delete the server row on startup when not subscribed.
-    // This covers: failed unsubscribe calls, pre-v2.5.80 opt-outs, and
-    // any other case where the local flag and server state diverged.
-    // DELETE is a no-op if the row doesn't exist, so this is always safe.
-    _sendPushUnsubscribe();
+    // Delete a stale server row when there is any reason to think one exists:
+    // a failed unsubscribe (pending flag), a local sub we just dropped, or a
+    // pre-v2.5.80 player who has not been cleaned up yet (one-time marker).
+    // A fresh visitor never makes this call — before v3.10.9 every anonymous
+    // page load cost one edge-function invocation + DB DELETE for nothing.
+    const legacy = (typeof G !== 'undefined' && G && G.totalEggs > 0) && !localStorage.getItem('_eba_push_cleaned');
+    if (localStorage.getItem('_eba_push_pending_unsub') || hasSub || legacy) {
+      _sendPushUnsubscribe(() => { try { localStorage.setItem('_eba_push_cleaned', '1'); } catch (e) {} });
+    }
   }
 }

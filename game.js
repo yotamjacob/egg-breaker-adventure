@@ -2224,7 +2224,11 @@ function dismissWelcome(goToCloud) {
   if (goToCloud) openCloudSaveModal();
 }
 if (!G._welcomeDone && G.totalEggs === 0) {
-  setTimeout(() => $id('overlay-welcome').classList.remove('hidden'), 4800);
+  // Show ~0.8 s after the splash has faded (was a fixed 4.8 s).
+  (function waitSplash() {
+    if (window._splashFadeAt) setTimeout(() => $id('overlay-welcome').classList.remove('hidden'), 800);
+    else setTimeout(waitSplash, 150);
+  })();
 }
 
 // Preload every monkey portrait (all hat variants) once the splash is out of
@@ -2233,7 +2237,12 @@ if (!G._welcomeDone && G.totalEggs === 0) {
 setTimeout(function () {
   try {
     const seen = new Set();
-    MONKEY_DATA.forEach(m => {
+    MONKEY_DATA.forEach((m, i) => {
+      // Only monkeys the player can actually see — locked ones' hat variants
+      // are fetched when unlocked. (Preloading everything cost ~35 MB before
+      // the v3.10.9 asset diet; it is ~2 MB now, but still no reason to.)
+      const st = G.monkeys && G.monkeys[i];
+      if (!(st && st.unlocked) && i !== 0) return;
       [m.img].concat(Object.values(m.hatImgs || {})).forEach(src => {
         if (!src || seen.has(src)) return; seen.add(src);
         const im = new Image(); im.decoding = 'async'; im.src = src;
@@ -2361,13 +2370,26 @@ if (window.AndroidBridge && typeof window.AndroidBridge.jsReady === 'function') 
   window.AndroidBridge.jsReady();
 }
 
-// Splash screen — fade out 4s after the game has initialised
-setTimeout(() => {
-  const splash = document.getElementById('splash-screen');
-  if (!splash) return;
-  splash.classList.add('fade-out');
-  setTimeout(() => splash.remove(), 650);
-}, 4000);
+// Splash screen — fade as soon as the tray is rendered, but never before
+// SPLASH_MIN_MS (a 300 ms flash reads as a glitch) and never after
+// SPLASH_MAX_MS (index.html's 6 s safety net stays as the last resort).
+// Was a fixed 4 s until v3.10.9: on wifi the tray is ready at ~0.85 s, so
+// every first visit sat through ~3 s of dead time.
+const SPLASH_MIN_MS = 1200, SPLASH_MAX_MS = 4000;
+(function _splashWatch(t0) {
+  const tick = () => {
+    const splash = document.getElementById('splash-screen');
+    if (!splash) return;
+    const waited = Date.now() - t0;
+    const ready = !!document.querySelector('#egg-tray .egg-slot');
+    if ((ready && waited >= SPLASH_MIN_MS) || waited >= SPLASH_MAX_MS) {
+      window._splashFadeAt = Date.now();
+      splash.classList.add('fade-out');
+      setTimeout(() => splash.remove(), 650);
+    } else setTimeout(tick, 100);
+  };
+  setTimeout(tick, SPLASH_MIN_MS);
+})(Date.now());
 
 
 

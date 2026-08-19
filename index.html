@@ -199,7 +199,7 @@
           <div class="egg-tray" id="egg-tray"></div>
           <button class="tray-info-btn" id="tray-info-btn" onclick="showPlayInfo()" title="How to play">ℹ️</button>
           <div class="skill-tray-btns" id="skill-tray-btns">
-            <button class="rage-btn hidden" id="rage-btn" onclick="_rageActive ? stopMonkeyRage() : activateMonkeyRage()" title="Monkey Rage"><img src="img/rage_monkey.png" class="rage-btn-img" alt=""></button>
+            <button class="rage-btn hidden" id="rage-btn" onclick="_rageActive ? stopMonkeyRage() : activateMonkeyRage()" title="Monkey Rage"><img src="img/rage_monkey.png" class="rage-btn-img" alt="" loading="lazy"></button>
             <button class="skill-tray-btn goose-btn hidden" id="goose-btn" onclick="activateGoldenGoose()" title="Golden Goose"></button>
             <button class="skill-tray-btn banana-btn hidden" id="banana-btn" onclick="activateBananaShake()" title="Banana Shake"></button>
           </div>
@@ -608,12 +608,17 @@
           /webkit-masked-url/i,
         ],
       });
-      Sentry.captureMessage('Sentry init OK', 'info');
+      // No "init OK" ping per page load: each one is a billable GlitchTip
+      // event and a traffic spike would exhaust the quota, dropping real errors.
     }
   </script>
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      // Register once the DOM is parsed, not on `load`: on a slow mobile
+      // connection `load` can trail by tens of seconds (or never fire while
+      // media streams), and until then there is no SW, no precache and no
+      // version watchdog for exactly the visitors who need them most.
+      const _regSw = () => {
         navigator.serviceWorker.register('/sw.js').then(reg => {
 
           function showUpdateBanner(sw) {
@@ -669,7 +674,9 @@
         navigator.serviceWorker.addEventListener('controllerchange', () => {
           if (hadController && !reloading) { reloading = true; window.location.reload(); }
         });
-      });
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _regSw);
+      else _regSw();
     }
   </script>
 </body>

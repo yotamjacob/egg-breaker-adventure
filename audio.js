@@ -209,9 +209,13 @@ const MUSIC = (() => {
     const needsCross = CROSSFADE_TRACKS.has(
       Object.keys(TRACKS).find(id => TRACKS[id] === src)
     );
-    audio = new Audio(src);
+    audio = new Audio();
     audio.loop = !needsCross;
-    if (on) { _fadeIn(audio, targetVol); _updateMediaSession(true); }
+    // Before the first gesture autoplay is blocked anyway, so don't pull a
+    // multi-MB track on a cold load — the pointerdown retry below starts it.
+    if (!_hadGesture()) audio.preload = 'none';
+    audio.src = src;
+    if (on && _hadGesture()) { _fadeIn(audio, targetVol); _updateMediaSession(true); }
     if (needsCross) {
       audio.addEventListener('loadedmetadata', () => _setupCrossfade(audio, src, targetVol), { once: true });
     }
@@ -248,9 +252,18 @@ const MUSIC = (() => {
   function isOn() { return on; }
 
   // Retry on first user gesture — browser autoplay policy
+  let _gestureSeen = false;
+  function _hadGesture() {
+    try { if (navigator.userActivation && navigator.userActivation.hasBeenActive) return true; } catch (e) {}
+    return _gestureSeen;
+  }
   document.addEventListener('pointerdown', () => {
-    if (on && audio && audio.paused && !_pausedForVisibility) _fadeIn(audio, currentVol);
-  }, { once: true });
+    _gestureSeen = true;
+    if (on && audio && audio.paused && !_pausedForVisibility) {
+      if (audio.preload === 'none') audio.preload = 'auto';
+      _fadeIn(audio, currentVol); _updateMediaSession(true);
+    }
+  }, { once: true, capture: true });
 
   // Pause music when tab/window is hidden, resume when restored
   document.addEventListener('visibilitychange', () => {

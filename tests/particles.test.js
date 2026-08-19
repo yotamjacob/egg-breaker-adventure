@@ -175,13 +175,13 @@ describe('devicePixelRatio scaling', () => {
     assert.equal(env.getH(), 1200, 'height should be parentH * dpr');
   });
 
-  test('resize() preserves dpr scaling after a valid resize', () => {
+  test('resize() preserves dpr scaling after a valid resize, capped at 2 (v3.10.4)', () => {
     const env = makeParticleEnv({ parentW: 400, parentH: 600, dpr: 3 });
     env.P.init(env.canvas);
     env.setParent(200, 300);
     env.P.resize();
-    assert.equal(env.getW(), 600); // 200 * 3
-    assert.equal(env.getH(), 900); // 300 * 3
+    assert.equal(env.getW(), 400); // 200 * min(3, 2)
+    assert.equal(env.getH(), 600); // 300 * min(3, 2)
   });
 });
 
