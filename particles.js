@@ -26,7 +26,10 @@ const Particles = (() => {
   function init(c) { canvas = c; ctx = c.getContext('2d'); resize(); window.addEventListener('resize', resize); }
   function resize() {
     if (!canvas || !canvas.parentElement) return;
-    const r = canvas.parentElement.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    // Cap the backing store at 2× — particles are soft blobs and 4–12px
+    // squares, 3× DPR is 2.25× the pixels for nothing visible, and fill-rate
+    // is what drops mid-range phones to 30fps during Starfall/confetti.
+    const r = canvas.parentElement.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
     // Panel is collapsed (flex:0 0 0 when tab is hidden) — skip to avoid zeroing the canvas.
     // Without this guard a window resize while on another tab sets canvas to 0×0 and
     // particles become invisible when the user returns to the play tab.
@@ -181,12 +184,14 @@ const Particles = (() => {
       const fadeIn = Math.min(1, s.t / 8);
       const alpha = s.a * fadeIn * (.7 + .3 * Math.sin(s.tw));
       ctx.save();
+      // Trail: two short strokes (faint long + brighter short) instead of a
+      // per-frame gradient object — same look, no allocation per star per frame.
       const tl = s.vy * (s.back ? 3 : 5);
-      const g = ctx.createLinearGradient(s.x, s.y - tl, s.x, s.y);
-      g.addColorStop(0, 'rgba(255,225,120,0)');
-      g.addColorStop(1, 'rgba(255,225,120,' + (alpha * .55).toFixed(3) + ')');
-      ctx.strokeStyle = g; ctx.lineWidth = Math.max(1, s.sz * .45); ctx.lineCap = 'round';
+      ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1, s.sz * .45);
+      ctx.globalAlpha = alpha * .22; ctx.strokeStyle = '#ffe178';
       ctx.beginPath(); ctx.moveTo(s.x, s.y - tl); ctx.lineTo(s.x, s.y); ctx.stroke();
+      ctx.globalAlpha = alpha * .45;
+      ctx.beginPath(); ctx.moveTo(s.x, s.y - tl * .45); ctx.lineTo(s.x, s.y); ctx.stroke();
       ctx.translate(s.x, s.y);
       ctx.globalAlpha = alpha * (s.back ? .06 : .13);
       ctx.fillStyle = '#FFE27A';
@@ -283,8 +288,9 @@ const Particles = (() => {
     const dt = _lastTick ? Math.min(100, now - _lastTick) : 16.667;
     _lastTick = now;
     const k = Math.min(3, dt / 16.667);
-    const w = canvas.width / (window.devicePixelRatio || 1);
-    const h = canvas.height / (window.devicePixelRatio || 1);
+    const dprNow = Math.min(2, window.devicePixelRatio || 1);
+    const w = canvas.width / dprNow;
+    const h = canvas.height / dprNow;
     ctx.clearRect(0, 0, w, h);
     if (ambient) {
       if (!ambW || !ambH) { ambW = w; ambH = h; }

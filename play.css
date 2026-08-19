@@ -234,14 +234,10 @@
 @keyframes goose-inner-pulse{
   0%,100%{opacity:.7}50%{opacity:1}
 }
-.goose-tray-active .egg-slot{
-  filter:drop-shadow(0 0 7px rgba(255,210,0,.55));
-  animation:goose-egg-glow .9s ease-in-out infinite;
-}
-@keyframes goose-egg-glow{
-  0%,100%{filter:drop-shadow(0 0 5px rgba(255,210,0,.35))}
-  50%{filter:drop-shadow(0 0 12px rgba(255,220,50,.85))}
-}
+/* Static glow per egg while Goose is active. The old per-egg animated
+   drop-shadow filter repainted every egg every frame on mobile GPUs; the tray
+   border pulse + gold dust carry the motion instead (v3.10.4 perf). */
+.goose-tray-active .egg-slot{filter:drop-shadow(0 0 9px rgba(255,215,20,.7))}
 
 /* Banana Shake — long funny wiggle */
 .egg-tray-wrap.shake-tray-wiggle{animation:shake-wiggle 1.1s ease-in-out}
@@ -304,8 +300,10 @@
 .egg-slot.runny.broken{filter:grayscale(.4);animation:none}
 .egg-slot.timed{filter:drop-shadow(0 0 6px rgba(255,165,0,.6));animation:timer-pulse .8s ease-in-out infinite}
 .egg-slot.timed.broken{filter:grayscale(.4);animation:none}
-.egg-slot.egg-century{filter:drop-shadow(0 0 10px rgba(255,215,0,.6));animation:century-glow 2s ease-in-out infinite}
-.egg-slot.egg-century.broken{filter:grayscale(.4);animation:none}
+.egg-slot.egg-century{filter:drop-shadow(0 0 10px rgba(255,215,0,.6))}
+.egg-slot.egg-century > svg{animation:century-glow 2s ease-in-out infinite}   /* opacity/transform-only pulse, not a filter animation */
+.egg-slot.egg-century.broken{filter:grayscale(.4)}
+.egg-slot.egg-century.broken > svg{animation:none}
 @keyframes century-glow{0%,100%{opacity:.82}50%{opacity:1}}
 @keyframes timer-pulse{0%,100%{opacity:1}50%{opacity:.7}}
 @keyframes egg-idle-wiggle{0%{transform:rotate(0deg)}20%{transform:rotate(-7deg)}40%{transform:rotate(7deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(3deg)}100%{transform:rotate(0deg)}}
@@ -581,11 +579,11 @@
    The slot animates on its OWN transform via .tele-out/.tele-in — these do not
    set `animation` on .egg-slot, so the smash-feedback cascade is untouched
    (see CLAUDE.md "Smash animation invariants"): the shimmer lives on the SVG. */
+/* Static blue glow on the slot; the shimmer is an opacity pulse on the SVG
+   (opacity animations are compositor-cheap; animated drop-shadow filters are not). */
+.egg-slot.teleporter{filter:drop-shadow(0 0 7px rgba(143,216,255,.8))}
 .egg-slot.teleporter > svg{animation:tele-shimmer 2.2s ease-in-out infinite}
-@keyframes tele-shimmer{
-  0%,100%{filter:drop-shadow(0 0 3px rgba(143,216,255,.55))}
-  50%    {filter:drop-shadow(0 0 9px rgba(143,216,255,.95))}
-}
+@keyframes tele-shimmer{0%,100%{opacity:.85}50%{opacity:1}}
 .egg-slot.tele-out{transition:transform .18s ease-in,opacity .18s ease-in;transform:scale(.15) translateY(-14px);opacity:0}
 .egg-slot.tele-in{transition:none;animation:none}
 .egg-slot.tele-in > svg{animation:tele-arrive .4s cubic-bezier(.34,1.56,.64,1) both}

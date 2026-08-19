@@ -978,9 +978,9 @@ function activateBananaShake() {
     if (_tw) {
       _tw.classList.add('shake-tray-wiggle'); setTimeout(() => _tw.classList.remove('shake-tray-wiggle'), 1100);
       const _r = _tw.getBoundingClientRect();
-      Particles.confetti(_r.width / 2, _r.height * .45, null, 80);
-      setTimeout(() => Particles.confetti(_r.width * .3, _r.height * .55, null, 30), 180);
-      setTimeout(() => Particles.confetti(_r.width * .7, _r.height * .55, null, 30), 320);
+      Particles.confetti(_r.width / 2, _r.height * .45, null, 60);
+      setTimeout(() => Particles.confetti(_r.width * .3, _r.height * .55, null, 22), 180);
+      setTimeout(() => Particles.confetti(_r.width * .7, _r.height * .55, null, 22), 320);
     }
     flyHammers();
   };
