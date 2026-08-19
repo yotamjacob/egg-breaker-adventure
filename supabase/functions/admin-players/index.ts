@@ -3,10 +3,29 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // @ts-ignore
 import LZString from 'https://esm.sh/lz-string@1.5.0'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-admin-secret',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+// CORS: only the origins that actually host admin.html (v3.10.11). A bare
+// `*` let any page script the endpoints with a stolen secret from the browser.
+const ADMIN_ORIGINS = new Set([
+  'https://egg-breaker-adventures.vercel.app',
+  'https://eggbreakeradventure.com',
+  'https://www.eggbreakeradventure.com',
+  'http://localhost:3000', 'http://localhost:8080', 'http://127.0.0.1:8080',
+])
+function cors(origin: string | null) {
+  return {
+    'Access-Control-Allow-Origin': origin && ADMIN_ORIGINS.has(origin) ? origin : 'https://egg-breaker-adventures.vercel.app',
+    'Vary': 'Origin',
+    'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-admin-secret',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  }
+}
+
+// Constant-time secret compare — `!==` leaks match length via timing.
+function secretOk(provided: string, expected: string | undefined): boolean {
+  if (!expected || provided.length !== expected.length) return false
+  let d = 0
+  for (let i = 0; i < expected.length; i++) d |= provided.charCodeAt(i) ^ expected.charCodeAt(i)
+  return d === 0
 }
 
 const MONKEY_LABELS = [
@@ -82,11 +101,11 @@ function safeStats(g: any) {
 }
 
 serve(async (req) => {
+  const corsHeaders = cors(req.headers.get('origin'))
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
-  const adminSecret = Deno.env.get('ADMIN_SECRET')
-  const provided    = req.headers.get('x-admin-secret') ?? ''
-  if (!adminSecret || provided !== adminSecret)
+  const provided = req.headers.get('x-admin-secret') ?? ''
+  if (!secretOk(provided, Deno.env.get('ADMIN_SECRET')))
     return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: corsHeaders })
 
   if (req.method !== 'GET')

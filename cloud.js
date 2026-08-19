@@ -108,8 +108,15 @@ let _cloudHealthy = null; // null=no operation yet, true=last op ok, false=last 
 let _pendingReconnect = false; // true when session was lost offline and we're waiting to retry
 let _cloudAuthSettled = false; // true once getSession() or onAuthStateChange has resolved
 
+// Login-CSRF guard state (v3.10.11). `var` without initializer on purpose: cloud.js is
+// bundled after game.js, which calls initCloudSave() at its top level, so this must be
+// set inside initCloudSave() (before the SDK touches the URL) and never reset by a later
+// top-level assignment.
+var _authHashAtLoad;
+
 function initCloudSave() {
   if (typeof supabase === 'undefined') { _oauthLog('INIT: supabase SDK not loaded'); return; }
+  try { _authHashAtLoad = /(^|[#&])access_token=/.test(window.location.hash || ''); } catch (e) { _authHashAtLoad = false; }
 
   // Log the page URL at startup — this is the key line after an OAuth redirect:
   // if the auth code was delivered, it shows up here as ?code=... or #access_token=...
@@ -138,6 +145,28 @@ function initCloudSave() {
           _sbClient.auth.signOut().catch(() => {});
           return;
         }
+        // Login-CSRF / session fixation guard (v3.10.11). The implicit flow accepts
+        // `#access_token=…` on ANY page load, so a crafted link could sign this
+        // browser into an attacker's account and the victim's progress would then
+        // autosave into it. Our own flows always set `_oauthPending` before
+        // navigating (web + Android), so a SIGNED_IN that (a) came from a URL hash
+        // or (b) switches to a different user than the one this browser linked,
+        // without a pending flow, is foreign → drop it. Legacy sessions (no
+        // pending, no hash, no recorded uid) are grandfathered and recorded.
+        const _pTs = parseInt(localStorage.getItem('_oauthPending') || '0', 10);
+        const _pending = _pTs > 0 && Date.now() - _pTs < 30 * 60 * 1000;
+        const _uid = session?.user?.id || '';
+        const _known = localStorage.getItem('_cloudLinkedUid') || '';
+        const _foreign = !_pending && (_authHashAtLoad === true || (_known && _uid && _known !== _uid));
+        if (_foreign) {
+          _oauthLog('AUTH: SIGNED_IN rejected as foreign (hash=' + !!_authHashAtLoad + ', uid switch=' + (_known && _uid !== _known) + ')');
+          _authHashAtLoad = false;
+          _cloudSession = null; _cloudUser = null; _renderCloudModal();
+          _sbClient.auth.signOut().catch(() => {});
+          return;
+        }
+        _authHashAtLoad = false;   // consumed by this legit sign-in
+        if (_uid && (_pending || !_known)) localStorage.setItem('_cloudLinkedUid', _uid);
       } catch (e) {}
     }
     // Cache the full session — gives us a fresh access_token without any network calls.
@@ -189,6 +218,13 @@ function handleAndroidOAuthCallback(fragment) {
   const access_token  = params.get('access_token');
   const refresh_token = params.get('refresh_token');
   if (!access_token) { _oauthLog('handleAndroidOAuthCallback: no access_token'); return; }
+  // Only accept tokens for a flow WE started (linkGoogleAccount sets _oauthPending
+  // before leaving for Chrome). A crafted App Link with someone else's tokens
+  // must not sign this device into a foreign account (v3.10.11).
+  try {
+    const ts = parseInt(localStorage.getItem('_oauthPending') || '0', 10);
+    if (!(ts > 0 && Date.now() - ts < 30 * 60 * 1000)) { _oauthLog('handleAndroidOAuthCallback: no pending OAuth flow — ignoring foreign tokens'); return; }
+  } catch (e) {}
   _sbClient.auth.setSession({ access_token, refresh_token: refresh_token || '' })
     .then(({ data, error }) => {
       _oauthLog('setSession user=' + (data?.session?.user?.email || 'none') +
@@ -439,7 +475,7 @@ function linkGoogleAccount() {
       // _cloudUnlinking prevents onAuthStateChange(SIGNED_IN) from restoring the user
       // if Supabase fires a token refresh right after signOut.
       _cloudUnlinking = true;
-      try { localStorage.setItem('_cloudLinkPref', 'unlinked'); } catch (e) {}
+      try { localStorage.setItem('_cloudLinkPref', 'unlinked'); localStorage.removeItem('_cloudLinkedUid'); } catch (e) {}
       _cloudUser = null;
       _stopCloudAutoSave();
       closeOverlay('overlay-cloudsave');

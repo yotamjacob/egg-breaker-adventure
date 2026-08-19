@@ -52,7 +52,16 @@ function base64url(data: string | ArrayBuffer): string {
 }
 
 // Sign a JWT using the service account private key and exchange for an access token
+// Module-level cache: Google access tokens live ~1h; a warm isolate should not
+// sign a new RS256 JWT + hit oauth2.googleapis.com on every verify call.
+let _gTok: { token: string; exp: number } | null = null
 async function getGoogleAccessToken(serviceAccountJson: string): Promise<string> {
+  if (_gTok && Date.now() < _gTok.exp) return _gTok.token
+  const token = await _fetchGoogleAccessToken(serviceAccountJson)
+  _gTok = { token, exp: Date.now() + 50 * 60 * 1000 }
+  return token
+}
+async function _fetchGoogleAccessToken(serviceAccountJson: string): Promise<string> {
   const sa = JSON.parse(serviceAccountJson)
   const now = Math.floor(Date.now() / 1000)
 
@@ -100,6 +109,17 @@ async function getGoogleAccessToken(serviceAccountJson: string): Promise<string>
   return tokenData.access_token
 }
 
+// ── Input shape checks (v3.10.11) ─────────────────────────────────────────
+// device_id is 'eba-<uuid>' from payments.js getDeviceId() (one legacy CI id
+// is 'ci-…'); user_id is a Supabase auth UUID. Reject anything else before
+// touching the DB or Google — these endpoints are unauthenticated relays.
+const DEVICE_RE = /^[A-Za-z0-9_.:-]{4,80}$/
+const UUID_RE   = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+function checkIds(device_id: unknown, user_id: unknown) {
+  if (typeof device_id !== 'string' || !DEVICE_RE.test(device_id)) throw new Error('Invalid device_id')
+  if (user_id != null && user_id !== '' && (typeof user_id !== 'string' || !UUID_RE.test(user_id))) throw new Error('Invalid user_id')
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin')
   const hdrs   = corsHeaders(origin)
@@ -109,12 +129,16 @@ Deno.serve(async (req) => {
     const { device_id, product_id, purchase_token, user_id } = await req.json()
     if (!device_id || !product_id || !purchase_token) throw new Error('Missing fields')
     if (!REWARDS[product_id]) throw new Error('Unknown product')
+    checkIds(device_id, user_id)
+    // Play purchase tokens are opaque base64url-ish strings; anything else is
+    // a probe and must not cost a signed JWT + two Google round-trips.
+    if (typeof purchase_token !== 'string' || !/^[A-Za-z0-9._-]{20,1024}$/.test(purchase_token)) throw new Error('Invalid purchase_token')
 
     const googleToken = await getGoogleAccessToken(Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON')!)
 
     // Verify the purchase with Google Play Developer API
     const verifyRes = await fetch(
-      `${PLAY_API}/${PACKAGE_NAME}/purchases/products/${product_id}/tokens/${purchase_token}`,
+      `${PLAY_API}/${PACKAGE_NAME}/purchases/products/${encodeURIComponent(product_id)}/tokens/${encodeURIComponent(purchase_token)}`,
       { headers: { 'Authorization': `Bearer ${googleToken}` } },
     )
     const purchase = await verifyRes.json()
@@ -151,7 +175,7 @@ Deno.serve(async (req) => {
     // Acknowledge (non-consumable) or consume (consumable) via Play API
     const action = CONSUMABLE.has(product_id) ? 'consume' : 'acknowledge'
     await fetch(
-      `${PLAY_API}/${PACKAGE_NAME}/purchases/products/${product_id}/tokens/${purchase_token}:${action}`,
+      `${PLAY_API}/${PACKAGE_NAME}/purchases/products/${encodeURIComponent(product_id)}/tokens/${encodeURIComponent(purchase_token)}:${action}`,
       {
         method:  'POST',
         headers: { 'Authorization': `Bearer ${googleToken}`, 'Content-Type': 'application/json' },

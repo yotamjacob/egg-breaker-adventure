@@ -22,6 +22,17 @@ function corsHeaders(origin: string | null) {
   }
 }
 
+// ── Input shape checks (v3.10.11) ─────────────────────────────────────────
+// device_id is 'eba-<uuid>' from payments.js getDeviceId() (one legacy CI id
+// is 'ci-…'); user_id is a Supabase auth UUID. Reject anything else before
+// touching the DB or Google — these endpoints are unauthenticated relays.
+const DEVICE_RE = /^[A-Za-z0-9_.:-]{4,80}$/
+const UUID_RE   = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+function checkIds(device_id: unknown, user_id: unknown) {
+  if (typeof device_id !== 'string' || !DEVICE_RE.test(device_id)) throw new Error('Invalid device_id')
+  if (user_id != null && user_id !== '' && (typeof user_id !== 'string' || !UUID_RE.test(user_id))) throw new Error('Invalid user_id')
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin')
   const hdrs = corsHeaders(origin)
@@ -30,6 +41,7 @@ Deno.serve(async (req) => {
   try {
     const { device_id, user_id, product_id } = await req.json()
     if (!device_id) throw new Error('Missing device_id')
+    checkIds(device_id, user_id)
     if (!product_id || !DAILY_GRANT_PRODUCTS.has(product_id)) throw new Error('Invalid product_id')
 
     const supabase = createClient(

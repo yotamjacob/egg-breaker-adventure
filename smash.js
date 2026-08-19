@@ -769,7 +769,7 @@ function smashEgg(index) {
   // === Egg broken! ===
   egg.broken = true;
   G.totalEggs++;
-  if (G.totalEggs === 1) track('first-break');
+  if (G.totalEggs === 1) { track('first-break'); if (typeof maybeShowWelcome === 'function') maybeShowWelcome(); }
   if (typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpBreak);
   checkReviewPrompt();
   if (egg.effects && egg.effects.includes('runny')) G.runnySmashed = (G.runnySmashed || 0) + 1;

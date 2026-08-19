@@ -28,6 +28,12 @@ const CI_DEVICE = 'ci-smoke-test-00000';
 function anon(extra = {}) {
   return { 'Content-Type': 'application/json', apikey: ANON, Authorization: `Bearer ${ANON}`, ...extra };
 }
+// send-notifications requires x-cron-secret once CRON_SECRET is configured in
+// Supabase (v3.10.11). CI must carry the same value in the CRON_SECRET repo
+// secret; locally it is optional while the gate is still open.
+function cron(extra = {}) {
+  return anon(process.env.CRON_SECRET ? { 'x-cron-secret': process.env.CRON_SECRET, ...extra } : extra);
+}
 function svc(extra = {}) {
   return { 'Content-Type': 'application/json', apikey: SVC,  Authorization: `Bearer ${SVC}`,  ...extra };
 }
@@ -195,7 +201,7 @@ describe('push', () => {
   test('send-notifications function completes without error', async () => {
     // This is the real cron function. It respects the 22-hour dedup window,
     // so calling it here will not send duplicate notifications to real users.
-    const r = await GET(`${SB}/functions/v1/send-notifications`, anon());
+    const r = await GET(`${SB}/functions/v1/send-notifications`, cron());
     assert.ok(r.status < 500, `send-notifications server error: ${r.status}`);
     const body = await r.json().catch(() => null);
     assert.ok(body !== null, 'send-notifications returned non-JSON');
@@ -211,7 +217,7 @@ describe('push', () => {
     const r = await POST(
       `${SB}/functions/v1/send-notifications?test_device=${CI_DEVICE}`,
       {},
-      anon()
+      cron()
     );
     assert.ok(r.status < 500, `test_device call failed with ${r.status}`);
     const body = await r.json().catch(() => null);

@@ -2206,11 +2206,15 @@ $id('version-tag').textContent = 'Egg Smash Adventures v' + VERSION;
 
 // PWA shortcut deep-linking: ?tab=play|album|shop|monkeys etc.
 (function() {
-  const tab = new URLSearchParams(location.search).get('tab');
-  if (tab) {
-    const btn = document.querySelector('[data-tab="' + tab + '"]');
-    if (btn) btn.click();
-  }
+  try {
+    const tab = new URLSearchParams(location.search).get('tab');
+    // Whitelist: a crafted `?tab="]` used to throw here and abort the rest of
+    // the bundle (share/smash/shop/cloud never loaded) — a shareable broken link.
+    if (tab && /^[a-z]+$/.test(tab)) {
+      const btn = document.querySelector('[data-tab="' + tab + '"]');
+      if (btn) btn.click();
+    }
+  } catch (e) { /* never let a URL param take the game down */ }
 })();
 
 if (G.hammers < G.maxH && !regenInt) startRegen();
@@ -2223,12 +2227,14 @@ function dismissWelcome(goToCloud) {
   track('welcome-dismissed', { choice: goToCloud ? 'cloud' : 'play' });
   if (goToCloud) openCloudSaveModal();
 }
-if (!G._welcomeDone && G.totalEggs === 0) {
-  // Show ~0.8 s after the splash has faded (was a fixed 4.8 s).
-  (function waitSplash() {
-    if (window._splashFadeAt) setTimeout(() => $id('overlay-welcome').classList.remove('hidden'), 800);
-    else setTimeout(waitSplash, 150);
-  })();
+// Shown once to new players — after their FIRST egg break, not at boot
+// (v3.10.11): a cold visitor should smash before being asked to sign in.
+// (Before: 0.8 s after the splash; before that a fixed 4.8 s.)
+var _welcomeShownNow = false;   // session-only; not in the save, so a closed tab re-offers it
+function maybeShowWelcome() {
+  if (G._welcomeDone || _welcomeShownNow) return;
+  _welcomeShownNow = true;
+  setTimeout(() => { const o = $id('overlay-welcome'); if (o) o.classList.remove('hidden'); }, 900);
 }
 
 // Preload every monkey portrait (all hat variants) once the splash is out of

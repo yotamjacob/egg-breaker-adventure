@@ -96,7 +96,7 @@
 </head>
 <body>
   <div id="splash-screen">
-    <img src="/icon-512.png" class="splash-logo" alt="" />
+    <img src="/icon-192.png" class="splash-logo" alt="" />
     <div class="splash-title">Egg Smash<br>Adventures</div>
     <div class="splash-tip" id="splash-tip"></div>
   </div>
@@ -583,14 +583,35 @@
     window.onunhandledrejection = function(e) {
       window._splashErr('Promise: ' + (e.reason && e.reason.message || e.reason));
     };
-    // Safety net: force splash away after 6s even if game JS never runs
+    // Safety net: if game JS never runs, don't drop the player onto a dead
+    // shell — keep the splash, say so, and offer a retry (v3.10.11). If the
+    // tray did render (game.js normally fades the splash itself) just fade.
     setTimeout(function() {
       var s = document.getElementById('splash-screen');
-      if (s) { s.style.opacity='0'; s.style.transition='opacity 0.6s'; setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 700); }
+      if (!s) return;
+      if (document.querySelector('#egg-tray .egg-slot')) {
+        s.style.opacity='0'; s.style.transition='opacity 0.6s'; setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 700);
+        return;
+      }
+      var tip = document.getElementById('splash-tip');
+      if (tip) tip.textContent = 'Still loading\u2026';
+      setTimeout(function() {
+        if (!document.getElementById('splash-screen') || document.querySelector('#egg-tray .egg-slot')) return;
+        if (tip) {
+          tip.innerHTML = '';
+          var b = document.createElement('button');
+          b.className = 'splash-retry'; b.textContent = 'Couldn\u2019t load \u2014 tap to retry';
+          b.onclick = function() { window.location.reload(); };
+          tip.appendChild(b);
+        }
+      }, 6000);
     }, 6000);
   </script>
-  <script src="https://browser.sentry-cdn.com/7.99.0/bundle.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- Pinned + SRI (v3.10.11): a floating @2 tag meant any jsdelivr publish could ship
+       new code into every client; integrity hashes make a CDN tamper a no-load instead.
+       To bump supabase-js: change BOTH the version and the hash (openssl dgst -sha384 -binary | base64). -->
+  <script src="https://browser.sentry-cdn.com/7.99.0/bundle.min.js" integrity="sha384-KhWx6ggiGYQEFvq5iRp7UFjJ9dQcTepbcWs3UTfB6Kyg7E6A6HUmc6KOt808Y3yh" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3/dist/umd/supabase.js" integrity="sha384-qafw21c/iciq0VXsi9FzkfoQv5I/V0iqE4lSNcKXPnW9/UTJLnv5CcN4FHxVLnKg" crossorigin="anonymous"></script>
   <script src="bundle.min.js"></script>
   <script>
     // ── Error tracking (GlitchTip / Sentry) ──────────────────────

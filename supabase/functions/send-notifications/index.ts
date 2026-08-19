@@ -166,7 +166,30 @@ async function bulkDelete(devices: string[]) {
 
 // ── Main handler ───────────────────────────────────────────────────────────────
 
+// Shared-secret gate (v3.10.11). The function is reachable by anyone holding
+// the public anon key; before this, a bare call ran a full-table scan + FCM
+// batch and `?test_device=` bypassed the nighttime/dedupe guards (unlimited
+// push spam to any subscriber). pg_cron sends `x-cron-secret` read from Vault
+// (see migration 20260819000001); the same value lives in the CRON_SECRET
+// function secret. Enforced as soon as CRON_SECRET is set; until then the
+// function stays open (as it always was) and logs a warning, so deploying
+// this code can never silently stop push. Flip it on with:
+//   supabase db query --linked "select vault.create_secret('<random>','cron_secret')"
+//   supabase secrets set CRON_SECRET=<same random>
+function cronAuthorized(req: Request): boolean {
+  const expected = Deno.env.get('CRON_SECRET') ?? ''
+  if (!expected) { console.warn('[send-notif] CRON_SECRET not set — endpoint is unauthenticated'); return true }
+  const got = req.headers.get('x-cron-secret') ?? ''
+  if (got.length !== expected.length) return false
+  let diff = 0
+  for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ got.charCodeAt(i)
+  return diff === 0
+}
+
 serve(async (req) => {
+  if (!cronAuthorized(req)) {
+    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
+  }
   const url        = new URL(req.url)
   const testDevice = url.searchParams.get('test_device')
   const now        = new Date()
