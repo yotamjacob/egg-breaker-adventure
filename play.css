@@ -584,9 +584,9 @@
 .egg-slot.teleporter{filter:drop-shadow(0 0 7px rgba(143,216,255,.8))}
 .egg-slot.teleporter > svg{animation:tele-shimmer 2.2s ease-in-out infinite}
 @keyframes tele-shimmer{0%,100%{opacity:.85}50%{opacity:1}}
-.egg-slot.tele-out{transition:transform .18s ease-in,opacity .18s ease-in;transform:scale(.15) translateY(-14px);opacity:0}
+.egg-slot.tele-out{transition:transform .12s ease-in,opacity .12s ease-in;transform:scale(.15) translateY(-14px);opacity:0}
 .egg-slot.tele-in{transition:none;animation:none}
-.egg-slot.tele-in > svg{animation:tele-arrive .4s cubic-bezier(.34,1.56,.64,1) both}
+.egg-slot.tele-in > svg{animation:tele-arrive .28s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes tele-arrive{
   0%  {transform:scale(.2) translateY(10px);opacity:0}
   60% {transform:scale(1.18) translateY(-4px);opacity:1}
@@ -599,8 +599,8 @@
   background:linear-gradient(180deg,rgba(169,214,255,0) 0%,rgba(143,216,255,.65) 35%,rgba(255,255,255,.95) 100%);
   filter:blur(1px);transform-origin:50% 100%;
 }
-.tele-beam-out{animation:tele-beam-out .5s ease-in forwards}
-.tele-beam-in {animation:tele-beam-in  .55s ease-out forwards}
+.tele-beam-out{animation:tele-beam-out .34s ease-in forwards}
+.tele-beam-in {animation:tele-beam-in  .38s ease-out forwards}
 @keyframes tele-beam-out{
   0%  {transform:scaleY(0) scaleX(1);opacity:0}
   35% {transform:scaleY(1) scaleX(1);opacity:1}

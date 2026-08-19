@@ -490,7 +490,7 @@ function teleportEgg(index, slot) {
     b.style.left = (x + eW / 2) + 'px';
     b.style.top  = (y + 44) + 'px';
     tray.appendChild(b);
-    setTimeout(() => b.remove(), 620);
+    setTimeout(() => b.remove(), 420);
   };
 
   slot.classList.add('tele-out');
@@ -506,8 +506,8 @@ function teleportEgg(index, slot) {
     slot.classList.add('tele-in');
     beam(best.x, best.y, 'tele-beam-in');
     Particles.sparkle(best.x + eW / 2, best.y + 44, 18, '#a9d6ff');
-    setTimeout(() => slot.classList.remove('tele-in'), 420);
-  }, 200);
+    setTimeout(() => slot.classList.remove('tele-in'), 300);
+  }, 130);
 }
 
 function popBalloonEgg(index, slot) {
