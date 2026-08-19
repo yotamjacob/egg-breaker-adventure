@@ -58,7 +58,7 @@ function newRound() {
       if (centuryUsedThisRound) type = 'gold';
       else centuryUsedThisRound = true;
     }
-    const hp = EGG_HP[type];
+    let hp = EGG_HP[type];
     // Egg effects unlock progressively through Mr. Monkey stages
     const mrStage = G.monkeys && G.monkeys[0] ? (G.monkeys[0].stage || 0) : 0;
     let effects = [];
@@ -73,7 +73,7 @@ function newRound() {
       // teleporters) — see CONFIG.teleportEgg (v3.10.3).
       if (effects.length === 0 && mrStage >= CONFIG.teleportEgg.unlockStage
           && CONFIG.teleportEgg.types.indexOf(type) !== -1
-          && Math.random() < CONFIG.teleportEgg.chance) effects.push('teleport');
+          && Math.random() < CONFIG.teleportEgg.chance) { effects.push('teleport'); hp = CONFIG.teleportEgg.hp || hp; }
       const hexChance = mrStage >= 3 ? Math.min(0.015, 0.006 + (mrStage - 3) * 0.0015) : 0;  // 0.6%→0.75%→0.9%→1.05%→1.2%→1.35%→1.5%
       if (hexChance > 0 && Math.random() < hexChance && !effects.includes('teleport') && type !== 'ruby' && type !== 'black' && type !== 'crystal' && type !== 'century' && !G['owned_cleanse']) effects.push('hex');
     }
@@ -1040,7 +1040,8 @@ function applyPrize(prize, cx, cy) {
     if (wasNew) {
       prog.collections[si][prize.index] = true;
       G.totalItems++;
-      if (prize.rarity === 3 && typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpRare);
+      // Hammer mastery: rare-item XP only for hammer finds — Starfall is a skill, not a hit
+      if (prize.rarity === 3 && !_starfallActive && typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpRare);
     }
     if (!wasNew) spawnFloat(zone, prize.label, prize.color, '', cx, cy);
     if (wasNew) {

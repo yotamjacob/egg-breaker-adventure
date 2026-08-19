@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.10.4';
+const VERSION = '3.10.5';
 
 const CONFIG = {
 
@@ -290,7 +290,8 @@ const CONFIG = {
     unlockStage: 4,                 // Mr. Monkey stage index (0-based → stage 5)
     chance:      0.07,              // per eligible egg at spawn
     types:       ['silver', 'gold'],
-    rewardMult:  4,
+    hp:          4,                 // taps to break (overrides the type's HP) — enough warps to enjoy the chase
+    rewardMult:  4,                 // prize still rolls from the egg's own type (silver/gold)
   },
 
   // ----------------------------------------------------------
