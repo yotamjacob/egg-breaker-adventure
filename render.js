@@ -736,8 +736,12 @@ function updateOverallProgress() {
     (G.skillsUnlocked || [])[i] && ((G.skillUpgrades || [0,0,0])[i] || 0) >= 2
   ).length;
 
-  const grand = totalItems + totalShop + totalGoals + totalSkills;
-  const grandFound = foundItems + ownedShop + doneGoals + masteredSkills;
+  // Hammer mastery: every special hammer at max level (mastery.js)
+  const hm = (typeof hammerMasteryStats === 'function') ? hammerMasteryStats() : { maxed: 0, total: 0 };
+  const totalHammerMastery = hm.total, masteredHammers = hm.maxed;
+
+  const grand = totalItems + totalShop + totalGoals + totalSkills + totalHammerMastery;
+  const grandFound = foundItems + ownedShop + doneGoals + masteredSkills + masteredHammers;
   const pct = grand > 0 ? Math.floor((grandFound / grand) * 100) : 0;
   $id('overall-pct').textContent = pct + '%';
   $id('overall-fill').style.width = pct + '%';
@@ -747,7 +751,8 @@ function updateOverallProgress() {
     '<span>Monkeys: <strong>' + unlockedMonkeys + '/' + MONKEY_DATA.length + '</strong></span>' +
     '<span>Shop: <strong>' + ownedShop + '/' + totalShop + '</strong></span>' +
     '<span>Goals: <strong>' + doneGoals + '/' + totalGoals + '</strong></span>' +
-    '<span class="overall-detail-full">Skills mastered: <strong>' + masteredSkills + '/' + totalSkills + '</strong></span>';
+    '<span>Skills mastered: <strong>' + masteredSkills + '/' + totalSkills + '</strong></span>' +
+    '<span>Hammers mastered: <strong>' + masteredHammers + '/' + totalHammerMastery + '</strong></span>';
 
   const quoteEl = $id('overall-quote');
   if (quoteEl) {

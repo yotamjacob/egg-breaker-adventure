@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.10.2';
+const VERSION = '3.10.3';
 
 const CONFIG = {
 
@@ -249,34 +249,34 @@ const CONFIG = {
     goldScale: 0.12,        // +12% gold reward per completed stage…
     goldScaleMax: 6,        // …up to 7× (53 stages would be silly)
     daily: [
-      { id: 'eggs_60',      icon: '🥚', name: 'Egg Breaker',     desc: 'Break 100 eggs',                    metric: 'totalEggs',        target: 100,   reward: { gold: 900 } },
-      { id: 'eggs_150',     icon: '💥', name: 'Demolition',      desc: 'Break 250 eggs',                    metric: 'totalEggs',        target: 250,   reward: { gold: 2200 } },
-      { id: 'silver_15',    icon: '🪨', name: 'Silver Lining',   desc: 'Break 25 silver eggs',              metric: 'silverSmashed',    target: 25,    reward: { gold: 1300, feathers: 4 } },
-      { id: 'gold_egg_6',   icon: '🌟', name: 'Gold Digger',     desc: 'Break 10 gold eggs',                metric: 'goldSmashed',      target: 10,    reward: { gold: 1800 } },
-      { id: 'items_2',      icon: '📦', name: 'Collector',       desc: 'Find 3 new items',                  metric: 'totalItems',       target: 3,     reward: { gold: 1100, feathers: 5 } },
-      { id: 'items_5',      icon: '🗂️', name: 'Curator',         desc: 'Find 8 new items',                  metric: 'totalItems',       target: 8,     reward: { gold: 2400, feathers: 10 } },
-      { id: 'gold_5000',    icon: '🪙', name: 'Coin Run',        desc: 'Earn 8,000 gold from eggs',         metric: 'totalGold',        target: 8000,  reward: { starPieces: 4 } },
-      { id: 'rounds_12',    icon: '🧹', name: 'Clean Sweeps',    desc: 'Clear 20 rounds',                   metric: 'roundClears',      target: 20,    reward: { gold: 1400 } },
-      { id: 'stars_10',     icon: '⭐', name: 'Stargazer',       desc: 'Collect 15 star pieces',            metric: 'totalStarPieces',  target: 15,    reward: { gold: 1000, hammers: 12 } },
-      { id: 'starfall_2',   icon: '🌠', name: 'Make a Wish',     desc: 'Use Starfall 3 times',              metric: 'starfallsUsed',    target: 3,     reward: { gold: 1500, starPieces: 3 }, need: 'starfall' },
-      { id: 'mults_5',      icon: '✖️', name: 'Multiplied',      desc: 'Fire 8 multipliers',                metric: 'multUsed',         target: 8,     reward: { gold: 1300 } },
-      { id: 'feathers_20',  icon: '🪶', name: 'Feather Fall',    desc: 'Collect 30 feathers',               metric: 'totalFeathers',    target: 30,    reward: { gold: 1000 } },
-      { id: 'skills_3',     icon: '⚡', name: 'Skilled',         desc: 'Use skills 5 times',                metric: 'skillUses',        target: 5,     reward: { gold: 1800, feathers: 6 }, need: 'skills' },
-      { id: 'crystal_2',    icon: '🔮', name: 'Crystal Clear',   desc: 'Break 3 crystal eggs',              metric: 'crystalSmashed',   target: 3,     reward: { gold: 2000 } },
+      { id: 'eggs_60',      icon: '🥚', name: 'Egg Breaker',     desc: 'Break 150 eggs',                    metric: 'totalEggs',        target: 150,   reward: { gold: 900 } },
+      { id: 'eggs_150',     icon: '💥', name: 'Demolition',      desc: 'Break 400 eggs',                    metric: 'totalEggs',        target: 400,   reward: { gold: 2200 } },
+      { id: 'silver_15',    icon: '🪨', name: 'Silver Lining',   desc: 'Break 40 silver eggs',              metric: 'silverSmashed',    target: 40,    reward: { gold: 1300, feathers: 4 } },
+      { id: 'gold_egg_6',   icon: '🌟', name: 'Gold Digger',     desc: 'Break 15 gold eggs',                metric: 'goldSmashed',      target: 15,    reward: { gold: 1800 } },
+      { id: 'items_2',      icon: '📦', name: 'Collector',       desc: 'Find 4 new items',                  metric: 'totalItems',       target: 4,     reward: { gold: 1100, feathers: 5 } },
+      { id: 'items_5',      icon: '🗂️', name: 'Curator',         desc: 'Find 12 new items',                 metric: 'totalItems',       target: 12,     reward: { gold: 2400, feathers: 10 } },
+      { id: 'gold_5000',    icon: '🪙', name: 'Coin Run',        desc: 'Earn 12,000 gold from eggs',        metric: 'totalGold',        target: 12000,  reward: { starPieces: 4 } },
+      { id: 'rounds_12',    icon: '🧹', name: 'Clean Sweeps',    desc: 'Clear 30 rounds',                   metric: 'roundClears',      target: 30,    reward: { gold: 1400 } },
+      { id: 'stars_10',     icon: '⭐', name: 'Stargazer',       desc: 'Collect 25 star pieces',            metric: 'totalStarPieces',  target: 25,    reward: { gold: 1000, hammers: 12 } },
+      { id: 'starfall_2',   icon: '🌠', name: 'Make a Wish',     desc: 'Use Starfall 4 times',              metric: 'starfallsUsed',    target: 4,     reward: { gold: 1500, starPieces: 3 }, need: 'starfall' },
+      { id: 'mults_5',      icon: '✖️', name: 'Multiplied',      desc: 'Fire 12 multipliers',               metric: 'multUsed',         target: 12,     reward: { gold: 1300 } },
+      { id: 'feathers_20',  icon: '🪶', name: 'Feather Fall',    desc: 'Collect 45 feathers',               metric: 'totalFeathers',    target: 45,    reward: { gold: 1000 } },
+      { id: 'skills_3',     icon: '⚡', name: 'Skilled',         desc: 'Use skills 7 times',                metric: 'skillUses',        target: 7,     reward: { gold: 1800, feathers: 6 }, need: 'skills' },
+      { id: 'crystal_2',    icon: '🔮', name: 'Crystal Clear',   desc: 'Break 5 crystal eggs',              metric: 'crystalSmashed',   target: 5,     reward: { gold: 2000 } },
       { id: 'away_1',       icon: '🤖', name: 'Sleeping In',     desc: 'Come back to an away report',       metric: 'offlineReports',   target: 1,     reward: { gold: 800 }, need: 'autotap' },
-      { id: 'hex_3',        icon: '💜', name: 'Hex Breaker',     desc: 'Break 5 hexed eggs',                metric: 'hexesHit',         target: 5,     reward: { gold: 1500 } },
-      { id: 'shop_2',       icon: '🛒', name: 'Big Spender',     desc: 'Buy 3 things in the Shop',          metric: 'purchases',        target: 3,     reward: { gold: 700, hammers: 20 } },
-      { id: 'collect_1',    icon: '✅', name: 'Set Complete',    desc: 'Complete a collection',             metric: 'collectionsCompleted', target: 1, reward: { gold: 2000, feathers: 6 } },
+      { id: 'hex_3',        icon: '💜', name: 'Hex Breaker',     desc: 'Break 8 hexed eggs',                metric: 'hexesHit',         target: 8,     reward: { gold: 1500 } },
+      { id: 'shop_2',       icon: '🛒', name: 'Big Spender',     desc: 'Buy 4 things in the Shop',          metric: 'purchases',        target: 4,     reward: { gold: 700, hammers: 20 } },
+      { id: 'collect_1',    icon: '✅', name: 'Set Complete',    desc: 'Complete 2 collections',            metric: 'collectionsCompleted', target: 2, reward: { gold: 2000, feathers: 6 } },
     ],
     weekly: [
-      { id: 'w_stages_2',   icon: '🏔️', name: 'Summit Push',     desc: 'Complete 2 stages this week',       metric: 'stagesCompleted',  target: 2,     reward: { gold: 8000, maxHammers: 5 } },
-      { id: 'w_items_15',   icon: '🏺', name: 'Grand Tour',      desc: 'Find 15 new items this week',       metric: 'totalItems',       target: 15,    reward: { gold: 6000, feathers: 20 } },
-      { id: 'w_eggs_1000',  icon: '🌋', name: 'Thousand Cracks', desc: 'Break 1,000 eggs this week',        metric: 'totalEggs',        target: 1000,  reward: { gold: 7000, maxHammers: 5 } },
-      { id: 'w_gold_50k',   icon: '💰', name: 'Treasury',        desc: 'Earn 50,000 gold this week',        metric: 'totalGold',        target: 50000, reward: { starPieces: 14, feathers: 10 } },
-      { id: 'w_starfall_8', icon: '🌌', name: 'Meteor Season',   desc: 'Use Starfall 8 times this week',    metric: 'starfallsUsed',    target: 8,     reward: { gold: 9000, maxHammers: 3 }, need: 'starfall' },
-      { id: 'w_silver_120', icon: '🪨', name: 'Silver Rush',     desc: 'Break 120 silver eggs this week',   metric: 'silverSmashed',    target: 120,   reward: { gold: 6500, feathers: 15 } },
-      { id: 'w_rounds_150', icon: '🧹', name: 'Spotless',        desc: 'Clear 150 rounds this week',        metric: 'roundClears',      target: 150,   reward: { gold: 7500, hammers: 40 } },
-      { id: 'w_quests_12',  icon: '📜', name: 'Errand Week',     desc: 'Complete 12 daily quests this week',metric: 'dailyQuestsCompleted', target: 12,    reward: { gold: 8000, starPieces: 10 } },
+      { id: 'w_stages_2',   icon: '🏔️', name: 'Summit Push',     desc: 'Complete 3 stages this week',       metric: 'stagesCompleted',  target: 3,     reward: { gold: 8000, maxHammers: 5 } },
+      { id: 'w_items_15',   icon: '🏺', name: 'Grand Tour',      desc: 'Find 25 new items this week',       metric: 'totalItems',       target: 25,    reward: { gold: 6000, feathers: 20 } },
+      { id: 'w_eggs_1000',  icon: '🌋', name: 'Thousand Cracks', desc: 'Break 1,800 eggs this week',        metric: 'totalEggs',        target: 1800,  reward: { gold: 7000, maxHammers: 5 } },
+      { id: 'w_gold_50k',   icon: '💰', name: 'Treasury',        desc: 'Earn 80,000 gold this week',        metric: 'totalGold',        target: 80000, reward: { starPieces: 14, feathers: 10 } },
+      { id: 'w_starfall_8', icon: '🌌', name: 'Meteor Season',   desc: 'Use Starfall 12 times this week',   metric: 'starfallsUsed',    target: 12,     reward: { gold: 9000, maxHammers: 3 }, need: 'starfall' },
+      { id: 'w_silver_120', icon: '🪨', name: 'Silver Rush',     desc: 'Break 200 silver eggs this week',   metric: 'silverSmashed',    target: 200,   reward: { gold: 6500, feathers: 15 } },
+      { id: 'w_rounds_150', icon: '🧹', name: 'Spotless',        desc: 'Clear 250 rounds this week',        metric: 'roundClears',      target: 250,   reward: { gold: 7500, hammers: 40 } },
+      { id: 'w_quests_12',  icon: '📜', name: 'Errand Week',     desc: 'Complete 20 daily quests this week',metric: 'dailyQuestsCompleted', target: 20,    reward: { gold: 8000, starPieces: 10 } },
     ],
   },
 

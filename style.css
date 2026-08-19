@@ -266,11 +266,21 @@ body{
 }
 .nav-tab[data-tab="premium"].active{color:var(--dark)}
 /* Daily reward available — faint gold pulse */
+/* "Something to claim" on Daily / Quests: a small gold dot in the tab's top-right
+   corner (with a soft pulse), instead of glowing the whole button. The tab's
+   text stays its normal colour so the nav doesn't fight the Play button. */
+.nav-tab{position:relative}
+.nav-tab.daily-ready::after,
+.nav-tab.quest-ready::after{
+  content:'';position:absolute;top:3px;right:4px;width:7px;height:7px;border-radius:50%;
+  background:var(--gold);border:1px solid var(--dark);box-shadow:0 0 0 0 rgba(245,197,66,.7);
+  animation:pip-pulse 2s ease-out infinite;
+}
+.nav-tab.daily-ready.active::after,
+.nav-tab.quest-ready.active::after{background:var(--dark);border-color:var(--gold);animation:none;box-shadow:none}
+@keyframes pip-pulse{0%{box-shadow:0 0 0 0 rgba(245,197,66,.7)}70%{box-shadow:0 0 0 5px rgba(245,197,66,0)}100%{box-shadow:0 0 0 0 rgba(245,197,66,0)}}
+/* keep the old name alive — the quest Claim button still uses it */
 @keyframes daily-pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,197,66,.0)}50%{box-shadow:0 0 6px 2px rgba(245,197,66,.45)}}
-.nav-tab.daily-ready{animation:daily-pulse 2s ease-in-out infinite;color:var(--gold)}
-.nav-tab.daily-ready.active{animation:none;color:var(--dark)}
-.nav-tab.quest-ready{animation:daily-pulse 2s ease-in-out infinite;color:var(--gold)}
-.nav-tab.quest-ready.active{animation:none;color:var(--dark)}
 @keyframes shop-nudge{
   0%,100%{background:transparent;color:inherit}
   50%{background:var(--gold3);color:#000}

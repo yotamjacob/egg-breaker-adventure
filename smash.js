@@ -68,13 +68,14 @@ function newRound() {
       if (mrStage >= 1 && Math.random() < 0.05 && type !== 'century') effects.push('runny');  // Stage 2
       if (mrStage >= 2 && Math.random() < 0.05 && ['normal','silver','gold','crystal'].includes(type)) effects.push('timer'); // Stage 3
       // Teleport (Stage 5): silver & gold only — each hit warps it across the
-      // tray, and it pays 4x when it finally breaks. Never with a timer (you
-      // cannot chase a clock) — see CONFIG.teleportEgg.
-      if (mrStage >= CONFIG.teleportEgg.unlockStage && !effects.includes('timer')
+      // tray, and it pays 4x when it finally breaks. EXCLUSIVE — never stacked
+      // with runny / timer (rolled above) or hex (rolled below, which skips
+      // teleporters) — see CONFIG.teleportEgg (v3.10.3).
+      if (effects.length === 0 && mrStage >= CONFIG.teleportEgg.unlockStage
           && CONFIG.teleportEgg.types.indexOf(type) !== -1
           && Math.random() < CONFIG.teleportEgg.chance) effects.push('teleport');
       const hexChance = mrStage >= 3 ? Math.min(0.015, 0.006 + (mrStage - 3) * 0.0015) : 0;  // 0.6%→0.75%→0.9%→1.05%→1.2%→1.35%→1.5%
-      if (hexChance > 0 && Math.random() < hexChance && type !== 'ruby' && type !== 'black' && type !== 'crystal' && type !== 'century' && !G['owned_cleanse']) effects.push('hex');
+      if (hexChance > 0 && Math.random() < hexChance && !effects.includes('teleport') && type !== 'ruby' && type !== 'black' && type !== 'crystal' && type !== 'century' && !G['owned_cleanse']) effects.push('hex');
     }
     eggs.push({ type, hp, maxHp: hp, broken: false, effects, timer: effects.includes('timer') ? 3.0 : 0 });
     // Discover new egg type

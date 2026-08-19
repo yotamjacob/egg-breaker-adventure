@@ -485,14 +485,19 @@
 /* The whole egg unit summons together: shell, its name/taps label, the timer
    chip and the balloon string+knot — otherwise the label and tail pop in
    instantly while the egg is still scaling up. */
-.egg-slot.spawning > svg,
-.egg-slot.spawning > .balloon-rope{
+/* The pop is keyed to the .spawn-burst SIBLING that renderEggTray inserts
+   first: any later innerHTML rebuild of the slot (hit, break, rage, balloon
+   pop, starfall) drops the burst, so a rebuilt SVG can never replay the
+   summon even while the `spawning` timer class is still on the slot (v3.10.3
+   — this was the "spawn animation plays again when smashed" bug). */
+.egg-slot.spawning > .spawn-burst ~ svg,
+.egg-slot.spawning > .spawn-burst ~ .balloon-rope{
   animation:egg-summon .48s cubic-bezier(.34,1.56,.64,1) both;
   animation-delay:var(--spawn-delay,0ms);
   transform-origin:50% 88%;
 }
-.egg-slot.spawning > .egg-label,
-.egg-slot.spawning > .egg-timer{
+.egg-slot.spawning > .spawn-burst ~ .egg-label,
+.egg-slot.spawning > .spawn-burst ~ .egg-timer{
   animation:egg-summon-label .46s ease-out both;
   animation-delay:calc(var(--spawn-delay,0ms) + 120ms);
 }
@@ -559,9 +564,9 @@
 }
 @keyframes spawn-beam{0%{transform:scaleY(0) scaleX(.4);opacity:0}30%{transform:scaleY(1) scaleX(1);opacity:1}100%{transform:scaleY(1.15) scaleX(1.6);opacity:0}}
 .egg-slot.spawn-t6 .spawn-burst::before{animation-duration:1.1s;box-shadow:0 0 22px #FFD700,inset 0 0 22px #FFD700}
-.egg-slot.spawn-t6 > svg{animation-duration:.7s}
+.egg-slot.spawn-t6 > .spawn-burst ~ svg{animation-duration:.7s}
 @media (prefers-reduced-motion: reduce){
-  .egg-slot.spawning > svg{animation:none}
+  .egg-slot.spawning > .spawn-burst ~ svg{animation:none}
   .spawn-burst,.spawn-beam{display:none}
 }
 

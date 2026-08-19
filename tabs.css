@@ -229,11 +229,13 @@
 .monkey-btn-active{background:var(--amber);border-color:#c07020;opacity:.85}
 
 /* ---------- Shop tab ---------- */
+/* Label + toggle are centred as a pair; the ? help button floats at the right
+   edge so it does not pull the pair off-centre. */
 .auto-buy-row{
-  display:flex;align-items:center;justify-content:flex-end;gap:6px;
-  margin-bottom:6px;padding-right:8px;
+  position:relative;display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-bottom:6px;min-height:24px;
 }
-.shop-info-btn{flex-shrink:0}
+.shop-info-btn{flex-shrink:0;position:absolute;right:8px;top:50%;transform:translateY(-50%)}
 .auto-buy-label{font-size:10px;color:var(--gray)}
 .auto-buy-toggle{
   border:2px solid var(--gray);border-radius:2px;
