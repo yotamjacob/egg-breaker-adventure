@@ -197,6 +197,9 @@ Users must never lose paid purchases. The system has three layers of protection:
 ## Promotion / growth surfaces
 
 Marketing pages, analytics and the share loop. All organic — no paid ads.
+(The wide-viewport "site strip" identity card with About · Privacy · Terms links beside the
+game column was removed in v3.10.12 at the owner's request; `/about` carries the OAuth
+brand-review requirements, the game root no longer needs visible name/purpose text.)
 
 ### Content pages (SEO)
 `/what-happened-to-egg-breaker`, `/play-egg-breaker-online`, `/egg-breaker-guide`,
