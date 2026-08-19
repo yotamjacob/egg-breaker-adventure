@@ -18,7 +18,7 @@
 //  upgrade path.
 // ============================================================
 
-const SHARE_ORIGIN   = 'https://egg-breaker-adventures.vercel.app/';
+const SHARE_ORIGIN   = 'https://www.eggbreakeradventure.com/';  // owned domain (v3.10.13) — also the Meta-verified ad landing host
 const SHARE_CODE_KEY = '_ebaShareCode';   // own key — must survive resetGame()
 
 // ── Share code ────────────────────────────────────────────────

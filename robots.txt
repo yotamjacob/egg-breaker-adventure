@@ -1,4 +1,4 @@
-# Egg Smash Adventures — https://egg-breaker-adventures.vercel.app/
+# Egg Smash Adventures — https://www.eggbreakeradventure.com/
 User-agent: *
 Allow: /
 
@@ -14,4 +14,4 @@ Disallow: /api/
 # Share links are /?ref=...&st=... — the homepage canonical collapses them,
 # so they need no rule here.
 
-Sitemap: https://egg-breaker-adventures.vercel.app/sitemap.xml
+Sitemap: https://www.eggbreakeradventure.com/sitemap.xml

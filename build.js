@@ -104,7 +104,7 @@ async function build() {
 //  Clean URLs (no .html) — vercel.json sets cleanUrls:true and
 //  308-redirects the .html form, which wastes crawl budget.
 // ============================================================
-const SITE_ORIGIN = 'https://egg-breaker-adventures.vercel.app';
+const SITE_ORIGIN = 'https://www.eggbreakeradventure.com';
 
 // TODO(owner): hreflang. The site is English-only today, so there are no
 // alternate-language URLs to declare and hreflang tags would be invalid.

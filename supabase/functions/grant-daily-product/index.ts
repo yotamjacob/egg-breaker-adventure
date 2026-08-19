@@ -7,6 +7,8 @@ const DAILY_GRANT_PRODUCTS = new Set(['goldmagnet'])
 
 const ALLOWED_ORIGINS = new Set([
   'https://egg-breaker-adventures.vercel.app',
+  'https://www.eggbreakeradventure.com',
+  'https://eggbreakeradventure.com',
   'http://localhost',
   'http://localhost:3000',
   'http://127.0.0.1',
