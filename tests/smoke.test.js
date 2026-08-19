@@ -198,7 +198,12 @@ describe('push', () => {
     assert.equal(body.ok, true, `subscribe-push failed — ${JSON.stringify(body)}`);
   });
 
-  test('send-notifications function completes without error', async () => {
+  // The push function requires x-cron-secret (v3.10.11). CI carries it in the
+  // CRON_SECRET repo secret; locally export CRON_SECRET to run these two.
+  const HAVE_CRON = !!process.env.CRON_SECRET;
+  if (!HAVE_CRON) console.warn('⚠ CRON_SECRET not set — skipping send-notifications tests (the gate itself was verified: unauthenticated calls 401)');
+
+  test('send-notifications function completes without error', { skip: !HAVE_CRON }, async () => {
     // This is the real cron function. It respects the 22-hour dedup window,
     // so calling it here will not send duplicate notifications to real users.
     const r = await GET(`${SB}/functions/v1/send-notifications`, cron());
@@ -208,7 +213,7 @@ describe('push', () => {
     assert.equal(body.ok, true, `send-notifications returned ok:false — ${JSON.stringify(body)}`);
   });
 
-  test('send-notifications: test_device targets CI subscriber and returns logs', async () => {
+  test('send-notifications: test_device targets CI subscriber and returns logs', { skip: !HAVE_CRON }, async () => {
     // Calls the function with test_device= to bypass nighttime/dedup guards and
     // target only the CI subscriber registered above. Verifies the function found
     // the device, processed it, and returned structured debug logs.
