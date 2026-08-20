@@ -193,3 +193,17 @@ test('idle.js has no top-level let/const (boot-time callers would hit the TDZ an
   const offenders = read('idle.js').split('\n').filter(l => /^(let|const)\s/.test(l));
   assert.deepEqual(offenders, []);
 });
+
+test('offline gains are quest-credited: the sim cannot progress dailies or weeklies (v3.11.0)', () => {
+  const w = makeWorld(`
+    var credits = {};
+    function questCredit(metric, amount) { if (amount) credits[metric] = (credits[metric] || 0) + amount; }
+  `);
+  const rep = w.simulateOffline(4 * H);
+  assert.ok(rep.eggs > 0 && w.G.totalGold > 0, 'the sim actually produced something');
+  assert.equal(w.credits.totalEggs, w.G.totalEggs, 'every offline egg is discounted from quest progress');
+  assert.equal(w.credits.totalGold, w.G.totalGold, 'every offline gold is discounted from quest progress');
+  assert.equal(w.credits.roundClears, w.G.roundClears, 'offline round clears are discounted too');
+  assert.equal(w.credits.offlineReports, undefined,
+    'offlineReports is never credited — the "come back to an away report" quest is about this moment');
+});

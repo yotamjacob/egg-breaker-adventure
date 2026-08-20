@@ -241,6 +241,12 @@ function updateAutoBtn() {
  *
  * `deps` (tests only): { rng, rollPrize }.
  */
+// Quest metrics the offline sim can move (see the qBase snapshot inside
+// simulateOffline). `var`, not `const` — TDZ rule, see SHOP_AUTOTAP.
+var _AT_QUEST_METRICS = ['totalEggs', 'silverSmashed', 'goldSmashed', 'crystalSmashed',
+  'totalGold', 'totalStarPieces', 'totalFeathers', 'totalItems', 'roundClears',
+  'collectionsCompleted', 'stagesCompleted'];
+
 function simulateOffline(elapsedSec, deps) {
   deps = deps || {};
   const rng = deps.rng || Math.random;
@@ -274,6 +280,12 @@ function simulateOffline(elapsedSec, deps) {
     gold: 0, stars: 0, feathers: 0, hammers: 0, mults: 0, bananas: 0, maxH: 0,
     items: [], dupes: 0, efficiency: eff, effective: effSec,
   };
+  // Offline gains must not progress quests (v3.11.0): snapshot every counter a
+  // quest can watch, and questCredit() the deltas after the sim. offlineReports
+  // is deliberately NOT here — the "come back to an away report" quest is about
+  // exactly this moment.
+  const qBase = {};
+  _AT_QUEST_METRICS.forEach(m => { qBase[m] = G[m] || 0; });
   // Plain regen for the whole absence first — the smasher never touches the pool.
   if (G.hammers < G.maxH) applyOfflineRegen(elapsedSec);
   G.regenCD = regen;
@@ -305,6 +317,9 @@ function simulateOffline(elapsedSec, deps) {
   G.offlineGold = (G.offlineGold || 0) + sum.gold;
   if (typeof checkCollectionComplete === 'function') checkCollectionComplete(true);
   if (typeof checkAchievements === 'function') checkAchievements();
+  if (typeof questCredit === 'function') {
+    _AT_QUEST_METRICS.forEach(m => questCredit(m, (G[m] || 0) - qBase[m]));
+  }
   return sum;
 }
 
