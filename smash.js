@@ -47,6 +47,12 @@ function newRound() {
   const available = availableEggTypes(si, false);
   const spawnTotal = available.reduce((s, e) => s + e.weight, 0);
   let centuryUsedThisRound = false;
+  // Egg effects unlock progressively through Mr. Monkey stages
+  const mrStage = G.monkeys && G.monkeys[0] ? (G.monkeys[0].stage || 0) : 0;
+  // WARP SURGE — rare round-wide event: every egg (century excepted) spawns as
+  // a teleporter, whatever its type. See CONFIG.teleportEgg.surgeChance.
+  const warpSurge = mrStage >= CONFIG.teleportEgg.unlockStage
+    && Math.random() < (CONFIG.teleportEgg.surgeChance || 0);
   for (let i = 0; i < count; i++) {
     let r = Math.random() * spawnTotal;
     let type = 'normal';
@@ -59,10 +65,11 @@ function newRound() {
       else centuryUsedThisRound = true;
     }
     let hp = EGG_HP[type];
-    // Egg effects unlock progressively through Mr. Monkey stages
-    const mrStage = G.monkeys && G.monkeys[0] ? (G.monkeys[0].stage || 0) : 0;
     let effects = [];
-    if (mrStage >= 5 && Math.random() < 0.015) {
+    if (warpSurge && type !== 'century') {
+      // Exclusive, like every teleporter — no runny/timer/hex/balloon on top
+      effects.push('teleport'); hp = CONFIG.teleportEgg.hp || hp;
+    } else if (mrStage >= 5 && Math.random() < 0.015) {
       effects = ['balloon'];  // exclusive — no other effects (unlocks Stage 6)
     } else {
       if (mrStage >= 1 && Math.random() < 0.05 && type !== 'century') effects.push('runny');  // Stage 2
@@ -89,6 +96,13 @@ function newRound() {
     }
   }
   G.roundEggs = eggs;
+  if (warpSurge) {
+    G.warpSurges = (G.warpSurges || 0) + 1;
+    msg('🌀 WARP SURGE! Every egg is a teleporter!', 'specials');
+    SFX.play('starfall');
+    spawnFloat($id('prize-zone'), '🌀 WARP SURGE!', '#7de8ff', 'mega');
+    if (typeof checkAchievements === 'function') checkAchievements();
+  }
   // Start cooldown if a century egg was rolled this round
   if (eggs.some(e => e.type === 'century')) _centuryCooldown = 100;
   _spawnFxPending = true;   // renderEggTray plays the summon effect for this render only

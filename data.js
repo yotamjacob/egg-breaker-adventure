@@ -704,6 +704,7 @@ const ACHIEVEMENT_DATA = [
   // -- Teleport eggs --
   { id:'tele_1',        name:'Gotcha!',               desc:'Catch a teleporting egg',            icon:'✨', reward:{type:'gold',val:800,      label:'+800 gold'} },
   { id:'tele_25',       name:'Warp Hunter',           desc:'Catch 25 teleporting eggs',          icon:'🌀', reward:{type:'maxH',val:4,        label:'+4 max hammers'} },
+  { id:'warp_surge',    name:'Warp Storm',            desc:'Witness a Warp Surge — a round where every egg teleports', icon:'🌪️', reward:{type:'gold',val:2500, label:'+2,500 gold'} },
   // -- Hammer mastery (mastery.js) --
   { id:'hammer_l5',     name:'Apprentice Smith',      desc:'Train any hammer to Lv 5',           icon:'⚒️', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
   { id:'hammer_l10',    name:'Master Smith',          desc:'Train any hammer to Lv 10',          icon:'🔥', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },

@@ -169,6 +169,7 @@ function checkAchievements() {
     // Teleport eggs
     tele_1:   () => (G.teleportsCaught || 0) >= 1,
     tele_25:  () => (G.teleportsCaught || 0) >= 25,
+    warp_surge: () => (G.warpSurges || 0) >= 1,
     // Hammer mastery
     hammer_l5:    () => typeof hammerMasteryStats === 'function' && hammerMasteryStats().best >= 5,
     hammer_l10:   () => typeof hammerMasteryStats === 'function' && hammerMasteryStats().best >= 10,

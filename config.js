@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.11.0';
+const VERSION = '3.11.1';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -299,6 +299,11 @@ const CONFIG = {
     types:       ['silver', 'gold'],
     hp:          4,                 // taps to break (overrides the type's HP) — enough warps to enjoy the chase
     rewardMult:  4,                 // prize still rolls from the egg's own type (silver/gold)
+    // WARP SURGE (v3.11.1): rare per-round event — EVERY spawned egg (century
+    // excepted) becomes a teleporter, whatever its type. Rolled once per
+    // newRound() after teleporters are unlocked; never offline (the sim spawns
+    // plain eggs). Counted in G.warpSurges → 'warp_surge' achievement.
+    surgeChance: 0.004,             // ~1 round in 250
   },
 
   // ----------------------------------------------------------
