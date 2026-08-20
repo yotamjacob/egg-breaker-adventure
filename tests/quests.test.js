@@ -123,10 +123,15 @@ test('impossible quests are never offered: album fully collected → no item/col
 
 test('non-gameplay gains do not progress quests (items bought, trophy/daily/quest rewards)', () => {
   const w = world();
-  // Force known quests: items, star pieces, gold
+  // Force ALL five slots — the natural pick is date-deterministic, and on days it
+  // includes a totalItems quest in slots 3-4 the final gameplay bump would complete
+  // two quests (CI failed exactly this way on 2026-08-20). Slots 3-4 get metrics
+  // this test never touches.
   w.G.quests.daily[0] = { id: 'items_5',   base: w.questMetric('totalItems'),      claimed: false };
   w.G.quests.daily[1] = { id: 'stars_10',  base: w.questMetric('totalStarPieces'), claimed: false };
   w.G.quests.daily[2] = { id: 'gold_5000', base: w.questMetric('totalGold'),       claimed: false };
+  w.G.quests.daily[3] = { id: 'eggs_60',   base: w.questMetric('totalEggs'),       claimed: false };
+  w.G.quests.daily[4] = { id: 'rounds_12', base: w.questMetric('roundClears'),     claimed: false };
   // Album item bought with feathers (shop.js) — counter goes up, quest must not
   w.G.totalItems += 5;  w.questCredit('totalItems', 5);
   // Trophy reward (achievements.js) / daily login (game.js)
