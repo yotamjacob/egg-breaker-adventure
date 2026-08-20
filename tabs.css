@@ -291,12 +291,15 @@
 .shop-card.locked{opacity:.55;cursor:not-allowed;filter:grayscale(.4)}
 .shop-card.can-afford{border-color:rgba(46,204,113,.45)}
 /* Affordable & unowned: the same "something for you" gold pip the Daily /
-   Quests nav tabs use (style.css .daily-ready::after, shared pip-pulse). */
+   Quests nav tabs use (style.css .daily-ready::after, shared pip-pulse).
+   NOT on the Supplies tab (#shop-consumables) — consumables are always
+   rebuyable, so the pip would sit there permanently and mean nothing. */
 .shop-card.can-afford::after{
   content:'';position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;
   background:var(--gold);border:1px solid var(--dark);box-shadow:0 0 0 0 rgba(245,197,66,.7);
   animation:pip-pulse 2s ease-out infinite;
 }
+#shop-consumables .shop-card.can-afford::after{display:none}
 .shop-card.equipped{border-color:var(--gold);box-shadow:0 0 8px rgba(245,197,66,.3),3px 3px 0 var(--dark)}
 .shop-card .s-emoji{font-size:24px}
 .shop-card .s-hammer{display:flex;width:22px;height:50px;margin:1px auto;align-items:center;justify-content:center;overflow:hidden}
