@@ -239,21 +239,21 @@
    border pulse + gold dust carry the motion instead (v3.10.4 perf). */
 .goose-tray-active .egg-slot{filter:drop-shadow(0 0 9px rgba(255,215,20,.7))}
 
-/* Banana Shake — long funny wiggle */
-.egg-tray-wrap.shake-tray-wiggle{animation:shake-wiggle 1.1s ease-in-out}
-@keyframes shake-wiggle{
-  0%  {transform:translateX(0)}
-  6%  {transform:translateX(-7px) rotate(-1.5deg)}
-  14% {transform:translateX(7px)  rotate(1.5deg)}
-  22% {transform:translateX(-6px) rotate(-1deg)}
-  30% {transform:translateX(6px)  rotate(1deg)}
-  40% {transform:translateX(-5px) rotate(-.8deg)}
-  50% {transform:translateX(5px)  rotate(.8deg)}
-  60% {transform:translateX(-3px) rotate(-.5deg)}
-  70% {transform:translateX(3px)  rotate(.5deg)}
-  80% {transform:translateX(-2px)}
-  90% {transform:translateX(2px)}
-  100%{transform:translateX(0)}
+/* Banana Shake — soft golden bloom over the tray. Deliberately NO transform on
+   the tray (the old ±7px translate/rotate wiggle read as the screen breaking,
+   v3.11.4): a radial gold glow fades in and out on an overlay while the
+   confetti bursts carry the celebration. Overlay only — never animate the
+   wrap's own box-shadow (it holds the tray's inset bevel). */
+.egg-tray-wrap.shake-tray-glow::after{
+  content:'';position:absolute;inset:0;z-index:8;pointer-events:none;border-radius:2px;
+  background:radial-gradient(circle at 50% 45%, rgba(245,197,66,.30), rgba(245,197,66,.10) 55%, transparent 75%);
+  animation:shake-glow-fade 1.25s ease-out forwards;
+}
+@keyframes shake-glow-fade{
+  0%  {opacity:0}
+  18% {opacity:1}
+  60% {opacity:.7}
+  100%{opacity:0}
 }
 
 /* Egg tray — taps handled by document-level touchstart, not z-index */

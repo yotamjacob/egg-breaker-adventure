@@ -975,7 +975,7 @@ function activateBananaShake() {
     if (_bb) { _bb.classList.add('skill-glow-blue'); setTimeout(() => _bb.classList.remove('skill-glow-blue'), 1600); }
     const _tw = $id('egg-tray-wrap');
     if (_tw) {
-      _tw.classList.add('shake-tray-wiggle'); setTimeout(() => _tw.classList.remove('shake-tray-wiggle'), 1100);
+      _tw.classList.add('shake-tray-glow'); setTimeout(() => _tw.classList.remove('shake-tray-glow'), 1300);
       const _r = _tw.getBoundingClientRect();
       Particles.confetti(_r.width / 2, _r.height * .45, null, 60);
       setTimeout(() => Particles.confetti(_r.width * .3, _r.height * .55, null, 22), 180);
