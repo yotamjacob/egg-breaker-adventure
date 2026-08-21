@@ -655,7 +655,6 @@ const ACHIEVEMENT_DATA = [
   { id:'empty_10',     name:'Bad Luck',            desc:'Get 10 empties',                 icon:'💨', reward:{type:'gold',val:50,       label:'+50 gold'} },
   { id:'empty_50',     name:'Consistently Unlucky',desc:'Get 50 empties',                 icon:'🕳️', reward:{type:'gold',val:150,      label:'+150 gold'} },
   { id:'empty_200',    name:'Professional Loser',  desc:'Get 250 empties',                icon:'🤡', reward:{type:'gold',val:500,      label:'+500 gold'} },
-  { id:'empty_500',    name:'Empty Inside',        desc:'Get 500 empties',                icon:'👻', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
   // -- Egg effects --
   { id:'runny_1',      name:'Catch Me!',           desc:'Smash a runny egg',              icon:'🏃', reward:{type:'gold',val:100,      label:'+100 gold'} },
   { id:'runny_25',     name:'Egg Chaser',          desc:'Smash 25 runny eggs',            icon:'💨', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },

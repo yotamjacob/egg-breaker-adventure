@@ -122,7 +122,6 @@ function checkAchievements() {
     empty_10:     () => (G.totalEmpties || 0) >= 10,
     empty_50:     () => (G.totalEmpties || 0) >= 50,
     empty_200:    () => (G.totalEmpties || 0) >= 250,
-    empty_500:    () => (G.totalEmpties || 0) >= 500,
     // Egg effects
     runny_1:      () => (G.runnySmashed || 0) >= 1,
     runny_25:     () => (G.runnySmashed || 0) >= 25,
