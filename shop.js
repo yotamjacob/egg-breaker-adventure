@@ -167,6 +167,9 @@ function doBuyShopItem(category, id) {
     if (id === 'hammers5') { G.hammers = Math.min(G.maxH, G.hammers + 5); G.shopHammers5 = (G.shopHammers5 || 0) + 1; showShopSnack('+5 hammers purchased!'); }
     if (id === 'hammers20') { G.hammers = Math.min(G.maxH, G.hammers + 20); G.shopHammers20 = (G.shopHammers20 || 0) + 1; showShopSnack('+20 hammers purchased!'); }
     if (id === 'star1') { G.starPieces++; G.totalStarPieces++; if (typeof questCredit === 'function') questCredit('totalStarPieces', 1); updateStarBtn(); showShopSnack('+1 star piece purchased!'); }
+    // questCredit: bought feathers must not progress "collect feathers" quests.
+    // G.feathersBought is album-items-bought (achievement metric) — not this.
+    if (id === 'feather1') { G.feathers++; G.totalFeathers++; if (typeof questCredit === 'function') questCredit('totalFeathers', 1); G.shopFeather1 = (G.shopFeather1 || 0) + 1; showShopSnack('+1 feather purchased!'); }
     if (id === 'mult5') { if (G.multQueue.length < 50) { G.multQueue.push(5); G.shopMult5 = (G.shopMult5 || 0) + 1; } renderMultQueue(); showShopSnack('x5 multiplier purchased!'); }
     if (id === 'fastregen') { G.fastRegen = true; showShopSnack('Fast Regen unlocked!'); }
     if (id === 'spyglass') { G['owned_spyglass'] = true; renderEggTray(); showShopSnack('Spyglass unlocked!'); }

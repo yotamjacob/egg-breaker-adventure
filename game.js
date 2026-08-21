@@ -563,8 +563,12 @@ function curStage() { return curMonkey().stages[curActiveStage()]; }
 
 // ==================== STARFALL ====================
 function starfallCost() {
-  let c = G['owned_starsaver'] ? CONFIG.starPiecesForStarfall - 1 : CONFIG.starPiecesForStarfall;
-  if (typeof hammerPerk === 'function' && hammerPerk('mjolnir')) c = Math.min(c, 5);   // Thunderclap
+  // Two independent, stacking −1s (v3.11.14 — Thunderclap was a hard floor of
+  // 5 before, which made Star Saver worthless alongside it and made both
+  // descriptions lie): base 7, Star Saver −1, Mjǫllnir L10 −1, both → 5.
+  let c = CONFIG.starPiecesForStarfall;
+  if (G['owned_starsaver']) c -= 1;                                        // Star Saver
+  if (typeof hammerPerk === 'function' && hammerPerk('mjolnir')) c -= 1;   // Thunderclap
   return c;
 }
 

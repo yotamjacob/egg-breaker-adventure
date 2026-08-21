@@ -96,7 +96,7 @@ function hammerPerkShort(id) {
     golden:    '5% gold jackpot ×5',
     rainbow:   'Dupes pay 2× gold',
     cucumber:  'Triple hits',
-    mjolnir:   'Starfall costs 5',
+    mjolnir:   'Starfall costs 1 less star',
     gavel:     'Verdict refunds hit',
   })[id] || '';
 }
@@ -109,7 +109,7 @@ function hammerPerkDesc(id) {
     golden:    'Jackpot: 5% of gold prizes pay ×5',
     rainbow:   'Refraction: duplicates pay double gold',
     cucumber:  'Salad days: double hits may triple',
-    mjolnir:   'Thunderclap: Starfall costs 5 stars',
+    mjolnir:   'Thunderclap: Starfall costs 1 less star piece',
     gavel:     'Appeal: verdicts refund the hammer',
   })[id] || '';
 }

@@ -544,6 +544,7 @@ const SHOP_SUPPLIES = [
   { id: 'hammers20',  name: '+20 Hammers',      emoji: '🔨', cost: 2000,   currency: 'gold', type: 'consumable' },
   { id: 'star1',      name: 'Star Piece',       emoji: '⭐', cost: 3000,   currency: 'gold', type: 'consumable' },
   { id: 'mult5',      name: 'x5 Multiplier',    emoji: '✖️', cost: 5000,   currency: 'gold', type: 'consumable' },
+  { id: 'feather1',   name: 'Feather',          emoji: '🪶', cost: 8000,   currency: 'gold', type: 'consumable' },
   { id: 'spyglass',   name: 'Spyglass',         emoji: '🔍', desc: 'Reveal egg names & HP', cost: 5000, currency: 'gold', type: 'upgrade', unique: true },
   { id: 'fastregen',  name: 'Fast Regen',       emoji: '⚡', desc: 'Hammers regen 1.5x faster', cost: 25000, currency: 'gold', type: 'upgrade', unique: true },
   { id: 'cleanse',    name: 'Cleanse',          emoji: '🌿', desc: 'Hex immunity',               cost: 150000, currency: 'gold', type: 'upgrade', unique: true },
