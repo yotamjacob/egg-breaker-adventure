@@ -22,6 +22,48 @@ document.addEventListener('click', e => {
   if (b) setShopTab(b.dataset.shop);
 });
 
+// ---- Long-press multi-buy (repeatable consumables only) ----
+// Hold a consumable card to buy it repeatedly, accelerating while held.
+// Delegated on document because doBuyShopItem() → renderShop() rebuilds the
+// grid after every purchase, destroying the pressed card mid-hold — the hold
+// is tracked by item id, never by element. `var` for the boot TDZ rule.
+var _mbTimer = null, _mbBought = false;
+function _mbStop() { if (_mbTimer) { clearTimeout(_mbTimer); _mbTimer = null; } }
+function _mbTick(id, interval) {
+  const before = G.purchases || 0;
+  doBuyShopItem('supply', id);
+  // No purchase counted = blocked (broke / hammers full / queue full). The
+  // normal alert/snack for that already fired once — stop instead of spamming.
+  if ((G.purchases || 0) === before) { _mbStop(); return; }
+  _mbBought = true;
+  const next = Math.max(120, interval * 0.85);
+  _mbTimer = setTimeout(function() { _mbTick(id, next); }, next);
+}
+document.addEventListener('pointerdown', function(e) {
+  // Always clear the stale suppress flag: when the hold's release lands on a
+  // rebuilt grid no click ever fires, and a leftover true would eat the next
+  // genuine tap.
+  _mbBought = false;
+  if (e.button !== 0) return;
+  const card = e.target.closest('#shop-consumables .shop-card');
+  if (!card || !card.dataset.id) return;
+  const s = SHOP_SUPPLIES.find(function(x) { return x.id === card.dataset.id; });
+  if (!s || s.unique) return;
+  _mbStop();
+  // 450ms before the first repeat: a tap still buys once via the card's
+  // click handler, and a scroll flick never triggers a purchase.
+  _mbTimer = setTimeout(function() { _mbTick(s.id, 300); }, 450);
+});
+document.addEventListener('pointerup', _mbStop);
+document.addEventListener('pointercancel', _mbStop);
+// Releasing a hold that already bought must not buy once more via the click
+// the release synthesizes (capture phase — the card's own listener never runs).
+document.addEventListener('click', function(e) {
+  if (_mbBought && e.target.closest('#shop-consumables')) {
+    e.stopPropagation(); e.preventDefault(); _mbBought = false;
+  }
+}, true);
+
 function buyShopItem(category, id) {
   // Confirmation for non-consumable items when auto-buy is off
   const isConsumable = category === 'supply' && !SHOP_SUPPLIES.find(s => s.id === id)?.unique;
