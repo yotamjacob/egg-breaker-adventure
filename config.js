@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.11.8';
+const VERSION = '3.11.9';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -70,7 +70,7 @@ const CONFIG = {
     },
     {
       id: 'black', name: 'Black', emoji: '🖤',
-      hp: 20, spawnWeight: 0.7, unlockStage: 8,
+      hp: 20, spawnWeight: 0.85, unlockStage: 8,
       goldMult: 10, featherMult: 5, starPieces: 7,
       colors: { f:'#1a1a1a', s:'#000000', h:'#3a3a3a', sh:'#0a0a0a' },
       particles: ['#333333','#1a1a1a','#0d0d0d','#000000'],
