@@ -638,7 +638,11 @@ function _doStarfall(message, cat) {
   const wRect = wrap.getBoundingClientRect();
   Particles.starRain(wRect.width, wRect.height, 1000, 100);
 
-  // Break all unbroken eggs in sequence — century eggs are immune
+  // Break all unbroken eggs in sequence — century eggs are immune.
+  // roundRef pins the round the starfall started on: a tap or the Auto-Smasher
+  // can break the last egg mid-rain and advance the round, and the staggered
+  // timeouts below must never touch the next round's eggs.
+  const roundRef = G.roundEggs;
   const unbroken = [];
   let immuneCount = 0;
   G.roundEggs.forEach((e, i) => {
@@ -649,8 +653,10 @@ function _doStarfall(message, cat) {
 
   unbroken.forEach((idx, i) => {
     setTimeout(() => {
+      if (G.roundEggs !== roundRef) return;           // round already advanced
+      const egg = roundRef[idx];
+      if (!egg || egg.broken || egg.expired) return;  // broken/expired meanwhile
       // Starfall instantly breaks egg regardless of HP
-      const egg = G.roundEggs[idx];
       egg.hp = 0;
       egg.broken = true;
       G.totalEggs++;
@@ -694,7 +700,12 @@ function _doStarfall(message, cat) {
     checkAchievements();
     // Only advance to the next round if every egg is gone.
     // Century eggs are immune to starfall and must be smashed manually.
-    if (!G.roundEggs || G.roundEggs.every(e => e.broken || e.expired)) {
+    // _roundPending guard: if a tap/Auto-Smasher/timer-expiry already scheduled
+    // newRound for this clear, scheduling a second one here spawned a round
+    // that instantly vanished into another round.
+    const sameRound = G.roundEggs === roundRef;
+    if ((!G.roundEggs || (sameRound && G.roundEggs.every(e => e.broken || e.expired))) && !_roundPending) {
+      _roundPending = true;
       G.roundClears++;
       setTimeout(() => newRound(), 600);
     }

@@ -717,11 +717,12 @@ function smashEgg(index) {
   if (hasBonus('doubleHit') && Math.random() < 0.05 + hammerBoost('cucumber', 'doubleHit') && egg.hp > 0) {
     egg.hp -= 1;
     spawnFloat($id('prize-zone'), '🥒 Double hit!', '#4ade80', 'big', cx, cy - 30);
-    msg('🥒 Cucumbah! Double hit!', 'cucumber');
     if (hammerPerk('cucumber') && egg.hp > 0 && Math.random() < 0.5) {
       egg.hp -= 1;
       spawnFloat($id('prize-zone'), '🥒🥒 Triple!', '#4ade80', 'mega', cx, cy - 50);
       msg('🥒 Salad days! Triple hit!', 'cucumber');
+    } else {
+      msg('🥒 Cucumbah! Double hit!', 'cucumber');
     }
   }
 

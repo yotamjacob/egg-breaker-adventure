@@ -149,6 +149,7 @@ function _autoTapTick() {
     if (!st.unlocked || !st.on) { stopAutoTap(); return; }
     if (document.hidden) return;
     if (typeof _rageActive !== 'undefined' && _rageActive) return;
+    if (typeof _starfallActive !== 'undefined' && _starfallActive) return;
     if (_spawningRound || _roundPending) return;
     if (G.hammers < 1 || !G.roundEggs) return;
     if (!$id('egg-tray').children.length) return;   // tray not rendered (play panel collapsed) — wait
