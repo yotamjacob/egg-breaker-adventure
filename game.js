@@ -860,6 +860,10 @@ function _doRageBatch() {
           egg.hp = 0;
           egg.broken = true;
           G.totalEggs++;
+          // Rage breaks must count like any other break — this counter feeds
+          // the black/crystal/ruby trophies and "break X <type> eggs" quests;
+          // rage was silently skipping it (v3.11.17 fix)
+          if (egg.type !== 'normal') G[egg.type + 'Smashed'] = (G[egg.type + 'Smashed'] || 0) + 1;
           const prize = rollPrize(egg.type);
           applyPrize(prize, cx, cy);
           slot.classList.add('broken');

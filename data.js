@@ -654,7 +654,7 @@ const ACHIEVEMENT_DATA = [
   // -- Empties --
   { id:'empty_10',     name:'Bad Luck',            desc:'Get 10 empties',                 icon:'💨', reward:{type:'gold',val:50,       label:'+50 gold'} },
   { id:'empty_50',     name:'Consistently Unlucky',desc:'Get 50 empties',                 icon:'🕳️', reward:{type:'gold',val:150,      label:'+150 gold'} },
-  { id:'empty_200',    name:'Professional Loser',  desc:'Get 200 empties',                icon:'🤡', reward:{type:'gold',val:500,      label:'+500 gold'} },
+  { id:'empty_200',    name:'Professional Loser',  desc:'Get 250 empties',                icon:'🤡', reward:{type:'gold',val:500,      label:'+500 gold'} },
   { id:'empty_500',    name:'Empty Inside',        desc:'Get 500 empties',                icon:'👻', reward:{type:'maxH',val:3,        label:'+3 max hammers'} },
   // -- Egg effects --
   { id:'runny_1',      name:'Catch Me!',           desc:'Smash a runny egg',              icon:'🏃', reward:{type:'gold',val:100,      label:'+100 gold'} },
@@ -711,8 +711,8 @@ const ACHIEVEMENT_DATA = [
   { id:'hammer_l10',    name:'Master Smith',          desc:'Train any hammer to Lv 10',          icon:'🔥', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
   { id:'hammer_all10',  name:'Grand Forge',           desc:'Train every hammer to Lv 10',        icon:'🏭', reward:{type:'itemPct',val:10,    label:'+10% item drops'} },
   // -- Quests (quests.js) --
-  { id:'quest_5',       name:'Errand Runner',         desc:'Complete 5 quests',                  icon:'📜', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
-  { id:'quest_25',      name:'Quest Hound',           desc:'Complete 25 quests',                 icon:'🗺️', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  { id:'quest_5',       name:'Errand Runner',         desc:'Complete 15 quests',                 icon:'📜', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
+  { id:'quest_25',      name:'Quest Hound',           desc:'Complete 50 quests',                 icon:'🗺️', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'quest_100',     name:'Legend of the Ledger',  desc:'Complete 100 quests',                icon:'📚', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
 ];
 

@@ -121,7 +121,7 @@ function checkAchievements() {
     // Empties
     empty_10:     () => (G.totalEmpties || 0) >= 10,
     empty_50:     () => (G.totalEmpties || 0) >= 50,
-    empty_200:    () => (G.totalEmpties || 0) >= 200,
+    empty_200:    () => (G.totalEmpties || 0) >= 250,
     empty_500:    () => (G.totalEmpties || 0) >= 500,
     // Egg effects
     runny_1:      () => (G.runnySmashed || 0) >= 1,
@@ -175,8 +175,8 @@ function checkAchievements() {
     hammer_l10:   () => typeof hammerMasteryStats === 'function' && hammerMasteryStats().best >= 10,
     hammer_all10: () => { if (typeof hammerMasteryStats !== 'function') return false; const s = hammerMasteryStats(); return s.total > 0 && s.maxed >= s.total; },
     // Quests
-    quest_5:    () => (G.questsCompleted || 0) >= 5,
-    quest_25:   () => (G.questsCompleted || 0) >= 25,
+    quest_5:    () => (G.questsCompleted || 0) >= 15,
+    quest_25:   () => (G.questsCompleted || 0) >= 50,
     quest_100:  () => (G.questsCompleted || 0) >= 100,
     // Secrets
     secret_speed:    () => G._secretSpeed,

@@ -142,6 +142,7 @@ function _autoTapCountdown() {
   const s = Math.max(0, Math.ceil((_autoTapNextAt - Date.now()) / 1000));
   el.textContent = s + 's';
 }
+var _atStuckSince = 0;   // watchdog: when the tick first saw an un-tappable round
 function _autoTapTick() {
   _autoTapNextAt = Date.now() + autoTapSecPerTap() * 1000;
   try {
@@ -150,9 +151,29 @@ function _autoTapTick() {
     if (document.hidden) return;
     if (typeof _rageActive !== 'undefined' && _rageActive) return;
     if (typeof _starfallActive !== 'undefined' && _starfallActive) return;
-    if (_spawningRound || _roundPending) return;
     if (G.hammers < 1 || !G.roundEggs) return;
-    if (!$id('egg-tray').children.length) return;   // tray not rendered (play panel collapsed) — wait
+    if (!$id('egg-tray').children.length) {
+      // A long background suspension can leave the play panel live with an
+      // emptied tray and no tab-switch coming to rebuild it — the smasher then
+      // looked ON while doing nothing forever. Rebuild instead of waiting
+      // (renderEggTray() self-defers when the panel is genuinely collapsed).
+      renderEggTray();
+      return;
+    }
+    // Watchdog for a stranded round transition: a normal one resolves in
+    // <1s (newRound fires 600ms after the clear), so a round still pending
+    // or fully broken after 5s means the timer was lost to the suspension.
+    // Reset the flags and respawn — the same recovery a reload would do.
+    if (_spawningRound || _roundPending || G.roundEggs.every(e => e.broken || e.expired)) {
+      if (!_atStuckSince) { _atStuckSince = Date.now(); return; }
+      if (Date.now() - _atStuckSince < 5000) return;
+      _atStuckSince = 0;
+      _roundPending = false;
+      _spawningRound = false;
+      newRound();
+      return;
+    }
+    _atStuckSince = 0;
     // Skips Century eggs — the 100-hit jackpot is left for the player, online
     // and offline alike. Balloon eggs are popped outright (one hit, v3.10.0)
     // instead of the long-press a finger needs.

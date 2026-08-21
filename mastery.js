@@ -96,7 +96,7 @@ function hammerPerkShort(id) {
     golden:    '5% gold jackpot ×5',
     rainbow:   'Dupes pay 2× gold',
     cucumber:  'Triple hits',
-    mjolnir:   'Starfall costs 1 less star',
+    mjolnir:   'Starfall −1 star cost',
     gavel:     'Verdict refunds hit',
   })[id] || '';
 }

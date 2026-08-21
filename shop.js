@@ -83,17 +83,25 @@ document.addEventListener('click', function(e) {
 function buySupplyQty(id, qty) {
   const item = SHOP_SUPPLIES.find(function(s) { return s.id === id; });
   if (!item || item.unique) return;
-  const cap = qty === 'max' ? 50 : qty; // MAX: bounded per click — click again for more
+  // MAX = genuinely max buyable: loop until the first blocked purchase (gold,
+  // hammer room, mult-queue cap all block via doBuyShopItem, so every room
+  // rule stays in one place). 1000 is a runaway backstop, not a gameplay cap.
+  const cap = qty === 'max' ? 1000 : qty;
   // The loop is synchronous (no paint between iterations), so per-buy
-  // sounds/saves/snacks are pure waste and N overlapping 'buy' sounds crackle.
-  // Silence them for the loop, then emit ONE save + sound + summary snack.
+  // sounds/saves/snacks/re-renders are pure waste — N overlapping 'buy'
+  // sounds crackle and N renderShop() calls would make MAX freeze the tab.
+  // Silence them for the loop, then emit ONE save + render + sound + snack.
   // A blocked attempt's alert/snack is captured and only replayed when
   // nothing at all was bought (a partial MAX/x10 fill is success, not an error).
   const origPlay = SFX.play, origSave = saveGame, origAlert = showAlert, origSnack = showShopSnack;
+  const origShop = renderShop, origPrem = renderPremiumShop, origRes = updateResources;
   let bought = 0, heldAlert = null, heldSnack = null;
   try {
     SFX.play = function() {};
     saveGame = function() {};
+    renderShop = function() {};
+    renderPremiumShop = function() {};
+    updateResources = function() {};
     showAlert = function() { heldAlert = arguments; };
     showShopSnack = function() { heldSnack = arguments; };
     while (bought < cap) {
@@ -104,13 +112,23 @@ function buySupplyQty(id, qty) {
     }
   } finally {
     SFX.play = origPlay; saveGame = origSave; showAlert = origAlert; showShopSnack = origSnack;
+    renderShop = origShop; renderPremiumShop = origPrem; updateResources = origRes;
   }
   if (!bought) {
-    if (heldAlert) showAlert.apply(null, heldAlert);
-    else if (heldSnack) showShopSnack.apply(null, heldSnack);
+    // Batch-aware broke message: quote the whole batch price, not one unit's.
+    if (heldAlert && qty !== 'max' && qty > 1 && G.gold < item.cost * qty) {
+      showAlert('🪙', 'Need ' + formatNum(item.cost * qty) + ' gold for ' + qty + '× ' +
+        item.name + '! (have ' + formatNum(G.gold) + ')');
+    } else if (heldAlert) {
+      showAlert.apply(null, heldAlert);
+    } else if (heldSnack) {
+      showShopSnack.apply(null, heldSnack);
+    }
     SFX.play('err');
     return;
   }
+  updateResources();
+  renderShop(); renderPremiumShop();
   saveGame();
   SFX.play('buy');
   showShopSnack(bought > 1 ? bought + '× ' + item.name + ' purchased!'
