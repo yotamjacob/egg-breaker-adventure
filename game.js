@@ -100,10 +100,8 @@ const DEFAULT_STATE = {
   _allMonkeysCongratsSeen: false,
   // Secrets
   _reviewPromptShown: false,
-  _secretOuch: false, _secretChicken: false, _secretStrikes: false,
-  _secretSpeed: false, _secretSweep: false,
-  _secretMidnight: false, _secretChef: false,
-  _midnightToday: null,
+  _secretOuch: false, _secretChicken: false,
+  _secretSpeed: false, _secretSweep: false, _secretChef: false,
   // Cloud save
   _savedAt: 0,
   _cloudSavedAt: 0,
@@ -2072,7 +2070,6 @@ document.addEventListener('mouseup', () => {
 // ==================== EASTER EGGS ====================
 
 let _smashTimes = [];
-let _emptyStreak = 0;
 
 // Hook into applyPrize for easter eggs
 const _origApplyPrize = applyPrize;
@@ -2110,16 +2107,6 @@ applyPrize = function(prize, cx, cy) {
     setTimeout(() => { if (chicken.parentNode) chicken.remove(); }, 2500);
   }
 
-  // empty streak tracking
-  if (prize.type === 'empty') {
-    _emptyStreak++;
-    if (_emptyStreak >= 3) {
-      G._secretStrikes = true; checkAchievements(); saveGame();
-    }
-  } else {
-    _emptyStreak = 0;
-  }
-
   // Speed Demon: 5 eggs in under 5 seconds
   _smashTimes.push(Date.now());
   if (_smashTimes.length > 5) _smashTimes.shift();
@@ -2129,18 +2116,6 @@ applyPrize = function(prize, cx, cy) {
 
   // Call original
   _origApplyPrize(prize, cx, cy);
-
-  // midnight bonus
-  const hour = new Date().getHours();
-  if (hour === 0 && !G._midnightToday) {
-    G._midnightToday = new Date().toISOString().slice(0, 10);
-    G.starPieces = (G.starPieces || 0) + 1;
-    G.totalStarPieces = (G.totalStarPieces || 0) + 1;
-    spawnFloat(zone, '🌙 Night owl! +1 star piece', '#c084fc', 'big', cx, cy - 40);
-    msg('🌙 Night owl! The eggs were sleeping...', 'discovery');
-    G._secretMidnight = true; checkAchievements(); saveGame();
-    updateStarBtn();
-  }
 
   // #10: 10000 normal eggs
   if ((G.totalEggs || 0) >= 10000 && !G._secretChef) {

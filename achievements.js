@@ -183,9 +183,7 @@ function checkAchievements() {
     secret_sweep:    () => G._secretSweep,
     secret_ouch:     () => G._secretOuch,
     secret_chicken:  () => G._secretChicken,
-    secret_midnight: () => G._secretMidnight,
     secret_leet:     () => G._secretLeet,
-    secret_strikes:  () => G._secretStrikes,
     secret_chef:     () => G._secretChef,
   };
 
