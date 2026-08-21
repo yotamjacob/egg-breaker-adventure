@@ -3,7 +3,8 @@
 //  mastery.js  (bundled after quests.js, before idle.js)
 //
 //  The EQUIPPED special hammer (G.hammer, not 'default') earns XP:
-//  per hit, per break, per new rare item. Levels 1→10 from
+//  per hit, per break, per new rare item — Starfall breaks and finds
+//  count too (v3.11.5). Levels 1→10 from
 //  CONFIG.hammerMastery.xpTable. Every owned hammer's own bonus grows with
 //  ITS level (hammerScale = 0…1) — hooks live in smash.js next to the base
 //  bonus they extend. L5 on any hammer: 3% hammer refund on hits with it.

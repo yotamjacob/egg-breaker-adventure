@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.11.4';
+const VERSION = '3.11.5';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -317,7 +317,7 @@ const CONFIG = {
   hammerMastery: {
     maxLevel: 10,
     xpHit: 1, xpBreak: 2, xpRare: 10,
-    xpTable: [0, 150, 400, 800, 1400, 2200, 3300, 4800, 6600, 9000],
+    xpTable: [0, 100, 280, 560, 1000, 1550, 2300, 3400, 4600, 6300],  // ~30% shorter than pre-3.11.5
     refundChanceL5: 0.03,     // any hammer at L5+: chance a hit costs nothing
     // How far each hammer's identity grows from L1 → L10 (linear per level).
     // Multipliers are ON TOP of the base bonus the hammer already gives.

@@ -648,12 +648,10 @@ function smashEgg(index) {
     flash.className = 'crunch-flash';
     slot.appendChild(flash);
     flash.addEventListener('animationend', () => flash.remove(), { once: true });
-    // Tray wiggle
-    const tray = $id('egg-tray-wrap');
-    tray.classList.remove('tray-wiggle');
-    void tray.offsetWidth;
-    tray.classList.add('tray-wiggle');
-    tray.addEventListener('animationend', () => tray.classList.remove('tray-wiggle'), { once: true });
+    // No tray movement — the slot crunch + flash carry the feedback. The old
+    // tray-wiggle translated the whole tray ±4px on every special-egg hit,
+    // which read as the screen shaking (removed v3.11.5, same reasoning as
+    // the Banana Shake wiggle removal in v3.11.4).
   } else {
     SFX.play('hit');
     // `smashing` drives egg-smash-retro — the squash-and-rotate wiggle that
@@ -1063,8 +1061,8 @@ function applyPrize(prize, cx, cy) {
     if (wasNew) {
       prog.collections[si][prize.index] = true;
       G.totalItems++;
-      // Hammer mastery: rare-item XP only for hammer finds — Starfall is a skill, not a hit
-      if (prize.rarity === 3 && !_starfallActive && typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpRare);
+      // Hammer mastery: rare-item XP — Starfall finds count too (v3.11.5)
+      if (prize.rarity === 3 && typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpRare);
     }
     if (!wasNew) spawnFloat(zone, prize.label, prize.color, '', cx, cy);
     if (wasNew) {

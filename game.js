@@ -654,6 +654,8 @@ function _doStarfall(message, cat) {
       egg.hp = 0;
       egg.broken = true;
       G.totalEggs++;
+      // Hammer mastery: starfall breaks train the equipped hammer too (v3.11.5)
+      if (typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpBreak);
 
       const slots = $id('egg-tray').children;
       const slot = slots[idx];
