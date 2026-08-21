@@ -334,6 +334,19 @@ body{
 
 /* ---------- Full log panel ---------- */
 
+/* Banana Shake flying hammers (game.js flyHammers). position:fixed is
+   load-bearing: without it these body-appended divs join the body's flex row
+   and shove #app sideways — the "screen slides right to left" bug (the rule
+   was dropped by mistake in v3.9.2, restored v3.11.6). */
+.flying-hammer {
+  position: fixed;
+  pointer-events: none;
+  font-size: 22px;
+  z-index: 9999;
+  will-change: transform, opacity;
+  line-height: 1;
+}
+
 .hammer-arrive {
   animation: hammer-arrive .32s ease-out;
 }
