@@ -273,6 +273,31 @@ describe('smash animation — resolved cascade', () => {
     }
   });
 
+  test('the hammer swing survives every mastery glow tier, prism included', async (t) => {
+    if (unavailable) return t.skip(unavailable);
+    // v3.11.10: #hammer.hlv-prism set `animation` at (1,1,0), outranking
+    // .hammer-anim (0,1,0) — reaching hammer level 10 silently froze the tap
+    // swing at its initial 40° pose. Glow tiers may only animate the SVG child.
+    for (const tier of [null, 'hlv-bronze', 'hlv-silver', 'hlv-gold', 'hlv-prism']) {
+      const resolved = await page.evaluate(async (tier) => {
+        const h = document.getElementById('hammer');
+        h.classList.remove('hlv-bronze', 'hlv-silver', 'hlv-gold', 'hlv-prism');
+        if (tier) h.classList.add(tier);
+        G.hammers = 500; G.maxH = 500;
+        Object.assign(G.roundEggs[0], { hp: 5, maxHp: 5, broken: false, expired: false, effects: [], _smashing: false });
+        renderEggTray();
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        document.getElementById('egg-tray').children[0].click();  // real tap → smashEgg adds .hammer-anim
+        await new Promise(r => setTimeout(r, 80));
+        const name = getComputedStyle(h).animationName;
+        h.classList.remove('hlv-bronze', 'hlv-silver', 'hlv-gold', 'hlv-prism');
+        return name;
+      }, tier);
+      assert.ok(resolved.split(',').map(s => s.trim()).includes('hammer-swing'),
+        `with ${tier || 'no glow'} the tap resolved #hammer to "${resolved}" — the glow tier is stealing the animation slot from .hammer-anim`);
+    }
+  });
+
   test('the idle-wiggle loop resumes after a smash interrupts it', async (t) => {
     if (unavailable) return t.skip(unavailable);
     // shake()/smashEgg() strip idle-wiggle mid-animation, which fires

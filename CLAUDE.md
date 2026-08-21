@@ -30,7 +30,7 @@
 | `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications, admin-players, admin-purchases |
 | `agents/digest.js` | Weekly promotion digest — two web-search research agents (communities + "Egg Breaker" mentions), de-dupes via `agents/seen.json`, emails HTML via Resend. Run by `.github/workflows/weekly-digest.yml` |
 | `agents/prompts.js` | Research prompts for the digest. Reddit is excluded here AND via `blocked_domains` AND by a URL filter in digest.js |
-| `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live), `smash-animation.test.js` (tap-feedback cascade, drives real Chromium), `autotap.test.js` (offline-simulation accounting invariants, vm sandbox) |
+| `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live), `smash-animation.test.js` (tap-feedback cascade, drives real Chromium), `css-cascade.test.js` (static CSS lint: any rule setting `animation` with an `.egg-slot`/`#hammer` subject must be allowlisted + tie-break order checks — makes the silent-cascade bug class fail loudly), `autotap.test.js` (offline-simulation accounting invariants, vm sandbox) |
 | `.github/workflows/smoke-tests.yml` | CI: runs all tests 3× daily (08/14/20 UTC) + on every push to main; emails on failure |
 
 ## Build & deploy
