@@ -839,6 +839,10 @@ function _doRageBatch() {
 
       setTimeout(() => {
         if (fullyBroken) {
+          // Hammer mastery: rage spends real hammers — one per HP — so the
+          // equipped hammer trains exactly like manual taps (hit XP per
+          // hammer + break XP; rare-item XP comes via applyPrize)
+          if (typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpHit * egg.hp + CONFIG.hammerMastery.xpBreak);
           egg.hp = 0;
           egg.broken = true;
           G.totalEggs++;
@@ -848,6 +852,7 @@ function _doRageBatch() {
           slot.innerHTML = makeEggSVG(egg.type, egg.maxHp) + eggLabel(egg.type, 0, egg.maxHp, true);
         } else {
           // Partial damage — show cracks, egg survives
+          if (typeof addHammerXp === 'function') addHammerXp(CONFIG.hammerMastery.xpHit * dmg);
           egg.hp -= dmg;
           const damage = egg.maxHp - egg.hp;
           slot.innerHTML = makeEggSVG(egg.type, damage) + eggLabel(egg.type, egg.hp, egg.maxHp, false);
