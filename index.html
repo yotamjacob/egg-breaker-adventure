@@ -234,7 +234,16 @@
         <button class="shop-tab" data-shop="hammers" role="tab">Hammers</button>
         <button class="shop-tab" data-shop="hats" role="tab">Hats</button>
       </div>
-      <div class="shop-section" data-shop="consumables"><div class="shop-grid" id="shop-consumables"></div><div class="shop-hint">✊ hold a card to multi-buy</div></div>
+      <div class="shop-section" data-shop="consumables">
+        <div class="shop-qty-row" id="shop-qty-row">
+          <button class="shop-qty-btn active" data-qty="1">x1</button>
+          <button class="shop-qty-btn" data-qty="5">x5</button>
+          <button class="shop-qty-btn" data-qty="10">x10</button>
+          <button class="shop-qty-btn" data-qty="max">MAX</button>
+        </div>
+        <div class="shop-grid" id="shop-consumables"></div>
+        <div class="shop-hint">✊ hold a card to multi-buy</div>
+      </div>
       <div class="shop-section hidden" data-shop="upgrades"><div class="shop-grid" id="shop-upgrades"></div></div>
       <div class="shop-section hidden" data-shop="autotap"><div class="shop-grid" id="shop-autotap"></div></div>
       <div class="shop-section hidden" data-shop="hammers"><div class="shop-grid" id="shop-hammers"></div></div>

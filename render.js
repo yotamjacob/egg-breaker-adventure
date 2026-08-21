@@ -1184,7 +1184,15 @@ function renderShop() {
           ? '<span class="s-status">OWNED</span>'
           : isFree
             ? '<span class="s-cost" style="color:var(--green)">Free!</span>'
-            : '<span class="s-cost">' + formatNum(s.cost) + ' 🪙</span>');
+            : (function() {
+                // Quantity toggle: consumable cards price the whole batch.
+                // typeof-guard: game.js's boot renderShop() runs before
+                // shop.js's top level assigns _shopQty (bundle order).
+                const q = (typeof _shopQty === 'undefined' || s.unique) ? 1 : _shopQty;
+                const n = q === 'max' || !q ? 1 : q;
+                return '<span class="s-cost">' + formatNum(s.cost * n) + ' 🪙' +
+                       (n > 1 ? ' <span class="s-qty-tag">×' + n + '</span>' : '') + '</span>';
+              })());
     if (!isOwned) card.addEventListener('click', () => buyShopItem('supply', s.id));
     (s.unique ? uGrid : cGrid).appendChild(card);
   });

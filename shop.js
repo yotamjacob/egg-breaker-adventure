@@ -64,9 +64,63 @@ document.addEventListener('click', function(e) {
   }
 }, true);
 
+// ---- Quantity toggle (x1 / x5 / x10 / MAX) for consumables ----
+// A tap on a consumable buys _shopQty at once; MAX buys until the first
+// blocked purchase. `var` for the boot TDZ rule.
+var _shopQty = 1;
+function setShopQty(q) {
+  _shopQty = q;
+  document.querySelectorAll('.shop-qty-btn').forEach(function(b) {
+    b.classList.toggle('active', String(b.dataset.qty) === String(q));
+  });
+  renderShop(); // consumable cards show cost × qty
+}
+document.addEventListener('click', function(e) {
+  const b = e.target.closest('.shop-qty-btn');
+  if (b) setShopQty(b.dataset.qty === 'max' ? 'max' : parseInt(b.dataset.qty, 10));
+});
+
+function buySupplyQty(id, qty) {
+  const item = SHOP_SUPPLIES.find(function(s) { return s.id === id; });
+  if (!item || item.unique) return;
+  const cap = qty === 'max' ? 50 : qty; // MAX: bounded per click — click again for more
+  // The loop is synchronous (no paint between iterations), so per-buy
+  // sounds/saves/snacks are pure waste and N overlapping 'buy' sounds crackle.
+  // Silence them for the loop, then emit ONE save + sound + summary snack.
+  // A blocked attempt's alert/snack is captured and only replayed when
+  // nothing at all was bought (a partial MAX/x10 fill is success, not an error).
+  const origPlay = SFX.play, origSave = saveGame, origAlert = showAlert, origSnack = showShopSnack;
+  let bought = 0, heldAlert = null, heldSnack = null;
+  try {
+    SFX.play = function() {};
+    saveGame = function() {};
+    showAlert = function() { heldAlert = arguments; };
+    showShopSnack = function() { heldSnack = arguments; };
+    while (bought < cap) {
+      const before = G.purchases || 0;
+      doBuyShopItem('supply', id);
+      if ((G.purchases || 0) === before) break; // blocked — broke / full
+      bought++;
+    }
+  } finally {
+    SFX.play = origPlay; saveGame = origSave; showAlert = origAlert; showShopSnack = origSnack;
+  }
+  if (!bought) {
+    if (heldAlert) showAlert.apply(null, heldAlert);
+    else if (heldSnack) showShopSnack.apply(null, heldSnack);
+    SFX.play('err');
+    return;
+  }
+  saveGame();
+  SFX.play('buy');
+  showShopSnack(bought > 1 ? bought + '× ' + item.name + ' purchased!'
+                           : (heldSnack ? heldSnack[0] : item.name + ' purchased!'));
+}
+
 function buyShopItem(category, id) {
   // Confirmation for non-consumable items when auto-buy is off
   const isConsumable = category === 'supply' && !SHOP_SUPPLIES.find(s => s.id === id)?.unique;
+  if (isConsumable && _shopQty !== 1) { buySupplyQty(id, _shopQty); return; }
   if (!G.autoBuy && !isConsumable) {
     let item = category === 'hammer' ? SHOP_HAMMERS.find(h => h.id === id)
              : category === 'hat' ? SHOP_HATS.find(h => h.id === id)

@@ -273,6 +273,10 @@
 }
 .shop-card:hover:not(.owned){transform:translate(-1px,-1px);border-color:var(--gold);box-shadow:3px 3px 0 var(--dark)}
 .shop-hint{font-size:9px;color:var(--gray);text-align:center;padding:6px 0 2px;font-family:var(--px)}
+.shop-qty-row{display:flex;align-items:center;justify-content:center;gap:6px;margin:2px 0 10px;font-family:var(--px)}
+.shop-qty-btn{font-family:var(--px);font-size:10px;padding:4px 10px;background:var(--bg2);color:var(--gray);border:2px solid var(--gray);border-radius:2px;cursor:pointer;box-shadow:2px 2px 0 var(--dark)}
+.shop-qty-btn.active{background:var(--panel);color:var(--gold);border-color:var(--gold)}
+.s-qty-tag{color:var(--gray);font-size:9px}
 .shop-snack{
   position:fixed;bottom:12px;left:50%;transform:translateX(-50%) translateY(60px);
   background:#143d2b;border:2px solid var(--green);border-radius:2px;
