@@ -89,6 +89,17 @@ describe('smash animation — source guards', () => {
       '@keyframes egg-crunch is missing');
   });
 
+  test('no #hammer.hlv-* rule sets `animation` on #hammer itself', () => {
+    // #hammer.hlv-prism (1,1,0) setting `animation` outranks .hammer-anim
+    // (0,1,0) and silently kills the hammer-swing tap feedback — the L10
+    // mastery glow froze the hammer at its initial 40° pose (v3.11.10 fix).
+    // Glow animations belong on the SVG child.
+    assert.doesNotMatch(playCss, /#hammer\.hlv-[a-z]+\s*\{[^}]*animation/,
+      'a #hammer.hlv-* rule sets animation on #hammer — it outranks .hammer-anim; animate `#hammer.hlv-* svg` instead');
+    assert.match(playCss, /#hammer\.hlv-prism svg\s*\{[^}]*animation:\s*hammer-prism/,
+      'the prism glow animation must live on the #hammer svg child');
+  });
+
   test('shake() clears idle-wiggle before applying its own class', () => {
     // Without this the .shake-* rules lose to .egg-slot.idle-wiggle.
     const gameSrc = read('game.js');

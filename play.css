@@ -562,7 +562,11 @@
 #hammer.hlv-bronze{filter:drop-shadow(0 0 4px rgba(209,154,102,.85))}
 #hammer.hlv-silver{filter:drop-shadow(0 0 6px rgba(216,221,227,.9))}
 #hammer.hlv-gold{filter:drop-shadow(0 0 8px rgba(245,197,66,.95))}
-#hammer.hlv-prism{filter:drop-shadow(0 0 9px rgba(255,255,255,.9));animation:hammer-prism 2s linear infinite}
+/* Prism (L10) glow lives on the SVG child, never on #hammer itself:
+   #hammer.hlv-prism (1,1,0) setting `animation` outranks .hammer-anim (0,1,0)
+   and silently kills the hammer-swing tap feedback — same cascade bug class
+   as the .egg-slot smash-animation invariants. */
+#hammer.hlv-prism svg{filter:drop-shadow(0 0 9px rgba(255,255,255,.9));animation:hammer-prism 2s linear infinite}
 @keyframes hammer-prism{0%{filter:drop-shadow(0 0 9px #ff8fd0)}25%{filter:drop-shadow(0 0 9px #ffe27a)}50%{filter:drop-shadow(0 0 9px #8bf59a)}75%{filter:drop-shadow(0 0 9px #8fd8ff)}100%{filter:drop-shadow(0 0 9px #ff8fd0)}}
 
 /* ---------- Teleport egg (CONFIG.teleportEgg / smash.js teleportEgg) ----------
