@@ -335,7 +335,14 @@
   pointer-events:none;
 }
 .rlog-title{font-size:8px;color:var(--gold3);letter-spacing:1px;margin-bottom:1px}
-.reward-log .log-line{color:var(--gold);text-shadow:0 0 4px #000, 1px 1px 0 #000, -1px -1px 0 #000}
+/* Lines hold for --fade-delay then fade out over --fade-dur (set inline per
+   line from CONFIG.logFade; delay goes negative to resume mid-fade after a
+   re-render). No `from` keyframe: each line fades from its own nth-child
+   ladder opacity. Any .log-line rule that sets `animation` must LIST the
+   fade too (see .log-trophy) — a lone animation declaration silently
+   replaces it (the cascade bug class from CLAUDE.md). */
+.reward-log .log-line{color:var(--gold);text-shadow:0 0 4px #000, 1px 1px 0 #000, -1px -1px 0 #000;animation:log-fade-out var(--fade-dur,3000ms) ease var(--fade-delay,4000ms) forwards}
+@keyframes log-fade-out{to{opacity:0}}
 .reward-log .log-line.log-err{color:var(--red)}
 .reward-log .log-line.log-green{color:#86efac}
 .reward-log .log-line.log-blue{color:#93c5fd}
@@ -344,7 +351,7 @@
 .reward-log .log-line.log-cucumber{color:#4ade80;text-shadow:0 0 6px #16a34a,1px 1px 0 #000}
 .reward-log .log-line.log-mjolnir{color:#ffe033;text-shadow:0 0 8px #fbbf24,0 0 14px #f59e0b,1px 1px 0 #000}
 .reward-log .log-line.log-freehit{color:#b0bec5;text-shadow:1px 1px 0 #000,-1px -1px 0 #000}
-.reward-log .log-line.log-trophy{color:#fde68a;text-shadow:0 0 6px #fbbf24,0 0 12px #f59e0b,1px 1px 0 #000;animation:log-trophy-flash .6s ease-out}
+.reward-log .log-line.log-trophy{color:#fde68a;text-shadow:0 0 6px #fbbf24,0 0 12px #f59e0b,1px 1px 0 #000;animation:log-trophy-flash .6s ease-out,log-fade-out var(--fade-dur,3000ms) ease var(--fade-delay,4000ms) forwards}
 @keyframes log-trophy-flash{0%{color:#fff;text-shadow:0 0 14px #fff,0 0 20px #fbbf24}100%{color:#fde68a;text-shadow:0 0 6px #fbbf24,0 0 12px #f59e0b,1px 1px 0 #000}}
 .reward-log .log-line:nth-child(3){opacity:.75}
 .reward-log .log-line:nth-child(4){opacity:.5}

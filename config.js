@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.11.11';
+const VERSION = '3.11.12';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -219,6 +219,12 @@ const CONFIG = {
     specials:   true,   // Chef free hit, Mjolnir starfall, special abilities
     gavel:      true,   // Judge Gavel: Order! verdict activations
   },
+
+  // Log lines hold fully visible for holdMs, then fade out over fadeMs.
+  // Driven by per-line timestamps + negative animation-delay, so the
+  // innerHTML re-render on every new message resumes each line's fade
+  // mid-way instead of restarting it.
+  logFade: { holdMs: 4000, fadeMs: 3000 },
 
   // ----------------------------------------------------------
   // 16. SECRET EASTER EGG CHANCES

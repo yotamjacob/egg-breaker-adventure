@@ -464,7 +464,7 @@ const _logLines = [];
 function msg(text, cat) {
   const show = CONFIG.logShow || {};
   if (cat && show[cat] === false) return;
-  _logLines.unshift({ text: text, cat: cat || '' });
+  _logLines.unshift({ text: text, cat: cat || '', at: Date.now() });
   if (_logLines.length > 5) _logLines.length = 5;
   renderLog();
   // Full log — skip noisy no-hammer noise, keep everything else
@@ -476,8 +476,14 @@ function renderLog() {
   const el = $id('reward-log');
   if (!el) return;
   el.style.display = (typeof G !== 'undefined' && G.showLog === false) ? 'none' : '';
+  var fade = CONFIG.logFade || { holdMs: 4000, fadeMs: 3000 };
+  var now = Date.now();
   el.innerHTML = '<div class="rlog-title">Log</div>' +
-    _logLines.map(function(l) {
+    _logLines.filter(function(l) {
+      // Fully faded lines stay in _logLines (the 5-cap evicts them) but
+      // rendering them would push younger lines down the opacity ladder.
+      return !l.at || (now - l.at) < fade.holdMs + fade.fadeMs;
+    }).map(function(l) {
       var cls = 'log-line';
       if (l.cat === 'noHammers' || l.cat === 'hex') cls += ' log-err';
       else if (l.cat === 'trophies') cls += ' log-trophy';
@@ -489,7 +495,11 @@ function renderLog() {
       else if (l.cat === 'mjolnir') cls += ' log-mjolnir';
       else if (l.cat === 'freehit') cls += ' log-freehit';
       else if (l.cat === 'gavel') cls += ' log-gavel';
-      return '<div class="' + cls + '">' + l.text + '</div>';
+      // Negative delay = the line is already mid-fade; the animation resumes
+      // at the right point after every re-render instead of restarting.
+      var delay = l.at ? (fade.holdMs - (now - l.at)) : fade.holdMs;
+      return '<div class="' + cls + '" style="--fade-delay:' + Math.round(delay) +
+        'ms;--fade-dur:' + fade.fadeMs + 'ms">' + l.text + '</div>';
     }).join('');
 }
 
