@@ -1168,7 +1168,7 @@ function checkCollectionComplete(suppressFlash) {
       if (si === 0 && G.activeMonkey === 0 && !G._starfallTipSeen) {
         G._starfallTipSeen = true;
         setTimeout(() => showConfirm('⭐', 'Starfall Unlocked!',
-          'Collect <strong>7 ⭐ Star Pieces</strong> from eggs to fill the star meter.<br><br>Once it\'s full, tap the ⭐ button to trigger <strong>Starfall</strong> — smashing all eggs on screen at once!',
+          'Collect <strong>' + starfallCost() + ' ⭐ Star Pieces</strong> from eggs to fill the star meter.<br><br>Once it\'s full, tap the ⭐ button to trigger <strong>Starfall</strong> — smashing all eggs on screen at once!',
           null, 'Got it!'
         ), 900);
       }
@@ -1179,7 +1179,7 @@ function checkCollectionComplete(suppressFlash) {
         // Mr. Monkey completion — unlock feathers
         if (G.activeMonkey === 0) {
           setTimeout(() => showConfirm('🎉', 'Mr. Monkey Complete!',
-            'You\'ve unlocked <strong>Feathers 🪶</strong>!<br><br>Feathers drop from eggs and let you buy missing album items directly — great for speeding up your collection.',
+            'You\'ve unlocked <strong>Feathers 🪶</strong>!<br><br>Feathers drop from eggs (the Shop sells them too) and let you buy missing album items directly — great for speeding up your collection.',
             () => { document.querySelector('[data-tab="album"]').click(); },
             'Go to Album'
           ), 800);
@@ -1983,7 +1983,7 @@ function showPlayInfo() {
         '<span class="info-block-title">🥚 basics</span>' +
         '<div class="info-row"><span class="info-row-icon">🔨</span><span>Tap an egg — costs <span class="info-highlight">1 hammer</span></span></div>' +
         '<div class="info-row"><span class="info-row-icon">📦</span><span>Collect items to unlock stages and bonuses — all of them to complete the stage</span></div>' +
-        '<div class="info-row"><span class="info-row-icon">⭐</span><span>Fill <span class="info-highlight">7 star pieces</span> to trigger Starfall</span></div>' +
+        '<div class="info-row"><span class="info-row-icon">⭐</span><span>Fill <span class="info-highlight">' + starfallCost() + ' star pieces</span> to trigger Starfall</span></div>' +
       '</div>' +
       '<div class="info-block">' +
         '<span class="info-block-title">💡 multipliers</span>' +
@@ -2292,7 +2292,8 @@ setTimeout(function () {
 // Splash screen tip — show a random tip while the splash is visible (every load)
 const _SPLASH_TIPS = [
   'Use feathers to unlock album items directly.',
-  'Collect 7 star pieces to unleash Starfall!',
+  'Fill the star meter to unleash Starfall!',
+  'Hold a Supplies card to buy it over and over.',
   'Multiplier chips + balloon eggs = massive prizes.',
   'Silver and gold eggs never give empty prizes.',
   'The shop has upgrades that keep hammers flowing.',

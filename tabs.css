@@ -272,6 +272,7 @@
   box-shadow:3px 3px 0 var(--dark);
 }
 .shop-card:hover:not(.owned){transform:translate(-1px,-1px);border-color:var(--gold);box-shadow:3px 3px 0 var(--dark)}
+.shop-hint{font-size:9px;color:var(--gray);text-align:center;padding:6px 0 2px;font-family:var(--px)}
 .shop-snack{
   position:fixed;bottom:12px;left:50%;transform:translateX(-50%) translateY(60px);
   background:#143d2b;border:2px solid var(--green);border-radius:2px;
