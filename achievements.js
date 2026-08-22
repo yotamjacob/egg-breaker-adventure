@@ -176,7 +176,6 @@ function checkAchievements() {
     // Quests
     quest_5:    () => (G.questsCompleted || 0) >= 15,
     quest_25:   () => (G.questsCompleted || 0) >= 50,
-    quest_100:  () => (G.questsCompleted || 0) >= 100,
     // Secrets
     secret_speed:    () => G._secretSpeed,
     secret_sweep:    () => G._secretSweep,

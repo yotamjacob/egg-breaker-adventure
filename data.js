@@ -712,7 +712,6 @@ const ACHIEVEMENT_DATA = [
   // -- Quests (quests.js) --
   { id:'quest_5',       name:'Errand Runner',         desc:'Complete 15 quests',                 icon:'📜', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
   { id:'quest_25',      name:'Quest Hound',           desc:'Complete 50 quests',                 icon:'🗺️', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
-  { id:'quest_100',     name:'Legend of the Ledger',  desc:'Complete 100 quests',                icon:'📚', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
 ];
 
 // Secret achievements — hidden until discovered
