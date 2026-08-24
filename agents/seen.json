@@ -233,6 +233,42 @@
       "nameKey": "idledbbrowseridlerankings",
       "name": "IdleDB — browser idle rankings",
       "url": "https://idledb.com/browser"
+    },
+    {
+      "key": "forum.codenameentertainment.com",
+      "nameKey": "codenameentertainmentforumsbushwhacker2g",
+      "name": "Codename Entertainment official forums (Bush Whacker 2 General Discussion)",
+      "url": "https://forum.codenameentertainment.com/"
+    },
+    {
+      "key": "facebook.com/bushwhacker2",
+      "nameKey": "bushwhacker2facebookpage",
+      "name": "Bush Whacker 2 Community (Facebook page)",
+      "url": "https://www.facebook.com/BushWhacker2/"
+    },
+    {
+      "key": "discord.com/invite/jm3yaew",
+      "nameKey": "crusadersoflostidolsfan",
+      "name": "Crusaders of the Lost Idols fan Discord",
+      "url": "https://discord.com/invite/JM3YAEW"
+    },
+    {
+      "key": "bushwhacker2.fandom.com/wiki/main_page",
+      "nameKey": "bushwhacker2wikifandom",
+      "name": "Bushwhacker2 Wiki (Fandom)",
+      "url": "https://bushwhacker2.fandom.com/wiki/Main_Page"
+    },
+    {
+      "key": "zebest-3000.com/forums",
+      "nameKey": "zebest3000forumsfrench",
+      "name": "ZeBest-3000 forums (French)",
+      "url": "https://www.zebest-3000.com/forums/"
+    },
+    {
+      "key": "indiedb.com/tags/browser-game",
+      "nameKey": "indiedbbrowsergametagandindiegamers",
+      "name": "IndieDB — browser-game tag and Indie Gamers group",
+      "url": "https://www.indiedb.com/tags/browser-game"
     }
   ],
   "mentions": [
@@ -331,6 +367,12 @@
       "nameKey": "gamersunitecoolchasercomsubdomain",
       "name": "Gamers Unite! (coolchaser.com subdomain)",
       "url": "http://gamersunite.coolchaser.com/games/egg-breaker"
+    },
+    {
+      "key": "candevs.ca/bc/djarts.html",
+      "nameKey": "candevscanadianvideogamecompaniesdirecto",
+      "name": "CanDevs (Canadian Video Game Companies directory) — DJArts Games entry",
+      "url": "https://www.candevs.ca/bc/djarts.html"
     }
   ],
   "runs": [
@@ -352,6 +394,11 @@
     {
       "at": "2026-08-17T06:51:37.702Z",
       "communities": 11,
+      "mentions": 1
+    },
+    {
+      "at": "2026-08-24T07:59:00.410Z",
+      "communities": 6,
       "mentions": 1
     }
   ]
