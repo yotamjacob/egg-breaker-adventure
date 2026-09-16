@@ -3,46 +3,48 @@
 ## Title
 
 ```
-Egg Breaker: Abenteuer
+Egg Smash Adventures
 ```
 
 ## Short description
 
 ```
-Eier zerschlagen, Preise gewinnen, Sammlungen füllen. Ohne Werbung.
+Egg-Breaker-Klassiker, neu gebaut. Eier zerschlagen, Album füllen. Ohne Werbung.
 ```
 
 ## Full description
 
 ```
-Der Klassiker rund ums Eierzerschlagen ist zurück.
+Zerschlage Eier mit dem Hammer. Jeder Treffer bringt Gold, Sternsplitter oder eines von 353 Sammelobjekten. Fülle das Album einer Stufe und die nächste öffnet sich.
 
-Zerschlage Eier mit deinem Hammer, gewinne Preise und fülle deine Sammlung — die einfache, befriedigende Spielschleife des Facebook-Klassikers, von einem einzelnen Entwickler komplett neu für Android gebaut, weil sie ihm gefehlt hat.
+Egg Smash Adventures ist ein Fan-Revival des Facebook-Klassikers Egg Breaker, von einem einzelnen Entwickler für Android komplett neu gebaut. Keine Werbung, keine Bezahlschranken, nur die Spielschleife, die das Original so schwer weglegbar machte.
 
-🥚 EIER ZERSCHLAGEN, PREISE GEWINNEN
-Sieben Eierstufen, vom alltäglichen Normalen Ei bis zum sagenumwobenen Jahrhundert-Ei. Seltene Eier halten mehr Schläge aus, zahlen dafür aber deutlich besser: Gold, Sternenteile, Federn, Multiplikatoren — und die Sammelobjekte, auf die du es wirklich abgesehen hast.
+EIER ZERSCHLAGEN, PREISE GEWINNEN
+Sieben Ei-Arten, vom gewöhnlichen Normal-Ei bis zum 100-Treffer-Century-Ei. Seltenere Eier brauchen mehr Treffer und zahlen deutlich mehr. Manche rutschen über das Tablett, manche laufen auf Zeit, Ballon-Eier zahlen zehnfach bei langem Drücken, und Teleport-Eier beamen sich bei jedem Treffer weg.
 
-📖 353 SAMMELOBJEKTE
-Sechs Affen-Begleiter, jeder mit einer eigenen Themenwelt aus 8–9 Stufen und einer vollständigen Sammlung. Vervollständige die Sammlung einer Stufe und die nächste wird freigeschaltet.
+DAS ALBUM FÜLLEN
+353 Objekte in sechs Themenwelten. Vervollständige die Sammlung einer Stufe, um die nächste freizuschalten, von Tropical Paradise bis zum Cloud Kingdom und darüber hinaus.
 
-🐵 SECHS AFFEN-BEGLEITER
-Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir und Sun Wukong. Jeder bringt einen passiven Bonus mit, der dein Spiel verändert: mehr Gold, mehr Objekte oder mehr Sternenteile.
+SECHS AFFEN-BEGLEITER
+Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir und Sun Wukong. Jeder hat einen passiven Bonus, der deine Spielweise verändert: mehr Gold, mehr Sternsplitter, mehr Objekte oder Preise aus der nächsthöheren Ei-Stufe.
 
-🎩 HÜTE, HÄMMER UND UPGRADES
-Neun Hämmer und fünf Hüte, alle mit echten Effekten statt bloßer Deko. Dauerhafte Upgrades im Shop. Drei aktive Fähigkeiten: Affenwut, Goldene Gans und Bananen-Shake.
+SPIELT WEITER, WÄHREND DU WEG BIST
+Schalte den Auto-Smasher mit Spielgold frei und er zerschlägt weiter Eier, nachdem du die App geschlossen hast. Bei der Rückkehr erwartet dich ein Bericht über alles, was er gefunden hat.
 
-⭐ STERNENREGEN UND MULTIPLIKATOREN
-Sammle Sternenteile und löse eine Sternenregen-Bonusrunde aus. Staple Multiplikatoren, bevor du ein seltenes Ei knackst, und kassiere einen einzigen riesigen Gewinn.
+JEDEN TAG ETWAS ZU TUN
+Tägliche und wöchentliche Quests, Login-Belohnungen mit Serien-Bonus und Trophäen für alles, vom ersten Treffer bis zum voll trainierten Hammer.
 
-🏆 TROPHÄEN UND GEHEIMNISSE
-Dutzende Erfolge, tägliche Belohnungen mit wachsender Serie und versteckte Geheimnisse zum Entdecken.
+HÄMMER, DIE AUFSTEIGEN
+Spezialhämmer und Hüte mit echten Effekten, nicht nur Dekoration. Der ausgerüstete Hammer sammelt mit jedem Treffer Erfahrung und schaltet auf Maximalstufe einen einzigartigen Vorteil frei. Dazu drei aktive Fähigkeiten: Monkey Rage, Golden Goose und Banana Shake.
 
-☁️ CLOUD-SPEICHERUNG
-Melde dich mit Google an und dein Fortschritt begleitet dich über Geräte und Neuinstallationen hinweg. Völlig optional — das Spiel funktioniert auch ohne Konto einwandfrei.
+STARFALL UND MULTIPLIKATOREN
+Sammle Sternsplitter, um Starfall auszulösen, einen Sternenregen, der das ganze Tablett leert. Stapele Multiplikatoren, bevor du ein seltenes Ei knackst, für eine riesige Auszahlung.
 
-✅ KEINE WERBUNG. KEINE ENERGIE-TIMER. KEINE PAYWALL.
-Keine Interstitial-Werbung. Keine Belohnungsvideos. Kein Achtstundenwarten bis zur nächsten Runde. Hämmer laden sich von selbst wieder auf. Es gibt optionale einmalige Käufe für Komfort und Kosmetik, und nichts im Spiel ist dahinter eingesperrt.
+CLOUD-SPEICHERUNG
+Melde dich mit Google an und dein Fortschritt begleitet dich über Geräte und Neuinstallationen hinweg. Komplett optional. Das Spiel funktioniert vollständig ohne Konto.
 
-Lieber nichts installieren? Das vollständige Spiel gibt es auch kostenlos im Browser:
-egg-breaker-adventures.vercel.app
+KEINE WERBUNG. KEINE BEZAHLSCHRANKEN.
+Keine Interstitials, keine Belohnungsvideos. Hämmer regenerieren sich von selbst. Es gibt ein paar optionale Einmalkäufe für mehr Komfort; nichts im Spiel ist dahinter gesperrt.
+
+Egg Smash Adventures ist ein unabhängiges Fan-Revival und steht in keiner Verbindung zu den Machern des ursprünglichen Egg Breaker.
 ```

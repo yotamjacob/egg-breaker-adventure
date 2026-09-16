@@ -3,46 +3,48 @@
 ## Title
 
 ```
-Egg Breaker: Aventura
+Egg Smash Adventures
 ```
 
 ## Short description
 
 ```
-Quebre ovos, ganhe prêmios e complete coleções. Sem anúncios nem esperas.
+O clássico Egg Breaker, refeito. Quebre ovos, complete o álbum. Sem anúncios.
 ```
 
 ## Full description
 
 ```
-O clássico jogo de quebrar ovos está de volta.
+Quebre ovos com um martelo. Cada golpe rende ouro, fragmentos de estrela ou um dos 353 itens colecionáveis. Complete o álbum de uma fase e a próxima se abre.
 
-Quebre ovos com o martelo, ganhe prêmios e complete sua coleção: o ciclo simples e viciante do clássico do Facebook, reconstruído do zero para Android por um único desenvolvedor que sentia falta dele.
+Egg Smash Adventures é um revival feito por fã do clássico do Facebook Egg Breaker, reconstruído do zero para Android por um único desenvolvedor. Sem anúncios e sem paywall, só o ciclo de jogo que tornava o original tão difícil de largar.
 
-🥚 QUEBRE OVOS, GANHE PRÊMIOS
-Sete níveis de ovos, do Normal do dia a dia até o mítico Ovo do Século. Ovos raros exigem mais marteladas, mas recompensam muito mais: ouro, fragmentos de estrela, penas, multiplicadores — e os itens de coleção que você realmente quer.
+QUEBRE OVOS, GANHE PRÊMIOS
+Sete tipos de ovo, do ovo Normal de todo dia ao Century Egg de 100 golpes. Ovos mais raros exigem mais golpes e pagam muito mais. Alguns deslizam pela bandeja, outros têm cronômetro, ovos balão pagam dez vezes se você segurar o toque, e ovos teleportadores somem a cada golpe.
 
-📖 353 ITENS PARA COLECIONAR
-Seis macacos companheiros, cada um com seu próprio mundo temático de 8 a 9 fases e uma coleção inteira para completar. Complete a coleção de uma fase e a próxima é desbloqueada.
+COMPLETE O ÁLBUM
+353 itens em seis mundos temáticos. Complete a coleção de uma fase para desbloquear a próxima, de Tropical Paradise até Cloud Kingdom e além.
 
-🐵 SEIS MACACOS COMPANHEIROS
-Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir e Sun Wukong. Cada um tem um bônus passivo que muda seu jeito de jogar: mais ouro, mais itens ou mais fragmentos de estrela.
+SEIS MACACOS COMPANHEIROS
+Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir e Sun Wukong. Cada um tem um bônus passivo que muda seu jeito de jogar: mais ouro, mais fragmentos de estrela, mais itens ou prêmios do nível de ovo seguinte.
 
-🎩 CHAPÉUS, MARTELOS E MELHORIAS
-Nove martelos e cinco chapéus, todos com efeitos reais e não apenas decorativos. Melhorias permanentes na loja. Três habilidades ativas: Fúria do Macaco, Ganso de Ouro e Vitamina de Banana.
+JOGA ENQUANTO VOCÊ ESTÁ FORA
+Desbloqueie o Auto-Smasher com ouro do jogo e ele continua quebrando ovos depois que você fecha o app. Ao voltar, um relatório mostra tudo o que ele encontrou.
 
-⭐ CHUVA DE ESTRELAS E MULTIPLICADORES
-Junte fragmentos de estrela para ativar a rodada bônus Chuva de Estrelas. Acumule multiplicadores antes de quebrar um ovo raro e leve um prêmio enorme de uma só vez.
+ALGO PARA FAZER TODO DIA
+Missões diárias e semanais, recompensas de login com bônus de sequência e troféus para tudo, do primeiro golpe ao martelo totalmente treinado.
 
-🏆 TROFÉUS E SEGREDOS
-Dezenas de conquistas, recompensas diárias com sequência crescente e segredos escondidos para descobrir.
+MARTELOS QUE SOBEM DE NÍVEL
+Martelos especiais e chapéus com efeitos reais, não só decoração. O martelo equipado ganha experiência a cada golpe e desbloqueia uma vantagem única no nível máximo. E mais três habilidades ativas: Monkey Rage, Golden Goose e Banana Shake.
 
-☁️ SALVAMENTO NA NUVEM
-Entre com o Google e seu progresso acompanha você entre aparelhos e reinstalações. Totalmente opcional — o jogo funciona muito bem sem conta.
+STARFALL E MULTIPLICADORES
+Junte fragmentos de estrela para ativar o Starfall, uma chuva de estrelas que limpa a bandeja inteira. Acumule multiplicadores antes de quebrar um ovo raro para um pagamento enorme.
 
-✅ SEM ANÚNCIOS. SEM TEMPORIZADORES. SEM PAYWALL.
-Sem anúncios intersticiais. Sem vídeos com recompensa. Sem esperar oito horas para jogar de novo. Os martelos se recarregam sozinhos. Existem compras únicas opcionais para conveniência e cosméticos, e nada no jogo fica bloqueado por trás delas.
+SALVAMENTO NA NUVEM
+Entre com o Google e seu progresso acompanha você entre aparelhos e reinstalações. Totalmente opcional. O jogo funciona por completo sem conta.
 
-Prefere não instalar? O jogo completo também é grátis no navegador:
-egg-breaker-adventures.vercel.app
+SEM ANÚNCIOS. SEM PAYWALL.
+Sem intersticiais, sem vídeos recompensados. Os martelos se regeneram sozinhos. Existem algumas compras únicas opcionais por conveniência; nada no jogo fica bloqueado atrás delas.
+
+Egg Smash Adventures é um revival independente feito por fã e não tem afiliação com os criadores do Egg Breaker original.
 ```

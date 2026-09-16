@@ -3,46 +3,48 @@
 ## Title
 
 ```
-Egg Breaker : Aventure
+Egg Smash Adventures
 ```
 
 ## Short description
 
 ```
-Cassez des œufs, gagnez des prix, complétez les collections. Sans pub.
+Le classique Egg Breaker, refait. Casse des œufs, remplis l'album. Sans pubs.
 ```
 
 ## Full description
 
 ```
-Le classique du casse-œufs est de retour.
+Casse des œufs au marteau. Chaque coup rapporte de l'or, des éclats d'étoile ou l'un des 353 objets à collectionner. Remplis l'album d'un niveau et le suivant s'ouvre.
 
-Cassez des œufs avec votre marteau, gagnez des prix et complétez votre collection : la boucle simple et satisfaisante du classique de Facebook, reconstruite de zéro pour Android par un développeur solo à qui elle manquait.
+Egg Smash Adventures est un revival fait par un fan du classique Facebook Egg Breaker, reconstruit de zéro pour Android par un seul développeur. Pas de pubs, pas de paywall, juste la boucle de jeu qui rendait l'original si difficile à lâcher.
 
-🥚 CASSEZ DES ŒUFS, GAGNEZ DES PRIX
-Sept niveaux d'œufs, de l'œuf Normal du quotidien au mythique Œuf du Siècle. Les œufs rares encaissent plus de coups mais rapportent bien davantage : or, fragments d'étoile, plumes, multiplicateurs — et les objets de collection que vous cherchez vraiment.
+CASSE DES ŒUFS, GAGNE DES PRIX
+Sept sortes d'œufs, de l'œuf Normal de tous les jours au Century Egg à 100 coups. Les œufs rares demandent plus de coups et rapportent bien plus. Certains glissent sur le plateau, d'autres sont chronométrés, les œufs ballons paient dix fois si tu les maintiens appuyés, et les œufs téléporteurs disparaissent à chaque coup.
 
-📖 353 OBJETS À COLLECTIONNER
-Six singes compagnons, chacun avec son univers thématique de 8 à 9 niveaux et une collection entière à terminer. Complétez la collection d'un niveau et le suivant se débloque.
+REMPLIS L'ALBUM
+353 objets répartis dans six mondes à thème. Complète la collection d'un niveau pour débloquer le suivant, de Tropical Paradise jusqu'au Cloud Kingdom et au-delà.
 
-🐵 SIX SINGES COMPAGNONS
-Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir et Sun Wukong. Chacun possède un bonus passif qui change votre façon de jouer : plus d'or, plus d'objets ou plus de fragments d'étoile.
+SIX SINGES COMPAGNONS
+Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir et Sun Wukong. Chacun a un bonus passif qui change ta façon de jouer : plus d'or, plus d'éclats d'étoile, plus d'objets, ou des prix du palier d'œuf supérieur.
 
-🎩 CHAPEAUX, MARTEAUX ET AMÉLIORATIONS
-Neuf marteaux et cinq chapeaux, tous avec de vrais effets et pas seulement décoratifs. Améliorations permanentes en boutique. Trois compétences actives : Rage du Singe, Oie d'Or et Milkshake à la Banane.
+JOUE PENDANT TON ABSENCE
+Débloque l'Auto-Smasher avec l'or du jeu et il continue de casser des œufs après la fermeture de l'appli. À ton retour, un rapport détaille tout ce qu'il a trouvé.
 
-⭐ PLUIE D'ÉTOILES ET MULTIPLICATEURS
-Rassemblez des fragments d'étoile pour déclencher une manche bonus Pluie d'Étoiles. Empilez les multiplicateurs avant de casser un œuf rare pour un gain unique et énorme.
+QUELQUE CHOSE À FAIRE CHAQUE JOUR
+Quêtes quotidiennes et hebdomadaires, récompenses de connexion avec bonus de série, et des trophées pour tout, du premier coup au marteau entièrement entraîné.
 
-🏆 TROPHÉES ET SECRETS
-Des dizaines de succès, des récompenses quotidiennes avec une série croissante et des secrets cachés à découvrir.
+DES MARTEAUX QUI MONTENT DE NIVEAU
+Marteaux spéciaux et chapeaux aux effets réels, pas de simple décoration. Le marteau équipé gagne de l'expérience à chaque coup et débloque un avantage unique au niveau maximum. Et trois compétences actives : Monkey Rage, Golden Goose et Banana Shake.
 
-☁️ SAUVEGARDE DANS LE CLOUD
-Connectez-vous avec Google et votre progression vous suit d'un appareil à l'autre et après une réinstallation. Entièrement facultatif — le jeu fonctionne très bien sans compte.
+STARFALL ET MULTIPLICATEURS
+Collecte des éclats d'étoile pour déclencher Starfall, une pluie d'étoiles qui vide tout le plateau. Cumule des multiplicateurs avant de casser un œuf rare pour un gain énorme.
 
-✅ PAS DE PUB. PAS DE MINUTEUR D'ÉNERGIE. PAS DE PAYWALL.
-Aucune publicité interstitielle. Aucune vidéo récompensée. Aucune attente de huit heures avant de rejouer. Les marteaux se rechargent tout seuls. Des achats uniques facultatifs existent pour le confort et l'esthétique, et rien dans le jeu n'est verrouillé derrière eux.
+SAUVEGARDE CLOUD
+Connecte-toi avec Google et ta progression te suit entre appareils et réinstallations. Entièrement facultatif. Le jeu fonctionne pleinement sans compte.
 
-Vous préférez ne rien installer ? Le jeu complet est aussi gratuit dans votre navigateur :
-egg-breaker-adventures.vercel.app
+SANS PUBS. SANS PAYWALL.
+Pas d'interstitiels, pas de vidéos récompensées. Les marteaux se régénèrent tout seuls. Quelques achats uniques facultatifs existent pour le confort ; rien dans le jeu n'est verrouillé derrière.
+
+Egg Smash Adventures est un revival indépendant fait par un fan et n'est pas affilié aux créateurs de l'Egg Breaker original.
 ```

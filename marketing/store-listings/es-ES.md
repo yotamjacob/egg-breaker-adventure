@@ -3,46 +3,48 @@
 ## Title
 
 ```
-Egg Breaker: Aventura
+Egg Smash Adventures
 ```
 
 ## Short description
 
 ```
-Rompe huevos, gana premios y completa colecciones. Sin anuncios ni esperas.
+El clásico Egg Breaker, rehecho. Rompe huevos, llena el álbum. Sin anuncios.
 ```
 
 ## Full description
 
 ```
-El clásico juego de romper huevos ha vuelto.
+Rompe huevos con un martillo. Cada golpe paga oro, fragmentos de estrella o uno de los 353 objetos coleccionables. Completa el álbum de una fase y se abre la siguiente.
 
-Rompe huevos con tu martillo, gana premios y completa tu colección: el bucle sencillo y adictivo del clásico de Facebook, reconstruido desde cero para Android por un solo desarrollador que lo echaba de menos.
+Egg Smash Adventures es un revival hecho por fans del clásico de Facebook Egg Breaker, reconstruido desde cero para Android por un único desarrollador. Sin anuncios y sin muros de pago, solo el bucle que hacía tan difícil soltar el original.
 
-🥚 ROMPE HUEVOS, GANA PREMIOS
-Siete niveles de huevos, desde el huevo Normal hasta el mítico Huevo del Siglo. Los huevos raros aguantan más golpes, pero recompensan mucho mejor: oro, fragmentos de estrella, plumas, multiplicadores y los objetos de colección que de verdad buscas.
+ROMPE HUEVOS, GANA PREMIOS
+Siete tipos de huevo, desde el huevo Normal de cada día hasta el Century Egg de 100 golpes. Los huevos raros necesitan más golpes y pagan mucho más. Algunos se deslizan por la bandeja, otros van con temporizador, los huevos globo pagan diez veces si los mantienes pulsados y los huevos teletransportadores desaparecen con cada golpe.
 
-📖 353 OBJETOS PARA COLECCIONAR
-Seis monos acompañantes, cada uno con su propio mundo temático de 8–9 fases y una colección completa que terminar. Completa la colección de una fase y se desbloquea la siguiente.
+LLENA EL ÁLBUM
+353 objetos en seis mundos temáticos. Completa la colección de una fase para desbloquear la siguiente, desde Tropical Paradise hasta Cloud Kingdom y más allá.
 
-🐵 SEIS MONOS ACOMPAÑANTES
-Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir y Sun Wukong. Cada uno tiene una bonificación pasiva que cambia tu forma de jugar: más oro, más objetos o más fragmentos de estrella.
+SEIS MONOS COMPAÑEROS
+Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir y Sun Wukong. Cada uno tiene una bonificación pasiva que cambia tu forma de jugar: más oro, más fragmentos de estrella, más objetos o premios del siguiente nivel de huevo.
 
-🎩 SOMBREROS, MARTILLOS Y MEJORAS
-Nueve martillos y cinco sombreros, todos con efectos reales y no solo decorativos. Mejoras permanentes en la tienda. Tres habilidades activas: Furia del Mono, Oca Dorada y Batido de Plátano.
+JUEGA MIENTRAS NO ESTÁS
+Desbloquea el Auto-Smasher con oro del juego y seguirá rompiendo huevos después de cerrar la app. Al volver te espera un informe con todo lo que ha encontrado.
 
-⭐ LLUVIA DE ESTRELLAS Y MULTIPLICADORES
-Reúne fragmentos de estrella para activar una ronda extra de Lluvia de Estrellas. Acumula multiplicadores antes de romper un huevo raro y consigue un premio enorme de una sola vez.
+ALGO QUE HACER CADA DÍA
+Misiones diarias y semanales, recompensas por iniciar sesión con bonificación por racha y trofeos para todo, desde tu primer golpe hasta un martillo totalmente entrenado.
 
-🏆 TROFEOS Y SECRETOS
-Decenas de logros, recompensas diarias con rachas que van a más y secretos ocultos por descubrir.
+MARTILLOS QUE SUBEN DE NIVEL
+Martillos especiales y sombreros con efectos reales, no decoración. El martillo que equipas gana experiencia con cada golpe y desbloquea una ventaja única al nivel máximo. Además, tres habilidades activas: Monkey Rage, Golden Goose y Banana Shake.
 
-☁️ GUARDADO EN LA NUBE
-Inicia sesión con Google y tu progreso te seguirá entre dispositivos y reinstalaciones. Totalmente opcional: el juego funciona perfectamente sin cuenta.
+STARFALL Y MULTIPLICADORES
+Reúne fragmentos de estrella para activar Starfall, una lluvia de estrellas que vacía toda la bandeja. Acumula multiplicadores antes de romper un huevo raro para un pago enorme.
 
-✅ SIN ANUNCIOS. SIN TEMPORIZADORES. SIN MUROS DE PAGO.
-Sin anuncios intersticiales. Sin vídeos recompensados. Sin esperar ocho horas para volver a jugar. Los martillos se recargan solos. Hay compras únicas opcionales para comodidad y cosmética, y nada del juego está bloqueado tras ellas.
+GUARDADO EN LA NUBE
+Inicia sesión con Google y tu progreso te sigue entre dispositivos y reinstalaciones. Totalmente opcional. El juego funciona por completo sin cuenta.
 
-¿Prefieres no instalar nada? El juego completo también es gratis en tu navegador:
-egg-breaker-adventures.vercel.app
+SIN ANUNCIOS. SIN MUROS DE PAGO.
+Sin intersticiales ni vídeos con recompensa. Los martillos se regeneran solos. Hay unas pocas compras únicas opcionales por comodidad; nada del juego está bloqueado tras ellas.
+
+Egg Smash Adventures es un revival independiente hecho por fans y no está afiliado a los creadores del Egg Breaker original.
 ```
