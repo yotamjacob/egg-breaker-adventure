@@ -59,8 +59,8 @@ android {
         // minSdk 23: floor required by Play Billing Library 8.1+ / 9.x
         minSdkVersion 23
         targetSdkVersion 36
-        versionCode 111
-        versionName "2.7.1"
+        versionCode 112
+        versionName "3.11.21"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -219,6 +219,9 @@ dependencies {
     // 7.1.1 and served the TWA Digital Goods API, which this raw-WebView app never
     // used (all purchases go through AndroidBridge.purchaseProduct).
     implementation 'com.android.billingclient:billing:9.1.0'
+    // Play In-App Review (AndroidBridge.requestReview). Use this artifact, NOT the
+    // deprecated monolithic com.google.android.play:core, which clashes with Billing 9.
+    implementation 'com.google.android.play:review:2.0.2'
     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
     // WindowCompat / WindowInsetsControllerCompat — one edge-to-edge code path for
     // all API levels, no deprecated setSystemUiVisibility. Declared explicitly rather

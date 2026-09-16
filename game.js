@@ -1105,6 +1105,26 @@ function activateSkill(i) {
 }
 
 // ==================== COLLECTION / STAGE ====================
+
+// ── Play in-app review prompt ─────────────────────────────────
+// Asks exactly once, only inside the Play app, on the SECOND completed stage
+// (the first one already fires the Starfall tip). Own localStorage key so a
+// resetGame() does not re-ask — same pattern as _cloudLinkPref / PREMIUM_KEY.
+// The flag is written only when the call actually fires, so an attempt that
+// was blocked by an open modal gets another chance on the next stage.
+const REVIEW_KEY = '_ebaReviewAsked';
+function maybeRequestReview() {
+  if (!(window.AndroidBridge && typeof AndroidBridge.requestReview === 'function')) return;
+  try { if (localStorage.getItem(REVIEW_KEY)) return; } catch (e) {}
+  setTimeout(() => {
+    if (document.querySelector('.overlay:not(.hidden)')) return;   // stage banner / modal still up
+    try {
+      localStorage.setItem(REVIEW_KEY, '1');
+      track('review-prompt');
+      AndroidBridge.requestReview();
+    } catch (e) {}
+  }, 6000);
+}
 function checkCollectionComplete(suppressFlash) {
   const prog = curProgress();
   const si = curActiveStage();
@@ -1156,6 +1176,7 @@ function checkCollectionComplete(suppressFlash) {
       // Gold → Complete: banana reward + hammers
       track('stage-complete', { monkey: curMonkey().name, stage: stage.name });
       G.stagesCompleted++;
+      if (G.stagesCompleted === 2) maybeRequestReview();
       G.crystalBananas += CONFIG.crystalBananasPerStage;
       const refill3 = Math.round(CONFIG.tierRewards.complete.hammerRefill * _tHMult);
       G.hammers += refill3;

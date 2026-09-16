@@ -5,46 +5,48 @@
 ## Title
 
 ```
-Egg Breaker Adventure Revival
+Egg Smash Adventures
 ```
 
 ## Short description
 
 ```
-Smash eggs, win prizes, complete collections. No ads, no timers, no paywalls.
+Egg Breaker classic, rebuilt. Smash eggs, fill the album. No ads, no paywalls.
 ```
 
 ## Full description
 
 ```
-The classic egg-smashing game is back.
+Smash eggs with a hammer. Every crack pays out gold, star pieces or one of 353 collectible items. Fill a stage's album and the next one opens up.
 
-Smash eggs with your hammer, win prizes and fill your collection — the simple, satisfying loop of the Facebook classic, rebuilt from scratch for Android by one developer who missed it.
+Egg Smash Adventures is a fan revival of the Facebook classic Egg Breaker, rebuilt from scratch for Android by one developer who missed it. No ads and no paywalls, just the loop that made the original so hard to put down.
 
-🥚 SMASH EGGS, WIN PRIZES
-Seven egg tiers, from the everyday Normal egg to the mythical Century Egg. Rarer eggs take more hits but pay out far more: gold, star pieces, feathers, multipliers — and the collection items you are actually hunting.
+SMASH EGGS, WIN PRIZES
+Seven kinds of egg, from everyday Normal eggs to the 100-hit Century Egg. Rarer eggs take more hits and pay far more. Some slide around the tray, some run on a timer, balloon eggs pay ten times if you long-press them, and teleporting eggs beam away every time you hit them.
 
-📖 353 ITEMS TO COLLECT
-Six monkey companions, each with their own themed world of 8–9 stages and a full collection to complete. Fill a stage's collection and the next one unlocks.
+FILL THE ALBUM
+353 items across six themed worlds. Complete a stage's collection to unlock the next, from Tropical Paradise all the way to the Cloud Kingdom and beyond.
 
-🐵 SIX MONKEY COMPANIONS
-Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir and Sun Wukong. Each has a passive bonus that changes how you play — more gold, more items, more star pieces.
+SIX MONKEY COMPANIONS
+Mr. Monkey, Steampunk Monkey, Princess Monkey, Space Cadette, Odin Grímnir and Sun Wukong. Each has a passive bonus that changes how you play: more gold, more star pieces, more items, or prizes from the next egg tier up.
 
-🎩 HATS, HAMMERS AND UPGRADES
-Nine hammers and five hats, all with real effects rather than pure decoration. Permanent shop upgrades. Three active skills: Monkey Rage, Golden Goose and Banana Shake.
+PLAYS WHILE YOU ARE AWAY
+Unlock the Auto-Smasher with in-game gold and it keeps cracking eggs after you close the app. Come back to a report of everything it found.
 
-⭐ STARFALL AND MULTIPLIERS
-Collect star pieces to trigger a Starfall bonus round. Stack multipliers before cracking a rare egg for one enormous payout.
+SOMETHING TO DO EVERY DAY
+Daily and weekly quests, login rewards with a streak bonus, and trophies for everything from your first crack to a fully trained hammer.
 
-🏆 TROPHIES AND SECRETS
-Dozens of achievements, daily rewards with an escalating streak, and hidden secrets to stumble across.
+HAMMERS THAT LEVEL UP
+Special hammers and hats with real effects, not decoration. The hammer you equip earns experience with every hit and unlocks a unique perk at max level. Three active skills on top: Monkey Rage, Golden Goose and Banana Shake.
 
-☁️ CLOUD SAVE
-Sign in with Google and your progress follows you across devices and reinstalls. Entirely optional — the game works perfectly without an account.
+STARFALL AND MULTIPLIERS
+Collect star pieces to trigger Starfall, a rain of stars that clears the whole tray. Stack multipliers before cracking a rare egg for one enormous payout.
 
-✅ NO ADS. NO ENERGY TIMERS. NO PAYWALLS.
-No interstitial ads. No rewarded videos. No eight-hour waits to play again. Hammers regenerate on their own. Optional one-time purchases exist for convenience and cosmetics, and nothing in the game is locked behind them.
+CLOUD SAVE
+Sign in with Google and your progress follows you across devices and reinstalls. Entirely optional. The game works fully without an account.
 
-Prefer not to install? The full game is also free in your browser:
-egg-breaker-adventures.vercel.app
+NO ADS. NO PAYWALLS.
+No interstitials and no rewarded videos. Hammers regenerate on their own. A few optional one-time purchases exist for convenience; nothing in the game is locked behind them.
+
+Egg Smash Adventures is an independent fan revival and is not affiliated with the makers of the original Egg Breaker.
 ```

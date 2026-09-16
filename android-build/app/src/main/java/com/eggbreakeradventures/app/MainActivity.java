@@ -33,6 +33,9 @@ import com.android.billingclient.api.QueryProductDetailsParams;
 import com.android.billingclient.api.QueryPurchasesParams;
 
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -126,6 +129,24 @@ public class MainActivity extends Activity {
             public void jsReady() {
                 _jsReady = true;
                 if (_billingReady) queryOwnedPurchases();
+            }
+
+            // Called from JS: window.AndroidBridge.requestReview()
+            // Play's in-app rating dialog. Play alone decides whether it appears
+            // (quota, installed-from-Play) and never reports back — fire and forget.
+            // Bridge methods run on a WebView worker thread; the review flow needs the UI thread.
+            @JavascriptInterface
+            public void requestReview() {
+                runOnUiThread(() -> {
+                    try {
+                        final ReviewManager mgr = ReviewManagerFactory.create(MainActivity.this);
+                        mgr.requestReviewFlow().addOnCompleteListener(task -> {
+                            if (!task.isSuccessful()) return;
+                            ReviewInfo info = task.getResult();
+                            mgr.launchReviewFlow(MainActivity.this, info);
+                        });
+                    } catch (Exception ignored) {}
+                });
             }
 
             // Called from JS: window.AndroidBridge.purchaseProduct('gold_s')

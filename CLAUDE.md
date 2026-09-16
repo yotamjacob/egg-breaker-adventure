@@ -51,13 +51,24 @@ Supabase migrations: the remote history was repaired in v3.10.10, so `supabase d
 ## Android build & sign
 ```bash
 cd android-build
-JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-./gradlew bundleRelease
+JAVA_HOME=/opt/homebrew/opt/openjdk@21      # Homebrew JDK — Android Studio is not installed on the current Mac
+~/.gradle/wrapper/dists/gradle-8.14.3-all/*/gradle-8.14.3/bin/gradle --no-daemon bundleRelease   # no gradlew in this checkout
 "$JAVA_HOME/bin/jarsigner" \
   -keystore android.keystore -storepass 'Eggrolls1246' -keypass 'Eggrolls1246' \
   -signedjar app-release-signed.aab \
   app/build/outputs/bundle/release/app-release.aab eggbreaker
 ```
+- **Upload keystore** `android-build/android.keystore` is gitignored (the repo is public — never commit it).
+  The original was lost with the old Mac (Aug 2026); a new upload key with the same alias/passwords was
+  generated 2026-09-16 and an upload-key reset was requested in Play Console (Play App Signing holds
+  the real app key, so only the upload key changed). **Backup: iCloud Drive → `EggSmashAdventures-keys/`**
+  (keystore + `upload_certificate.pem` + README). On a new machine, restore it there before signing.
+- **Gitignored files the build needs** — a fresh clone has none of them (all recreated 2026-09-16):
+  `settings.gradle` (`include ':app'`), `gradle.properties` (`android.useAndroidX=true`),
+  `local.properties` (`sdk.dir=/opt/homebrew/share/android-commandlinetools`), `app/google-services.json`
+  (Firebase project `egg-breaker-adventures-revival`, values recoverable from any old signed AAB's
+  resources), and the PNGs `res/drawable-*/ic_notification_icon.png` + `shortcut_{0,1,2}.png`. A missing
+  one surfaces as an AAPT "resource … not found" or a google-services plugin error.
 - Version code/name lives in `android-build/app/build.gradle` (versionCode int, versionName string)
 - Launcher name: `twaManifest.launcherName` in `build.gradle` + `twa-manifest.json`
 - Mipmap icons: `android-build/app/src/main/res/mipmap-*/ic_launcher.png` + `ic_maskable.png`
