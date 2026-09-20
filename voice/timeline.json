@@ -1,0 +1,26 @@
+{
+ "kegel": {
+  "leads": [
+   13,
+   8,
+   8,
+   9
+  ],
+  "routineSeconds": 618.0,
+  "audioSeconds": 624.99,
+  "size": 3750574
+ },
+ "snore": {
+  "leads": [
+   19,
+   11,
+   10,
+   10,
+   13,
+   11
+  ],
+  "routineSeconds": 634.0,
+  "audioSeconds": 640.84,
+  "size": 3845711
+ }
+}

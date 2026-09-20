@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Routines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12191c; --surface:#1b2529; --surface-2:#233035; --line:#2c3a40;
+    --text:#eef3f2; --muted:#8397a0; --faint:#4a5c62;
+    --mint:#6fd0b8; --sand:#e6b877; --sky:#8bb8d8; --hold:#9aa7ac;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:radial-gradient(120% 90% at 50% -10%, #17232700 0%, var(--bg) 60%), var(--bg);
+    color:var(--text); font-family:"Space Grotesk", system-ui, -apple-system, sans-serif;
+    display:flex; align-items:flex-start; justify-content:center; padding:14px 16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .shell{width:100%;max-width:460px}
+  .app{width:100%}
+  .app[hidden]{display:none}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin-bottom:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+  .tab{flex:1;padding:8px 10px;font-size:13px;font-weight:500;letter-spacing:.3px;border-radius:11px;
+    background:transparent;border:1px solid transparent;color:var(--muted)}
+  .tab:hover{background:var(--surface-2)}
+  .tab.active{background:var(--surface-2);border-color:var(--line);color:var(--text)}
+  .tab .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:1px;background:var(--faint)}
+  .tab.active .dot{background:var(--tabc)}
+  .tab.today-done .dot{background:var(--mint)}
+
+  header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+  .title{font-family:"Instrument Serif",Georgia,serif;font-size:21px;letter-spacing:.2px}
+  .title em{font-style:italic;color:var(--accent)}
+  .total{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;letter-spacing:.5px}
+  .total b{color:var(--text);font-weight:500}
+
+  .segs{display:flex;gap:6px;margin-bottom:14px}
+  .seg{flex:1;height:12px;border-radius:99px;background:var(--line);overflow:hidden}
+  .seg .fill{height:100%;width:0%;background:var(--accent);border-radius:99px;transition:width .25s linear}
+  .seg.done .fill{width:100%}
+
+  .stage{position:relative;height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .halo{position:absolute;width:175px;height:175px;border-radius:50%;
+    background:radial-gradient(circle, currentColor 0%, transparent 70%);color:var(--accent);opacity:.14;filter:blur(6px)}
+  .ring{position:absolute;width:160px;height:160px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);
+    box-shadow:inset 0 0 40px -18px currentColor, 0 0 0 1px #ffffff08;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;will-change:transform}
+  .cue-label{font-family:"Instrument Serif",serif;font-size:21px;font-style:italic;color:var(--text);letter-spacing:.3px;text-align:center;padding:0 14px}
+  .cue-count{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px;margin-top:1px}
+  .phase-count{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);white-space:nowrap;
+    font-variant-numeric:tabular-nums;font-size:11px;color:var(--faint);letter-spacing:1px}
+
+  .phase-name{font-family:"Instrument Serif",serif;font-size:19px;text-align:center;margin:6px 0 3px}
+  .note{color:var(--muted);font-size:12px;line-height:1.5;text-align:center;min-height:36px;max-width:400px;margin:0 auto 3px}
+  .next{text-align:center;color:var(--faint);font-size:11px;letter-spacing:.4px;margin-bottom:12px;min-height:14px}
+  .next span{color:var(--muted)}
+
+  .controls{display:flex;gap:10px;justify-content:center}
+  button{font-family:inherit;cursor:pointer;color:var(--text);background:var(--surface);
+    border:1px solid var(--line);border-radius:14px;transition:background .15s,border-color .15s,transform .05s}
+  button:hover{background:var(--surface-2)}
+  button:active{transform:translateY(1px)}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .primary{flex:1;font-size:15px;font-weight:500;padding:12px;background:var(--accent);color:#0d1518;border-color:transparent;letter-spacing:.3px}
+  .primary:hover{filter:brightness(1.08);background:var(--accent)}
+  .icon{width:46px;display:flex;align-items:center;justify-content:center}
+  .icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .voiceBtn.on{border-color:var(--accent);color:var(--accent)}
+  .voiceBtn .wave{transition:opacity .15s}
+  .voiceBtn:not(.on) .wave{opacity:0}
+  .voiceBtn:not(.on) .mute{opacity:1}
+  .voiceBtn .mute{opacity:0}
+  .hint{text-align:center;color:var(--faint);font-size:10.5px;margin-top:8px;letter-spacing:.3px;min-height:14px}
+  .hint .warn{color:var(--sand)}
+
+  /* real-world practice reminder */
+  .field{margin:0 0 12px;background:linear-gradient(135deg,#1f2b30,#1b2529);
+    border:1px solid var(--line);border-left:3px solid var(--sand);
+    border-radius:10px;padding:7px 11px;display:flex;gap:8px;align-items:flex-start}
+  .field .emoji{font-size:13px;line-height:1.5}
+  .field .txt{font-size:11px;line-height:1.45;color:var(--muted)}
+  .field .txt b{color:var(--text);font-weight:500}
+  .field .txt em{color:var(--sand);font-style:normal}
+
+  /* consistency panel */
+  .panel{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px}
+  .stats{display:flex;gap:8px;margin-bottom:10px}
+  .stat{flex:1;text-align:center;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:7px 6px}
+  .stat .num{font-family:"Instrument Serif",serif;font-size:22px;line-height:1;color:var(--accent)}
+  .stat .lbl{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px}
+
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .cal-head .mon{font-family:"Instrument Serif",serif;font-size:15px}
+  .cal-nav{display:flex;gap:6px}
+  .cal-nav button{width:26px;height:26px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:15px}
+  .dow{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+  .dow span{text-align:center;font-size:10px;letter-spacing:.5px;color:var(--faint)}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+  .cell{aspect-ratio:1.35;display:flex;align-items:center;justify-content:center;font-size:11px;
+    font-variant-numeric:tabular-nums;color:var(--muted);border-radius:9px;border:1px solid transparent}
+  .cell.done{background:var(--accent);color:#0d1518;font-weight:500}
+  .cell.today{border-color:var(--sand)}
+  .cell.future{opacity:.4}
+
+  .sync-msg{text-align:center;font-size:10px;color:var(--faint);margin-top:7px;min-height:12px}
+
+  .sources{margin-top:10px;text-align:center;font-size:10px;color:var(--faint);line-height:1.6}
+  .sources a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--faint)}
+  .sources a:hover{color:var(--text)}
+
+  .done .phase-name{color:var(--accent)}
+  @media (prefers-reduced-motion: reduce){ .seg .fill{transition:none} }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <div id="mount"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const C = { mint:"#6fd0b8", sand:"#e6b877", sky:"#8bb8d8", hold:"#9aa7ac" };
+
+  /* ============================================================
+     Routine definitions. Each routine owns its phases, its own
+     completed-days store and its own calendar. Adding a routine
+     is adding an entry here.
+
+     VOICE: voice/<id>.mp3 is one continuous guided track per
+     routine, generated by tools/gen-voice.py from these same
+     definitions. Every phase starts with a spoken lead-in
+     ("Get ready") whose length comes from voice/timeline.json
+     (LEADS below). Change any dur/cue -> regenerate the audio
+     and update LEADS, otherwise voice and visuals drift apart.
+     ============================================================ */
+  const LEADS = {"kegel":[13,8,8,9],"snore":[19,11,10,10,13,11]};
+
+  // Quick-pulse phase: 10 pulses (1s on / 1s off) then a real 20s rest = one 40s round.
+  function pulseCues(){
+    const c=[];
+    for(let i=0;i<10;i++){
+      c.push({label:"Pulse "+(i+1),t:1,scale:0.62,color:C.mint});
+      c.push({label:"Off",t:1,scale:1.00,color:C.sand});
+    }
+    c.push({label:"Rest",t:20,scale:1.00,color:C.sand});
+    return c;
+  }
+  // Rep pattern: `n` reps of (on `a`s / off `b`s) with the given labels.
+  function reps(n, onLabel, a, onScale, offLabel, b, onColor){
+    const c=[];
+    for(let i=0;i<n;i++){
+      c.push({label:onLabel,t:a,scale:onScale,color:onColor||C.mint});
+      c.push({label:offLabel,t:b,scale:1.00,color:C.sand});
+    }
+    return c;
+  }
+
+  const ROUTINES = [
+    {
+      id:"kegel",
+      tab:"Control",
+      accent:C.mint,
+      title:'Daily <em>Control</em> Routine',
+      fieldEmoji:"🏋️",
+      field:'<b>Field training 1–2×/week:</b> <em>stop-start</em> during intimacy — pause at high arousal, contract, let it settle, resume. Cruise <em>~7/10</em>.',
+      hint:"space = start / pause · once daily · results in 4–12 weeks",
+      doneNote:"Nice work. Gym session done — remember, the real skill-building happens in the field. 😉",
+      storeKey:"routine:completedDays",          // unchanged: keeps existing history
+      syncId:"dcr-q7v2m9x4kf8s",
+      phases:[
+        { name:"Slow Kegel holds", dur:180,
+          note:"Contract the pelvic floor, hold 5s, then fully relax 5s. ~15–18 reps. Keep abs, glutes and thighs loose; breathe normally.",
+          cues:[{label:"Contract",t:5,scale:0.55,color:C.mint},{label:"Relax",t:5,scale:1.00,color:C.sand}]},
+        { name:"Quick Kegel pulses", dur:160,
+          note:"Rapid pulses — 1s on, 1s off, ×10. Then ease off for a 20s rest. 4 rounds. Trains the fast-twitch fibers.",
+          cues:pulseCues()},
+        { name:"Endurance hold", dur:120,
+          note:"Contract at about 50% effort, hold 10s, rest 10s. 6 reps. Build toward 15s holds over the coming weeks.",
+          cues:[{label:"Hold · 50%",t:10,scale:0.64,color:C.mint},{label:"Rest",t:10,scale:1.00,color:C.sand}]},
+        { name:"Reverse Kegels", dur:120,
+          note:"Gently push outward/downward (like starting to urinate), hold 5s, relax 5s. ~12 reps. Learning to release matters as much as tensing.",
+          cues:[{label:"Push out",t:5,scale:1.00,color:C.sky},{label:"Relax",t:5,scale:0.70,color:C.sand}]},
+      ]
+    },
+    {
+      id:"snore",
+      tab:"Anti-snore",
+      accent:C.sky,
+      title:'Daily <em>Anti-Snore</em> Routine',
+      fieldEmoji:"🌙",
+      field:'<b>All day, every day:</b> chew and swallow on <em>alternating sides</em> at each meal, keep lips closed and <em>breathe through the nose</em>, and sleep on your side. Skip alcohol within 3h of bed.',
+      hint:"space = start / pause · once daily · results in 8–12 weeks",
+      doneNote:"Nice work. Tongue, palate and cheeks trained — the nights get quieter the more days you stack. 🌙",
+      storeKey:"routine:snore:completedDays",
+      syncId:"dsr-m3k8p1w6zt4q",
+      phases:[
+        { name:"Nasal breathing posture", dur:60,
+          note:"Lips closed, teeth slightly apart, tongue tip resting on the spot just behind the upper front teeth, whole tongue lightly suctioned to the palate. Slow breaths through the nose: in 4s, out 6s.",
+          cues:[{label:"Inhale",t:4,scale:1.00,color:C.sky},{label:"Exhale",t:6,scale:0.78,color:C.sand}]},
+        { name:"Tongue slide", dur:100,
+          note:"Press the tip of the tongue against the hard palate just behind the front teeth and slide it firmly backward along the roof of the mouth. Release. 20 reps.",
+          cues:reps(20,"Push & slide",3,0.60,"Release",2,C.mint)},
+        { name:"Tongue suction hold", dur:100,
+          note:"Suck the entire tongue flat up against the palate (like the start of a click) and hold it there, lips closed. Relax. 20 reps.",
+          cues:reps(20,"Suck up · hold",3,0.58,"Relax",2,C.mint)},
+        { name:"Tongue press-down", dur:100,
+          note:"Keep the tip of the tongue touching the lower front teeth and force the back of the tongue down against the floor of the mouth. Relax. 20 reps.",
+          cues:reps(20,"Press down",3,0.66,"Relax",2,C.mint)},
+        { name:"Soft palate lift", dur:100,
+          note:"Say a strong, open \"Ahh\" and feel the soft palate and uvula rise at the back of the throat; hold the lift, then rest. 20 reps. Do 10 out loud, 10 silently with the same lift.",
+          cues:reps(20,"Say “Ahh”",3,0.62,"Rest",2,C.sky)},
+        { name:"Cheek press", dur:100,
+          note:"Place a clean index finger inside one cheek and push the cheek outward while the cheek muscle pulls inward against it. 10 reps left, then 10 reps right.",
+          cues:reps(10,"Press · left",3,0.64,"Relax",2,C.mint).concat(reps(10,"Press · right",3,0.64,"Relax",2,C.mint))},
+      ],
+      sources:'Protocol after Ieto et al., <a href="https://pubmed.ncbi.nlm.nih.gov/25950418/" target="_blank" rel="noopener">Chest 2015</a> (snoring −36% frequency, −59% power over 3 months) · <a href="https://pubmed.ncbi.nlm.nih.gov/29275425/" target="_blank" rel="noopener">meta-analysis 2018</a> · <a href="https://www.nature.com/articles/s41598-024-79884-0" target="_blank" rel="noopener">10-min daily program, Sci Rep 2024</a>'
+    }
+  ];
+
+  const TEMPLATE = `
+  <header>
+    <div class="title"></div>
+    <div class="total"><b class="totalRemain">0:00</b> left</div>
+  </header>
+  <div class="field"><div class="emoji"></div><div class="txt"></div></div>
+  <div class="segs"></div>
+  <div class="stage">
+    <div class="halo"></div>
+    <div class="ring">
+      <div class="cue-label">Ready</div>
+      <div class="cue-count"></div>
+    </div>
+    <div class="phase-count"></div>
+  </div>
+  <div class="phase-name"></div>
+  <div class="note"></div>
+  <div class="next"></div>
+  <div class="controls">
+    <button class="icon resetBtn" title="Reset" aria-label="Reset">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+    </button>
+    <button class="primary startBtn">Start</button>
+    <button class="icon skipBtn" title="Skip phase" aria-label="Skip phase">
+      <svg viewBox="0 0 24 24"><path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/></svg>
+    </button>
+    <button class="icon voiceBtn" title="Voice guidance" aria-label="Voice guidance" aria-pressed="true">
+      <svg viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10z"/><path class="wave" d="M16 9a4 4 0 0 1 0 6"/><path class="wave" d="M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="mute" d="M17 9l4 6M21 9l-4 6"/></svg>
+    </button>
+  </div>
+  <div class="hint"></div>
+  <audio class="voiceAudio" preload="none"></audio>
+  <div class="panel">
+    <div class="stats">
+      <div class="stat"><div class="num streakNum">0</div><div class="lbl">Day streak</div></div>
+      <div class="stat"><div class="num totalNum">0</div><div class="lbl">Days done</div></div>
+    </div>
+    <div class="cal-head">
+      <div class="mon calMon">Month</div>
+      <div class="cal-nav">
+        <button class="prevMon" aria-label="Previous month">‹</button>
+        <button class="nextMon" aria-label="Next month">›</button>
+      </div>
+    </div>
+    <div class="dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+    <div class="grid calGrid"></div>
+    <div class="sync-msg">—</div>
+  </div>
+  <div class="sources"></div>`;
+
+  const fmt = s => { s=Math.max(0,Math.ceil(s)); const m=Math.floor(s/60); return m+":"+String(s%60).padStart(2,"0"); };
+  const fmtCue = s => Math.max(0,Math.ceil(s))+"s";
+  const easeInOut = p => -(Math.cos(Math.PI*p)-1)/2;
+  const dkey = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const today=new Date();
+  const VOICE_KEY="routine:voice";
+  let voiceOn=true;
+  try{ voiceOn = localStorage.getItem(VOICE_KEY)!=="0"; }catch(e){}
+
+  /* ============================================================
+     One routine instance = one section with its own timer state,
+     store, calendar, voice track and sync channel.
+     The clock is a single number, `elapsed` (seconds into the
+     routine); phase and cue are derived from it. With voice on,
+     the audio element's currentTime IS the clock, so the visuals
+     can never drift from what the voice says, and the routine
+     keeps running with the screen off (the audio keeps playing).
+     ============================================================ */
+  function makeRoutine(cfg, mount, onChange){
+    const PHASES=cfg.phases;
+    const leads=LEADS[cfg.id]||[];
+    PHASES.forEach((p,i)=>{
+      p.lead=leads[i]||0;
+      p.cycle=p.cues.reduce((s,c)=>s+c.t,0);
+      p.leadCue={label:"Get ready",t:p.lead,scale:1.00,color:C.hold,lead:true};
+    });
+    const STARTS=[]; let acc=0;
+    PHASES.forEach(p=>{ STARTS.push(acc); acc+=p.lead+p.dur; });
+    const TOTAL=acc;
+    const approx = Math.round(TOTAL/60);
+
+    const sec=document.createElement("section");
+    sec.className="app"; sec.id="app-"+cfg.id; sec.hidden=true;
+    sec.style.setProperty("--accent", cfg.accent);
+    sec.innerHTML=TEMPLATE;
+    mount.appendChild(sec);
+    const q = s => sec.querySelector(s);
+
+    q(".title").innerHTML=cfg.title;
+    q(".field .emoji").textContent=cfg.fieldEmoji;
+    q(".field .txt").innerHTML=cfg.field;
+    q(".sources").innerHTML=cfg.sources||"";
+    q(".cue-count").textContent="~"+approx+" min";
+
+    const ring=q(".ring"),halo=q(".halo"),cueLabel=q(".cue-label"),cueCount=q(".cue-count"),
+          phaseCount=q(".phase-count"),phaseName=q(".phase-name"),note=q(".note"),next=q(".next"),
+          totalRemain=q(".totalRemain"),startBtn=q(".startBtn"),segsWrap=q(".segs"),
+          hint=q(".hint"),voiceBtn=q(".voiceBtn"),audio=q(".voiceAudio");
+
+    const segFills=[];
+    PHASES.forEach(()=>{const s=document.createElement("div");s.className="seg";
+      const f=document.createElement("div");f.className="fill";s.appendChild(f);segsWrap.appendChild(s);segFills.push({seg:s,fill:f});});
+
+    let running=false,finished=false,elapsed=0,phaseIdx=-1,curCue=null,cueElapsed=0;
+    let fromScale=1,toScale=1,curScale=1,last=0,seekTries=0,lastSeek=0;
+
+    /* ---------- voice track ---------- */
+    const VOICE_SRC="voice/"+cfg.id+".mp3";
+    let voiceErr=false;
+    audio.addEventListener("error",()=>{ voiceErr=true; setHint(); });
+    audio.addEventListener("stalled",()=>{ setHint("loading voice…"); });
+    audio.addEventListener("playing",()=>{ setHint(); });
+    function voiceLive(){ return voiceOn && !voiceErr && !audio.paused && !audio.ended && audio.readyState>=2; }
+    function setHint(extra){
+      hint.innerHTML = (extra?'<span class="warn">'+extra+'</span> · ':'') +
+        (voiceErr && voiceOn ? '<span class="warn">voice track unavailable — running silent</span> · ' : '') + cfg.hint;
+    }
+    function voiceStart(){
+      if(!voiceOn||voiceErr) return;
+      if(!audio.getAttribute("src")){ audio.src=VOICE_SRC; audio.load(); }
+      const seek=()=>{ if(Math.abs(audio.currentTime-elapsed)>0.35) try{ audio.currentTime=elapsed; }catch(e){} };
+      if(audio.readyState>=1) seek(); else audio.addEventListener("loadedmetadata",seek,{once:true});
+      audio.play().catch(()=>{ voiceErr=true; setHint(); });
+    }
+    function voiceStop(){ if(!audio.paused) audio.pause(); }
+    function voiceSeek(){ if(!voiceOn||voiceErr) return; const go=()=>{ try{ audio.currentTime=elapsed; }catch(e){} }; if(audio.readyState>=1) go(); else audio.addEventListener("loadedmetadata",go,{once:true}); }
+    function setVoice(on){
+      voiceOn=on;
+      try{ localStorage.setItem(VOICE_KEY,on?"1":"0"); }catch(e){}
+      document.querySelectorAll(".voiceBtn").forEach(b=>{ b.classList.toggle("on",on); b.setAttribute("aria-pressed",on?"true":"false"); });
+      if(on){ voiceErr=false; if(running) voiceStart(); }
+      else voiceStop();
+      setHint();
+    }
+    voiceBtn.onclick=()=>setVoice(!voiceOn);
+    voiceBtn.classList.toggle("on",voiceOn);
+    setHint();
+
+    /* ---------- clock -> phase/cue ---------- */
+    function locate(t){
+      let i=PHASES.length-1;
+      for(let k=0;k<PHASES.length;k++){ if(t < STARTS[k]+PHASES[k].lead+PHASES[k].dur){ i=k; break; } }
+      const p=PHASES[i], within=t-STARTS[i];
+      if(within<p.lead) return {i, within, cue:p.leadCue, cueElapsed:within};
+      let w=(within-p.lead)%p.cycle, cum=0;
+      for(const c of p.cues){ if(w<cum+c.t) return {i, within, cue:c, cueElapsed:w-cum}; cum+=c.t; }
+      return {i, within, cue:p.cues[p.cues.length-1], cueElapsed:0};
+    }
+    function paint(color){ ring.style.borderColor=color; ring.style.color=color; halo.style.color=color; }
+    function showPhase(i){
+      phaseIdx=i;
+      const p=PHASES[i];
+      phaseName.textContent=p.name; note.textContent=p.note;
+      next.innerHTML = i<PHASES.length-1 ? 'Next &nbsp;·&nbsp; <span>'+PHASES[i+1].name+'</span>' : 'Last phase';
+      segFills.forEach((s,idx)=>{s.seg.classList.toggle("done",idx<i); s.fill.style.width = idx<i ? "100%" : "0%";});
+    }
+    function showCue(cue){
+      curCue=cue; fromScale=curScale; toScale=cue.scale;
+      cueLabel.textContent=cue.label; paint(cue.color);
+    }
+    function sync(){
+      const L=locate(elapsed);
+      if(L.i!==phaseIdx) showPhase(L.i);
+      if(L.cue!==curCue) showCue(L.cue);
+      cueElapsed=L.cueElapsed;
+      return L;
+    }
+    function render(L){
+      const p=PHASES[L.i];
+      curScale=fromScale+(toScale-fromScale)*easeInOut(Math.min(1,cueElapsed/L.cue.t));
+      ring.style.transform="scale("+curScale.toFixed(3)+")";
+      cueCount.textContent=fmtCue(L.cue.t-cueElapsed);
+      phaseCount.textContent=p.name.toUpperCase()+"  ·  "+fmt(p.lead+p.dur-L.within);
+      segFills[L.i].fill.style.width=Math.min(100,(L.within/(p.lead+p.dur))*100)+"%";
+      totalRemain.textContent=fmt(TOTAL-elapsed);
+    }
+    function finish(){
+      running=false;finished=true;elapsed=TOTAL;sec.classList.add("done");
+      segFills.forEach(s=>{s.seg.classList.add("done");s.fill.style.width="100%";});
+      totalRemain.textContent=fmt(0);
+      cueLabel.textContent="Done";cueCount.textContent="";
+      phaseName.textContent="Routine complete";
+      note.textContent=cfg.doneNote;
+      next.innerHTML="";phaseCount.textContent="";
+      curScale=0.85;ring.style.transform="scale(0.85)";
+      paint(cfg.accent);
+      startBtn.textContent="Restart";
+      markToday();                      // the voice track ends by itself ("Routine complete…")
+    }
+    function frame(now){
+      if(running){
+        const dt=Math.min(0.1,(now-last)/1000); last=now;
+        if(voiceLive()){
+          const at=Math.min(TOTAL, audio.currentTime), drift=at-elapsed;
+          if(drift>-1.5){ elapsed=at; seekTries=0; }             // audio is the clock (ahead after a screen-off stretch is fine)
+          else{                                                   // audio fell behind (failed seek / stall): keep the UI moving, re-seek, then give up
+            elapsed+=dt;
+            if(now-lastSeek>2000){ lastSeek=now; if(++seekTries>3){ voiceErr=true; voiceStop(); setHint("voice out of sync — running silent"); } else voiceSeek(); }
+          }
+        } else elapsed+=dt;
+        if(elapsed>=TOTAL){ finish(); return; }
+        render(sync());
+      } else { last=now; }
+    }
+    function toggle(){
+      if(finished){reset();}
+      running=!running;
+      if(running){ startBtn.textContent="Pause"; sync(); voiceStart(); }
+      else{ startBtn.textContent="Resume"; voiceStop(); }
+    }
+    function pause(){ if(running) toggle(); }
+    function reset(){
+      running=false;finished=false;sec.classList.remove("done");curScale=1;elapsed=0;
+      voiceStop(); if(audio.readyState>=1){ try{ audio.currentTime=0; }catch(e){} }
+      phaseIdx=-1;curCue=null;showPhase(0);
+      cueLabel.textContent="Ready";cueCount.textContent="~"+approx+" min";
+      ring.style.transform="scale(1)";paint(cfg.accent);
+      phaseCount.textContent="";
+      totalRemain.textContent=fmt(TOTAL);
+      segFills.forEach(s=>{s.seg.classList.remove("done");s.fill.style.width="0%";});
+      startBtn.textContent="Start";
+    }
+    function skip(){
+      if(finished) return;
+      const L=locate(elapsed);
+      if(L.i>=PHASES.length-1){ finish(); return; }
+      elapsed=STARTS[L.i+1]; voiceSeek(); render(sync());
+    }
+
+    startBtn.onclick=toggle; q(".resetBtn").onclick=reset; q(".skipBtn").onclick=skip;
+
+    /* ---------- consistency tracker ---------- */
+    const STORE_KEY=cfg.storeKey;
+    let doneSet=new Set();
+    let view=new Date(); view.setDate(1);
+
+    async function loadDays(){
+      try{
+        const ls=localStorage.getItem(STORE_KEY);
+        if(ls){ doneSet=new Set(JSON.parse(ls)); }
+        else if(window.storage){ const r=await window.storage.get(STORE_KEY); if(r&&r.value) doneSet=new Set(JSON.parse(r.value)); }
+      }catch(e){}
+      renderStats(); renderCal();
+    }
+    async function saveDays(){
+      const payload=JSON.stringify([...doneSet]);
+      try{ localStorage.setItem(STORE_KEY,payload); }catch(e){}
+      try{ if(window.storage) await window.storage.set(STORE_KEY,payload); }catch(e){}
+    }
+    function markToday(){
+      doneSet.add(dkey(today)); saveDays(); renderStats(); renderCal(); pushServer();
+    }
+    function streak(){
+      let n=0, d=new Date(today);
+      if(!doneSet.has(dkey(d))) d.setDate(d.getDate()-1); // grace: today not done yet
+      while(doneSet.has(dkey(d))){ n++; d.setDate(d.getDate()-1); }
+      return n;
+    }
+    function renderStats(){
+      q(".streakNum").textContent=streak();
+      q(".totalNum").textContent=doneSet.size;
+      if(onChange) onChange();
+    }
+    function renderCal(){
+      const y=view.getFullYear(), m=view.getMonth();
+      q(".calMon").textContent=view.toLocaleString(undefined,{month:"long",year:"numeric"});
+      const grid=q(".calGrid"); grid.innerHTML="";
+      const first=new Date(y,m,1).getDay();
+      const days=new Date(y,m+1,0).getDate();
+      for(let i=0;i<first;i++){ const b=document.createElement("div"); b.className="cell blank"; grid.appendChild(b); }
+      for(let day=1;day<=days;day++){
+        const d=new Date(y,m,day), k=dkey(d);
+        const c=document.createElement("div"); c.className="cell"; c.textContent=day;
+        const isFuture = d.setHours(0,0,0,0) > new Date().setHours(0,0,0,0);
+        if(doneSet.has(k)) c.classList.add("done");
+        if(k===dkey(today)) c.classList.add("today");
+        if(isFuture){ c.classList.add("future"); }
+        grid.appendChild(c);
+      }
+    }
+    q(".prevMon").onclick=()=>{ view.setMonth(view.getMonth()-1); renderCal(); };
+    q(".nextMon").onclick=()=>{ view.setMonth(view.getMonth()+1); renderCal(); };
+
+    /* ---------- automatic server sync ---------- */
+    const API="/api/sync?id="+cfg.syncId;
+    const syncMsg=q(".sync-msg");
+    function setSync(m){ syncMsg.textContent=m; }
+
+    async function pullServer(){
+      try{
+        const r=await fetch(API,{cache:"no-store"});
+        if(!r.ok) throw 0;
+        const j=await r.json();
+        let added=0;
+        (j.days||[]).forEach(k=>{ if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&!doneSet.has(k)){ doneSet.add(k); added++; } });
+        if(added){ saveDays(); renderStats(); renderCal(); }
+        setSync("Synced across devices");
+        pushServer(true);
+      }catch(e){ setSync("Saved on this device · cloud sync not active"); }
+    }
+    async function pushServer(quiet){
+      try{
+        const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({days:[...doneSet]})});
+        if(!r.ok) throw 0;
+        const j=await r.json();
+        (j.days||[]).forEach(k=>{ if(/^\d{4}-\d{2}-\d{2}$/.test(k)) doneSet.add(k); });
+        saveDays(); renderStats(); renderCal();
+        setSync("Synced across devices");
+      }catch(e){ if(!quiet) setSync("Saved on this device · cloud sync not active"); }
+    }
+
+    reset();
+    loadDays().then(pullServer);
+
+    return {
+      id:cfg.id, el:sec, frame, toggle, pause,
+      title:cfg.tab,
+      doneToday: ()=>doneSet.has(dkey(today)),
+      get running(){ return running; }
+    };
+  }
+
+  /* ============================================================
+     Tabs + shared animation loop
+     ============================================================ */
+  const TAB_KEY="routine:activeTab";
+  const tabsEl=document.getElementById("tabs");
+  const mount=document.getElementById("mount");
+  const tabBtns={};
+  let active=null;
+  let routines=[];                       // filled below; refreshTabs may run during construction
+
+  function refreshTabs(){
+    routines.forEach(r=>{ tabBtns[r.id].classList.toggle("today-done", r.doneToday()); });
+  }
+  routines = ROUTINES.map(cfg=>{
+    const btn=document.createElement("button");
+    btn.className="tab"; btn.setAttribute("role","tab");
+    btn.style.setProperty("--tabc", cfg.accent);
+    btn.innerHTML='<span class="dot"></span>'+cfg.tab;
+    btn.onclick=()=>show(cfg.id);
+    tabsEl.appendChild(btn); tabBtns[cfg.id]=btn;
+    return makeRoutine(cfg, mount, refreshTabs);
+  });
+
+  function show(id){
+    routines.forEach(r=>{
+      const on = r.id===id;
+      if(!on) r.pause();                 // switching tabs pauses the other routine
+      r.el.hidden=!on;
+      tabBtns[r.id].classList.toggle("active", on);
+      tabBtns[r.id].setAttribute("aria-selected", on?"true":"false");
+    });
+    active=routines.find(r=>r.id===id);
+    try{ localStorage.setItem(TAB_KEY,id); }catch(e){}
+    if("mediaSession" in navigator){
+      try{ navigator.mediaSession.metadata=new MediaMetadata({title:active.title+" routine",artist:"Daily Routines"}); }catch(e){}
+    }
+  }
+  if("mediaSession" in navigator){
+    try{
+      navigator.mediaSession.setActionHandler("play", ()=>{ if(active&&!active.running) active.toggle(); });
+      navigator.mediaSession.setActionHandler("pause", ()=>{ if(active) active.pause(); });
+    }catch(e){}
+  }
+
+  let startTab="kegel";
+  try{ const t=localStorage.getItem(TAB_KEY); if(t&&routines.some(r=>r.id===t)) startTab=t; }catch(e){}
+  show(startTab);
+  refreshTabs();
+
+  function loop(now){ routines.forEach(r=>r.frame(now)); requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+
+  document.addEventListener("keydown",e=>{ if(e.code==="Space"&&active){e.preventDefault();active.toggle();} });
+})();
+</script>
+</body>
+</html>

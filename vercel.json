@@ -1,0 +1,6 @@
+{
+  "git": { "deploymentEnabled": false },
+  "headers": [
+    { "source": "/voice/(.*)", "headers": [ { "key": "Cache-Control", "value": "public, max-age=86400" } ] }
+  ]
+}
