@@ -198,6 +198,14 @@ Users must never lose paid purchases. The system has three layers of protection:
 - **Players tab** ("Premium 💎") reflects the player's **cloud-save snapshot** (`game_saves.save_data`), which can lag reality if their save hasn't synced since the purchase. Never treat the Players tab as proof of payment.
 - Entitlement recovery does **not** depend on the cloud save — it comes from Google Play `queryOwnedPurchases` + `play_purchases` + local `PREMIUM_KEY`. A stale cloud save never means a lost purchase.
 - Existing buyers whose LOCAL save already has premium won't auto-heal into the cloud (sync fires only on a `false→true` transition) — repair `game_saves` directly. Debug/repair recipe is in memory `project_admin_premium_visibility`.
+- **The Players tab is not a population.** `_syncToCloud` returns early without `_cloudUser`, so only
+  Google-signed-in players ever have a `game_saves` row — anonymous players (the majority) are invisible.
+  And `cloudAutoSave` defaults to `false`, so a row is usually written once at sign-in and never again:
+  the card's stats are frozen at `saved_at` while `last_seen_at` keeps moving. v3.11.25 labels the gap
+  ("stats from 6d ago · active 5d after", amber past an hour) and says so in a note on the tab, after five
+  active players were read as five instant bouncers. For player counts and retention use **Play Console**;
+  for the anonymous funnel use **Umami** (`game-started` → `first-smash` → `first-break`); for payment the
+  **Purchases** tab. Don't add admin views over this source — it biases anything built on it.
 
 ### Adding a new premium product
 1. Add to `PREMIUM_PRODUCTS` array in `game.js` with `id`, `boughtKey`, and display fields.
