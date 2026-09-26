@@ -94,12 +94,58 @@ function metaTrack(name, data, standard) {
 }
 
 /** Fire an analytics event. Never throws. */
+// Umami's tag is `defer`, so it only executes AFTER the document is parsed —
+// i.e. AFTER the parser-blocking `bundle.min.js`. Every track() fired during
+// boot therefore found `window.umami` undefined and was dropped silently. That
+// cost us 100% of `game-started` (v3.11.23): the whole acquisition funnel's top
+// step, plus its source/medium/campaign attribution. Interaction events were
+// never affected, which is why only this one went missing.
+// Fix: buffer boot-time events and flush them once the script lands. Reordering
+// the tags instead would put a remote CDN fetch in front of first paint, which
+// the boot budget forbids.
+var _trackQueue = [];       // `var`, never let/const — module-level TDZ rules
+var _trackFlushTimer = null;
+
+function _umamiReady() {
+  return typeof window !== 'undefined' && window.umami && typeof window.umami.track === 'function';
+}
+
+/** Drain anything queued before umami loaded. Returns true once it has run. */
+function _flushTrackQueue() {
+  if (!_umamiReady()) return false;
+  var q = _trackQueue;
+  _trackQueue = [];
+  for (var i = 0; i < q.length; i++) {
+    try { q[i][1] ? window.umami.track(q[i][0], q[i][1]) : window.umami.track(q[i][0]); } catch (e) {}
+  }
+  return true;
+}
+
 function track(event, data) {
   try {
     if (typeof window === 'undefined') return;
-    if (!window.umami || typeof window.umami.track !== 'function') return;
-    if (data && Object.keys(data).length) window.umami.track(event, data);
-    else window.umami.track(event);
+    var payload = (data && Object.keys(data).length) ? data : null;
+
+    if (_umamiReady()) {
+      _flushTrackQueue();
+      if (payload) window.umami.track(event, payload);
+      else window.umami.track(event);
+      return;
+    }
+
+    // Not loaded yet. Queue it, bounded so a blocked script (ad blocker,
+    // offline, itch build) can never grow this without limit.
+    if (_trackQueue.length < 50) _trackQueue.push([event, payload]);
+    if (!_trackFlushTimer) {
+      var tries = 0;
+      _trackFlushTimer = setInterval(function () {
+        if (_flushTrackQueue() || ++tries > 40) {   // ~20s, then give up for good
+          clearInterval(_trackFlushTimer);
+          _trackFlushTimer = null;
+          _trackQueue = [];
+        }
+      }, 500);
+    }
   } catch (e) { /* analytics must never break the game */ }
 }
 
