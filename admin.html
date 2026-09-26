@@ -61,6 +61,12 @@
   .pstat-val { color: #e0e0e0; font-size: 0.9rem; font-weight: 600; }
   .pstat-sub { color: #7f8c8d; font-size: 0.75rem; font-weight: 400; }
   .no-cloud { color: #555; font-style: italic; font-size: 0.85rem; padding: 6px 0; }
+  .snap { color: #7f8c8d; font-size: 0.72rem; margin: -4px 0 8px; }
+  .snap-stale { color: #e88d2a; cursor: help; }
+  .tab-note { background: #16213e; border: 1px solid #2a2a4a; border-left: 3px solid #e88d2a;
+              border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;
+              color: #9fb0c8; font-size: 0.8rem; line-height: 1.55; }
+  .tab-note b { color: #f5c542; }
   .tier-pill { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; }
   .tier-0 { background: #3a2010; color: #d97706; }
   .tier-1 { background: #1a2a3a; color: #94a3b8; }
@@ -212,6 +218,13 @@
 
   <!-- Players tab -->
   <div id="tab-players" style="display:none">
+    <div class="tab-note">
+      <b>Not a measure of your player base.</b> A save only reaches the cloud once someone signs in
+      with Google, so anonymous players — the large majority — never appear here. Cloud autosave also
+      defaults to <b>off</b>, so a card's numbers are frozen at that player's last sync, not their
+      current progress; stale cards are flagged. Use <b>Play Console</b> for installs and retention,
+      <b>Umami</b> for the anonymous funnel, and the <b>Purchases</b> tab as the only authority on payment.
+    </div>
     <div class="toolbar">
       <input type="text" id="player-search" placeholder="Search email…" oninput="renderPlayers()" autocomplete="off">
       <button class="btn btn-refresh" onclick="loadPlayers()">Refresh</button>
@@ -421,7 +434,9 @@ async function loadPlayers() {
 function renderPlayers() {
   const q = document.getElementById('player-search').value.toLowerCase()
   const filtered = allPlayers.filter(p => !q || (p.email || '').toLowerCase().includes(q) || (p.user_id || '').toLowerCase().includes(q))
-  document.getElementById('player-count').textContent = filtered.length + ' of ' + allPlayers.length + ' players'
+  const staleCount = filtered.filter(p => staleGapMs(p) > STALE_MS).length
+  document.getElementById('player-count').textContent =
+    filtered.length + ' of ' + allPlayers.length + ' cloud-linked' + (staleCount ? ' · ' + staleCount + ' stale' : '')
   const grid = document.getElementById('players-grid')
   if (!filtered.length) { grid.innerHTML = '<div class="empty" style="padding:20px">No players found</div>'; return }
   grid.innerHTML = filtered.map(p => playerCard(p)).join('')
@@ -429,6 +444,40 @@ function renderPlayers() {
 
 const TIER_NAMES  = ['Bronze', 'Silver', 'Gold', '✅ Done']
 const TIER_CLASSES = ['tier-0', 'tier-1', 'tier-2', 'tier-3']
+
+/** Cards carry TWO clocks and only one used to be labelled: "seen" is
+ *  last_seen_at (the player opened the game), but every stat comes from
+ *  save_data, written at saved_at. Cloud autosave defaults OFF
+ *  (DEFAULT_STATE.cloudAutoSave === false), so for most players the snapshot
+ *  freezes at sign-in while they keep playing. Unlabelled, a card reads
+ *  "seen 2h ago" over six-day-old numbers — which is exactly how five active
+ *  players once looked like five instant bouncers. */
+function staleGapMs(p) {
+  if (!p || !p.saved_at) return 0
+  const saved = new Date(p.saved_at).getTime()
+  if (!Number.isFinite(saved)) return 0
+  const seen = p.last_seen_at ? new Date(p.last_seen_at).getTime() : Date.now()
+  return (Number.isFinite(seen) ? seen : Date.now()) - saved
+}
+
+const STALE_MS = 3600 * 1000   // played on for an hour+ past the last sync
+
+function fmtDur(ms) {
+  const m = Math.floor(ms / 60000)
+  if (m < 60) return m + 'm'
+  const h = Math.floor(m / 60)
+  if (h < 48) return h + 'h'
+  return Math.floor(h / 24) + 'd'
+}
+
+function snapshotNote(p) {
+  if (!p.saved_at) return ''
+  const gap = staleGapMs(p)
+  const age = esc(timeAgo(p.saved_at))
+  if (gap <= STALE_MS) return `<div class="snap">stats from ${age}</div>`
+  const dur = esc(fmtDur(gap))
+  return `<div class="snap snap-stale" title="This save stopped syncing — cloud autosave is off for this player. They kept playing for at least ${dur} after these numbers were written, so read the stats as a floor, not a total.">&#9888; stats from ${age} &middot; active ${dur} after</div>`
+}
 
 function playerCard(p) {
   const emailLabel = p.email ? esc(p.email) : '<span style="color:#555">' + esc(p.user_id.slice(0, 12)) + '…</span>'
@@ -480,6 +529,7 @@ function playerCard(p) {
       <span class="player-email">${emailLabel}</span>
       <span class="player-seen">${seen}</span>
     </div>
+    ${snapshotNote(p)}
     <div class="player-location">
       ${s.monkeyEmoji} ${esc(s.monkeyName)} · Stage ${s.monkeyStage}
       <span class="tier-pill ${TIER_CLASSES[tier]}">${TIER_NAMES[tier]}</span>
