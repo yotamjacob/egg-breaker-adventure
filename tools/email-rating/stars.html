@@ -1,0 +1,60 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+html, body { margin: 0; background: #1a1a2e; }
+#stage { position: relative; width: 320px; height: 64px; overflow: hidden; background: #1a1a2e; }
+.star { position: absolute; top: 6px; }
+</style></head>
+<body>
+<div id="stage"></div>
+<svg id="sp" style="position:absolute;left:0;top:0" width="320" height="64" shape-rendering="crispEdges"></svg>
+<script>
+// Five pixel stars fill gold one after another, glint, hold, then reset.
+const DUR = 3.2;
+const STAR = [
+  '.....oo.....',
+  '....owwo....',
+  '....owlo....',
+  'oooowllmoooo',
+  'owwwlllmmmdo',
+  '.owlllmmmdo.',
+  '..olllmmmo..',
+  '..ollmmmdo..',
+  '.ollmoommdo.',
+  '.olmo..omdo.',
+  'oooo....oooo',
+];
+const ON  = { o:'#0a0a18', w:'#fff8e0', l:'#ffe44d', m:'#f5c542', d:'#a67c00' };
+const OFF = { o:'#0a0a18', w:'#3a3f6a', l:'#30355c', m:'#2a2e52', d:'#23264a' };
+function starSVG(pal) {
+  const px = 4; let s = '';
+  STAR.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.') s += `<rect x="${x*px}" y="${y*px}" width="${px}" height="${px}" fill="${pal[ch]}"/>`; }));
+  return `<svg width="48" height="44" shape-rendering="crispEdges">${s}</svg>`;
+}
+const stage = document.getElementById('stage');
+const els = [0,1,2,3,4].map(i => {
+  const d = document.createElement('div'); d.className = 'star';
+  d.style.left = (20 + i * 58) + 'px';
+  stage.appendChild(d); return d;
+});
+const easeOutBack = t => { const c = 2.2; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+function render(t) {
+  let sp = '';
+  els.forEach((el, i) => {
+    const start = 0.25 + i * 0.22;
+    const lit = t >= start && t < DUR - 0.25;
+    el.innerHTML = starSVG(lit ? ON : OFF);
+    const k = Math.min(1, Math.max(0, (t - start) / 0.25));
+    el.style.transform = `scale(${lit ? (k < 1 ? 0.7 + 0.3 * easeOutBack(k) : 1) : 1})`;
+    // glint: a brief + sparkle at the upper-right tip as each star lands
+    const g = t - start - 0.18;
+    if (g > 0 && g < 0.25) {
+      const x = 20 + i * 58 + 40, y = 8, s = g < 0.12 ? 2 : 1;
+      sp += `<rect x="${x - s}" y="${y - 3*s}" width="${2*s}" height="${6*s}" fill="#fff"/><rect x="${x - 3*s}" y="${y - s}" width="${6*s}" height="${2*s}" fill="#fff"/>`;
+    }
+  });
+  document.getElementById('sp').innerHTML = sp;
+}
+window.DUR = DUR; window.render = render; render(0);
+</script>
+</body></html>

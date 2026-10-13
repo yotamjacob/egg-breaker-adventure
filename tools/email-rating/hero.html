@@ -1,0 +1,224 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: px; src: url(PressStart2P.ttf); }
+html, body { margin: 0; background: #1a1a2e; }
+#stage { position: relative; width: 600px; height: 340px; overflow: hidden; background: #1a1a2e; }
+.abs { position: absolute; left: 0; top: 0; }
+.title { position: absolute; left: 0; right: 0; text-align: center; font-family: px; color: #f5c542;
+  text-shadow: 0 3px 0 #a67c00, 0 6px 0 #0a0a18; letter-spacing: 1px; }
+</style></head>
+<body>
+<div id="stage">
+  <svg id="bg" class="abs" width="600" height="340" shape-rendering="crispEdges"></svg>
+  <svg id="rays" class="abs" width="600" height="340"></svg>
+  <div id="fx" class="abs" style="width:600px;height:340px"></div>
+  <div id="egg" class="abs"></div>
+  <div id="halfTop" class="abs"></div>
+  <div id="halfBot" class="abs"></div>
+  <div id="gem" class="abs"></div>
+  <div id="hammer" class="abs"></div>
+  <svg id="sparks" class="abs" width="600" height="340" shape-rendering="crispEdges"></svg>
+  <div id="flash" class="abs" style="width:600px;height:340px;background:#fff;opacity:0"></div>
+  <div id="t1" class="title" style="top:30px;font-size:18px">A GIFT FOR YOU</div>
+  <div id="t2" class="title" style="top:30px;font-size:22px">PREMIUM UNLOCKED</div>
+</div>
+<script>
+// Deterministic scene: render(t) draws the frame at time t (seconds).
+// Timeline: idle 0–0.6 · hits 0.7/1.05/1.4 · burst 1.75 · gem rise 1.75–2.3 · hold to DUR.
+const DUR = 4.6;
+const CX = 300, CY = 190;
+const HITS = [0.7, 1.05, 1.4];
+const BREAK = 1.75;
+const C = { f:'#FFD700', s:'#B8860B', h:'#ffe44d', sh:'#8B6508', crk:'#5a3010' };
+
+function rng(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+const r = rng(7);
+const BG_STARS = Array.from({ length: 26 }, () => ({ x: 20 + r() * 560, y: 12 + r() * 316, p: r() * 6.28, s: r() < 0.3 ? 2 : 1 }));
+const SHARDS = Array.from({ length: 34 }, () => {
+  const a = r() * Math.PI * 2, v = 140 + r() * 260;
+  return { vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120, sz: [3, 4, 6][Math.floor(r() * 3)], c: ['#FFD700', '#ffe44d', '#B8860B', '#fff8e0'][Math.floor(r() * 4)] };
+});
+const SPARK_POS = Array.from({ length: 10 }, (_, i) => ({ a: i / 10 * Math.PI * 2 + r() * 0.4, d: 88 + r() * 40, p: r() * 6.28 }));
+
+function eggSVG(damage, clip) {
+  let cracks = '';
+  if (damage >= 1) cracks += [[36,20],[33,23],[36,26],[39,29],[36,32]].map(([x,y]) => `<rect x="${x}" y="${y}" width="3" height="3" fill="${C.crk}"/>`).join('');
+  if (damage >= 2) cracks += [[48,28],[45,31],[48,34],[45,37],[24,40],[27,43],[24,46],[33,35]].map(([x,y]) => `<rect x="${x}" y="${y}" width="3" height="3" fill="${C.crk}"/>`).join('');
+  const clipDef = clip ? `<defs><clipPath id="cp${clip}"><polygon points="${clip === 'top'
+    ? '0,0 80,0 80,46 68,52 58,44 48,52 38,44 28,52 18,44 0,50'
+    : '0,50 18,44 28,52 38,44 48,52 58,44 68,52 80,46 80,96 0,96'}"/></clipPath></defs>` : '';
+  return `<svg width="176" height="211" viewBox="0 0 80 96" shape-rendering="crispEdges">${clipDef}
+    <g ${clip ? `clip-path="url(#cp${clip})"` : ''}>
+    ${clip ? '' : '<ellipse cx="40" cy="90" rx="18" ry="4" fill="rgba(0,0,0,.35)"/>'}
+    <ellipse cx="40" cy="50" rx="26" ry="35" fill="${C.s}"/>
+    <ellipse cx="40" cy="50" rx="23" ry="32" fill="${C.f}"/>
+    <ellipse cx="40" cy="34" rx="16" ry="10" fill="${C.h}" opacity=".25"/>
+    <rect x="26" y="22" width="3" height="18" fill="${C.h}" opacity=".5"/>
+    <rect x="29" y="19" width="3" height="12" fill="${C.h}" opacity=".35"/>
+    <ellipse cx="40" cy="68" rx="18" ry="8" fill="${C.sh}" opacity=".2"/>
+    ${cracks}</g></svg>`;
+}
+
+// Pixel diamond on a 13×11 grid: o outline, l light, m mid, d dark, w highlight
+const GEM = [
+  '...ooooooo...',
+  '..owwlllmmo..',
+  '.owllllmmmdo.',
+  'ooooooooooooo',
+  'olwlllmmmmddo',
+  '.olllmmmmddo.',
+  '..ollmmmddo..',
+  '...olmmmdo...',
+  '....olmddo...',
+  '.....omdo....',
+  '......oo.....',
+];
+const GEM_C = { o:'#0a0a18', w:'#ffffff', l:'#9ff3ff', m:'#3fc6f0', d:'#1b7fc4' };
+function gemSVG() {
+  const px = 9; let s = '';
+  GEM.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.') s += `<rect x="${x*px}" y="${y*px}" width="${px}" height="${px}" fill="${GEM_C[ch]}"/>`; }));
+  return `<svg width="${13*px}" height="${11*px}" shape-rendering="crispEdges">${s}</svg>`;
+}
+
+// Pixel hammer: grey head, brown handle — pivot at handle end
+function hammerSVG() {
+  return `<svg width="90" height="120" viewBox="0 0 30 40" shape-rendering="crispEdges">
+    <rect x="13" y="10" width="4" height="30" fill="#0a0a18"/><rect x="14" y="10" width="2" height="29" fill="#a0672a"/>
+    <rect x="2" y="0" width="26" height="12" fill="#0a0a18"/><rect x="3" y="1" width="24" height="10" fill="#9aa5b1"/>
+    <rect x="3" y="1" width="24" height="3" fill="#d5dde4"/><rect x="3" y="8" width="24" height="3" fill="#6b7785"/></svg>`;
+}
+
+function plusStar(x, y, s, col) {
+  return `<rect x="${x - s}" y="${y - 3*s}" width="${2*s}" height="${6*s}" fill="${col}"/><rect x="${x - 3*s}" y="${y - s}" width="${6*s}" height="${2*s}" fill="${col}"/>`;
+}
+
+const $ = id => document.getElementById(id);
+$('egg').innerHTML = eggSVG(0);
+$('halfTop').innerHTML = eggSVG(2, 'top');
+$('halfBot').innerHTML = eggSVG(2, 'bot');
+$('gem').innerHTML = gemSVG();
+$('hammer').innerHTML = hammerSVG();
+
+const easeOutBack = t => { const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+
+function render(t) {
+  // Background: stepped glow rings (GIF-friendly, no smooth gradient) + twinkling stars
+  const glowBoost = t > BREAK ? 1 : 0;
+  let bg = '';
+  const rings = [['#1d1f3a', 230], ['#202449', 175], ['#252a57', 125], ['#2b3166', 82]];
+  rings.forEach(([col, rad], i) => {
+    if (i < 2 || glowBoost) bg += `<circle cx="${CX}" cy="${CY}" r="${rad}" fill="${col}"/>`;
+  });
+  BG_STARS.forEach(s => {
+    const tw = Math.sin(t * 3.2 + s.p);
+    if (tw > -0.3) bg += plusStar(Math.round(s.x), Math.round(s.y), s.s, tw > 0.6 ? '#fff8e0' : '#5d6aa8');
+  });
+  $('bg').innerHTML = bg;
+
+  // Hammer swings — down-stroke lands on each hit time
+  // Pivot sits right of the egg; rest = raised up-right, strike = head on the egg's shoulder
+  const REST = 18, STRIKE = -50;
+  let hammerAngle = REST, hammerOn = t < BREAK + 0.1;
+  for (const h of HITS) {
+    const d = t - (h - 0.16);
+    if (d >= 0 && d < 0.16) hammerAngle = REST + (STRIKE - REST) * (d / 0.16) ** 2;
+    else if (d >= 0.16 && d < 0.32) hammerAngle = STRIKE + (REST - STRIKE) * ((d - 0.16) / 0.16);
+  }
+  const hm = $('hammer');
+  hm.style.display = hammerOn ? 'block' : 'none';
+  hm.style.transformOrigin = '45px 120px';
+  hm.style.transform = `translate(${CX + 130 - 45}px, ${CY + 20 - 120}px) rotate(${hammerAngle}deg)`;
+  hm.style.opacity = t > BREAK ? clamp(1 - (t - BREAK) / 0.1) : 1;
+
+  // Egg: bob, then shake + squash on hits, crack state per hit
+  let damage = 0, sx = 0, sq = 1;
+  HITS.forEach((h, i) => {
+    if (t >= h) damage = Math.min(2, i + 1);
+    const d = t - h;
+    if (d >= 0 && d < 0.22) { sx += Math.sin(d * 70) * 7 * (1 - d / 0.22); sq = Math.min(sq, 1 - 0.09 * (1 - d / 0.22)); }
+  });
+  const bob = Math.sin(t * 4) * 3;
+  const egg = $('egg');
+  if (t < BREAK) {
+    egg.style.display = 'block';
+    egg.innerHTML = eggSVG(damage);
+    egg.style.transformOrigin = '88px 200px';
+    egg.style.transform = `translate(${CX - 88 + sx}px, ${CY - 105 + (damage ? 0 : bob)}px) scale(${1 + (1 - sq) * 0.5}, ${sq})`;
+  } else egg.style.display = 'none';
+
+  // Burst: halves fly apart, shards with gravity, white flash
+  const b = t - BREAK;
+  const ht = $('halfTop'), hb = $('halfBot');
+  if (b >= 0 && b < 0.9) {
+    const k = b / 0.9;
+    ht.style.display = hb.style.display = 'block';
+    ht.style.opacity = hb.style.opacity = clamp(1 - k * 1.3);
+    ht.style.transformOrigin = hb.style.transformOrigin = '88px 105px';
+    ht.style.transform = `translate(${CX - 88 - 150 * b}px, ${CY - 105 - 260 * b + 300 * b * b}px) rotate(${-110 * b}deg)`;
+    hb.style.transform = `translate(${CX - 88 + 120 * b}px, ${CY - 105 + 40 * b + 380 * b * b}px) rotate(${80 * b}deg)`;
+  } else ht.style.display = hb.style.display = 'none';
+  $('flash').style.opacity = b >= 0 && b < 0.14 ? (0.55 * (1 - b / 0.14)).toFixed(2) : 0;
+
+  let sp = '';
+  if (b >= 0 && b < 1.1) {
+    SHARDS.forEach(s => {
+      const x = CX + s.vx * b, y = CY + s.vy * b + 420 * b * b;
+      if (b < 1.1 - (s.sz === 6 ? 0 : 0.2)) sp += `<rect x="${Math.round(x)}" y="${Math.round(y)}" width="${s.sz}" height="${s.sz}" fill="${s.c}"/>`;
+    });
+  }
+  // Small chips on each hit
+  HITS.forEach((h, i) => {
+    const d = t - h;
+    if (d >= 0 && d < 0.3) for (let j = 0; j < 5; j++) {
+      const a = -Math.PI / 2 + (j - 2) * 0.5 + i;
+      sp += `<rect x="${Math.round(CX + 30 + Math.cos(a) * 160 * d)}" y="${Math.round(CY - 60 + Math.sin(a) * 160 * d + 300 * d * d)}" width="3" height="3" fill="#ffe44d"/>`;
+    }
+  });
+  // Orbiting sparkles around the gem once revealed
+  if (b > 0.35) SPARK_POS.forEach((s, i) => {
+    const tw = Math.sin((t - BREAK) * 5 + s.p);
+    if (tw > 0.1) {
+      const a = s.a + (t - BREAK) * 0.4;
+      sp += plusStar(Math.round(CX + Math.cos(a) * s.d * 1.5), Math.round(CY - 10 + Math.sin(a) * s.d * 0.9), tw > 0.7 ? 2 : 1, tw > 0.7 ? '#ffffff' : '#f5c542');
+    }
+  });
+  $('sparks').innerHTML = sp;
+
+  // Rays behind the gem
+  let rays = '';
+  if (b > 0.05) {
+    const op = clamp((b - 0.05) / 0.4);
+    const rot = (t - BREAK) * 22;
+    for (let i = 0; i < 12; i++) {
+      const a0 = (rot + i * 30) * Math.PI / 180, a1 = a0 + 0.2;
+      rays += `<polygon points="${CX},${CY - 10} ${CX + Math.cos(a0) * 420},${CY - 10 + Math.sin(a0) * 420} ${CX + Math.cos(a1) * 420},${CY - 10 + Math.sin(a1) * 420}" fill="#30356c" opacity="${op}"/>`;
+    }
+    rays += `<circle cx="${CX}" cy="${CY - 10}" r="${70 * op}" fill="#4a4f90" opacity="${op}"/>`;
+  }
+  $('rays').innerHTML = rays;
+
+  // Gem rises from the egg with an overshoot pop, then floats
+  const gem = $('gem');
+  if (b >= 0) {
+    const k = clamp(b / 0.55);
+    const sc = easeOutBack(k);
+    const lift = 40 * (1 - k);
+    const float = b > 0.55 ? Math.sin((b - 0.55) * 3.5) * 5 : 0;
+    gem.style.display = 'block';
+    gem.style.transformOrigin = '58px 50px';
+    gem.style.transform = `translate(${CX - 58}px, ${CY - 60 + lift + float}px) scale(${Math.max(0, sc)})`;
+  } else gem.style.display = 'none';
+
+  // Titles: "A GIFT FOR YOU" before the break, "PREMIUM UNLOCKED" pops in after
+  $('t1').style.opacity = t < BREAK - 0.1 ? 1 : 0;
+  const tk = clamp((b - 0.35) / 0.3);
+  $('t2').style.opacity = b > 0.35 ? 1 : 0;
+  $('t2').style.transform = `scale(${b > 0.35 ? easeOutBack(tk) : 0})`;
+}
+window.DUR = DUR;
+window.render = render;
+render(0);
+</script>
+</body></html>
