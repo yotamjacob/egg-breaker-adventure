@@ -28,7 +28,7 @@ jobs:
           MODE:           ${{ inputs.mode }}
           CONFIRM:        ${{ inputs.confirm }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          FROM:           ${{ secrets.DIGEST_FROM }}
+          FROM:           ${{ secrets.GIFT_FROM || secrets.DIGEST_FROM }}
           TEST_TO:        ${{ secrets.DIGEST_TO }},${{ secrets.GIFT_TEST_TO }}
           REPLY_TO:       ${{ secrets.DIGEST_TO }}
           RECIPIENTS:     ${{ secrets.GIFT_RECIPIENTS }}
