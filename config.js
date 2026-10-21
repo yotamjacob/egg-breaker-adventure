@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.12.1';
+const VERSION = '3.12.2';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -375,26 +375,28 @@ const CONFIG = {
   //     hits a giant golden egg that never breaks. Its shell comes off in
   //     layers (each tougher); shards buy swarm upgrades; every few layers a
   //     permanent, capped Blessing applies to the main game.
-  //     Pacing (greedy buyer, ~1.5 taps/s): layer 5 ≈ 3 min, 10 ≈ 7 min,
-  //     20 ≈ 25 min, 30 ≈ 1.7 h, 40 ≈ 7 h, 50 ≈ a day of play — the curve was
-  //     tuned by simulation; re-run one before changing several numbers.
+  //     Pacing (greedy buyer, ~1.5 taps/s, active play only): layer 1 ≈ 2 min,
+  //     5 ≈ 11 min, 10 ≈ 28 min, 20 ≈ 2 h, 30 ≈ 7 h, 40 ≈ 26 h, 50 ≈ 110 h
+  //     (v3.12.2: ~4× slower than launch — one monkey to start, scarce shards;
+  //     away mode adds a slow background pace on top). Tuned by simulation;
+  //     re-run one before changing several numbers.
   //     Shards come per HIT, not per damage: if they scaled with damage the
   //     upgrades snowball and layer 50 falls in minutes.
   // ----------------------------------------------------------
   theEgg: {
     unlockStage:   7,                 // Mr. Monkey stage index reached (0-based → stage 8)
-    startSwarm:    3,                 // flyers before any Swarm upgrade
-    layerHp:       { base: 600, growth: 1.30 },   // shell layer n = base × growth^(n-1)
+    startSwarm:    1,                 // flyers before any Swarm upgrade (3 before v3.12.2)
+    layerHp:       { base: 1200, growth: 1.30 },  // shell layer n = base × growth^(n-1) (600 before v3.12.2)
     swingSeconds:  1.6,               // seconds between one flyer's swings at Wings L0
     tapMult:       5,                 // a tap hits this many times harder than a flyer…
-    shardsPerHit:  1,                 // …and pays 2 shards to a flyer's 1
-    shardsPerTap:  2,
-    damageShare:   0.02,              // + this share of all damage as shards
-    layerShards:   10,                // × layer number, when a layer comes off
+    shardsPerHit:  0.15,              // …and pays twice a flyer's shards (1 / 2 before v3.12.2)
+    shardsPerTap:  0.3,
+    damageShare:   0.0025,            // + this share of all damage as shards (0.02 before v3.12.2)
+    layerShards:   2,                 // × layer number, when a layer comes off (10 before v3.12.2)
     layerGold:     { base: 40, growth: 1.12 },    // main-game gold per layer, × quest gold scale
     // Upgrade price = base × growth^level. `max` = highest level.
     upgrades: {
-      swarm:  { base: 25,  growth: 1.70, max: 21 },                               // +1 flyer (3 → 24)
+      swarm:  { base: 25,  growth: 1.70, max: 23 },                               // +1 flyer (1 → 24)
       power:  { base: 10,  growth: 1.46, mult: 1.10 },                            // ×1.10 damage per level
       wings:  { base: 20,  growth: 1.38, max: 25, factor: 0.93, floor: 0.25 },    // swing interval ×0.93
       luck:   { base: 40,  growth: 1.42, max: 25, perLevel: 0.02, critMult: 5 },  // +2% crit chance
@@ -432,9 +434,10 @@ const CONFIG = {
       { layer: 50, type: 'swarmVisit', val: 1, label: 'Golden Swarm: a flyer sometimes smashes a tray egg for free', short: 'Golden Swarm' },
     ],
     swarmVisitEvery: [75, 120],       // seconds between Golden Swarm visits (L50 blessing)
-    // Small offline trickle: while The Egg is closed, the swarm keeps earning
-    // `share` of its passive shard income (no taps, no events), for at most
-    // `capHours`. Shards only — layers and blessings need you there.
-    trickle: { share: 0.05, capHours: 8, minSeconds: 60 },
+    // Away mode (v3.12.2): whenever The Egg is not on screen — the player is in
+    // the main game, or the app is closed — the swarm keeps working at `speed`
+    // of its passive pace (no taps, no events), at most `capHours` per gap.
+    // Layers still come off (gold, blessings). Replaced a shards-only trickle.
+    away: { speed: 0.1, capHours: 8, minSeconds: 60 },
   },
 };

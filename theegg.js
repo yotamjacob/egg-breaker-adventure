@@ -10,7 +10,7 @@
 //
 //  Split in two:
 //    - state + math (no DOM): theEggState, theEggHit, theEggBuy, theEggBonus,
-//      theEggCreditTrickle … — covered by tests/theegg.test.js
+//      theEggCreditAway … — covered by tests/theegg.test.js
 //    - the panel: a pixel-art scene (sprites from theegg-art.js) over the
 //      play tray, opened from the golden-egg button. One rAF loop, only while
 //      the panel is open and visible.
@@ -22,7 +22,8 @@
 //      questCredit()-ed. Its own quests count eggCatches (tap-to-catch events).
 //    - Main-game hammers come only from the max-hammer blessings, never from
 //      layers, so The Egg can't outpace hammer regen.
-//    - Offline: a small shard trickle only — no layers, no blessings.
+//    - Away mode: while The Egg is closed (main game or app closed) the swarm
+//      keeps working at 10% pace (no taps/events), ≤8 h per gap — theEggCreditAway.
 // ============================================================
 
 // ---------------------------------------------------------------
@@ -50,6 +51,14 @@ function theEggState() {
     st.lv[k] = l;
   }
   if (!Array.isArray(st.blessed)) st.blessed = [];
+  if (st.away != null && (typeof st.away !== 'object' || Array.isArray(st.away))) st.away = null;
+  // v3.12.2 started the swarm at 1 flyer instead of 3. Saves from before keep
+  // the flyers they had: +2 Swarm levels, once (st.v marks the migrated shape).
+  if (st.v !== 2) {
+    const used = st.layer > 1 || st.shards > 0 || Object.keys(ups).some(k => st.lv[k] > 0);
+    if (st.v === undefined && used) st.lv.swarm = Math.min(ups.swarm.max, st.lv.swarm + 2);
+    st.v = 2;
+  }
   if (typeof st.trickleAt !== 'number' || !isFinite(st.trickleAt)) st.trickleAt = 0;
   return st;
 }
@@ -134,10 +143,16 @@ function theEggHit(dmg, tap, shardX) {
   if (!(dmg > 0) || !isFinite(dmg)) return 0;
   const per = tap ? C.shardsPerTap : C.shardsPerHit;
   st.shards += (per + dmg * C.damageShare) * theEggStats().shardMult * (shardX || 1);
+  return _theEggDamage(dmg);
+}
+
+/** Apply damage to the shell, clearing layers as they come off. Returns layers cleared. */
+function _theEggDamage(dmg) {
+  const st = theEggState();
   st.hp -= dmg;
   let cleared = 0;
-  // A hit can carry through several thin early layers; cap the loop anyway.
-  while (st.hp <= 0 && cleared < 50) {
+  // A big hit or a long absence can carry through several layers; cap the loop anyway.
+  while (st.hp <= 0 && cleared < 200) {
     const done = st.layer;
     st.layer++;
     st.hp += theEggLayerHp(st.layer);
@@ -193,21 +208,34 @@ function theEggBonus(type) {
   return v;
 }
 
+var _eggQuiet = false;   // set while away-mode damage clears layers (no per-layer UI)
+
 /**
- * Offline trickle: shards for the time since `trickleAt` (when The Egg was last
- * open and visible), at `share` of passive income, capped. Clock jumps
- * backwards credit nothing. Always moves trickleAt to `now`. Returns shards.
+ * Away mode: whenever The Egg is not on screen — the player is in the main game,
+ * or the app is closed — the swarm keeps working at `away.speed` of its passive
+ * pace (no taps, no events), for at most `capHours` per gap. Its damage clears
+ * layers as usual (gold, blessings). Credits the time since `trickleAt` (the
+ * last moment accounted for) and moves it to `now`; gaps under `minSeconds`
+ * keep accumulating, and a clock jump backwards credits nothing. Totals pile up
+ * in st.away for the "while away" banner. Returns { sec, shards, layers, gold } or null.
  */
-function theEggCreditTrickle(now) {
-  const st = theEggState(), T = CONFIG.theEgg.trickle;
+function theEggCreditAway(now) {
+  const st = theEggState(), A = CONFIG.theEgg.away;
   const prev = st.trickleAt;
+  if (!prev || !(now > prev)) { st.trickleAt = now; return null; }
+  const raw = (now - prev) / 1000;
+  if (raw < A.minSeconds) return null;
   st.trickleAt = now;
-  if (!prev || !(now > prev)) return 0;
-  const sec = Math.min((now - prev) / 1000, T.capHours * 3600);
-  if (sec < T.minSeconds) return 0;
-  const amt = Math.floor(theEggPassiveIncome() * T.share * sec);
-  if (amt > 0) st.shards += amt;
-  return Math.max(0, amt);
+  const sec = Math.min(raw, A.capHours * 3600), eff = sec * A.speed, s = theEggStats();
+  const shards = theEggPassiveIncome(s) * eff;
+  const l0 = st.layer, g0 = G.gold;
+  st.shards += shards;
+  _eggQuiet = true;
+  try { _theEggDamage(theEggPassiveDps(s) * eff); } finally { _eggQuiet = false; }
+  const out = { sec, shards, layers: st.layer - l0, gold: G.gold - g0 };
+  const acc = st.away || (st.away = { shards: 0, layers: 0, gold: 0 });
+  acc.shards += out.shards; acc.layers += out.layers; acc.gold += out.gold;
+  return out;
 }
 
 /** Next blessing still to come, or null. */
@@ -232,7 +260,7 @@ var _eggUpSig = '';           // last rendered upgrade-buttons signature
 var _EGG_SWING = 0.3;         // seconds: wind-up → strike (hit lands at 40%) → recover
 var _EGG_HATS = ['steampunk', 'princess', 'space', 'odin', 'sun_wukong'];
 var _EGG_UPS = [
-  { k: 'swarm',  name: 'SWARM',  d: s => s.swarm + ' flyers' },
+  { k: 'swarm',  name: 'SWARM',  d: s => s.swarm + (s.swarm === 1 ? ' flyer' : ' flyers') },
   { k: 'power',  name: 'POWER',  d: s => 'dmg ×' + _eggFmtX(s.dmg) },
   { k: 'wings',  name: 'WINGS',  d: s => s.swing.toFixed(2) + 's swing' },
   { k: 'luck',   name: 'LUCK',   d: s => Math.round(s.crit * 100) + '% crit' },
@@ -281,8 +309,9 @@ function openTheEgg() {
     _eggRt.ro = new ResizeObserver(() => { if (_eggOpen) _eggResize(); });
     _eggRt.ro.observe(_eggRt.cv);
   }
-  const got = theEggCreditTrickle(Date.now());
-  if (got > 0) _eggBanner('WHILE YOU WERE AWAY +' + _eggNum(got) + ' SHARDS');
+  theEggCreditAway(Date.now());
+  _eggAwayBanner();
+  st.trickleAt = Date.now();       // from here on the swarm works at full pace
   if (typeof track === 'function') track('theegg-open', { layer: st.layer });
   SFX.play('star');
   _eggRt.last = performance.now();
@@ -468,6 +497,22 @@ function _eggLayerFx() {
   for (let i = 0; i < 9; i++) R.gems.push({ x: g.cx + (Math.random() - 0.5) * g.rx, y: g.cy + (Math.random() - 0.5) * g.ry, vx: (Math.random() - 0.5) * 60, vy: -30 - Math.random() * 40, t: 0 });
   if (!_eggReduced()) R.shake = 3;
   SFX.play('crunch');
+}
+
+/** Sum up what the swarm did in away mode since The Egg was last on screen. */
+function _eggAwayBanner() {
+  const st = theEggState(), a = st.away;
+  st.away = null;
+  if (!a || !(a.shards >= 1 || a.layers > 0)) return;
+  _eggBanner('WHILE AWAY +' + _eggNum(a.shards) + ' SHARDS' + (a.layers ? ' · ' + a.layers + (a.layers === 1 ? ' LAYER' : ' LAYERS') : ''));
+}
+/** One main-game log line for layers the swarm broke in the background. */
+function _eggAwayLog(r, offline) {
+  if (!r || !(r.layers > 0) || typeof msg !== 'function') return;
+  msg('🥚 ' + (offline ? 'While you were away the swarm' : 'The swarm') + ' broke ' + (r.layers === 1 ? 'a shell layer' : r.layers + ' shell layers') +
+    ' · +' + _eggNum(r.gold) + ' gold', 'specials');
+  if (typeof updateResources === 'function') updateResources();
+  if (typeof checkAchievements === 'function') checkAchievements();
 }
 
 var _eggBannerTimer = null;
@@ -802,7 +847,7 @@ function showTheEggInfo() {
   showConfirm('🥚', 'The Egg',
     'Your flying monkeys hit the golden egg on their own; <strong>tap the egg</strong> to hit it harder yourself. It never breaks, but its shell comes off in <strong>layers</strong>, and every 10 layers it grows a new shell.<br><br>' +
     'Every hit drops <strong>shards</strong> for swarm upgrades. Each layer pays gold, and milestone layers grant permanent <strong>Blessings</strong> for the main game.<br><br>' +
-    'Watch for events: tap the <strong>goose</strong>, the <strong>crow</strong> and the <strong>glowing weak spot</strong>. Every monkey you unlock joins the swarm. While The Egg is closed the swarm keeps chipping a few shards.',
+    'Watch for events: tap the <strong>goose</strong>, the <strong>crow</strong> and the <strong>glowing weak spot</strong>. Every monkey you unlock joins the swarm. While The Egg is closed, even with the game shut, the swarm keeps working at a tenth of its pace.',
     null, 'Got it');
 }
 
@@ -843,6 +888,11 @@ function _theEggTick() {
           'A giant golden egg that <strong>never breaks</strong>. Send a swarm of flying monkeys at it, upgrade them with shards, and earn permanent <strong>Blessings</strong> for your main game.<br><br>Open it any time from the golden egg button in the tray.',
           openTheEgg, 'Take a look', 'Later');
       }
+    }
+    // Away mode: the closed Egg keeps working, slowly (credited about once a minute)
+    if (!_eggOpen) {
+      const r = theEggCreditAway(Date.now());
+      if (r) { _eggAwayLog(r, false); if (r.layers > 0) saveGame(); }
     }
     _eggMaybeVisit(playOn);
   } catch (e) { /* never let the side mode take the game down */ }
@@ -907,6 +957,11 @@ function _eggMaybeVisit(playOn) {
 (function _theEggBoot() {
   try {
     if (G.theEgg) theEggState();   // repair a stored state; fresh players get one on first open
+    // Away mode for the time the app was closed (capped, see CONFIG.theEgg.away)
+    if (G.theEgg && theEggUnlocked()) {
+      const r = theEggCreditAway(Date.now());
+      if (r) { _eggAwayLog(r, true); saveGame(); }
+    }
     const cv = $id('te-canvas');
     if (cv) cv.addEventListener('pointerdown', _eggPointer);
     const ups = $id('te-upgrades');
@@ -921,8 +976,9 @@ function _eggMaybeVisit(playOn) {
     document.addEventListener('visibilitychange', () => {
       if (!_eggOpen || !_eggRt) return;
       if (document.hidden) { theEggState().trickleAt = Date.now(); saveGame(); return; }
-      const got = theEggCreditTrickle(Date.now());
-      if (got > 0) _eggBanner('WHILE YOU WERE AWAY +' + _eggNum(got) + ' SHARDS');
+      theEggCreditAway(Date.now());
+      _eggAwayBanner();
+      theEggState().trickleAt = Date.now();
       _eggRt.last = performance.now();
       if (!_eggRaf) _eggRaf = requestAnimationFrame(_eggFrame);
     });

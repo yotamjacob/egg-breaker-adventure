@@ -6,7 +6,7 @@
 //    - shards per hit (not per damage), layer overflow, layer rewards
 //    - layer gold never progresses "earn gold" quests
 //    - blessings granted once each, capped totals, theEggBonus sums
-//    - offline trickle: share of passive income, capped, clock-safe
+//    - away mode: 10% pace while closed (play or app shut), capped, clock-safe
 //    - pacing guard: no snowball (layer 50 is far away), no wall at the start
 //    Legend stages (functions extracted from the real game.js)
 //    - data shape: one legend stage per monkey, last; 59 stages / 400 items
@@ -107,7 +107,7 @@ test('theEggState repairs corrupt or missing fields', () => {
   assert.equal(st.lv.wings, 0);
   assert.equal(st.lv.magnet, 0);
   assert.deepEqual(Array.from(st.blessed), []);
-  assert.equal(st.trickleAt, 0);
+  assert.ok(Number.isFinite(st.trickleAt), 'clock repaired (boot then starts away mode from it)');
   // Arrays are not a valid state either
   run(ctx, 'G.theEgg = []');
   assert.equal(run(ctx, 'Array.isArray(theEggState())'), false);
@@ -206,26 +206,47 @@ test('theEggBonus is safe before The Egg exists', () => {
   assert.equal(run(ctx, 'theEggBonus("goldPct")'), 0);
 });
 
-test('offline trickle: share of passive income, capped, clock-safe, shards only', () => {
+test('away mode: the closed Egg works at a tenth of the passive pace, capped and clock-safe', () => {
   const ctx = eggWorld();
-  const T = run(ctx, 'CONFIG.theEgg.trickle');
+  const A = run(ctx, 'CONFIG.theEgg.away');
+  assert.equal(A.speed, 0.1);
   const t0 = 1_700_000_000_000;
-  assert.equal(run(ctx, `theEggCreditTrickle(${t0})`), 0, 'first call only starts the clock');
-  assert.equal(run(ctx, `theEggCreditTrickle(${t0 + (T.minSeconds - 1) * 1000})`), 0, 'too short');
-  const inc = run(ctx, 'theEggPassiveIncome()');
-  run(ctx, `G.theEgg.trickleAt = ${t0}; G.theEgg.shards = 0`);
-  const oneHour = run(ctx, `theEggCreditTrickle(${t0 + 3600e3})`);
-  assert.equal(oneHour, Math.floor(inc * T.share * 3600));
-  assert.ok(oneHour < inc * 3600 * 0.1, 'trickle is small next to playing');
+  assert.equal(run(ctx, `theEggCreditAway(${t0})`), null, 'first call only starts the clock');
+  assert.equal(run(ctx, `theEggCreditAway(${t0 + (A.minSeconds - 1) * 1000})`), null, 'too short');
+  assert.equal(run(ctx, 'G.theEgg.trickleAt'), t0, 'a short gap keeps accumulating');
+  const inc = run(ctx, 'theEggPassiveIncome()'), dps = run(ctx, 'theEggPassiveDps()');
+  const hp0 = run(ctx, 'G.theEgg.hp');
+  const r = run(ctx, `theEggCreditAway(${t0 + 3600e3})`);
+  assert.ok(Math.abs(r.shards - inc * A.speed * 3600) < 1e-6, 'shards = passive income × speed × time');
+  assert.ok(Math.abs((hp0 - run(ctx, 'G.theEgg.hp')) - dps * A.speed * 3600) < 1e-6, 'the shell takes passive damage × speed × time');
   run(ctx, `G.theEgg.trickleAt = ${t0}`);
-  const week = run(ctx, `theEggCreditTrickle(${t0 + 7 * 86400e3})`);
-  assert.equal(week, Math.floor(inc * T.share * T.capHours * 3600), 'capped');
+  const week = run(ctx, `theEggCreditAway(${t0 + 7 * 86400e3})`);
+  assert.equal(week.sec, A.capHours * 3600, 'capped per absence');
   run(ctx, `G.theEgg.trickleAt = ${t0 + 3600e3}`);
-  assert.equal(run(ctx, `theEggCreditTrickle(${t0})`), 0, 'clock went backwards');
+  assert.equal(run(ctx, `theEggCreditAway(${t0})`), null, 'clock went backwards');
   assert.equal(run(ctx, 'G.theEgg.trickleAt'), t0, 'clock reset to now');
-  // Trickle never clears layers or grants blessings
-  assert.equal(run(ctx, 'G.theEgg.layer'), 1);
-  assert.equal(run(ctx, 'G.eggLayers'), 0);
+});
+
+test('away mode clears layers like play does: gold (kept out of quests), totals for the banner', () => {
+  const ctx = eggWorld();
+  const t0 = 1_700_000_000_000;
+  // a strong swarm so 8 h at 10% pace breaks a few layers
+  run(ctx, `theEggState(); G.theEgg.lv.swarm = 10; G.theEgg.lv.power = 12; G.theEgg.lv.wings = 10; G.theEgg.trickleAt = ${t0}`);
+  const r = run(ctx, `theEggCreditAway(${t0 + 8 * 3600e3})`);
+  assert.ok(r.layers >= 1, 'layers came off (' + r.layers + ')');
+  assert.equal(run(ctx, 'G.theEgg.layer'), 1 + r.layers);
+  assert.equal(run(ctx, 'G.eggLayers'), r.layers);
+  assert.ok(r.gold > 0 && run(ctx, 'G.gold') === r.gold);
+  const credited = JSON.parse(run(ctx, 'JSON.stringify(credits)')).filter(c => c[0] === 'totalGold').reduce((a, c) => a + c[1], 0);
+  assert.equal(credited, r.gold, 'all away gold is questCredit()-ed');
+  assert.equal(run(ctx, 'G.eggCatches'), 0, 'no events while away');
+  const acc = run(ctx, 'G.theEgg.away');
+  assert.equal(acc.layers, r.layers);
+  assert.ok(Math.abs(acc.shards - r.shards) < 1e-6);
+  // much slower than playing: an hour away < 15% of an hour of the swarm alone
+  run(ctx, `G.theEgg.trickleAt = ${t0}`);
+  const hour = run(ctx, `theEggCreditAway(${t0 + 3600e3})`);
+  assert.ok(hour.shards < run(ctx, 'theEggPassiveIncome()') * 3600 * 0.15);
 });
 
 test('pacing: the first blessing comes quickly, layer 50 stays far away', () => {
@@ -249,7 +270,7 @@ test('pacing: the first blessing comes quickly, layer 50 stays far away', () => 
     }
     return { at5, layer: G.theEgg.layer };
   })()`);
-  assert.ok(result.at5 > 0 && result.at5 < 15 * 60, 'layer 5 within 15 minutes (got ' + result.at5 + 's)');
+  assert.ok(result.at5 > 4 * 60 && result.at5 < 30 * 60, 'layer 5 in 4–30 minutes (got ' + result.at5 + 's)');
   assert.ok(result.layer < 50, 'layer 50 must not fall within 2 hours (got layer ' + result.layer + ')');
 });
 
@@ -529,4 +550,20 @@ test('news card: no top-level let/const, bundled after theegg.js, holds The Egg 
   vm.createContext(ctx);
   assert.doesNotThrow(() => vm.runInContext(read('news.js'), ctx));
   assert.equal(ctx._newsPending, false);
+});
+
+test('v3.12.2 slowdown: one starting flyer; launch-day saves keep their flyer count once', () => {
+  const ctx = eggWorld();
+  assert.equal(run(ctx, 'CONFIG.theEgg.startSwarm'), 1);
+  assert.equal(run(ctx, 'theEggStats().swarm'), 1, 'fresh state: 1 flyer');
+  assert.equal(run(ctx, 'CONFIG.theEgg.startSwarm + CONFIG.theEgg.upgrades.swarm.max'), 24, 'cap stays at 24 flyers');
+  // a launch-day save: 3 base flyers + 2 bought = 5 flyers
+  run(ctx, 'G.theEgg = { layer: 4, shards: 50, lv: { swarm: 2, power: 1 } }');
+  assert.equal(run(ctx, 'theEggStats().swarm'), 5, 'still 5 flyers after the change');
+  assert.equal(run(ctx, 'G.theEgg.v'), 2);
+  run(ctx, 'theEggState(); theEggState();');
+  assert.equal(run(ctx, 'theEggStats().swarm'), 5, 'migration runs once');
+  // an untouched launch-day state (only saw the intro) gets nothing
+  run(ctx, 'G.theEgg = { introSeen: true }');
+  assert.equal(run(ctx, 'theEggStats().swarm'), 1);
 });
