@@ -78,6 +78,15 @@ const ITEM_QUOTES = {
     'Royal Seal':         '"By royal decree."',
     'Rainbow Prism':      '"Somewhere over the rainbow."',
     'Wishing Star':       '"Wish carefully."',
+    // Legend stage – The Golden Nest
+    'Ancient Nest':    '"Home is where the egg is."',
+    'First Chick':     '"Which came first? This one."',
+    'Golden Straw':    '"The last straw. Solid gold."',
+    'Phoenix Plume':   '"Rises from the ashes. Again."',
+    'Dawn Ember':      '"Rise and shine. Mostly shine."',
+    'Nest Key':        '"Unlocks a door nobody built."',
+    'Mother Egg':      '"Every egg you smashed called her mom."',
+    'Yolk of the Sun': '"Sunny side up. Forever."',
   },
   steampunk: {
     // Stage 1 – Gear Workshop
@@ -92,6 +101,7 @@ const ITEM_QUOTES = {
     'Clockwork':          '"Like clockwork."',
     'Magnet Core':        '"I\'m attractive."',
     'Power Cell':         '"Unlimited power!"',
+    'Tesla Battery':      '"Fully charged. Do not lick."',
     'Battery':            '"Energized!"',
     // Stage 3 – Airship Dock
     'Gas Cell':           '"Up, up, and away."',
@@ -150,6 +160,15 @@ const ITEM_QUOTES = {
     'Mask of Ages':       '"Somebody stop me!"',
     'Chrono Crystal':     '"Time is an illusion. Lunchtime doubly so."',
     'Eye of Time':        '"I\'ve seen things you people wouldn\'t believe."',
+    // Legend stage – The Grand Orrery
+    'Pocket Chronometer': '"Always five minutes fast. On purpose."',
+    'Aether Compass':     '"Points to wherever you aren\'t."',
+    'Arc Bulb':           '"A bright idea, patent pending."',
+    'Brass Telescope':    '"The stars look polished from here."',
+    'Lightning Jar':      '"Keep lid on. Do not shake."',
+    'Brass Saturn':       '"If you like it, put a gear on it."',
+    'Winding Key':        '"Wind it twice and the planets move."',
+    'Perpetual Engine':   '"Runs forever. Physicists hate it."',
   },
   princess: {
     // Stage 1 – Royal Garden
@@ -222,6 +241,15 @@ const ITEM_QUOTES = {
     'Castle Model':       '"Built on eggshells and Lego."',
     'Star of Royalty':    '"The brightest star in the kingdom."',
     'Kohinoor Diamond':   '"The Mountain of Light."',
+    // Legend stage – Coronation Day
+    'Royal Fanfare':     '"Toot toot, make way."',
+    'White Dove':        '"Released on cue. Mostly."',
+    'Coronation Cake':   '"Let them eat this, specifically."',
+    'Coronation Gown':   '"The train is longer than the aisle."',
+    'Sword of State':    '"Ceremonial. Still sharp."',
+    'Mirror of Truth':   '"Yes, you are the fairest. Today."',
+    'Sovereign\'s Ring': '"Kiss it. That\'s the rule."',
+    'Imperial Crown':    '"Heavy is the head. Worth it."',
   },
   space: {
     // Stage 1 – Launch Pad
@@ -294,6 +322,15 @@ const ITEM_QUOTES = {
     'Infinity Stone':     '"Perfectly balanced."',
     'Spectrum Key':       '"Every color."',
     'Big Bang Shard':     '"In the beginning."',
+    // Legend stage – The Cosmic Egg
+    'Comet Tail':      '"Dirty snowball, great hair."',
+    'Primordial Dust': '"Older than everything. Still dusty."',
+    'First Contact':   '"We come in peace. Got snacks?"',
+    'Shooting Star':   '"Make a wish. Quickly."',
+    'Wormhole Key':    '"Shortcut. No refunds."',
+    'Pulsar Heart':    '"Beats 700 times a second. Relax."',
+    'First Light':     '"Let there be... this."',
+    'Cosmic Egg':      '"The universe had to hatch from something."',
   },
   odin: {
     // Stage 1 – Asgard
@@ -352,6 +389,14 @@ const ITEM_QUOTES = {
     'Odin\'s Last Rune':      '"Fenrir swallows Odin; Víðarr avenges him by tearing Fenrir apart."',
     'First New Leaf':         '"Two humans, Líf and Lífþrasir, hide in Yggdrasil and repopulate the world."',
     'Rebirth Spark':          '"Baldr rises from Hel after Ragnarök to rule the reborn world."',
+    // Legend stage – Iðavöllr, the Reborn Plain
+    'Reborn Grass':         '"The world ended. The lawn didn\'t."',
+    'Gimlé Roof Tile':      '"Gold roof. Rain still drips."',
+    'New Sun':              '"Brighter than her mother."',
+    'Magni\'s Inheritance': '"Thor\'s hammer. Kid-sized grip."',
+    'Huginn\'s Feather':    '"Thought flew back with news."',
+    'Golden Game Piece':    '"Found in the grass. Game on."',
+    'Líf\'s Seed':          '"Two survived. They planted this."',
   },
   sun_wukong: {
     // Stage 1 – Flower Fruit Mountain
@@ -424,5 +469,14 @@ const ITEM_QUOTES = {
     'Enlightenment Gem':      '"Sun Wukong was given the title: Victorious Fighting Buddha. He earned it."',
     'Buddha Crown':           '"Tripitaka became a Buddha. Wukong became a Buddha. Even Pigsy got a title."',
     'Dharma Wheel':           '"The wheel of dharma turned. The journey was complete. Wukong smiled."',
+    // Legend stage – Mountain of Five Elements
+    'Five-Element Stone':    '"Wood, fire, earth, metal, water. Ow."',
+    'Mountain Moss':         '"Grew on him for 500 years."',
+    'Iron Pellet':           '"Breakfast, lunch and dinner. Crunchy."',
+    'Buddha\'s Palm Print':  '"He jumped to the edge of the world. Oops."',
+    'Molten Copper Cup':     '"Wash the pellets down."',
+    'Five Hundred Years':    '"Time out. Very long time out."',
+    'Six-Syllable Talisman': '"Om mani padme hum. Do not peel."',
+    'Day of Release':        '"A monk walked by. Freedom."',
   },
 };

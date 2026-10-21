@@ -38,6 +38,11 @@ const JS_FILES = [
   // AFTER game.js/smash.js/shop.js/achievements.js: its boot block runs the
   // offline Auto-Smasher simulation and needs all of them executed.
   'idle.js',
+  // AFTER idle.js: The Egg side mode (v3.12.0). Its boot block wires the
+  // panel and the tray button; its functions are hoisted, so the
+  // `typeof theEggBonus` hooks in game.js / smash.js work from boot on.
+  'theegg-art.js',
+  'theegg.js',
   'payments.js',
   'cloud.js',
 ];

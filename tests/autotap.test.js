@@ -45,6 +45,7 @@ function makeWorld(over) {
     var _spawningRound = false, _roundPending = false, _rageActive = false;
     var regenCalls = [];
     function applyOfflineRegen(sec) { regenCalls.push(sec); }
+    function regenIntervalSec() { return G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval; }
     function curActiveStage() { return 0; }
     function curProgress() { return G.monkeys[0]; }
     function curStage() { return { eggs: 3, collection: { items: [['a','A',1],['b','B',1],['c','C',2],['d','D',3],['e','E',1]] } }; }

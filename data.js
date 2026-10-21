@@ -92,6 +92,18 @@ const MONKEY_DATA = [
         ['🌈','Rainbow Prism',3,ITEM_QUOTES.mr_monkey['Rainbow Prism']],
         ['⭐','Wishing Star',3,ITEM_QUOTES.mr_monkey['Wishing Star']],
       ]}},
+      // Legend stage (v3.12.0) — the monkey's finale. Optional for completion: a
+      // monkey is 'completed' when every non-legend stage is. Harder drops: CONFIG.legendStage.
+      { name: 'The Golden Nest', eggs: 7, legend: true, collection: { name: 'Nest of Legends', items: [
+        ['🪺', 'Ancient Nest', 1, ITEM_QUOTES.mr_monkey['Ancient Nest']],
+        ['🐣', 'First Chick', 1, ITEM_QUOTES.mr_monkey['First Chick']],
+        ['🌾', 'Golden Straw', 1, ITEM_QUOTES.mr_monkey['Golden Straw']],
+        ['🪶', 'Phoenix Plume', 2, ITEM_QUOTES.mr_monkey['Phoenix Plume']],
+        ['🌅', 'Dawn Ember', 2, ITEM_QUOTES.mr_monkey['Dawn Ember']],
+        ['🗝️', 'Nest Key', 2, ITEM_QUOTES.mr_monkey['Nest Key']],
+        ['🥚', 'Mother Egg', 3, ITEM_QUOTES.mr_monkey['Mother Egg']],
+        ['☀️', 'Yolk of the Sun', 3, ITEM_QUOTES.mr_monkey['Yolk of the Sun']],
+      ]}},
     ]
   },
   {
@@ -178,6 +190,18 @@ const MONKEY_DATA = [
         ['🎭','Mask of Ages',3,ITEM_QUOTES.steampunk['Mask of Ages']],
         ['✨','Chrono Crystal',3,ITEM_QUOTES.steampunk['Chrono Crystal']],
         ['🧿','Eye of Time',3,ITEM_QUOTES.steampunk['Eye of Time']],
+      ]}},
+      // Legend stage (v3.12.0) — the monkey's finale. Optional for completion: a
+      // monkey is 'completed' when every non-legend stage is. Harder drops: CONFIG.legendStage.
+      { name: 'The Grand Orrery', eggs: 7, legend: true, collection: { name: 'Clockwork Cosmos', items: [
+        ['⏱️', 'Pocket Chronometer', 1, ITEM_QUOTES.steampunk['Pocket Chronometer']],
+        ['🧭', 'Aether Compass', 1, ITEM_QUOTES.steampunk['Aether Compass']],
+        ['💡', 'Arc Bulb', 1, ITEM_QUOTES.steampunk['Arc Bulb']],
+        ['🔭', 'Brass Telescope', 2, ITEM_QUOTES.steampunk['Brass Telescope']],
+        ['🫙', 'Lightning Jar', 2, ITEM_QUOTES.steampunk['Lightning Jar']],
+        ['🪐', 'Brass Saturn', 2, ITEM_QUOTES.steampunk['Brass Saturn']],
+        ['🗝️', 'Winding Key', 3, ITEM_QUOTES.steampunk['Winding Key']],
+        ['♾️', 'Perpetual Engine', 3, ITEM_QUOTES.steampunk['Perpetual Engine']],
       ]}},
     ]
   },
@@ -266,6 +290,18 @@ const MONKEY_DATA = [
         ['🌟','Star of Royalty',3,ITEM_QUOTES.princess['Star of Royalty']],
         ['💎','Kohinoor Diamond',3,ITEM_QUOTES.princess['Kohinoor Diamond']],
       ]}},
+      // Legend stage (v3.12.0) — the monkey's finale. Optional for completion: a
+      // monkey is 'completed' when every non-legend stage is. Harder drops: CONFIG.legendStage.
+      { name: 'Coronation Day', eggs: 7, legend: true, collection: { name: 'Crown Jewels', items: [
+        ['🎺', 'Royal Fanfare', 1, ITEM_QUOTES.princess['Royal Fanfare']],
+        ['🕊️', 'White Dove', 1, ITEM_QUOTES.princess['White Dove']],
+        ['🎂', 'Coronation Cake', 1, ITEM_QUOTES.princess['Coronation Cake']],
+        ['👗', 'Coronation Gown', 2, ITEM_QUOTES.princess['Coronation Gown']],
+        ['🗡️', 'Sword of State', 2, ITEM_QUOTES.princess['Sword of State']],
+        ['🪞', 'Mirror of Truth', 2, ITEM_QUOTES.princess['Mirror of Truth']],
+        ['💍', 'Sovereign\'s Ring', 3, ITEM_QUOTES.princess['Sovereign\'s Ring']],
+        ['👑', 'Imperial Crown', 3, ITEM_QUOTES.princess['Imperial Crown']],
+      ]}},
     ]
   },
   {
@@ -353,6 +389,18 @@ const MONKEY_DATA = [
         ['🌈','Spectrum Key',3,ITEM_QUOTES.space['Spectrum Key']],
         ['✨','Big Bang Shard',3,ITEM_QUOTES.space['Big Bang Shard']],
       ]}},
+      // Legend stage (v3.12.0) — the monkey's finale. Optional for completion: a
+      // monkey is 'completed' when every non-legend stage is. Harder drops: CONFIG.legendStage.
+      { name: 'The Cosmic Egg', eggs: 7, legend: true, collection: { name: 'Origins', items: [
+        ['☄️', 'Comet Tail', 1, ITEM_QUOTES.space['Comet Tail']],
+        ['🌌', 'Primordial Dust', 1, ITEM_QUOTES.space['Primordial Dust']],
+        ['👽', 'First Contact', 1, ITEM_QUOTES.space['First Contact']],
+        ['🌠', 'Shooting Star', 2, ITEM_QUOTES.space['Shooting Star']],
+        ['🕳️', 'Wormhole Key', 2, ITEM_QUOTES.space['Wormhole Key']],
+        ['💫', 'Pulsar Heart', 2, ITEM_QUOTES.space['Pulsar Heart']],
+        ['🔆', 'First Light', 3, ITEM_QUOTES.space['First Light']],
+        ['🥚', 'Cosmic Egg', 3, ITEM_QUOTES.space['Cosmic Egg']],
+      ]}},
     ]
   },
   {
@@ -425,6 +473,17 @@ const MONKEY_DATA = [
         ['⚔️', "Odin\'s Last Rune", 2, ITEM_QUOTES.odin["Odin's Last Rune"]],
         ['🌿', "First New Leaf",    3, ITEM_QUOTES.odin['First New Leaf']],
         ['🌟', "Rebirth Spark",     3, ITEM_QUOTES.odin['Rebirth Spark']],
+      ]}},
+      // Legend stage (v3.12.0) — the monkey's finale. Optional for completion: a
+      // monkey is 'completed' when every non-legend stage is. Harder drops: CONFIG.legendStage.
+      { name: 'Iðavöllr, the Reborn Plain', eggs: 7, legend: true, collection: { name: 'The New World', items: [
+        ['🌾', 'Reborn Grass', 1, ITEM_QUOTES.odin['Reborn Grass']],
+        ['🏛️', 'Gimlé Roof Tile', 1, ITEM_QUOTES.odin['Gimlé Roof Tile']],
+        ['🌅', 'New Sun', 1, ITEM_QUOTES.odin['New Sun']],
+        ['🔨', 'Magni\'s Inheritance', 2, ITEM_QUOTES.odin['Magni\'s Inheritance']],
+        ['🐦', 'Huginn\'s Feather', 2, ITEM_QUOTES.odin['Huginn\'s Feather']],
+        ['♟️', 'Golden Game Piece', 3, ITEM_QUOTES.odin['Golden Game Piece']],
+        ['🌍', 'Líf\'s Seed', 3, ITEM_QUOTES.odin['Líf\'s Seed']],
       ]}},
     ]
   },
@@ -513,6 +572,18 @@ const MONKEY_DATA = [
         ['🌟', 'Enlightenment Gem', 2, ITEM_QUOTES.sun_wukong['Enlightenment Gem']],
         ['👑', 'Buddha Crown',      3, ITEM_QUOTES.sun_wukong['Buddha Crown']],
         ['☸️', 'Dharma Wheel',      3, ITEM_QUOTES.sun_wukong['Dharma Wheel']],
+      ]}},
+      // Legend stage (v3.12.0) — the monkey's finale. Optional for completion: a
+      // monkey is 'completed' when every non-legend stage is. Harder drops: CONFIG.legendStage.
+      { name: 'Mountain of Five Elements', eggs: 7, legend: true, collection: { name: 'The 500-Year Prison', items: [
+        ['🪨', 'Five-Element Stone', 1, ITEM_QUOTES.sun_wukong['Five-Element Stone']],
+        ['🌿', 'Mountain Moss', 1, ITEM_QUOTES.sun_wukong['Mountain Moss']],
+        ['⚫', 'Iron Pellet', 1, ITEM_QUOTES.sun_wukong['Iron Pellet']],
+        ['🖐️', 'Buddha\'s Palm Print', 2, ITEM_QUOTES.sun_wukong['Buddha\'s Palm Print']],
+        ['🔥', 'Molten Copper Cup', 2, ITEM_QUOTES.sun_wukong['Molten Copper Cup']],
+        ['⏳', 'Five Hundred Years', 2, ITEM_QUOTES.sun_wukong['Five Hundred Years']],
+        ['📜', 'Six-Syllable Talisman', 3, ITEM_QUOTES.sun_wukong['Six-Syllable Talisman']],
+        ['🌄', 'Day of Release', 3, ITEM_QUOTES.sun_wukong['Day of Release']],
       ]}},
     ]
   },
@@ -605,7 +676,7 @@ const ACHIEVEMENT_DATA = [
   { id:'stage_9',      name:'World Champion',      desc:'Complete 9 stages',             icon:'🏆', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'stage_18',     name:'Double Trouble',      desc:'Complete 18 stages',            icon:'⚡', reward:{type:'gold',val:8000,     label:'+8,000 gold'} },
   { id:'stage_36',     name:'Grand Master',        desc:'Complete all 36 stages',        icon:'👑', reward:{type:'goldPct',val:15,    label:'+15% gold from eggs'} },
-  { id:'stage_all',    name:'True Grand Master',   desc:'Complete all 53 stages',        icon:'🐒', reward:{type:'goldPct',val:20,    label:'+20% gold from eggs'} },
+  { id:'stage_all',    name:'True Grand Master',   desc:'Complete 53 stages',        icon:'🐒', reward:{type:'goldPct',val:20,    label:'+20% gold from eggs'} },
   // -- Monkeys --
   { id:'monkey_2',     name:'New Friend',          desc:'Unlock a second monkey',        icon:'🐒', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'monkey_all',   name:'Monkey Business',     desc:'Unlock all monkeys',            icon:'🐵', reward:{type:'goldPct',val:10,    label:'+10% gold from eggs'} },
@@ -712,6 +783,12 @@ const ACHIEVEMENT_DATA = [
   // -- Quests (quests.js) --
   { id:'quest_5',       name:'Errand Runner',         desc:'Complete 15 quests',                 icon:'📜', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
   { id:'quest_25',      name:'Quest Hound',           desc:'Complete 50 quests',                 icon:'🗺️', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  // -- Legend stages (v3.12.0) --
+  { id:'legend_1',      name:'Beyond the Map',        desc:'Complete a legend stage',            icon:'👑', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  { id:'legend_all',    name:'Six Legends',           desc:'Complete all 6 legend stages',       icon:'🏰', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
+  // -- The Egg (theegg.js) --
+  { id:'egg_layer_10',  name:'Shell Shocked',         desc:'Clear 10 layers of The Egg',         icon:'🥚', reward:{type:'gold',val:5000,     label:'+5,000 gold'} },
+  { id:'egg_layer_50',  name:'Unbreakable?',          desc:'Clear 50 layers of The Egg',         icon:'🌟', reward:{type:'starPieces',val:30, label:'+30 star pieces'} },
 ];
 
 // Secret achievements — hidden until discovered

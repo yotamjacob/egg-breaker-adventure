@@ -176,6 +176,12 @@ function checkAchievements() {
     // Quests
     quest_5:    () => (G.questsCompleted || 0) >= 15,
     quest_25:   () => (G.questsCompleted || 0) >= 50,
+    // Legend stages
+    legend_1:   () => typeof legendStagesCompleted === 'function' && legendStagesCompleted() >= 1,
+    legend_all: () => typeof legendStagesCompleted === 'function' && legendStagesCompleted() >= MONKEY_DATA.filter(m => m.stages.some(st => st.legend)).length,
+    // The Egg
+    egg_layer_10: () => (G.eggLayers || 0) >= 10,
+    egg_layer_50: () => (G.eggLayers || 0) >= 50,
     // Secrets
     secret_speed:    () => G._secretSpeed,
     secret_sweep:    () => G._secretSweep,

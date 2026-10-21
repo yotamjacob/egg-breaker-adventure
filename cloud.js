@@ -694,7 +694,7 @@ async function _syncToCloud() {
   const compressed = 'lz:' + LZString.compressToUTF16(json);
   // Calculate when hammers will be full (for push notification scheduling).
   // Include current partial countdown G.regenCD so the timestamp is accurate to the second.
-  const regenSec    = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  const regenSec    = regenIntervalSec();
   const secsToFull  = G.hammers < G.maxH
     ? G.regenCD + (G.maxH - G.hammers - 1) * regenSec
     : 0;
@@ -869,7 +869,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 async function _sendFcmSubscription(token) {
-  const regenSec      = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  const regenSec      = regenIntervalSec();
   const secsToFull    = G.hammers < G.maxH
     ? G.regenCD + (G.maxH - G.hammers - 1) * regenSec
     : 0;

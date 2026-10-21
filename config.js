@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.11.29';
+const VERSION = '3.12.0';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -174,6 +174,18 @@ const CONFIG = {
   },
 
   // ----------------------------------------------------------
+  // 10b. LEGEND STAGES (v3.12.0) — each monkey's last stage (`legend: true`
+  //      in data.js). Deliberately hard: items drop less often, rares are
+  //      scarcer within an item roll, and feathers buy them at a premium.
+  //      Legend stages never gate monkey completion (see coreStagesDone).
+  // ----------------------------------------------------------
+  legendStage: {
+    itemWeightMult:  0.5,   // item prize weight on a legend stage (×)
+    rareWeightMult:  0.4,   // rarity-3 weight inside the item roll (×)
+    featherCostMult: 3,     // feather price of a legend-stage album item (×)
+  },
+
+  // ----------------------------------------------------------
   // 11. MULTIPLIER BONUS GOLD
   //     When a multiplier is active and the prize type can't be
   //     multiplied directly (multipliers, items), give bonus gold.
@@ -253,7 +265,7 @@ const CONFIG = {
   //     tab; completed-but-unclaimed quests are auto-claimed at reset so
   //     nothing earned is ever lost. `metric` names a key of G (or a special
   //     'skillUses' = rage+goose+shake). `need` optionally gates a template:
-  //     'starfall' | 'skills' | 'autotap' | 'monkey2'. Gold rewards scale
+  //     'starfall' | 'skills' | 'autotap' | 'monkey2' | 'theegg'. Gold rewards scale
   //     with stages completed (goldScale per stage), capped by goldScaleMax.
   // ----------------------------------------------------------
   quests: {
@@ -280,6 +292,7 @@ const CONFIG = {
       { id: 'hex_3',        icon: '💜', name: 'Hex Breaker',     desc: 'Break 10 hexed eggs',               metric: 'hexesHit',         target: 10,    reward: { gold: 1500 } },
       { id: 'shop_2',       icon: '🛒', name: 'Big Spender',     desc: 'Buy 5 things in the Shop',          metric: 'purchases',        target: 5,     reward: { gold: 700, hammers: 20 } },
       { id: 'collect_1',    icon: '✅', name: 'Set Complete',    desc: 'Complete 2 collections',            metric: 'collectionsCompleted', target: 2, reward: { gold: 2000, feathers: 6 } },
+      { id: 'egg_catch_5',  icon: '🥚', name: 'Egg Hunter',      desc: 'Catch 5 events in The Egg',         metric: 'eggCatches',       target: 5,     reward: { gold: 1200, feathers: 4 }, need: 'theegg' },
     ],
     weekly: [
       { id: 'w_stages_2',   icon: '🏔️', name: 'Summit Push',     desc: 'Complete 4 stages this week',       metric: 'stagesCompleted',  target: 4,     reward: { gold: 8000, maxHammers: 5 } },
@@ -290,6 +303,7 @@ const CONFIG = {
       { id: 'w_silver_120', icon: '🪨', name: 'Silver Rush',     desc: 'Break 260 silver eggs this week',   metric: 'silverSmashed',    target: 260,   reward: { gold: 6500, feathers: 15 } },
       { id: 'w_rounds_150', icon: '🧹', name: 'Spotless',        desc: 'Clear 325 rounds this week',        metric: 'roundClears',      target: 325,   reward: { gold: 7500, hammers: 40 } },
       { id: 'w_quests_12',  icon: '📜', name: 'Errand Week',     desc: 'Complete 25 daily quests this week',metric: 'dailyQuestsCompleted', target: 25,    reward: { gold: 8000, starPieces: 10 } },
+      { id: 'w_egg_catch_30', icon: '🪿', name: 'Golden Hunter', desc: 'Catch 30 events in The Egg',        metric: 'eggCatches',       target: 30,    reward: { gold: 7000, starPieces: 8 }, need: 'theegg' },
     ],
   },
 
@@ -354,5 +368,73 @@ const CONFIG = {
     offlineMaxItems:   2,          // new collection items per offline report (3 before v3.11.0)
     offlineAllowRare:  false,      // rare items are found by hand only
     offlineMaxSeconds: 30 * 86400, // clock-jump guard: ignore absurd gaps entirely
+  },
+
+  // ----------------------------------------------------------
+  // 21. THE EGG (theegg.js, v3.12.0) — side mode: a swarm of flying monkeys
+  //     hits a giant golden egg that never breaks. Its shell comes off in
+  //     layers (each tougher); shards buy swarm upgrades; every few layers a
+  //     permanent, capped Blessing applies to the main game.
+  //     Pacing (greedy buyer, ~1.5 taps/s): layer 5 ≈ 3 min, 10 ≈ 7 min,
+  //     20 ≈ 25 min, 30 ≈ 1.7 h, 40 ≈ 7 h, 50 ≈ a day of play — the curve was
+  //     tuned by simulation; re-run one before changing several numbers.
+  //     Shards come per HIT, not per damage: if they scaled with damage the
+  //     upgrades snowball and layer 50 falls in minutes.
+  // ----------------------------------------------------------
+  theEgg: {
+    unlockStage:   7,                 // Mr. Monkey stage index reached (0-based → stage 8)
+    startSwarm:    3,                 // flyers before any Swarm upgrade
+    layerHp:       { base: 600, growth: 1.30 },   // shell layer n = base × growth^(n-1)
+    swingSeconds:  1.6,               // seconds between one flyer's swings at Wings L0
+    tapMult:       5,                 // a tap hits this many times harder than a flyer…
+    shardsPerHit:  1,                 // …and pays 2 shards to a flyer's 1
+    shardsPerTap:  2,
+    damageShare:   0.02,              // + this share of all damage as shards
+    layerShards:   10,                // × layer number, when a layer comes off
+    layerGold:     { base: 40, growth: 1.12 },    // main-game gold per layer, × quest gold scale
+    // Upgrade price = base × growth^level. `max` = highest level.
+    upgrades: {
+      swarm:  { base: 25,  growth: 1.70, max: 21 },                               // +1 flyer (3 → 24)
+      power:  { base: 10,  growth: 1.46, mult: 1.10 },                            // ×1.10 damage per level
+      wings:  { base: 20,  growth: 1.38, max: 25, factor: 0.93, floor: 0.25 },    // swing interval ×0.93
+      luck:   { base: 40,  growth: 1.42, max: 25, perLevel: 0.02, critMult: 5 },  // +2% crit chance
+      tap:    { base: 25,  growth: 1.36, perLevel: 1 },                           // +1× tap strength
+      magnet: { base: 150, growth: 1.60, max: 10, perLevel: 0.05 },               // events 5% sooner
+    },
+    // Random events: one every `every` seconds (range), shortened by Magnet.
+    events: {
+      every:        [30, 50],
+      weakSpot:     { seconds: 6, mult: 25 },      // taps on the glow hit ×25 harder
+      goose:        { seconds: 5, incomeSeconds: 30 },   // tap it: 30 s worth of shards
+      bananaStorm:  { seconds: 8, speed: 3 },      // swarm swings ×3 as fast
+      goldenHour:   { seconds: 15, shards: 2, weight: 0.5 },  // double shards (rarer)
+      thief:        { seconds: 4, incomeSeconds: 15 },   // catch the crow: 15 s worth of shards
+      quake:        { dpsSeconds: 45 },            // instant 45 s worth of swarm damage
+      thunder:      { hits: 15 },                  // next 15 hits all crit (needs Odin)
+      clones:       { seconds: 10 },               // swarm ×2 (needs Sun Wukong)
+    },
+    // Unlocked monkeys join the swarm as captains (by MONKEY_DATA id).
+    captains: {
+      steampunk: { critAdd: 0.10 },
+      princess:  { shardMult: 1.20 },
+      space:     { speedMult: 0.85 },
+    },
+    // Permanent main-game Blessings (one each, granted when `layer` comes off).
+    // Caps by design: +10 max hammers, +6% gold, +2% items, -2s regen, -1 starfall.
+    blessings: [
+      { layer: 5,  type: 'maxH',     val: 5, label: '+5 max hammers',                   short: '+5 max hammers' },
+      { layer: 10, type: 'goldPct',  val: 3, label: '+3% gold from eggs',               short: '+3% gold' },
+      { layer: 15, type: 'itemPct',  val: 2, label: '+2% item chance',                  short: '+2% items' },
+      { layer: 20, type: 'regenSec', val: 2, label: 'Hammers regenerate 2s faster',     short: 'faster regen' },
+      { layer: 25, type: 'maxH',     val: 5, label: '+5 max hammers',                   short: '+5 max hammers' },
+      { layer: 30, type: 'goldPct',  val: 3, label: '+3% gold from eggs',               short: '+3% gold' },
+      { layer: 40, type: 'starfall', val: 1, label: 'Starfall costs 1 less star piece', short: 'cheaper Starfall' },
+      { layer: 50, type: 'swarmVisit', val: 1, label: 'Golden Swarm: a flyer sometimes smashes a tray egg for free', short: 'Golden Swarm' },
+    ],
+    swarmVisitEvery: [75, 120],       // seconds between Golden Swarm visits (L50 blessing)
+    // Small offline trickle: while The Egg is closed, the swarm keeps earning
+    // `share` of its passive shard income (no taps, no events), for at most
+    // `capHours`. Shards only — layers and blessings need you there.
+    trickle: { share: 0.05, capHours: 8, minSeconds: 60 },
   },
 };

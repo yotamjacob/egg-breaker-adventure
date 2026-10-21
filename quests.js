@@ -105,6 +105,7 @@ function _questNeedMet(need) {
   if (need === 'skills')   return !!(G.skillsUnlocked && G.skillsUnlocked.some(Boolean));
   if (need === 'autotap')  return !!(G.autoTap && G.autoTap.unlocked);
   if (need === 'monkey2')  return !!(G.monkeys && G.monkeys.filter(m => m.unlocked).length >= 2);
+  if (need === 'theegg')   return typeof theEggUnlocked === 'function' && theEggUnlocked();
   return true;
 }
 

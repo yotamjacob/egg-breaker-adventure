@@ -171,6 +171,10 @@ function rollPrize(eggType) {
   const ab = getAchievementBonuses();
   if (ab.itemPct > 0) w.item *= (1 + ab.itemPct / 100);
   if (ab.starPct > 0) w.star *= (1 + ab.starPct / 100);
+  // The Egg blessing (layer 15)
+  if (typeof theEggBonus === 'function') w.item *= 1 + theEggBonus('itemPct') / 100;
+  // Legend stage (v3.12.0): the finale is meant to be hard — fewer item drops
+  if (curStage().legend) w.item *= CONFIG.legendStage.itemWeightMult;
 
   // Hammer mastery (mastery.js): each owned hammer's identity grows with its level
   if (typeof hammerBoost === 'function') {
@@ -211,6 +215,7 @@ function resolvePrize(type, eggType) {
     if (hasBonus('goldBoost50')) base *= 1.50;
     const ab = getAchievementBonuses();
     if (ab.goldPct > 0) base *= (1 + ab.goldPct / 100);
+    if (typeof theEggBonus === 'function') base *= 1 + theEggBonus('goldPct') / 100;   // The Egg blessings
     const _mk = curMonkey();
     if (_mk && _mk.goldScale != null) base *= _mk.goldScale;
     if (G['owned_goldmagnet']) base *= 1.2;
@@ -291,6 +296,7 @@ function rollCollectionItem(eggType) {
     const rw = CONFIG.itemRarityWeights;
     let w = rarity === 1 ? rw.common : rarity === 2 ? rw.uncommon : rw.rare;
     if (G['owned_luckycharm'] && rarity >= 2) w *= 2;
+    if (stage.legend && rarity === 3) w *= CONFIG.legendStage.rareWeightMult;   // legend finale
     return w;
   });
 

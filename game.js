@@ -118,6 +118,10 @@ const DEFAULT_STATE = {
   autoTapUpgrades: 0,    // upgrade purchases (achievements)
   offlineReports: 0,     // "while you were away" reports shown
   offlineGold: 0,        // gold earned while away
+  // The Egg (theegg.js) — { layer, hp, shards, lv:{…}, blessed:[layers], trickleAt, … }
+  theEgg: null,
+  eggLayers: 0,          // shell layers cleared (achievements)
+  eggCatches: 0,         // tap-to-catch events caught: goose, thief, weak spot (quests)
 };
 
 let G = {};
@@ -218,6 +222,16 @@ function migrateSave(state) {
         });
       }
       if (mp.activeStage === undefined) mp.activeStage = mp.stage;
+      // Extend tiers for stages added in a patch (v3.12.0 legend stages):
+      // the tier-up loop and every renderer index tiers[si] directly.
+      while (mp.tiers.length < MONKEY_DATA[mi].stages.length) mp.tiers.push(0);
+      // A stage added after the old last stage opens exactly as it would in
+      // play — once the stage before it has reached gold tier (tier 2). Only
+      // a former last stage can sit at tier ≥2 without having advanced, so
+      // this never moves anyone else. `completed` is never touched: legend
+      // stages don't count towards it (coreStagesDone).
+      const _lastSi = MONKEY_DATA[mi].stages.length - 1;
+      while ((mp.stage || 0) < _lastSi && (mp.tiers[mp.stage || 0] || 0) >= 2) mp.stage = (mp.stage || 0) + 1;
       // Extend collections array if new stages were added in a patch
       if (!Array.isArray(mp.collections)) mp.collections = [];
       while (mp.collections.length < MONKEY_DATA[mi].stages.length) {
@@ -558,6 +572,22 @@ function curMonkey() { return MONKEY_DATA[G.activeMonkey]; }
 function curProgress() { return G.monkeys[G.activeMonkey]; }
 function curActiveStage() { return curProgress().activeStage !== undefined ? curProgress().activeStage : curProgress().stage; }
 function curStage() { return curMonkey().stages[curActiveStage()]; }
+/** Legend stages (data.js `legend: true`, v3.12.0) are each monkey's optional,
+ *  hard finale. They never gate completion: feathers, the Century egg, skills
+ *  and monkey unlocks all read `completed`, which means "every core stage done". */
+function isLegendStage(monkey, si) { const st = monkey && monkey.stages[si]; return !!(st && st.legend); }
+function coreStagesDone(monkey, prog) {
+  return !!(monkey && prog && prog.tiers) && monkey.stages.every((st, i) => st.legend || (prog.tiers[i] || 0) >= 3);
+}
+/** Number of legend stages completed across all monkeys (trophies). */
+function legendStagesCompleted() {
+  let n = 0;
+  (G.monkeys || []).forEach((mp, mi) => {
+    const m = MONKEY_DATA[mi]; if (!m || !mp || !mp.tiers) return;
+    m.stages.forEach((st, si) => { if (st.legend && (mp.tiers[si] || 0) >= 3) n++; });
+  });
+  return n;
+}
 
 // ==================== STARFALL ====================
 function starfallCost() {
@@ -567,6 +597,7 @@ function starfallCost() {
   let c = CONFIG.starPiecesForStarfall;
   if (G['owned_starsaver']) c -= 1;                                        // Star Saver
   if (typeof hammerPerk === 'function' && hammerPerk('mjolnir')) c -= 1;   // Thunderclap
+  if (typeof theEggBonus === 'function') c -= theEggBonus('starfall');      // The Egg, layer 40
   return c;
 }
 
@@ -1135,6 +1166,7 @@ function checkCollectionComplete(suppressFlash) {
 
   // Ensure tiers array exists (save migration)
   if (!prog.tiers) prog.tiers = curMonkey().stages.map(() => 0);
+  if (prog.tiers[si] === undefined) prog.tiers[si] = 0;   // stage added by a patch (migrateSave pads too)
 
   let tier = prog.tiers[si];
   const tt = CONFIG.tierThresholds;
@@ -1195,8 +1227,14 @@ function checkCollectionComplete(suppressFlash) {
           null, 'Got it!'
         ), 900);
       }
-      // Check if ALL stages are complete
-      if (prog.tiers.every(t => t >= 3)) {
+      if (isLegendStage(curMonkey(), si)) {
+        // Legend finale (v3.12.0) — its own moment; never (re)runs the
+        // monkey-complete flow below, which belongs to the core stages.
+        SFX.play('fanfare');
+        msg('👑 Legend stage conquered: ' + stage.name + '!', 'tiers');
+      }
+      // Check if ALL core stages are complete (legend stages are optional)
+      else if (!prog.completed && coreStagesDone(curMonkey(), prog)) {
         prog.completed = true;
         SFX.play('complete');
         // Mr. Monkey completion — unlock feathers
@@ -1547,9 +1585,15 @@ function consumeMultiplier() {
 }
 
 // ==================== HAMMER REGEN ====================
+/** Seconds per regenerated hammer: Fast Regen, minus The Egg's regen blessing. */
+function regenIntervalSec() {
+  const base = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  const cut = typeof theEggBonus === 'function' ? theEggBonus('regenSec') : 0;
+  return Math.max(5, base - cut);
+}
 function applyOfflineRegen(elapsedSec) {
   if (G.hammers >= G.maxH || elapsedSec <= 0) return;
-  const interval = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  const interval = regenIntervalSec();
   if (elapsedSec >= G.regenCD) {
     const remaining = elapsedSec - G.regenCD;
     const earned    = 1 + Math.floor(remaining / interval);
@@ -1564,7 +1608,7 @@ function applyOfflineRegen(elapsedSec) {
 function startRegen(preserveCD = false) {
   // Only regen when below max — overflow hammers are preserved
   if (G.hammers >= G.maxH) { clearInterval(regenInt); regenInt = null; return; }
-  if (!preserveCD) G.regenCD = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  if (!preserveCD) G.regenCD = regenIntervalSec();
   regenInt = setInterval(() => {
     if (G.hammers >= G.maxH) {
       clearInterval(regenInt); regenInt = null;
@@ -1577,7 +1621,7 @@ function startRegen(preserveCD = false) {
       if (G.hammers >= G.maxH) {
         clearInterval(regenInt); regenInt = null;
       } else {
-        G.regenCD = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+        G.regenCD = regenIntervalSec();
       }
     }
     updateResources();
@@ -2385,7 +2429,8 @@ $id('stage-bar').addEventListener('click', () => {
 // Banner click → advance to next uncompleted stage (or open monkeys if all done)
 function stageBarAction() {
   const prog = curProgress();
-  if (prog.completed) {
+  // A completed monkey can still have its legend stage open — go there first
+  if (prog.completed && nextUncompletedStageIdx() < 0) {
     document.querySelector('[data-tab="monkeys"]').click();
     return;
   }

@@ -282,7 +282,7 @@ function simulateOffline(elapsedSec, deps) {
   const simSec = Math.min(elapsedSec, capSec);
   const effSec = autoTapEffectiveSeconds(simSec);   // diminishing returns past the first hour
   const secPerTap = autoTapSecPerTap();
-  const regen = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  const regen = regenIntervalSec();
   const eff = autoTapEfficiency();
   const si = curActiveStage();
   const stage = curStage();

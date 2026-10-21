@@ -616,3 +616,81 @@
   .egg-slot.teleporter > svg{animation:none}
   .tele-beam{display:none}
 }
+
+/* ---------- The Egg (theegg.js, v3.12.0) — side mode over the tray ----------
+   The panel covers .egg-area (z 60 > #overlay-layer 50) so main-game floats
+   and the desktop hammer cursor stay underneath. Nothing here sets
+   `animation` on .egg-slot or #hammer (see css-cascade.test.js). */
+.theegg-btn{background:rgba(120,80,0,.9);border:2px solid var(--gold);overflow:hidden;box-shadow:0 0 8px rgba(245,197,66,.4),1px 1px 0 var(--dark)}
+.theegg-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%;image-rendering:pixelated;pointer-events:none}
+.theegg-btn:hover{transform:scale(1.08)}
+.theegg-btn.ready{animation:te-ready 1.6s ease-in-out infinite}
+@keyframes te-ready{0%,100%{box-shadow:0 0 6px rgba(245,197,66,.4),1px 1px 0 var(--dark)}50%{box-shadow:0 0 14px rgba(245,197,66,.95),1px 1px 0 var(--dark)}}
+
+.theegg-panel{
+  position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;
+  background:#120f24;border:3px solid var(--gold3);box-shadow:4px 4px 0 var(--dark);
+}
+.theegg-panel.hidden{display:none}
+/* Egg mode: the stage bar steps aside so the scene gets its height. The
+   multiplier row stays — on the web the docked "get the app" bar sits over it,
+   and without it that bar would cover the upgrade cards instead. */
+#panel-play.egg-mode > .stage-star-row{display:none}
+.te-hud{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--dark);border-bottom:2px solid var(--gold3)}
+.te-shards{display:flex;align-items:center;gap:5px;font-family:var(--px);font-size:11px;color:var(--gold);white-space:nowrap;font-variant-numeric:tabular-nums}
+.te-gem{width:14px;height:14px;image-rendering:pixelated}
+.te-icon-btn img{width:24px;height:24px;image-rendering:pixelated;pointer-events:none}
+.te-layer{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.te-layer-row{display:flex;justify-content:space-between;gap:8px;font-family:var(--px);font-size:9px;line-height:1.3;color:var(--white);flex-wrap:wrap}
+#te-next{color:var(--gray)}
+.te-bar{height:8px;background:#2a2440;border:2px solid #3a3260;position:relative}
+.te-bar>div{position:absolute;top:0;left:0;bottom:0;width:100%;background:linear-gradient(90deg,var(--gold2),var(--gold))}
+.te-icon-btn{
+  flex:0 0 auto;width:28px;height:28px;padding:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+  font-family:var(--px);font-size:12px;color:var(--gold);
+  background:var(--panel);border:2px solid var(--panel2);box-shadow:2px 2px 0 var(--dark);
+}
+.te-icon-btn:hover{border-color:var(--gold2)}
+.te-icon-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--dark)}
+.te-close{color:var(--white)}
+.te-stage{position:relative;flex:1;min-height:0}
+#te-canvas{display:block;width:100%;height:100%;touch-action:manipulation;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.te-banner{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:2;
+  max-width:92%;width:max-content;text-align:center;
+  font-family:var(--px);font-size:9px;line-height:1.5;color:var(--dark);
+  background:var(--gold);padding:5px 8px;box-shadow:2px 2px 0 var(--dark);pointer-events:none;
+}
+.te-banner.hidden{display:none}
+.te-upgrades{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px;background:var(--bg2);border-top:2px solid var(--gold3)}
+.te-up{
+  font-family:var(--px);text-align:left;color:var(--white);cursor:pointer;min-width:0;
+  background:var(--panel);border:2px solid var(--panel2);box-shadow:2px 2px 0 var(--dark);
+  padding:5px 6px;display:flex;align-items:center;gap:6px;
+}
+.te-up-side{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:3px}
+.te-up-ic{width:24px;height:24px;image-rendering:pixelated;pointer-events:none}
+.te-up-lv{font-size:8px;line-height:1;color:var(--gray);white-space:nowrap}
+.te-up-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.te-gem-sm{width:14px;height:14px;image-rendering:pixelated;vertical-align:-3px;margin-right:3px}
+.te-up:hover{border-color:var(--gold2)}
+.te-up:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--dark)}
+.te-up[aria-disabled="true"]{opacity:.55}
+.te-up-n{font-size:10px;color:var(--gold)}
+.te-up-d{font-size:9px;line-height:1.3;color:#b8c4e0}
+.te-up-c{font-size:9px;color:var(--white);white-space:nowrap}
+.te-up.maxed .te-up-c{color:var(--green)}
+.te-compact .te-up{padding:4px 5px;gap:5px}
+.te-compact .te-up-d{display:none}
+.te-compact .te-up-ic{width:20px;height:20px}
+.te-compact .te-upgrades{gap:5px;padding:5px}
+.te-bless{display:flex;flex-direction:column;gap:6px;text-align:left;margin-top:4px}
+.te-bless-row{display:grid;grid-template-columns:36px minmax(0,1fr);gap:8px;align-items:center;font-size:12px;color:var(--gray)}
+.te-bless-row.got{color:var(--green)}
+.te-bless-l{font-family:var(--px);font-size:9px;color:var(--gold)}
+.te-bless-note{font-size:11px;color:var(--gray);margin-top:10px}
+.te-visitor{
+  position:absolute;z-index:5;width:72px;height:60px;image-rendering:pixelated;pointer-events:none;
+  transition:left .6s ease-in,top .6s ease-in;filter:drop-shadow(0 0 6px rgba(255,215,0,.9));
+}

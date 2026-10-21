@@ -13,6 +13,8 @@
 | `mastery.js` | Hammer mastery ("train your hammer") — the equipped special hammer earns XP per hit/break/rare item, levels 1→10 from `CONFIG.hammerMastery`; every owned hammer's own bonus scales with ITS level, L5 = 3% free hits, L10 = a unique perk. Bundled after quests.js |
 | `quests.js` | Quests — 5 daily + 3 weekly (`weekly` is an array; legacy single object migrates) from `CONFIG.quests`, deterministic per day/week, progress = counter delta since assignment, manual claim (auto-claim on rollover). Owns the **Quests tab** (replaced the Log tab). Bundled after achievements.js |
 | `idle.js` | Auto-Smasher (idle) — gold-shop helper that taps eggs with hammers: online loop, offline simulation, "while you were away" report, leveled shop upgrades. **Bundled after achievements.js** (its boot block needs everything before it) |
+| `theegg-art.js` | The Egg's pixel art, all procedural: shapes (ellipses, rotated rects, lines) on a grid with palette ramps, seam-only Bayer dithering and a 1px outline → cached canvases. Flying monkey (4 wing × 3 hammer frames, 5 captain hats, gold clone tint), jewelled egg in 6 shell tiers with seeded growing cracks, goose, crow, nest, backdrop, UI icons (`eaIconUrl`). No emoji anywhere in the scene. **Bundled right before theegg.js** |
+| `theegg.js` | **The Egg** (v3.12.0) — side mode over the play tray: a flying-monkey swarm hits a golden egg that never breaks; shell layers, shard upgrades, random events, permanent main-game Blessings, small offline trickle. State/math functions are DOM-free (tested); the panel is one canvas + rAF loop only while open. **Bundled right after idle.js** |
 | `analytics.js` | Umami event wrapper + traffic attribution — `track()`, `openPlayStore()`, `playStoreUrl()` (forwards first-touch utm into the Play `referrer`), first-touch source; Meta Pixel: `initMetaPixel()` / `metaTrack()`, inert unless `META_PIXEL_ID` (config.js) is set and only on our own hostnames. Bundled after `config.js`. Every call is fail-safe |
 | `art-masters/` | Hi-res source art (2048² PNGs, stereo MP3s) — **never served** (`.vercelignore`). `img/` + `audio/` are generated from it by `tools/optimize-assets.js` (≤512px palette PNG / mozjpeg / 96k mono); re-run it after adding or replacing a master |
 | `share.js` | Share/referral loop — `shareGame()`, share-link builder, arrival banner. **Bundled after `game.js`** (see Promotion below) |
@@ -30,7 +32,7 @@
 | `supabase/functions/` | Edge Functions: verify-play-purchase, restore-purchases, subscribe-push, send-notifications, admin-players, admin-purchases |
 | `agents/digest.js` | Weekly promotion digest — two web-search research agents (communities + "Egg Breaker" mentions), de-dupes via `agents/seen.json`, emails HTML via Resend. Run by `.github/workflows/weekly-digest.yml` |
 | `agents/prompts.js` | Research prompts for the digest. Reddit is excluded here AND via `blocked_domains` AND by a URL filter in digest.js |
-| `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live), `smash-animation.test.js` (tap-feedback cascade, drives real Chromium), `css-cascade.test.js` (static CSS lint: any rule setting `animation` with an `.egg-slot`/`#hammer` subject must be allowlisted + tie-break order checks — makes the silent-cascade bug class fail loudly), `text-overflow.test.js` (walks every tab in Chromium with a rich save and fails on any clipped/ellipsised text — the "truncated text is not allowed" rule), `autotap.test.js` (offline-simulation accounting invariants, vm sandbox) |
+| `tests/` | Node test suites — `smoke.test.js` (prod availability, payments, cloud), `sw-health.test.js` (SW invariants, static + live), `smash-animation.test.js` (tap-feedback cascade, drives real Chromium), `css-cascade.test.js` (static CSS lint: any rule setting `animation` with an `.egg-slot`/`#hammer` subject must be allowlisted + tie-break order checks — makes the silent-cascade bug class fail loudly), `text-overflow.test.js` (walks every tab in Chromium with a rich save and fails on any clipped/ellipsised text — the "truncated text is not allowed" rule), `autotap.test.js` (offline-simulation accounting invariants, vm sandbox), `theegg.test.js` (The Egg economy/blessings/trickle + legend-stage migration and completion — extracts the real `migrateSave`/`checkCollectionComplete` from game.js) |
 | `.github/workflows/smoke-tests.yml` | CI: runs all tests 3× daily (08/14/20 UTC) + on every push to main; emails on failure |
 
 ## Build & deploy
@@ -241,7 +243,7 @@ for cloud save only" paragraph (see the Google OAuth notes above).
 | Play Store links use `&referrer=` with URL-encoded `utm_*` inside | Bare `?utm_source=` on a Play listing URL is **dropped**. Play Console reads campaign data out of `referrer` |
 | Attribution lives in its own `localStorage` key (`_ebaAttribution`), never `SAVE_KEY` | `resetGame()` clears the save; losing the original acquisition source silently corrupts reporting. Same reasoning as `_cloudLinkPref` / `PREMIUM_KEY` |
 | `track()` must stay fail-safe | The itch.io build ships the same bundle and may load without umami. Analytics must never break play |
-| Event names: `game-started` (carries `daysSinceFirstPlay`), `first-smash`, `first-break`, `welcome-dismissed`, `play-store-click`, `play-web-click`, `share-click`, `share-completed`, `referral-arrival`, `web-banner-shown`, `web-banner-dismissed` | Content pages fire these declaratively via `data-umami-event`; keep names in sync when adding surfaces |
+| Event names: `game-started` (carries `daysSinceFirstPlay`), `first-smash`, `first-break`, `theegg-open`, `welcome-dismissed`, `play-store-click`, `play-web-click`, `share-click`, `share-completed`, `referral-arrival`, `web-banner-shown`, `web-banner-dismissed` | Content pages fire these declaratively via `data-umami-event`; keep names in sync when adding surfaces |
 | **No PII in analytics** — `track()` never attaches the cloud e-mail (removed v3.10.8) | `privacy.html` promises no personal data is collected |
 | Meta Pixel (v3.10.8): `META_PIXEL_ID` in config.js, empty = nothing loads. Events: `PageView`, custom `GameStarted`/`FirstSmash`/`PlayStoreClick`, standard `Lead` on cloud link. Only on `eggbreakeradventure.com` / `egg-breaker-adventures.vercel.app`, never with `AndroidBridge` | Ads Manager needs conversions to optimise; itch/localhost/app must not pollute the ad account. Enabling it sets `_fbp` → EU/UK traffic needs consent or geo-exclusion |
 | Content pages forward `utm_*`/`fbclid` into their `href="/"` CTAs (inline script before `</body>`); `share.js` strips `fbclid` after `trackGameStarted()` read it | Campaign params must survive the content-page hop; fbclid would fragment the Umami pages report |
@@ -299,6 +301,35 @@ Invariants are checked by `tests/autotap.test.js` (vm sandbox, no browser).
 | Runny eggs write `egg._pos` every drift tick | Re-renders and teleport read `_pos`; without the sync a smashed/re-rendered runny egg snapped back to its spawn spot |
 | The Log **tab and the full activity log are gone** (v3.9.2) — `data-tab="quests"` took the slot and the tray's 5-line mini-log is the only history | Nav real estate; the filtered history was dead weight nobody opened twice |
 Guarded by `tests/quests.test.js` (vm sandbox).
+
+## Legend stages (v3.12.0, `legend: true` in data.js, `CONFIG.legendStage`)
+Each monkey's last stage (59 stages / 400 items total) is an optional, deliberately hard finale.
+| Rule | Why |
+|------|-----|
+| `completed` means **every core stage** done (`coreStagesDone()`); legend stages never gate it and finishing one never re-runs the monkey-complete flow | Feathers, the Century egg, skills and the Odin/Wukong unlocks all read `completed`. Existing players must not lose them and new players must not be blocked by the hard stage |
+| `migrateSave` pads `tiers` (it already padded `collections`) and opens an added stage only when the old last stage is at gold tier — the same rule as play | v3.11 saves had 9-length arrays; `tiers[si]` undefined → NaN tier-ups. Idempotent, covered by `tests/theegg.test.js` |
+| Difficulty lives in `CONFIG.legendStage`: item weight ×0.5, rare weight ×0.4 inside the item roll, feather price ×3 | Measured: item rate 6.0% → 3.2% per normal egg, rare share 10% vs 53% on stage 9 |
+| Legend stages spawn 7 eggs, like the stage before | 8 crowded short phones (360×640 already overlaps at 6–7 eggs — pre-existing `renderEggTray` limit) |
+| UI: stage name `👑 Legend: <name>`, album `👑 <name>`, monkey card `👑 Legend open` while completed-but-legend-open; the stage banner routes a completed monkey to its legend stage | One line on the card — longer text ellipsised at 390px |
+| Trophy `stage_all` stays at 53 stages ("Complete 53 stages"); legends have their own (`legend_1`, `legend_all`) | Don't make an existing +20% gold trophy suddenly harder |
+
+## The Egg (`theegg.js`, `CONFIG.theEgg`, v3.12.0)
+Unlocks at Mr. Monkey stage index 7 (stage 8). Golden-egg button in `.skill-tray-btns`; the panel
+(`#theegg-panel`, z 60) covers `.egg-area` and closes on any other nav tab.
+| Rule | Why |
+|------|-----|
+| Shards are paid **per hit** (`shardsPerHit`/`shardsPerTap`) plus a 2% damage share — never per damage | Paying damage as shards snowballs: layer 50 fell in minutes in simulation. Pacing (greedy buyer, 1.5 taps/s): L5 ≈ 3 min, L10 ≈ 7 min, L20 ≈ 25 min, L30 ≈ 1.7 h, L50 ≈ a day. Re-simulate before retuning; `tests/theegg.test.js` has a pacing guard |
+| Blessings are granted once per layer (`st.blessed`), capped by design: +10 max hammers, +6% gold, +2% items, −2 s regen, −1 Starfall, L50 Golden Swarm | Hooks sit next to the bonuses they extend: `rollPrize`/`resolvePrize` (smash.js), `regenIntervalSec()` (game.js — every regen site uses it), `starfallCost()` |
+| Layer gold is `questCredit('totalGold')`-ed; layers never pay main-game hammers | Quest rule; hammers only via the max-hammer blessings so The Egg can't outpace regen |
+| Offline = a shard trickle only (`trickle`: 5% of passive income, ≤8 h, clock-safe); no layers, no blessings, no events | Owner decision: small trickle. The Auto-Smasher already owns idle income |
+| Golden Swarm (L50) lends a hammer then `smashEgg()`s; it takes the hammer back unless `egg.hp` dropped | The hammer count can't tell (refunds, Chef's Hat, prizes move it); hp drops synchronously only when the hammer was spent |
+| Quests `egg_catch_5` / `w_egg_catch_30` count `G.eggCatches` (goose, thief, first weak-spot hit), `need: 'theegg'` | Time-based and fair at every progress level; layer-count quests would be trivial early and impossible late |
+| The scene renders into a low-res buffer (`R.lo`, ~150 art px tall on any screen) upscaled ×`R.Pd` whole device pixels with smoothing off; all scene coordinates are art pixels (pointer: `(clientX-left)·devW/width/Pd`) | One pixel grid for everything; cheap — max swarm + clones + Banana Storm holds 61 fps at 6× CPU throttle |
+| A ResizeObserver refits the buffer; the HUD renders **before** the first measure | Measuring before the upgrade cards filled in stretched the whole scene vertically |
+| Egg mode: `#panel-play.egg-mode` hides `.stage-star-row` while open; closing removes it, then `Particles.resize()` + `renderEggTray()` in rAF. The multiplier row stays | Short phones need the height. Hiding `.mult-bar` too put the cards under the web-only docked "get the app" bar |
+| `.te-compact` (panel < 470px tall **and** < 640px wide) drops the effect line from upgrade cards; levels sit under the icon; prices use `_eggNum` (K/M/B/T) | No clipped text at 360×640 even with extreme levels; `formatNum` stops at M |
+| Hit flash is for the player's taps only; flyer crits get an impact star, and their numbers are budgeted (3/s, small) | Flyer crits flashed the egg white constantly at higher swarm sizes |
+| All module state `var` in both files | TDZ rule — `tests/theegg.test.js` checks both |
 
 ## Hammer mastery (`mastery.js`, `CONFIG.hammerMastery`, v3.8.0)
 | Rule | Why |

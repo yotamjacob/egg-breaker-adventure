@@ -64,7 +64,7 @@
     "name": "Egg Smash Adventures",
     "alternateName": ["Egg Breaker Adventure Revival", "Egg Breaker"],
     "url": "https://www.eggbreakeradventure.com/",
-    "description": "A free browser and Android revival of the classic Egg Breaker Facebook game. Smash eggs with a hammer, win prizes and complete 353 collectible items across six monkey worlds. No ads, no energy timers.",
+    "description": "A free browser and Android revival of the classic Egg Breaker Facebook game. Smash eggs with a hammer, win prizes and complete 400 collectible items across six monkey worlds. No ads, no energy timers.",
     "image": "https://www.eggbreakeradventure.com/og-image.png",
     "screenshot": [
       "https://www.eggbreakeradventure.com/shots/play.png",
@@ -186,6 +186,7 @@
             <button class="rage-btn hidden" id="rage-btn" onclick="_rageActive ? stopMonkeyRage() : activateMonkeyRage()" title="Monkey Rage"><img src="img/rage_monkey.png" class="rage-btn-img" alt="" loading="lazy"></button>
             <button class="skill-tray-btn goose-btn hidden" id="goose-btn" onclick="activateGoldenGoose()" title="Golden Goose"></button>
             <button class="skill-tray-btn banana-btn hidden" id="banana-btn" onclick="activateBananaShake()" title="Banana Shake"></button>
+            <button class="skill-tray-btn theegg-btn hidden" id="theegg-btn" onclick="openTheEgg()" title="The Egg" aria-label="Open The Egg"><img id="theegg-btn-img" alt=""></button>
           </div>
           <button class="auto-toggle hidden" id="auto-btn" onclick="toggleAutoTap()" title="Auto-Smasher"><span class="auto-toggle-txt" id="auto-btn-txt">AUTO</span><span class="auto-toggle-cd" id="auto-btn-cd"></span></button>
           <div class="reward-log" id="reward-log">
@@ -196,6 +197,24 @@
           <canvas id="particle-canvas"></canvas>
           <div id="prize-zone"></div>
           <div id="hammer"></div>
+        </div>
+        <!-- ===== THE EGG (theegg.js) — side mode over the tray ===== -->
+        <div class="theegg-panel hidden" id="theegg-panel" aria-hidden="true">
+          <div class="te-hud">
+            <div class="te-shards"><img class="te-gem" id="te-gem" alt="Shards"><span id="te-shards">0</span></div>
+            <div class="te-layer">
+              <div class="te-layer-row"><span id="te-layer">LAYER 1</span><span id="te-next"></span></div>
+              <div class="te-bar"><div id="te-hp"></div></div>
+            </div>
+            <button class="te-icon-btn" onclick="showTheEggBlessings()" title="Egg Blessings" aria-label="Egg Blessings"><img id="te-bless-img" alt=""></button>
+            <button class="te-icon-btn" onclick="showTheEggInfo()" title="How The Egg works" aria-label="How The Egg works">?</button>
+            <button class="te-icon-btn te-close" onclick="closeTheEgg()" title="Back to the eggs" aria-label="Close The Egg">✕</button>
+          </div>
+          <div class="te-stage">
+            <canvas id="te-canvas" aria-label="The Egg: tap it to hit it"></canvas>
+            <div class="te-banner hidden" id="te-banner"></div>
+          </div>
+          <div class="te-upgrades" id="te-upgrades"></div>
         </div>
       </div>
 

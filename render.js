@@ -782,7 +782,7 @@ function updateStageBar() {
   const total = items.length;
   const tier = (prog.tiers && prog.tiers[si]) || 0;
 
-  $id('stage-name').textContent = 'Stage ' + (si + 1) + ': ' + stage.name;
+  $id('stage-name').textContent = stage.legend ? '👑 Legend: ' + stage.name : 'Stage ' + (si + 1) + ': ' + stage.name;
   const tierEl = $id('stage-tier');
   if (tier >= 3) {
     tierEl.textContent = '✅ Done';
@@ -810,14 +810,17 @@ function updateStageBar() {
 
   const banner = $id('stage-complete-banner');
   if (banner) {
-    const alreadyDismissed = prog.completed && _completedBannerDismissedForMonkey === G.activeMonkey;
+    // `completed` = every core stage done; the legend stage (v3.12.0) may still
+    // be open, and then "all stages complete" would be untrue.
+    const allDone = prog.completed && nextUncompletedStageIdx() < 0;
+    const alreadyDismissed = allDone && _completedBannerDismissedForMonkey === G.activeMonkey;
     if (alreadyDismissed) {
       clearTimeout(_allStagesBannerTimer);
       _allStagesBannerTimer = null;
       banner.classList.add('hidden');
     } else {
-      const showBanner = prog.completed || tier >= 3;
-      if (prog.completed) {
+      const showBanner = allDone || tier >= 3;
+      if (allDone) {
         // Show once and start a single timer — never reset it on subsequent taps
         banner.classList.remove('hidden');
         banner.textContent = 'all stages complete — unlock a new monkey';
@@ -894,9 +897,8 @@ function renderAlbum() {
   const stagesDiv = $id('album-stages');
   stagesDiv.innerHTML = '';
 
-  // Banner if every stage is 100% complete
-  const allDone = monkey.stages.length > 0 &&
-    monkey.stages.every((_, i) => prog.tiers && prog.tiers[i] >= 3);
+  // Banner once every core stage is complete (the legend stage is optional)
+  const allDone = monkey.stages.length > 0 && coreStagesDone(monkey, prog);
   if (allDone) {
     const banner = document.createElement('div');
     banner.className = 'album-complete-banner';
@@ -921,7 +923,7 @@ function renderAlbum() {
     else if (tier >= 1) btn.classList.add('tier-silver'); // silver
     else                btn.classList.add('tier-bronze'); // bronze/gray
     if (i === curActiveStage()) btn.classList.add('active');
-    btn.textContent = (i + 1) + '. ' + stage.name;
+    btn.textContent = stage.legend ? '👑 ' + stage.name : (i + 1) + '. ' + stage.name;
     btn.disabled = !unlocked;
     if (unlocked) {
       btn.addEventListener('click', () => {
@@ -945,7 +947,8 @@ function featherCost(rarity, stageIdx) {
   const rarityKey = rarity === 1 ? 'common' : rarity === 2 ? 'uncommon' : 'rare';
   const base = C.featherItemCost[rarityKey];
   const overallProgress = (G.stagesCompleted || 0) + stageIdx;
-  return Math.round(base * Math.pow(C.featherStageMultiplier, overallProgress));
+  const legend = isLegendStage(curMonkey(), stageIdx) ? C.legendStage.featherCostMult : 1;
+  return Math.round(base * Math.pow(C.featherStageMultiplier, overallProgress) * legend);
 }
 
 function renderAlbumStage(stageIdx) {
@@ -1065,10 +1068,13 @@ function renderMonkeys() {
       });
       const pct = totalItems > 0 ? Math.floor(foundItems / totalItems * 100) : 0;
       const isDone = mp.completed;
+      // Completed monkeys whose legend stage (v3.12.0) is still open say so
+      const legendIdx = m.stages.findIndex(st => st.legend);
+      const legendOpen = isDone && legendIdx >= 0 && ((mp.tiers || [])[legendIdx] || 0) < 3;
       // One line in both states so the progress bars line up across cards
       // ("✅ Stage 9/9 — 100%" used to wrap and push the bar down).
       inner += '<span class="m-progress' + (isDone ? ' done' : '') + '">' +
-        (isDone ? '✅ Complete' : 'Stage ' + stageNum + '/' + m.stages.length + ' — ' + pct + '%') + '</span>';
+        (isDone ? (legendOpen ? '👑 Legend open' : '✅ Complete') : 'Stage ' + stageNum + '/' + m.stages.length + ' — ' + pct + '%') + '</span>';
       inner += '<div class="m-prog-track"><div class="m-prog-fill' + (isDone ? ' done' : '') + '" style="width:' + pct + '%"></div></div>';
       if (i === 0 && !mp.completed) inner += '<span class="m-monkey-note">Complete stages to unlock features</span>';
       inner += '<button class="monkey-enter-btn' + (isActive ? ' monkey-btn-active' : '') + '" data-enter="' + i + '">' +
