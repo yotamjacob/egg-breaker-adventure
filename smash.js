@@ -390,7 +390,8 @@ function noHammerMsg() {
 
 function _maybeStuckHint() {
   if (G.hammersDepleted % 5 !== 0) return;
-  if (curProgress().completed) return;
+  // Nothing left to chase only once the legend stage is done too
+  if (curProgress().completed && nextUncompletedStageIdx() < 0) return;
 
   // "Almost there" — ≤5 items from next tier: targeted purchase nudge
   try {

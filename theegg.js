@@ -244,6 +244,7 @@ function theEggCreditAway(now) {
   _eggQuiet = true;
   try { _theEggDamage(theEggPassiveDps(s) * eff); } finally { _eggQuiet = false; }
   const out = { sec, shards, layers: st.layer - l0, gold: G.gold - g0 };
+  if (out.layers > 0) G.eggAwayLayers = (G.eggAwayLayers || 0) + out.layers;
   const acc = st.away || (st.away = { shards: 0, layers: 0, gold: 0 });
   acc.shards += out.shards; acc.layers += out.layers; acc.gold += out.gold;
   return out;
@@ -584,6 +585,7 @@ function _eggCatch(label, shards, x, y) {
   for (let i = 0; i < 8; i++) R.gems.push({ x, y, vx: (Math.random() - 0.5) * 70, vy: -20 - Math.random() * 40, t: 0 });
   R.impacts.push({ x, y, t: 0.18, big: true, col: '#ffe27a' });
   SFX.play('coin');
+  if (typeof checkAchievements === 'function') checkAchievements();   // Event Chaser, Goose Whisperer
 }
 
 // ---- input ----
@@ -611,6 +613,8 @@ function _eggPointer(e) {
       if (!R.ev.weakHit) { R.ev.weakHit = true; G.eggCatches = (G.eggCatches || 0) + 1; }
     }
   }
+  G.eggTaps = (G.eggTaps || 0) + 1;
+  if (G.eggTaps % 50 === 0 && typeof checkAchievements === 'function') checkAchievements();   // tap trophies, cheaply
   _eggDealHit(s.dmg * mult, Math.random() < s.crit, x, y, true, big);
   if (!_eggReduced()) R.shake = Math.min(2, R.shake + 0.8);
   SFX.play('hit');
@@ -842,6 +846,7 @@ function _eggUpgradeClick(e) {
   if (!theEggBuy(k)) { SFX.play('err'); _eggBanner('NEED ' + _eggNum(theEggPrice(k)) + ' SHARDS'); return; }
   SFX.play('buy');
   _eggRenderHud(true);
+  if (typeof checkAchievements === 'function') checkAchievements();   // Full Swarm, Heavy Hitters
   saveGame();
 }
 
@@ -977,11 +982,12 @@ function _eggMaybeVisit(playOn) {
     if (cv) cv.addEventListener('pointerdown', _eggPointer);
     const ups = $id('te-upgrades');
     if (ups) ups.addEventListener('click', _eggUpgradeClick);
-    // Leaving the Play tab closes The Egg (the loop and canvas only live while it's on screen)
+    // Any nav tab closes The Egg: another tab leaves Play, and Play itself means
+    // "back to the eggs" (v3.12.5 — it used to do nothing while The Egg was open)
     const nav = $id('nav-tabs');
     if (nav) nav.addEventListener('click', e => {
       const tab = e.target.closest('.nav-tab, .nav-play');
-      if (tab && !tab.disabled && tab.dataset.tab !== 'play') closeTheEgg();
+      if (tab && !tab.disabled) closeTheEgg();
     });
     window.addEventListener('resize', () => { if (_eggOpen) { _eggFitPanel(); _eggResize(); } });
     document.addEventListener('visibilitychange', () => {

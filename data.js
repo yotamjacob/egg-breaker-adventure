@@ -675,7 +675,7 @@ const ACHIEVEMENT_DATA = [
   { id:'stage_1',      name:'Stage Clear',         desc:'Complete a stage',               icon:'🎯', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'stage_9',      name:'World Champion',      desc:'Complete 9 stages',             icon:'🏆', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'stage_18',     name:'Double Trouble',      desc:'Complete 18 stages',            icon:'⚡', reward:{type:'gold',val:8000,     label:'+8,000 gold'} },
-  { id:'stage_36',     name:'Grand Master',        desc:'Complete all 36 stages',        icon:'👑', reward:{type:'goldPct',val:15,    label:'+15% gold from eggs'} },
+  { id:'stage_36',     name:'Grand Master',        desc:'Complete 36 stages',        icon:'👑', reward:{type:'goldPct',val:15,    label:'+15% gold from eggs'} },
   { id:'stage_all',    name:'True Grand Master',   desc:'Complete 53 stages',        icon:'🐒', reward:{type:'goldPct',val:20,    label:'+20% gold from eggs'} },
   // -- Monkeys --
   { id:'monkey_2',     name:'New Friend',          desc:'Unlock a second monkey',        icon:'🐒', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
@@ -787,8 +787,16 @@ const ACHIEVEMENT_DATA = [
   { id:'legend_1',      name:'Beyond the Map',        desc:'Complete a legend stage',            icon:'👑', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
   { id:'legend_all',    name:'Six Legends',           desc:'Complete all 6 legend stages',       icon:'🏰', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
   // -- The Egg (theegg.js) --
+  { id:'egg_layer_1',   name:'Crack the Shell',       desc:'Clear your first layer of The Egg',  icon:'🥚', reward:{type:'gold',val:1000,     label:'+1,000 gold'} },
   { id:'egg_layer_10',  name:'Shell Shocked',         desc:'Clear 10 layers of The Egg',         icon:'🥚', reward:{type:'gold',val:5000,     label:'+5,000 gold'} },
+  { id:'egg_layer_25',  name:'Deep Shell',            desc:'Clear 25 layers of The Egg',         icon:'🪺', reward:{type:'maxH',val:8,        label:'+8 max hammers'} },
   { id:'egg_layer_50',  name:'Unbreakable?',          desc:'Clear 50 layers of The Egg',         icon:'🌟', reward:{type:'starPieces',val:30, label:'+30 star pieces'} },
+  { id:'egg_swarm_24',  name:'Full Swarm',            desc:'Fill The Egg swarm to 24 flyers',    icon:'🐒', reward:{type:'goldPct',val:5,     label:'+5% gold from eggs'} },
+  { id:'egg_power_25',  name:'Heavy Hitters',         desc:'Train the swarm to Power level 25',  icon:'🔨', reward:{type:'maxH',val:5,        label:'+5 max hammers'} },
+  { id:'egg_catch_25',  name:'Event Chaser',          desc:'Catch 25 events in The Egg',         icon:'🪿', reward:{type:'feathers',val:20,   label:'+20 feathers'} },
+  { id:'egg_catch_100', name:'Goose Whisperer',       desc:'Catch 100 events in The Egg',        icon:'👑', reward:{type:'starPieces',val:25, label:'+25 star pieces'} },
+  { id:'egg_taps_10k',  name:'Ten Thousand Knocks',   desc:'Tap The Egg 10,000 times',           icon:'👊', reward:{type:'gold',val:10000,    label:'+10,000 gold'} },
+  { id:'egg_night',     name:'Night Shift',           desc:'The swarm breaks a layer while you are away', icon:'🌙', reward:{type:'gold',val:3000, label:'+3,000 gold'} },
 ];
 
 // Secret achievements — hidden until discovered

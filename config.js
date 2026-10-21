@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.12.3';
+const VERSION = '3.12.5';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -84,7 +84,7 @@ const CONFIG = {
       colors: { f:'#FFD700', s:'#B8860B', h:'#FFF8DC', sh:'#8B6508' },
       particles: ['#FFD700','#FFA500','#FF6347','#FF00FF','#00FFFF','#7CFC00'],
       prizes: { empty:0, gold_s:0, gold_m:0, gold_l:100, star:20, mult:0, feather:8, item:0, hammers:20, banana:0 },
-      desc: 'Complete Mr. Monkey. 100 hits. 100x rewards. Legendary.',
+      desc: 'Clear Mr. Monkey stage 9. 100 hits. 100x rewards. Legendary.',
       big: true,
     },
   ],
@@ -293,6 +293,7 @@ const CONFIG = {
       { id: 'shop_2',       icon: '🛒', name: 'Big Spender',     desc: 'Buy 5 things in the Shop',          metric: 'purchases',        target: 5,     reward: { gold: 700, hammers: 20 } },
       { id: 'collect_1',    icon: '✅', name: 'Set Complete',    desc: 'Complete 2 collections',            metric: 'collectionsCompleted', target: 2, reward: { gold: 2000, feathers: 6 } },
       { id: 'egg_catch_5',  icon: '🥚', name: 'Egg Hunter',      desc: 'Catch 5 events in The Egg',         metric: 'eggCatches',       target: 5,     reward: { gold: 1200, feathers: 4 }, need: 'theegg' },
+      { id: 'egg_taps_250', icon: '🔨', name: 'Egg Tapper',      desc: 'Tap The Egg 250 times',             metric: 'eggTaps',          target: 250,   reward: { gold: 1000, feathers: 3 }, need: 'theegg' },
     ],
     weekly: [
       { id: 'w_stages_2',   icon: '🏔️', name: 'Summit Push',     desc: 'Complete 4 stages this week',       metric: 'stagesCompleted',  target: 4,     reward: { gold: 8000, maxHammers: 5 } },
@@ -304,6 +305,7 @@ const CONFIG = {
       { id: 'w_rounds_150', icon: '🧹', name: 'Spotless',        desc: 'Clear 325 rounds this week',        metric: 'roundClears',      target: 325,   reward: { gold: 7500, hammers: 40 } },
       { id: 'w_quests_12',  icon: '📜', name: 'Errand Week',     desc: 'Complete 25 daily quests this week',metric: 'dailyQuestsCompleted', target: 25,    reward: { gold: 8000, starPieces: 10 } },
       { id: 'w_egg_catch_30', icon: '🪿', name: 'Golden Hunter', desc: 'Catch 30 events in The Egg',        metric: 'eggCatches',       target: 30,    reward: { gold: 7000, starPieces: 8 }, need: 'theegg' },
+      { id: 'w_egg_taps_2500', icon: '🔨', name: 'Shell Drummer', desc: 'Tap The Egg 2,500 times this week', metric: 'eggTaps',          target: 2500,  reward: { gold: 6000, starPieces: 6 }, need: 'theegg' },
     ],
   },
 

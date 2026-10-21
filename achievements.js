@@ -180,8 +180,16 @@ function checkAchievements() {
     legend_1:   () => typeof legendStagesCompleted === 'function' && legendStagesCompleted() >= 1,
     legend_all: () => typeof legendStagesCompleted === 'function' && legendStagesCompleted() >= MONKEY_DATA.filter(m => m.stages.some(st => st.legend)).length,
     // The Egg
+    egg_layer_1:  () => (G.eggLayers || 0) >= 1,
     egg_layer_10: () => (G.eggLayers || 0) >= 10,
+    egg_layer_25: () => (G.eggLayers || 0) >= 25,
     egg_layer_50: () => (G.eggLayers || 0) >= 50,
+    egg_swarm_24: () => !!(G.theEgg && G.theEgg.lv) && CONFIG.theEgg.startSwarm + (G.theEgg.lv.swarm || 0) >= 24,
+    egg_power_25: () => !!(G.theEgg && G.theEgg.lv) && (G.theEgg.lv.power || 0) >= 25,
+    egg_catch_25:  () => (G.eggCatches || 0) >= 25,
+    egg_catch_100: () => (G.eggCatches || 0) >= 100,
+    egg_taps_10k:  () => (G.eggTaps || 0) >= 10000,
+    egg_night:     () => (G.eggAwayLayers || 0) >= 1,
     // Secrets
     secret_speed:    () => G._secretSpeed,
     secret_sweep:    () => G._secretSweep,

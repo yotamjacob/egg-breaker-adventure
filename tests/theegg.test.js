@@ -288,8 +288,9 @@ test('build bundles theegg.js after idle.js', () => {
 test('egg quests count eggCatches, are gated on The Egg, and need is understood', () => {
   const ctx = baseCtx();
   const all = run(ctx, 'CONFIG.quests.daily.concat(CONFIG.quests.weekly)').filter(q => q.need === 'theegg');
-  assert.ok(all.length >= 2);
-  for (const q of all) assert.equal(q.metric, 'eggCatches');
+  assert.ok(all.length >= 4);
+  // time-bounded metrics only: fair at every progress level (no layer/upgrade counts)
+  for (const q of all) assert.ok(['eggCatches', 'eggTaps'].includes(q.metric), q.id + ' uses ' + q.metric);
   assert.match(read('quests.js'), /need === 'theegg'/);
 });
 
@@ -424,36 +425,54 @@ function fillStage(ctx, si) {
     mp.collections[${si}] = mp.collections[${si}].map(() => true); checkCollectionComplete(true); timers.splice(0).forEach(f => f()); })()`);
 }
 
-test('completing every core stage completes the monkey while the legend stage is still open', () => {
+test('clearing the core stages unlocks feathers; "Mr. Monkey Complete!" waits for the legend stage', () => {
   const ctx = completionWorld();
+  vm.runInContext(extractFn(read('game.js'), 'monkeyFullyComplete'), ctx);
   for (let si = 0; si < 9; si++) fillStage(ctx, si);
-  assert.equal(run(ctx, 'curProgress().completed'), true);
+  assert.equal(run(ctx, 'curProgress().completed'), true, 'unlocks (feathers, Century egg, skills) on the core stages');
   assert.equal(run(ctx, 'curProgress().stage'), 9, 'legend stage unlocked by the stage before it');
-  assert.ok(run(ctx, 'confirms').includes('Mr. Monkey Complete!'));
-  // Now the legend stage: its own moment, no second monkey-complete popup
+  assert.deepEqual(Array.from(run(ctx, 'confirms')), ['Feathers Unlocked!'], 'no "complete" popup while stage 10 is open');
+  assert.ok(!run(ctx, 'logs').some(l => /complete — every stage/.test(l)));
+  // The legend stage completes the monkey
   run(ctx, 'confirms.length = 0; sounds.length = 0;');
   fillStage(ctx, 9);
   assert.equal(run(ctx, 'curProgress().tiers[9]'), 3);
-  assert.equal(run(ctx, 'curProgress().completed'), true);
-  assert.ok(!run(ctx, 'confirms').includes('Mr. Monkey Complete!'));
+  assert.deepEqual(Array.from(run(ctx, 'confirms')), ['Mr. Monkey Complete!']);
+  assert.ok(run(ctx, 'logs').some(l => /Mr\. Monkey complete — every stage, legend included/.test(l)));
   assert.ok(run(ctx, 'sounds').includes('fanfare'));
   assert.equal(run(ctx, 'legendStagesCompleted()'), 1);
   assert.equal(run(ctx, 'G.stagesCompleted'), 10);
   assert.equal(run(ctx, 'G.crystalBananas'), 10);
 });
 
-test('a legend stage finished first never completes the monkey on its own', () => {
+test('a legend stage finished first: one combined "Mr. Monkey Complete!" (with feathers) when the core finishes', () => {
   const ctx = completionWorld();
+  vm.runInContext(extractFn(read('game.js'), 'monkeyFullyComplete'), ctx);
   for (let si = 0; si < 8; si++) fillStage(ctx, si);
   // Stage 9 to gold tier only (opens the legend stage), then finish the legend
   run(ctx, `(() => { const mp = curProgress(); mp.activeStage = 8; const c = mp.collections[8];
     for (let i = 0; i < Math.ceil(c.length * CONFIG.tierThresholds.silver); i++) c[i] = true; checkCollectionComplete(true); })()`);
   assert.equal(run(ctx, 'curProgress().stage'), 9);
+  run(ctx, 'confirms.length = 0;');
   fillStage(ctx, 9);
   assert.equal(run(ctx, 'curProgress().completed'), false, 'stage 9 is still unfinished');
+  assert.deepEqual(Array.from(run(ctx, 'confirms')), [], 'no popup yet');
   fillStage(ctx, 8);
   assert.equal(run(ctx, 'curProgress().completed'), true);
+  assert.deepEqual(Array.from(run(ctx, 'confirms')), ['Mr. Monkey Complete!'], 'one popup, not two');
 });
+
+test('"all monkeys complete" congrats needs every legend stage too', () => {
+  const ctx = completionWorld();
+  vm.runInContext(extractFn(read('game.js'), 'monkeyFullyComplete'), ctx);
+  // every monkey but Mr. Monkey fully done; Mr. Monkey's core done, legend open
+  run(ctx, `G._allMonkeysCongratsSeen = false; G.monkeys.forEach((mp, mi) => { if (mi > 0) { mp.completed = true; mp.tiers = mp.tiers.map(() => 3); } });`);
+  for (let si = 0; si < 9; si++) fillStage(ctx, si);
+  assert.equal(run(ctx, 'G._allMonkeysCongratsSeen'), false, 'not while a legend stage is open');
+  fillStage(ctx, 9);
+  assert.equal(run(ctx, 'G._allMonkeysCongratsSeen'), true);
+});
+
 
 // ---------------------------------------------------------------
 // Pixel art (theegg-art.js) — grids build without a DOM
@@ -583,4 +602,15 @@ test('v3.12.3 retune: max-hammer blessings earned at the old +5 are topped up on
   // a brand-new state never gets a phantom top-up
   const c3 = eggWorld(`G.maxH = 50; G.theEgg = { introSeen: true };`);
   assert.equal(run(c3, 'G.maxH'), 50);
+});
+
+test('every Egg trophy has a check, and its counters live in the save', () => {
+  const ctx = baseCtx();
+  const ids = run(ctx, "ACHIEVEMENT_DATA.filter(a => a.id.startsWith('egg_')).map(a => a.id)");
+  assert.ok(ids.length >= 10);
+  const src = read('achievements.js');
+  for (const id of ids) assert.match(src, new RegExp('\\b' + id + ':'), 'check for ' + id);
+  const game = read('game.js');
+  for (const k of ['eggLayers', 'eggCatches', 'eggTaps', 'eggAwayLayers']) assert.match(game, new RegExp('\\n  ' + k + ': 0,'), k + ' in DEFAULT_STATE');
+  assert.match(read('render.js'), /row\('Egg blessings'/, 'overall progress counts Egg blessings');
 });

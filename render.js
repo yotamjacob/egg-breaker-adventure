@@ -740,8 +740,13 @@ function updateOverallProgress() {
   const hm = (typeof hammerMasteryStats === 'function') ? hammerMasteryStats() : { maxed: 0, total: 0 };
   const totalHammerMastery = hm.total, masteredHammers = hm.maxed;
 
-  const grand = totalItems + totalShop + totalGoals + totalSkills + totalHammerMastery;
-  const grandFound = foundItems + ownedShop + doneGoals + masteredSkills + masteredHammers;
+  // The Egg: every Blessing earned (layer 50) — counted whether or not it is unlocked yet
+  const totalBlessings = CONFIG.theEgg.blessings.length;
+  const eggBlessed = (G.theEgg && Array.isArray(G.theEgg.blessed))
+    ? CONFIG.theEgg.blessings.filter(b => G.theEgg.blessed.indexOf(b.layer) !== -1).length : 0;
+
+  const grand = totalItems + totalShop + totalGoals + totalSkills + totalHammerMastery + totalBlessings;
+  const grandFound = foundItems + ownedShop + doneGoals + masteredSkills + masteredHammers + eggBlessed;
   const pct = grand > 0 ? Math.floor((grandFound / grand) * 100) : 0;
   $id('overall-pct').textContent = pct + '%';
   $id('overall-fill').style.width = pct + '%';
@@ -755,7 +760,8 @@ function updateOverallProgress() {
     row('Shop', ownedShop, totalShop) +
     row('Goals', doneGoals, totalGoals) +
     row('Skills mastered', masteredSkills, totalSkills) +
-    row('Hammers mastered', masteredHammers, totalHammerMastery);
+    row('Hammers mastered', masteredHammers, totalHammerMastery) +
+    row('Egg blessings', eggBlessed, totalBlessings);
 
   const quoteEl = $id('overall-quote');
   if (quoteEl) {
@@ -897,8 +903,8 @@ function renderAlbum() {
   const stagesDiv = $id('album-stages');
   stagesDiv.innerHTML = '';
 
-  // Banner once every core stage is complete (the legend stage is optional)
-  const allDone = monkey.stages.length > 0 && coreStagesDone(monkey, prog);
+  // Banner only once every stage is complete, the legend stage included
+  const allDone = monkey.stages.length > 0 && monkeyFullyComplete(monkey, prog);
   if (allDone) {
     const banner = document.createElement('div');
     banner.className = 'album-complete-banner';

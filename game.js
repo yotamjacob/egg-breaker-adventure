@@ -122,6 +122,8 @@ const DEFAULT_STATE = {
   theEgg: null,
   eggLayers: 0,          // shell layers cleared (achievements)
   eggCatches: 0,         // tap-to-catch events caught: goose, thief, weak spot (quests)
+  eggTaps: 0,            // the player's own taps on The Egg (quests, trophies)
+  eggAwayLayers: 0,      // layers the swarm broke in away mode (Night Shift trophy)
 };
 
 let G = {};
@@ -578,6 +580,10 @@ function curStage() { return curMonkey().stages[curActiveStage()]; }
 function isLegendStage(monkey, si) { const st = monkey && monkey.stages[si]; return !!(st && st.legend); }
 function coreStagesDone(monkey, prog) {
   return !!(monkey && prog && prog.tiers) && monkey.stages.every((st, i) => st.legend || (prog.tiers[i] || 0) >= 3);
+}
+/** Every stage done, legend included — the only state the game calls "complete". */
+function monkeyFullyComplete(monkey, prog) {
+  return !!(monkey && prog && prog.tiers) && monkey.stages.every((st, i) => (prog.tiers[i] || 0) >= 3);
 }
 /** Number of legend stages completed across all monkeys (trophies). */
 function legendStagesCompleted() {
@@ -1228,32 +1234,41 @@ function checkCollectionComplete(suppressFlash) {
         ), 900);
       }
       if (isLegendStage(curMonkey(), si)) {
-        // Legend finale (v3.12.0) — its own moment; never (re)runs the
-        // monkey-complete flow below, which belongs to the core stages.
         SFX.play('fanfare');
         msg('👑 Legend stage conquered: ' + stage.name + '!', 'tiers');
       }
-      // Check if ALL core stages are complete (legend stages are optional)
-      else if (!prog.completed && coreStagesDone(curMonkey(), prog)) {
+      // Two separate moments (v3.12.5):
+      //  1. every CORE stage done → the monkey's unlocks (`completed`: feathers,
+      //     the Century egg, skills). Legend stages never gate these.
+      //  2. every stage, legend included → the monkey is COMPLETE: the
+      //     celebration and "complete" wording. Never shown while stage 10 is open.
+      const feathersNow = !prog.completed && coreStagesDone(curMonkey(), prog);
+      const fullNow = monkeyFullyComplete(curMonkey(), prog);
+      if (feathersNow) {
         prog.completed = true;
         SFX.play('complete');
-        // Mr. Monkey completion — unlock feathers
-        if (G.activeMonkey === 0) {
-          setTimeout(() => showConfirm('🎉', 'Mr. Monkey Complete!',
-            'You\'ve unlocked <strong>Feathers 🪶</strong>!<br><br>Feathers drop from eggs (the Shop sells them too) and let you buy missing album items directly — great for speeding up your collection.',
-            () => { document.querySelector('[data-tab="album"]').click(); },
-            'Go to Album'
-          ), 800);
-        }
-        // Skills unlock: any 2 monkeys completed
+        // Skills unlock: any 2 monkeys with their main stages cleared
         const completedCount = G.monkeys.filter(m => m.completed).length;
         if (completedCount >= 2 && !G.skillsUnlockSeen) {
           G.skillsUnlockSeen = true;
           checkSkillsUnlock();
           setTimeout(() => $id('overlay-skills-unlock').classList.remove('hidden'), 1800);
         }
-        // Check if ALL monkeys (including locked ones) are now complete
-        const allMonkeysDone = G.monkeys.every(mp => mp.completed === true);
+      }
+      const feathersLine = 'Feathers drop from eggs (the Shop sells them too) and let you buy missing album items directly.';
+      if (fullNow) {
+        msg('🏆 ' + curMonkey().name + ' complete — every stage, legend included!', 'tiers');
+        if (!feathersNow) SFX.play('complete');
+        if (G.activeMonkey === 0) {
+          setTimeout(() => showConfirm('🎉', 'Mr. Monkey Complete!',
+            'Every stage cleared, <strong>' + stage.name.replace(/</g, '') + '</strong> included.' +
+            (feathersNow ? '<br><br>You\'ve also unlocked <strong>Feathers 🪶</strong>. ' + feathersLine : ''),
+            () => { document.querySelector('[data-tab="monkeys"]').click(); },
+            'Next monkey'
+          ), 800);
+        }
+        // Every monkey (locked ones included) complete, legends and all
+        const allMonkeysDone = MONKEY_DATA.every((m, mi) => G.monkeys[mi] && monkeyFullyComplete(m, G.monkeys[mi]));
         if (allMonkeysDone && !G._allMonkeysCongratsSeen) {
           G._allMonkeysCongratsSeen = true;
           setTimeout(() => {
@@ -1261,6 +1276,15 @@ function checkCollectionComplete(suppressFlash) {
             setTimeout(() => $id('overlay-congrats').classList.remove('hidden'), 800);
           }, 1200);
         }
+      } else if (feathersNow && G.activeMonkey === 0) {
+        // Main stages cleared, legend stage still open: announce the unlock, not completion
+        const legend = curMonkey().stages.find(st => st.legend);
+        setTimeout(() => showConfirm('🪶', 'Feathers Unlocked!',
+          'Mr. Monkey\'s main stages are cleared. ' + feathersLine +
+          (legend ? '<br><br>One stage left to complete Mr. Monkey: the legend stage <strong>' + legend.name + '</strong>.' : ''),
+          () => { document.querySelector('[data-tab="album"]').click(); },
+          'Go to Album'
+        ), 800);
       }
     }
     // Refresh UI after tier change — skip renderEggTray so eggs don't jump positions
@@ -2341,7 +2365,7 @@ const _SPLASH_TIPS = [
   'Multiplier chips + balloon eggs = massive prizes.',
   'Silver and gold eggs never give empty prizes.',
   'The shop has upgrades that keep hammers flowing.',
-  'Complete Mr. Monkey to unlock feathers.',
+  'Clear Mr. Monkey stage 9 to unlock feathers.',
   'Tap the gold counter to jump to the shop.',
   'Check the premium shop for game-changing gear.',
   'Crystal and ruby eggs hit harder but pay out big.',
