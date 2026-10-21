@@ -489,3 +489,44 @@ test('The Egg scene uses no emoji', () => {
   const scene = read('theegg.js').split('\n').filter(l => emoji.test(l) && !/showConfirm\(|showAlert\(|msg\(|✅/.test(l));
   assert.deepEqual(scene, []);
 });
+
+// ---------------------------------------------------------------
+// "What's new" card (news.js)
+// ---------------------------------------------------------------
+function newsWorld(gState, stored) {
+  const store = {};
+  if (stored) store._ebaNewsSeen = stored;
+  const ctx = {
+    console, Math, Date,
+    setTimeout: () => 0,
+    localStorage: { getItem: k => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); } },
+    document: { addEventListener() {}, querySelector: () => null, hidden: false },
+    G: gState, $id: () => null, _whenSplashGone() {},
+  };
+  vm.createContext(ctx);
+  vm.runInContext(read('news.js'), ctx, { filename: 'news.js' });
+  return { ctx, store };
+}
+
+test('news card: never for a first-time player, once for a returning one', () => {
+  const fresh = newsWorld({ totalEggs: 0, stagesCompleted: 0 });
+  assert.equal(fresh.ctx._newsPending, false);
+  assert.equal(fresh.store._ebaNewsSeen, run(fresh.ctx, 'NEWS_ID'), 'a new player is marked seen so it never appears later');
+  const back = newsWorld({ totalEggs: 1200, stagesCompleted: 6 });
+  assert.equal(back.ctx._newsPending, true, 'returning player: queued (shown after splash/overlays)');
+  assert.equal(back.store._ebaNewsSeen, undefined, 'not marked seen until actually shown');
+  const seen = newsWorld({ totalEggs: 1200 }, run(back.ctx, 'NEWS_ID'));
+  assert.equal(seen.ctx._newsPending, false, 'already seen: nothing');
+});
+
+test('news card: no top-level let/const, bundled after theegg.js, holds The Egg intro', () => {
+  assert.deepEqual(read('news.js').split('\n').filter(l => /^(let|const)\s/.test(l)), []);
+  const src = read('build.js');
+  assert.ok(src.indexOf("'news.js'") > src.indexOf("'theegg.js'"));
+  assert.match(read('theegg.js'), /_newsPending/);
+  // storage blocked (private mode): treated as seen, never throws
+  const ctx = { console, Math, Date, setTimeout: () => 0, localStorage: { getItem() { throw new Error('blocked'); }, setItem() { throw new Error('blocked'); } }, document: { addEventListener() {} }, G: { totalEggs: 5 }, $id: () => null };
+  vm.createContext(ctx);
+  assert.doesNotThrow(() => vm.runInContext(read('news.js'), ctx));
+  assert.equal(ctx._newsPending, false);
+});

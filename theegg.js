@@ -832,7 +832,9 @@ function _theEggTick() {
     const st = theEggState();
     const playOn = $id('panel-play') && $id('panel-play').classList.contains('active');
     // One-time intro, once the boot modals have had their turn
-    if (!st.introSeen && !_eggOpen && playOn && Date.now() - _eggBootAt > 8000 && !_eggAnyOverlayOpen()) {
+    // (news.js's "what's new" card announces The Egg for returning players — hold while it's pending)
+    const newsPending = typeof _newsPending !== 'undefined' && _newsPending;
+    if (!st.introSeen && !_eggOpen && playOn && !newsPending && Date.now() - _eggBootAt > 8000 && !_eggAnyOverlayOpen()) {
       const sp = $id('splash-screen');
       if (!sp || sp.classList.contains('fade-out')) {
         st.introSeen = true;

@@ -388,3 +388,31 @@
   .offline-row{opacity:1}
   .offline-row-pop{animation:none}
 }
+
+/* ---------- "What's new" card (news.js) — not a modal: slides down, play continues ---------- */
+.news-card{
+  position:fixed;left:50%;top:calc(env(safe-area-inset-top, 0px) + 8px);z-index:885;
+  width:min(360px,calc(100% - 24px));transform:translate(-50%,calc(-100% - 24px));
+  transition:transform .32s ease;
+  background:var(--panel);border:3px solid var(--gold);box-shadow:4px 4px 0 var(--dark),0 8px 24px rgba(0,0,0,.5);
+  padding:8px 10px 10px;display:flex;flex-direction:column;gap:8px;touch-action:pan-x;
+}
+.news-card.show{transform:translate(-50%,0)}
+.news-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.news-title{font-family:var(--px);font-size:10px;color:var(--gold);letter-spacing:1px}
+.news-x{appearance:none;background:none;border:0;color:var(--white);font-size:16px;line-height:1;width:32px;height:32px;margin:-6px -6px -6px 0;cursor:pointer}
+.news-x:hover{color:var(--gold)}
+.news-row{display:flex;align-items:center;gap:10px}
+.news-ic{flex:0 0 auto;width:24px;height:auto;image-rendering:pixelated}
+.news-txt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.news-txt b{font-family:var(--px);font-size:9px;font-weight:400;color:var(--white)}
+.news-txt span{font-size:12px;line-height:1.4;color:#b8c4e0;font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+.news-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.news-note{flex:1;min-width:0;font-size:11px;color:var(--gray);font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+.news-btn{
+  appearance:none;cursor:pointer;font-family:var(--px);font-size:9px;line-height:1;padding:9px 10px;
+  color:var(--white);background:var(--panel2);border:2px solid var(--panel2);box-shadow:2px 2px 0 var(--dark);
+}
+.news-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--dark)}
+.news-go{color:var(--dark);background:var(--gold);border-color:var(--gold2)}
+@media (prefers-reduced-motion: reduce){.news-card{transition:none}}

@@ -43,6 +43,8 @@ const JS_FILES = [
   // `typeof theEggBonus` hooks in game.js / smash.js work from boot on.
   'theegg-art.js',
   'theegg.js',
+  // AFTER theegg.js: the "what's new" card links to The Egg and holds its intro
+  'news.js',
   'payments.js',
   'cloud.js',
 ];

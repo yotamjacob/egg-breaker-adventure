@@ -633,6 +633,19 @@ function eaIconGrid(name) {
   } else if (name === 'magnet') {
     eaEllipse(g, 6, 5, 4.6, 4.2, (u, v, x, y) => (u * u + v * v > 0.25 && v < 0.6 ? eaRamp(['#7a0f16', '#c41f2a', '#ff5a5a'], 0.6 - v * 0.3 - u * 0.2, x, y) : null));
     for (const x of [1.6, 2.6, 9.4, 10.4]) for (const y of [8, 9, 10]) eaSet(g, x, y, y === 10 ? EA_RAMPS.steel[1] : EA_RAMPS.steel[3]);
+  } else if (name === 'egg') {                                 // a small golden egg: shading, one belt, one gem
+    const R = EA_TIERS[0].ramp;
+    for (let y = 0; y < 12; y++) for (let x = 0; x < 12; x++) {
+      const n = eaEggNormal(x, y, 6, 6.2, 4.4, 5.6);
+      if (n) eaSet(g, x, y, eaRamp(R, Math.pow(Math.max(0, (eaLight(n.sx, n.ny) - 0.1) * 1.15), 1.3), x, y, 0));
+    }
+    for (let x = 2; x <= 9; x++) if (eaGet(g, x, 7)) eaSet(g, x, 7, R[2]);
+    eaSet(g, 6, 7, '#ff3b5c'); eaSet(g, 4, 3, '#ffffff'); eaSet(g, 4, 4, R[7]);
+  } else if (name === 'crown') {
+    const gd = EA_RAMPS.gold;
+    eaQuad(g, 6, 8, 0, 4.6, 1.8, (u, v, x, y) => eaRamp(gd, 0.7 - v * 0.3, x, y, 0));
+    for (const [x, h] of [[1.6, 4], [6, 6], [10.4, 4]]) eaQuad(g, x, 6.4 - h / 2, 0, 1.1, h / 2 + 0.4, (u, v, xx, yy) => eaRamp(gd, 0.8 - v * 0.2, xx, yy, 0));
+    eaSet(g, 6, 2, '#ff4f6b'); eaSet(g, 6, 8, '#4f8cff'); eaSet(g, 3.4, 8, '#ff4f6b'); eaSet(g, 8.6, 8, '#38c977');
   } else if (name === 'scroll') {
     eaQuad(g, 6, 6, 0, 3.6, 4.4, (u, v, x, y) => eaRamp(['#a8814a', '#d9b77a', '#f2dcab'], 0.7 - u * 0.15, x, y));
     eaEllipse(g, 6, 1.6, 4.6, 1.3, '#b8915a'); eaEllipse(g, 6, 10.4, 4.6, 1.3, '#b8915a');
@@ -645,7 +658,8 @@ function eaIconGrid(name) {
 /** Data URL for an icon, upscaled `s`× with hard pixels (for <img>). */
 function eaIconUrl(name, s) {
   return eaCached('url' + name + (s || 2), () => {
-    const src = name === 'shard' ? eaCanvas(eaShardGrid(false), false) : name === 'flyer' ? eaMonkey(0, 0, '', 1, true) : eaCanvas(eaIconGrid(name), false);
+    const src = name === 'shard' ? eaCanvas(eaShardGrid(false), false) : name === 'flyer' ? eaMonkey(0, 0, '', 1, true)
+      : eaCanvas(eaIconGrid(name), false);
     const k = s || 2, cv = document.createElement('canvas');
     cv.width = src.width * k; cv.height = src.height * k;
     const c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
