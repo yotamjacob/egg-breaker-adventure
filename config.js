@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.12.2';
+const VERSION = '3.12.3';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -375,25 +375,25 @@ const CONFIG = {
   //     hits a giant golden egg that never breaks. Its shell comes off in
   //     layers (each tougher); shards buy swarm upgrades; every few layers a
   //     permanent, capped Blessing applies to the main game.
-  //     Pacing (greedy buyer, ~1.5 taps/s, active play only): layer 1 ≈ 2 min,
-  //     5 ≈ 11 min, 10 ≈ 28 min, 20 ≈ 2 h, 30 ≈ 7 h, 40 ≈ 26 h, 50 ≈ 110 h
-  //     (v3.12.2: ~4× slower than launch — one monkey to start, scarce shards;
-  //     away mode adds a slow background pace on top). Tuned by simulation;
-  //     re-run one before changing several numbers.
+  //     Pacing (greedy buyer, ~1.5 taps/s, active play only): layer 1 ≈ 5 min,
+  //     5 ≈ 21 min, 10 ≈ 49 min, 20 ≈ 3 h, 30 ≈ 12 h, 40 ≈ 47 h, 50 ≈ 220 h
+  //     (v3.12.2: one monkey to start, scarce shards; v3.12.3: layers 3× the
+  //     HP, bigger blessings; away mode adds a slow background pace on top).
+  //     Tuned by simulation; re-run one before changing several numbers.
   //     Shards come per HIT, not per damage: if they scaled with damage the
   //     upgrades snowball and layer 50 falls in minutes.
   // ----------------------------------------------------------
   theEgg: {
     unlockStage:   7,                 // Mr. Monkey stage index reached (0-based → stage 8)
     startSwarm:    1,                 // flyers before any Swarm upgrade (3 before v3.12.2)
-    layerHp:       { base: 1200, growth: 1.30 },  // shell layer n = base × growth^(n-1) (600 before v3.12.2)
+    layerHp:       { base: 3600, growth: 1.30 },  // shell layer n = base × growth^(n-1) (600 at launch, 1200 in v3.12.2)
     swingSeconds:  1.6,               // seconds between one flyer's swings at Wings L0
     tapMult:       5,                 // a tap hits this many times harder than a flyer…
     shardsPerHit:  0.15,              // …and pays twice a flyer's shards (1 / 2 before v3.12.2)
     shardsPerTap:  0.3,
     damageShare:   0.0025,            // + this share of all damage as shards (0.02 before v3.12.2)
-    layerShards:   2,                 // × layer number, when a layer comes off (10 before v3.12.2)
-    layerGold:     { base: 40, growth: 1.12 },    // main-game gold per layer, × quest gold scale
+    layerShards:   6,                 // × layer number, when a layer comes off (10 at launch, 2 in v3.12.2)
+    layerGold:     { base: 120, growth: 1.12 },   // main-game gold per layer, × quest gold scale (base 40 before v3.12.3)
     // Upgrade price = base × growth^level. `max` = highest level.
     upgrades: {
       swarm:  { base: 25,  growth: 1.70, max: 23 },                               // +1 flyer (1 → 24)
@@ -422,18 +422,22 @@ const CONFIG = {
       space:     { speedMult: 0.85 },
     },
     // Permanent main-game Blessings (one each, granted when `layer` comes off).
-    // Caps by design: +10 max hammers, +6% gold, +2% items, -2s regen, -1 starfall.
+    // Totals (v3.12.3, raised with the longer layers): +25 max hammers, +30% gold,
+    // +10% items, -4s regen, -1 starfall, Golden Swarm. Max-hammer values are
+    // paid into G.maxH once; st.mh tracks it so a retune tops players up.
     blessings: [
-      { layer: 5,  type: 'maxH',     val: 5, label: '+5 max hammers',                   short: '+5 max hammers' },
-      { layer: 10, type: 'goldPct',  val: 3, label: '+3% gold from eggs',               short: '+3% gold' },
-      { layer: 15, type: 'itemPct',  val: 2, label: '+2% item chance',                  short: '+2% items' },
-      { layer: 20, type: 'regenSec', val: 2, label: 'Hammers regenerate 2s faster',     short: 'faster regen' },
-      { layer: 25, type: 'maxH',     val: 5, label: '+5 max hammers',                   short: '+5 max hammers' },
-      { layer: 30, type: 'goldPct',  val: 3, label: '+3% gold from eggs',               short: '+3% gold' },
-      { layer: 40, type: 'starfall', val: 1, label: 'Starfall costs 1 less star piece', short: 'cheaper Starfall' },
-      { layer: 50, type: 'swarmVisit', val: 1, label: 'Golden Swarm: a flyer sometimes smashes a tray egg for free', short: 'Golden Swarm' },
+      { layer: 5,  type: 'maxH',     val: 10, label: '+10 max hammers',                  short: '+10 max hammers' },
+      { layer: 10, type: 'goldPct',  val: 8,  label: '+8% gold from eggs',               short: '+8% gold' },
+      { layer: 15, type: 'itemPct',  val: 5,  label: '+5% item chance',                  short: '+5% items' },
+      { layer: 20, type: 'regenSec', val: 4,  label: 'Hammer regen 4s faster',           short: 'faster regen' },
+      { layer: 25, type: 'maxH',     val: 15, label: '+15 max hammers',                  short: '+15 max hammers' },
+      { layer: 30, type: 'goldPct',  val: 10, label: '+10% gold from eggs',              short: '+10% gold' },
+      { layer: 35, type: 'itemPct',  val: 5,  label: '+5% item chance',                  short: '+5% items' },
+      { layer: 40, type: 'starfall', val: 1,  label: 'Starfall needs 1 less star',       short: 'cheaper Starfall' },
+      { layer: 45, type: 'goldPct',  val: 12, label: '+12% gold from eggs',              short: '+12% gold' },
+      { layer: 50, type: 'swarmVisit', val: 1, label: 'Golden Swarm: free tray smashes', short: 'Golden Swarm' },
     ],
-    swarmVisitEvery: [75, 120],       // seconds between Golden Swarm visits (L50 blessing)
+    swarmVisitEvery: [40, 70],        // seconds between Golden Swarm visits (L50 blessing; 75–120 before v3.12.3)
     // Away mode (v3.12.2): whenever The Egg is not on screen — the player is in
     // the main game, or the app is closed — the swarm keeps working at `speed`
     // of its passive pace (no taps, no events), at most `capHours` per gap.

@@ -172,27 +172,27 @@ test('blessings: one each, granted when their layer comes off, capped totals', (
   const ctx = eggWorld();
   const B = run(ctx, 'CONFIG.theEgg.blessings');
   const sum = t => B.filter(b => b.type === t).reduce((a, b) => a + b.val, 0);
-  assert.equal(sum('maxH'), 10);
-  assert.equal(sum('goldPct'), 6);
-  assert.equal(sum('itemPct'), 2);
-  assert.equal(sum('regenSec'), 2);
+  assert.equal(sum('maxH'), 25);
+  assert.equal(sum('goldPct'), 30);
+  assert.equal(sum('itemPct'), 10);
+  assert.equal(sum('regenSec'), 4);
   assert.equal(sum('starfall'), 1);
   assert.equal(new Set(B.map(b => b.layer)).size, B.length, 'one blessing per layer');
-  // Walk to layer 5: exactly one +5 max hammers
+  // Walk to layer 5: exactly one +10 max hammers
   for (let n = 1; n <= 5; n++) run(ctx, 'theEggHit(G.theEgg ? G.theEgg.hp : theEggLayerHp(1), false)');
   assert.equal(run(ctx, 'G.theEgg.layer'), 6);
-  assert.equal(run(ctx, 'G.maxH'), 55);
-  assert.equal(run(ctx, 'G.hammers'), 55);
+  assert.equal(run(ctx, 'G.maxH'), 60);
+  assert.equal(run(ctx, 'G.hammers'), 60);
   // Idempotent: granting again does nothing
   run(ctx, '_theEggGrantBlessings(); _theEggGrantBlessings();');
-  assert.equal(run(ctx, 'G.maxH'), 55);
+  assert.equal(run(ctx, 'G.maxH'), 60);
   assert.equal(run(ctx, 'theEggBonus("goldPct")'), 0);
   // Jump far ahead: everything granted once, sums equal the caps
   run(ctx, 'G.theEgg.layer = 60; _theEggGrantBlessings();');
-  assert.equal(run(ctx, 'G.maxH'), 60);
-  assert.equal(run(ctx, 'theEggBonus("goldPct")'), 6);
-  assert.equal(run(ctx, 'theEggBonus("itemPct")'), 2);
-  assert.equal(run(ctx, 'theEggBonus("regenSec")'), 2);
+  assert.equal(run(ctx, 'G.maxH'), 75);
+  assert.equal(run(ctx, 'theEggBonus("goldPct")'), 30);
+  assert.equal(run(ctx, 'theEggBonus("itemPct")'), 10);
+  assert.equal(run(ctx, 'theEggBonus("regenSec")'), 4);
   assert.equal(run(ctx, 'theEggBonus("starfall")'), 1);
   assert.equal(run(ctx, 'theEggBonus("swarmVisit")'), 1);
   assert.equal(run(ctx, 'G.theEgg.blessed.length'), B.length);
@@ -566,4 +566,21 @@ test('v3.12.2 slowdown: one starting flyer; launch-day saves keep their flyer co
   // an untouched launch-day state (only saw the intro) gets nothing
   run(ctx, 'G.theEgg = { introSeen: true }');
   assert.equal(run(ctx, 'theEggStats().swarm'), 1);
+});
+
+test('v3.12.3 retune: max-hammer blessings earned at the old +5 are topped up once, never paid twice', () => {
+  // a v3.12.2 save: layers 5 and 25 granted under the old +5 values, no st.mh record
+  const ctx = eggWorld(`G.maxH = 60; G.hammers = 20; G.theEgg = { v: 2, layer: 27, blessed: [5, 10, 15, 20, 25] };`);
+  // boot already ran _theEggGrantBlessings(): old 10 recorded, new 25 owed → +15
+  assert.equal(run(ctx, 'G.theEgg.mh'), 25);
+  assert.equal(run(ctx, 'G.maxH'), 75);
+  run(ctx, '_theEggGrantBlessings(); theEggState(); _theEggGrantBlessings();');
+  assert.equal(run(ctx, 'G.maxH'), 75, 'idempotent');
+  assert.ok(run(ctx, 'msgs').some(m => /upgraded: \+15 max hammers/.test(m)));
+  // only layer 5 earned before → +5 top-up
+  const c2 = eggWorld(`G.maxH = 55; G.hammers = 55; G.theEgg = { v: 2, layer: 7, blessed: [5] };`);
+  assert.equal(run(c2, 'G.maxH'), 60);
+  // a brand-new state never gets a phantom top-up
+  const c3 = eggWorld(`G.maxH = 50; G.theEgg = { introSeen: true };`);
+  assert.equal(run(c3, 'G.maxH'), 50);
 });

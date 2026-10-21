@@ -187,14 +187,25 @@ function _theEggGrantBlessings() {
     if (b.layer > cleared || st.blessed.indexOf(b.layer) !== -1) continue;
     st.blessed.push(b.layer);
     fresh.push(b);
-    if (b.type === 'maxH') {
-      // Same shape as a trophy's max-hammer reward
-      G.maxH += b.val;
-      if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + b.val);
-      if (typeof regenInt !== 'undefined' && !regenInt && G.hammers < G.maxH &&
-          (typeof _regenPauseTimer === 'undefined' || !_regenPauseTimer) && typeof startRegen === 'function') startRegen();
-    }
     if (typeof msg === 'function') msg('🥚 Egg Blessing: ' + (b.short || b.label), 'specials');
+  }
+  // Max-hammer blessings are paid into G.maxH; st.mh remembers how much, so a
+  // retune tops players up instead of paying twice. v3.12.0–3.12.2 paid +5 at
+  // layers 5 and 25 and kept no record — count those once, before the first top-up.
+  if (typeof st.mh !== 'number' || !isFinite(st.mh)) {
+    st.mh = st.blessed.filter(l => (l === 5 || l === 25) && fresh.every(b => b.layer !== l)).length * 5;
+  }
+  let want = 0;
+  for (const b of CONFIG.theEgg.blessings) if (b.type === 'maxH' && st.blessed.indexOf(b.layer) !== -1) want += b.val;
+  if (want > st.mh) {
+    const d = want - st.mh;
+    st.mh = want;
+    // Same shape as a trophy's max-hammer reward
+    G.maxH += d;
+    if (G.hammers < G.maxH) G.hammers = Math.min(G.maxH, G.hammers + d);
+    if (typeof regenInt !== 'undefined' && !regenInt && G.hammers < G.maxH &&
+        (typeof _regenPauseTimer === 'undefined' || !_regenPauseTimer) && typeof startRegen === 'function') startRegen();
+    if (!fresh.some(b => b.type === 'maxH') && typeof msg === 'function') msg('🥚 Egg Blessings upgraded: +' + d + ' max hammers', 'specials');
   }
   return fresh;
 }
@@ -956,7 +967,7 @@ function _eggMaybeVisit(playOn) {
 // ---------------------------------------------------------------
 (function _theEggBoot() {
   try {
-    if (G.theEgg) theEggState();   // repair a stored state; fresh players get one on first open
+    if (G.theEgg) { theEggState(); _theEggGrantBlessings(); }   // repair a stored state; top up retuned blessings
     // Away mode for the time the app was closed (capped, see CONFIG.theEgg.away)
     if (G.theEgg && theEggUnlocked()) {
       const r = theEggCreditAway(Date.now());
