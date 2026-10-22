@@ -270,7 +270,8 @@ test('pacing: the first blessing comes quickly, layer 50 stays far away', () => 
     }
     return { at5, layer: G.theEgg.layer };
   })()`);
-  assert.ok(result.at5 > 4 * 60 && result.at5 < 30 * 60, 'layer 5 in 4–30 minutes (got ' + result.at5 + 's)');
+  // v3.12.6 pacing ≈ 36 min in this buyer model: guard against both a snowball and a wall
+  assert.ok(result.at5 > 10 * 60 && result.at5 < 50 * 60, 'layer 5 in 10–50 minutes (got ' + result.at5 + 's)');
   assert.ok(result.layer < 50, 'layer 50 must not fall within 2 hours (got layer ' + result.layer + ')');
 });
 

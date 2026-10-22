@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.12.5';
+const VERSION = '3.12.6';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -377,10 +377,11 @@ const CONFIG = {
   //     hits a giant golden egg that never breaks. Its shell comes off in
   //     layers (each tougher); shards buy swarm upgrades; every few layers a
   //     permanent, capped Blessing applies to the main game.
-  //     Pacing (greedy buyer, ~1.5 taps/s, active play only): layer 1 ≈ 5 min,
-  //     5 ≈ 21 min, 10 ≈ 49 min, 20 ≈ 3 h, 30 ≈ 12 h, 40 ≈ 47 h, 50 ≈ 220 h
+  //     Pacing (greedy buyer, ~1.5 taps/s, active play only): layer 1 ≈ 8 min,
+  //     5 ≈ 32 min, 10 ≈ 1.2 h, 20 ≈ 4.3 h, 30 ≈ 15 h, 40 ≈ 57 h, 50 ≈ 275 h
   //     (v3.12.2: one monkey to start, scarce shards; v3.12.3: layers 3× the
-  //     HP, bigger blessings; away mode adds a slow background pace on top).
+  //     HP, bigger blessings; v3.12.6: weaker taps that scale slower; away
+  //     mode adds a slow background pace on top).
   //     Tuned by simulation; re-run one before changing several numbers.
   //     Shards come per HIT, not per damage: if they scaled with damage the
   //     upgrades snowball and layer 50 falls in minutes.
@@ -390,9 +391,9 @@ const CONFIG = {
     startSwarm:    1,                 // flyers before any Swarm upgrade (3 before v3.12.2)
     layerHp:       { base: 3600, growth: 1.30 },  // shell layer n = base × growth^(n-1) (600 at launch, 1200 in v3.12.2)
     swingSeconds:  1.6,               // seconds between one flyer's swings at Wings L0
-    tapMult:       5,                 // a tap hits this many times harder than a flyer…
+    tapMult:       3,                 // a tap hits this many times harder than a flyer… (5 before v3.12.6)
     shardsPerHit:  0.15,              // …and pays twice a flyer's shards (1 / 2 before v3.12.2)
-    shardsPerTap:  0.3,
+    shardsPerTap:  0.2,               // (0.3 before v3.12.6)
     damageShare:   0.0025,            // + this share of all damage as shards (0.02 before v3.12.2)
     layerShards:   6,                 // × layer number, when a layer comes off (10 at launch, 2 in v3.12.2)
     layerGold:     { base: 120, growth: 1.12 },   // main-game gold per layer, × quest gold scale (base 40 before v3.12.3)
@@ -402,7 +403,7 @@ const CONFIG = {
       power:  { base: 10,  growth: 1.46, mult: 1.10 },                            // ×1.10 damage per level
       wings:  { base: 20,  growth: 1.38, max: 25, factor: 0.93, floor: 0.25 },    // swing interval ×0.93
       luck:   { base: 40,  growth: 1.42, max: 25, perLevel: 0.02, critMult: 5 },  // +2% crit chance
-      tap:    { base: 25,  growth: 1.36, perLevel: 1 },                           // +1× tap strength
+      tap:    { base: 40,  growth: 1.50, perLevel: 0.5 },                         // +0.5× tap strength (+1× at 25 × 1.36ⁿ before v3.12.6)
       magnet: { base: 150, growth: 1.60, max: 10, perLevel: 0.05 },               // events 5% sooner
     },
     // Random events: one every `every` seconds (range), shortened by Magnet.
