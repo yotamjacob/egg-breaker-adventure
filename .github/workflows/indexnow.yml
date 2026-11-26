@@ -1,0 +1,28 @@
+name: IndexNow ping
+
+# After every push to main, tell Bing/IndexNow partners the sitemap URLs changed.
+# Vercel deploys in parallel; IndexNow only queues a crawl, so the ~1 min race
+# does not matter. No secrets required — the key file is public at the site root.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - 'sitemap.xml'
+      - 'llms.txt'
+      - 'tools/indexnow.js'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Wait for the Vercel deploy to settle
+        run: sleep 90
+      - name: Ping IndexNow
+        run: node tools/indexnow.js

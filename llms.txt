@@ -1,0 +1,30 @@
+# Egg Smash Adventures
+
+> A free, ad-free egg-smashing collection game for the browser and Android. You tap eggs with a hammer, win gold and prizes, and fill an album of 400 collectible items across 6 monkey worlds and 59 stages. It is an independent revival of the 2008 Facebook egg-breaking genre, built as a progressive web app with an Android build on Google Play.
+
+Canonical site: https://www.eggbreakeradventure.com/
+Google Play: https://play.google.com/store/apps/details?id=com.eggbreakeradventures.app
+Also playable on itch.io: https://yotamjac.itch.io/egg-smash-adventures
+Developer: YotJac (Yotam Jacob). Contact details are on the About page.
+
+Key facts
+- Free to play, no ads, no energy paywall. Optional cosmetic in-app purchases on Android only.
+- Hammers are the action resource: they regenerate over time, and the maximum grows as stages are completed.
+- 7 egg tiers (normal, crystal, ruby, black, century and more) with different prize tables.
+- 6 monkey companions, each with its own world of stages and a passive bonus.
+- Hats and special hammers with upgradeable mastery levels.
+- Daily and weekly quests, trophies, an Auto-Smasher for idle play, and "The Egg" side mode.
+- Works offline after the first load (service worker). Cloud save through Google sign-in is optional.
+- Runs in any modern mobile or desktop browser; the Android app needs Android 6.0 or newer.
+
+## Pages
+- [Play online](https://www.eggbreakeradventure.com/play-egg-breaker-online): how to start in the browser, device support, what the game is.
+- [Game guide](https://www.eggbreakeradventure.com/egg-breaker-guide): egg tiers, monkeys, hats, hammers, mastery, quests, Auto-Smasher, The Egg, and tips. Includes a FAQ.
+- [What happened to Egg Breaker](https://www.eggbreakeradventure.com/what-happened-to-egg-breaker): the history of the original Facebook game and why it disappeared.
+- [Revival vs original](https://www.eggbreakeradventure.com/egg-breaker-vs-original): what was kept, what changed.
+- [About](https://www.eggbreakeradventure.com/about): who makes it and why it uses Google sign-in.
+- [Press kit](https://www.eggbreakeradventure.com/press): screenshots, logo, facts.
+- [Privacy](https://www.eggbreakeradventure.com/privacy), [Terms](https://www.eggbreakeradventure.com/terms), [Refunds](https://www.eggbreakeradventure.com/refund).
+
+## Optional
+- [Sitemap](https://www.eggbreakeradventure.com/sitemap.xml)

@@ -24,6 +24,8 @@
 | `tabs.css` | Non-play tab styles — album, shop, monkeys, premium, daily, lexicon, achievements |
 | `components.css` | Shared component styles — toast, snack, tooltips, referral banner |
 | `content.css` | Styles for the SEO content pages only — **not** part of `bundle.min.css` |
+| `llms.txt` | Plain-text summary of the game + page index for AI crawlers/chatbots (llmstxt.org convention). Keep its facts in sync with `config.js`/`data.js` like the guide pages |
+| `tools/indexnow.js` | IndexNow ping (Bing, Yandex, Seznam, Naver) with every sitemap URL; key file `indexnow-<key>.txt` sits at the site root and is public by design. Run by `.github/workflows/indexnow.yml` on pushes to main that touch pages. Google ignores IndexNow — its crawl comes from the sitemap in Search Console |
 | `sw.js` | Service worker — cache versioning, network-first fetch strategy |
 | `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css; `--itch` assembles the static itch.io build; also generates `sitemap.xml` |
 | `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by the `--itch` build) |
@@ -250,6 +252,12 @@ for cloud save only" paragraph (see the Google OAuth notes above).
 | Content pages forward `utm_*`/`fbclid` into their `href="/"` CTAs (inline script before `</body>`); `share.js` strips `fbclid` after `trackGameStarted()` read it | Campaign params must survive the content-page hop; fbclid would fragment the Umami pages report |
 | Quota hygiene: no per-load `Sentry.captureMessage`; boot `subscribe-push` DELETE only when a stale row can exist (pending flag / dropped local sub / one-time legacy cleanup) | A traffic spike would otherwise burn the GlitchTip quota (dropping real errors) and spend one edge-fn call per anonymous visitor for nothing (v3.10.9) |
 | Web card (`#web-banner`, `.web-card`, `share.js initWebBanner`) shows only when `AndroidBridge` is absent AND no `.itch-cta` exists; **no auto-hide** — closing it writes `_ebaWebBanner='1'` permanently (v3.9.2) | It floats beside the game column (right edge, z-index 880 under `.overlay`) instead of over the top bar, so it never needs to time out. Below 880px there is no side room and it docks as a slim bottom bar. The key lives outside `SAVE_KEY` so a reset doesn't bring the nag back |
+
+### Search discovery (v3.12.8)
+| Rule | Why |
+|------|-----|
+| Canonical host is `www.eggbreakeradventure.com`; `vercel.json` sends `X-Robots-Tag: noindex, follow` on the `egg-breaker-adventures.vercel.app` host (a `has: host` header rule) | The vercel.app host is what the Android WebView, Supabase CORS and OAuth App Links use, so it must keep serving the game and must not redirect. It just must not compete in search. Search Console domain property `sc-domain:eggbreakeradventure.com` and the Bing site `https://eggbreakeradventure.com/` (apex, accepts www URLs) are the reporting sources |
+| Play in-app review asks up to 3× (`REVIEW_STAGES` 2/6/12, ≥21 days apart) on stage completion; state is JSON in `_ebaReviewAsked` (legacy `'1'` = one ask) | One ask at stage 2 produced too few ratings for Play to show a score. ReviewManager still decides whether a dialog appears; never ask after an error or mid-modal |
 
 ### Share / referral loop
 | Invariant | Why |

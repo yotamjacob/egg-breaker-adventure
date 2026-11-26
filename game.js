@@ -1144,20 +1144,44 @@ function activateSkill(i) {
 // ==================== COLLECTION / STAGE ====================
 
 // ── Play in-app review prompt ─────────────────────────────────
-// Asks exactly once, only inside the Play app, on the SECOND completed stage
-// (the first one already fires the Starfall tip). Own localStorage key so a
-// resetGame() does not re-ask — same pattern as _cloudLinkPref / PREMIUM_KEY.
-// The flag is written only when the call actually fires, so an attempt that
-// was blocked by an open modal gets another chance on the next stage.
+// Only inside the Play app, only right after a completed stage (a happy
+// moment), never while a banner/modal is up. v3.12.8: up to three asks over a
+// player's life — stages 2, 6 and 12 — at least 21 days apart, because one
+// early ask reached players who had not formed an opinion yet and the listing
+// still shows no score (Play hides it below a handful of ratings). Google's
+// ReviewManager decides whether a dialog actually appears, so the cost of an
+// extra call is nil. Own localStorage key so a resetGame() does not re-ask
+// (same pattern as _cloudLinkPref / PREMIUM_KEY); the legacy value '1' from
+// the single-ask era counts as one ask at an unknown time.
 const REVIEW_KEY = '_ebaReviewAsked';
+const REVIEW_STAGES = [2, 6, 12];
+const REVIEW_MIN_GAP_MS = 21 * 86400 * 1000;
+function _reviewState() {
+  try {
+    const raw = localStorage.getItem(REVIEW_KEY);
+    if (!raw) return { n: 0, last: 0 };
+    if (raw === '1') return { n: 1, last: 0 };
+    const o = JSON.parse(raw);
+    return { n: +o.n || 0, last: +o.last || 0 };
+  } catch (e) { return { n: 1, last: 0 }; }   // unreadable → stay conservative
+}
+function shouldRequestReview(stagesCompleted, now) {
+  const st = _reviewState();
+  if (st.n >= REVIEW_STAGES.length) return false;
+  if (stagesCompleted < REVIEW_STAGES[st.n]) return false;
+  if (st.last && now - st.last < REVIEW_MIN_GAP_MS) return false;
+  return true;
+}
 function maybeRequestReview() {
   if (!(window.AndroidBridge && typeof AndroidBridge.requestReview === 'function')) return;
-  try { if (localStorage.getItem(REVIEW_KEY)) return; } catch (e) {}
+  if (!shouldRequestReview(G.stagesCompleted, Date.now())) return;
   setTimeout(() => {
     if (document.querySelector('.overlay:not(.hidden)')) return;   // stage banner / modal still up
+    if (!shouldRequestReview(G.stagesCompleted, Date.now())) return;
     try {
-      localStorage.setItem(REVIEW_KEY, '1');
-      track('review-prompt');
+      const st = _reviewState();
+      localStorage.setItem(REVIEW_KEY, JSON.stringify({ n: st.n + 1, last: Date.now() }));
+      track('review-prompt', { n: st.n + 1, stages: G.stagesCompleted });
       AndroidBridge.requestReview();
     } catch (e) {}
   }, 6000);
@@ -1214,7 +1238,7 @@ function checkCollectionComplete(suppressFlash) {
       // Gold → Complete: banana reward + hammers
       track('stage-complete', { monkey: curMonkey().name, stage: stage.name });
       G.stagesCompleted++;
-      if (G.stagesCompleted === 2) maybeRequestReview();
+      maybeRequestReview();   // self-gates on stage count + spacing
       G.crystalBananas += CONFIG.crystalBananasPerStage;
       const refill3 = Math.round(CONFIG.tierRewards.complete.hammerRefill * _tHMult);
       G.hammers += refill3;
