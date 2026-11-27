@@ -46,7 +46,7 @@ ask the owner to paste it into the task's Edit dialog.
 ## Backlog (top = next)
 1. Week of 2026-12-04: check Ads installs/day and cost per install at Target CPA 1 ILS; if it barely serves, suggest 1.5-2 ILS.
 2. Play trader-status declaration (owner decision: trader or non-trader), then a desktop prompt.
-3. 2026-11-28 with owner: YouTube channel for the game (separate Google brand channel; connect a SECOND Composio youtube account, the existing one is another business) + TikTok (API likely private-only for unaudited apps -> test drafts/inbox or browser route).
-4. Build tools/capture-clips.js: 6-15 s vertical gameplay clips into /clips (served), for X now and YouTube Shorts/TikTok later (owner decision pending on more socials).
+3. 2026-11-28 with owner: YouTube channel for the game (separate Google brand channel; connect a SECOND Composio youtube account, the existing one is another business). TikTok skipped by owner 2026-11-27 (API posts only private/drafts for unaudited apps).
+4. Build tools/capture-clips.js: 6-15 s vertical gameplay clips into /clips (served), for X and YouTube Shorts.
 5. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
 6. Remove stale "sitemaps.xml" entry in Search Console (harmless).
