@@ -9,3 +9,4 @@
 - 2026-11-27 Two GCP projects exist ("Egg Breaker Adventures" and "... Revival"); the service account lives in Revival (214867732250). Enabling an API in the wrong one looks like success.
 - 2026-11-26 x.com, developer.x.com and Umami docs refuse automated fetches from the cloud (402/404). Use the hosted browser or ask for a desktop prompt.
 - 2026-11-26 Fresh clone: `npm ci` before `node build.js`. Browser tests need executablePath /opt/pw-browsers/chromium in the cloud container.
+- 2026-11-27 A brand-new X account gets an "Unlock more on X" human-check screen after its first post; treat it as a stop signal for engagement, posting itself went through.

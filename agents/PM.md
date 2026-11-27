@@ -38,7 +38,7 @@ ask the owner to paste it into the task's Edit dialog.
 - Search: ~37 impressions / 4 clicks per 28 days, almost all brand queries. Guide page "crawled, not indexed".
 - Discovery shipped: llms.txt, guide FAQ + FAQPage schema, IndexNow on push, noindex on vercel.app host.
 - X strategy: agents/x-strategy.md. Every live post e-mails the owner (subject "Egg Smash X: posted").
-- X: profile set, 0 posts, 2 drafts queued in agents/x-queue.md. First post Fri 2026-11-27 10:30.
+- X: first post live 2026-11-27 (entry -01). X then showed "Unlock more on X" (new-account human check, reduced reach). Engagement paused until 2026-12-04 per stop rule; owner asked to check the account by hand.
 - Ads: App campaign "ESA Installs Tier1", 153 installs Oct 28-Nov 2 at ~0.49 ILS each (15/day). Paused Nov 2-26, back on at 5 ILS/day. Target CPA lowered 8 -> 1 ILS on 2026-11-27 at the owner's request; never change budget/bids unasked.
 - Beginner boost shipped 3.12.11: 12 s refill until 3 stages or 72 h. Watch reviews and first-break/stage-complete rates for 2 weeks.
 - Umami 7d to 2026-11-27: 54 visitors, 92 visits, avg 219 s. game-started was 0 until v3.12.10 (duplicate track() bug, fixed); first-smash counted per page load until v3.12.10. First clean funnel week ends 2026-12-04: compare game-started -> first-smash -> first-break by visitors.

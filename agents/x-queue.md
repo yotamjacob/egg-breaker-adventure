@@ -10,7 +10,9 @@ original game or its developer. Put the game link in at most half the posts; the
 ## Entries
 
 ### 2026-11-27-01
-status: queued
+status: posted
+posted: 2026-11-27
+url: unknown (run stopped at X's "Unlock more on X" screen before reading the URL; check https://x.com/EggSmashAdv)
 media: shots/play.png
 text: |
   New here. We make a tiny game where you smash eggs with a hammer and collect what falls out.
