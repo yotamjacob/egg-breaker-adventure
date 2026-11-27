@@ -695,8 +695,11 @@ function smashEgg(index) {
 
   // Now do logic
   G.hammers -= 1;
-  if (!G._firstSmashAt) {          // activation signal for the acquisition funnel
-    G._firstSmashAt = Date.now();
+  // Activation signal for the acquisition funnel: once per player. `_firstSmashAt`
+  // (pre-v3.12.10) was not in DEFAULT_STATE, so it was never saved and the event
+  // fired on every page load. Players with any earlier progress count as done.
+  if (!G.firstSmashAt && !G.totalEggs && !G.totalEmpties) {
+    G.firstSmashAt = Date.now();
     track('first-smash');
     if (typeof metaTrack === 'function') metaTrack('FirstSmash');
   }

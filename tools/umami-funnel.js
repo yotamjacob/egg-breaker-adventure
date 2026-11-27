@@ -45,15 +45,21 @@ const startAt = since ? new Date(since + 'T00:00:00Z').getTime() : endAt - days 
 
 /** Resolve the share link into {origin, websiteId, headers} for the data calls. */
 async function authFromShare(shareUrl) {
-  const u = new URL(shareUrl);
-  const m = u.pathname.match(/\/share\/([^/]+)/);
+  // Umami Cloud (2026) redirects /share/<id> to a region path such as
+  // /analytics/eu/share/<id>; the API lives under that same prefix.
+  const first = new URL(shareUrl);
+  const m = first.pathname.match(/\/share\/([^/]+)/);
   if (!m) throw new Error('That does not look like a share URL (no /share/<id>/ in the path).');
   const shareId = m[1];
-  const r = await fetch(`${u.origin}/api/share/${shareId}`, { headers: { accept: 'application/json' } });
-  if (!r.ok) throw new Error(`share lookup failed: ${r.status} ${r.statusText} — ${(await r.text()).slice(0, 200)}`);
+  const landing = await fetch(shareUrl, { redirect: 'follow', headers: { 'user-agent': 'Mozilla/5.0' } });
+  const u = new URL(landing.url || shareUrl);
+  const prefix = u.pathname.slice(0, u.pathname.indexOf('/share/'));   // '' or '/analytics/eu'
+  const base = `${u.origin}${prefix}/api`;
+  const r = await fetch(`${base}/share/${shareId}`, { headers: { accept: 'application/json' } });
+  if (!r.ok) throw new Error(`share lookup failed: ${r.status} ${r.statusText} at ${base}/share/<id>`);
   const j = await r.json();
-  if (!j.token || !j.websiteId) throw new Error('share endpoint returned an unexpected shape: ' + JSON.stringify(j).slice(0, 300));
-  return { base: `${u.origin}/api`, websiteId: j.websiteId, headers: { 'x-umami-share-token': j.token, accept: 'application/json' } };
+  if (!j.token || !j.websiteId) throw new Error('share endpoint returned an unexpected shape: ' + Object.keys(j).join(','));
+  return { base, websiteId: j.websiteId, headers: { 'x-umami-share-token': j.token, 'x-umami-share-context': '1', accept: 'application/json' } };   // the context header is required since Umami 2026
 }
 
 function authFromKey() {

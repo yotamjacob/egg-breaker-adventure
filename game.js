@@ -18,16 +18,12 @@
   };
 })();
 
-// ── Analytics helper (Umami) ──────────────────────────────────
-function track(event, props) {
-  try {
-    if (typeof umami !== 'undefined') {
-      // No PII: never attach the cloud e-mail (privacy page promises none is collected).
-      const r = umami.track(event, Object.assign({}, props))
-      if (r && typeof r.catch === 'function') r.catch(() => {})
-    }
-  } catch(e) {}
-}
+// ── Analytics helper ──────────────────────────────────────────
+// track() lives in analytics.js ONLY. v3.12.10: a second `function track` here was
+// declared later in the bundle, so hoisting made it replace the queueing version for
+// the whole script. Every event fired before Umami's deferred tag loaded was dropped,
+// which zeroed `game-started` (the funnel's top step) for every visitor. Never
+// redeclare it; tests/analytics.test.js fails if a second definition appears.
 
 
 // ==================== GAME STATE ====================
@@ -66,6 +62,7 @@ const DEFAULT_STATE = {
   multUsed: 0,          // multipliers consumed (fired)
   shopMult5: 0,         // times bought x5 mult from shop
   totalPlayTime: 0, firstPlayDate: 0,
+  firstSmashAt: 0,   // v3.12.10: persisted so first-smash fires once per player, not once per page load
   achieved: [],
   discoveredEggs: ['normal','silver','gold'], // egg types the player has seen
   soundOn: true,
