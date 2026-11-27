@@ -264,6 +264,7 @@ for cloud save only" paragraph (see the Google OAuth notes above).
 | Rule | Why |
 |------|-----|
 | Canonical host is `www.eggbreakeradventure.com`; `vercel.json` sends `X-Robots-Tag: noindex, follow` on the `egg-breaker-adventures.vercel.app` host (a `has: host` header rule) | The vercel.app host is what the Android WebView, Supabase CORS and OAuth App Links use, so it must keep serving the game and must not redirect. It just must not compete in search. Search Console domain property `sc-domain:eggbreakeradventure.com` and the Bing site `https://eggbreakeradventure.com/` (apex, accepts www URLs) are the reporting sources |
+| Settings has a link row (`.settings-links`: Guide, Story, About, Privacy, absolute www URLs so the itch build works) (v3.12.12) | It is the only link from the game root to the content pages; before it, crawlers reached them only through the sitemap and the guide sat in "crawled, not indexed". Keep it 2×2: four in one row wraps at 360 px |
 | Play in-app review asks up to 3× (`REVIEW_STAGES` 2/6/12, ≥21 days apart) on stage completion; state is JSON in `_ebaReviewAsked` (legacy `'1'` = one ask) | One ask at stage 2 produced too few ratings for Play to show a score. ReviewManager still decides whether a dialog appears; never ask after an error or mid-modal |
 
 ### Share / referral loop

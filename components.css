@@ -169,6 +169,15 @@
 .notif-toggle-chip.on{background:var(--green2);color:var(--white);border-color:var(--green)}
 
 /* Version footer */
+/* v3.12.12: plain links to the content pages. They are the only links from the
+   game root to the guide/story/about/privacy pages, so crawlers can find them. */
+.settings-links{
+  display:grid;grid-template-columns:repeat(2,auto);justify-content:center;justify-items:center;gap:6px 24px;
+  padding:8px 14px;border-top:2px solid var(--gold3);flex-shrink:0;
+}
+.settings-links a{font-size:10px;color:var(--gold);text-decoration:underline;text-decoration-color:var(--gold3);text-underline-offset:3px}
+.settings-links a:hover,.settings-links a:focus-visible{text-decoration:underline}
+.settings-links + .settings-version{border-top:none;padding-top:0}
 .settings-version{
   font-size:8px;color:var(--gray);text-align:center;
   padding:8px 14px;border-top:2px solid var(--gold3);letter-spacing:1px;flex-shrink:0;

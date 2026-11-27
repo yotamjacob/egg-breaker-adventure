@@ -32,7 +32,7 @@ ask the owner to paste it into the task's Edit dialog.
 - Remote Control to owner's Mac: refuses all folders, cause unknown. DEAD END, don't retry
 
 ## Current state (2026-11-27)
-- Live version 3.12.11. CI green.
+- Live version 3.12.12. CI green.
 - Play: 1,000+ installs, no score shown yet, 5 reviews (all answered 2026-11-27).
 - Review prompt now asks at stages 2/6/12 (>=21 days apart). Ships to Android users via the web bundle, no build needed.
 - Search: ~37 impressions / 4 clicks per 28 days, almost all brand queries. Guide page "crawled, not indexed".
@@ -47,5 +47,5 @@ ask the owner to paste it into the task's Edit dialog.
 1. Week of 2026-12-04: check Ads installs/day and cost per install at Target CPA 1 ILS; if it barely serves, suggest 1.5-2 ILS.
 2. Play trader-status declaration (owner decision: trader or non-trader), then a desktop prompt.
 3. 2026-11-28 with owner: YouTube channel for the game (separate Google brand channel; connect a SECOND Composio youtube account, the existing one is another business). TikTok skipped by owner 2026-11-27 (API posts only private/drafts for unaudited apps).
-4. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
+4. Guide page indexing: game root now links to it (v3.12.12 settings links). Re-inspect in Search Console from 2026-12-10; if still not indexed, split the guide into topic pages.
 5. Remove stale "sitemaps.xml" entry in Search Console (harmless).
