@@ -1,0 +1,8 @@
+# Learnings (one line each, newest first; prune lines that stop being true)
+- 2026-11-27 Scheduled-task prompt edits from a session are refused by the permission checker; owner pastes them.
+- 2026-11-27 create_trigger cannot attach connectors here; owner adds Repository + Gmail + Composio in the task's Edit dialog.
+- 2026-11-27 X has no free API tier since Feb 2026; posting goes through Composio browser_use with a persistent logged-in profile. First login needed an e-mailed code.
+- 2026-11-27 Play API returns only reviews from the last 7 days; older reviews need Play Console UI.
+- 2026-11-27 Two GCP projects exist ("Egg Breaker Adventures" and "... Revival"); the service account lives in Revival (214867732250). Enabling an API in the wrong one looks like success.
+- 2026-11-26 x.com, developer.x.com and Umami docs refuse automated fetches from the cloud (402/404). Use the hosted browser or ask for a desktop prompt.
+- 2026-11-26 Fresh clone: `npm ci` before `node build.js`. Browser tests need executablePath /opt/pw-browsers/chromium in the cloud container.

@@ -1,5 +1,7 @@
 # Egg Smash Adventures — Claude Code Guide
 
+> **Start every session by reading `agents/PM.md`** (PM state, accesses, backlog) and end it by updating that file and `agents/LEARNINGS.md`. Keep both short: replace stale lines, never paste history.
+
 ## Module map
 | File | Purpose |
 |------|---------|
