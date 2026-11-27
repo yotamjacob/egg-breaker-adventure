@@ -14,7 +14,7 @@ original game or its developer. Put the game link in at most half the posts; the
 ### 2026-11-27-01
 status: posted
 posted: 2026-11-27
-url: unknown (run stopped at X's "Unlock more on X" screen before reading the URL; check https://x.com/EggSmashAdv)
+url: https://x.com/EggSmashAdv/status/2126233451485422063
 media: shots/play.png
 text: |
   New here. We make a tiny game where you smash eggs with a hammer and collect what falls out.

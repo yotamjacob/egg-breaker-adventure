@@ -46,6 +46,8 @@ Replies: they bring the most reach, but the owner's rule stands: no replies to s
 the owner's yes. Each run lists up to 3 reply drafts (thread URL + suggested reply) in
 agents/x-activity.md; the Thursday e-mail carries them. When the owner says yes, the next run posts them.
 
+Not stop signals: X Premium upsells ("Unlock more on X", "Get verified", "Upgrade your profile",
+"boosted replies") appear for every unverified account; dismiss them and carry on.
 Stop signals: any "unusual activity", captcha, rate-limit or "you are unable to follow more
 people" screen -> stop all engagement for 7 days, e-mail the owner "Egg Smash X: action needed".
 Every run appends one line to agents/x-activity.md (date, follows, likes, reposts, unfollows,
