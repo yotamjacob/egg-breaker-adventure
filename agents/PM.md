@@ -37,6 +37,7 @@ ask the owner to paste it into the task's Edit dialog.
 - Review prompt now asks at stages 2/6/12 (>=21 days apart). Ships to Android users via the web bundle, no build needed.
 - Search: ~37 impressions / 4 clicks per 28 days, almost all brand queries. Guide page "crawled, not indexed".
 - Discovery shipped: llms.txt, guide FAQ + FAQPage schema, IndexNow on push, noindex on vercel.app host.
+- X strategy: agents/x-strategy.md. Every live post e-mails the owner (subject "Egg Smash X: posted").
 - X: profile set, 0 posts, 2 drafts queued in agents/x-queue.md. First post Fri 2026-11-27 10:30.
 - Ads: App campaign "ESA Installs Tier1", 153 installs Oct 28-Nov 2 at ~0.49 ILS each (15/day). Paused Nov 2-26, back on at 5 ILS/day. Target CPA lowered 8 -> 1 ILS on 2026-11-27 at the owner's request; never change budget/bids unasked.
 - Beginner boost shipped 3.12.11: 12 s refill until 3 stages or 72 h. Watch reviews and first-break/stage-complete rates for 2 weeks.
@@ -45,5 +46,6 @@ ask the owner to paste it into the task's Edit dialog.
 ## Backlog (top = next)
 1. Week of 2026-12-04: check Ads installs/day and cost per install at Target CPA 1 ILS; if it barely serves, suggest 1.5-2 ILS.
 2. Play trader-status declaration (owner decision: trader or non-trader), then a desktop prompt.
-3. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
-4. Remove stale "sitemaps.xml" entry in Search Console (harmless).
+3. Build tools/capture-clips.js: 6-15 s vertical gameplay clips into /clips (served), for X now and YouTube Shorts/TikTok later (owner decision pending on more socials).
+4. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
+5. Remove stale "sitemaps.xml" entry in Search Console (harmless).
