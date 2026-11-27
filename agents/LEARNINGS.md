@@ -1,4 +1,5 @@
 # Learnings (one line each, newest first; prune lines that stop being true)
+- 2026-11-27 Composio YouTube uses a shared Google API quota; it can be exhausted (403 quotaExceeded) and resets at midnight Pacific. Adding a second youtube account made it the toolkit default: always pass the account id.
 - 2026-11-27 X's "Unlock more on X" after posting is the Premium upsell, not a bot challenge. Real stop signals: captcha, "unusual activity", rate-limit, follow-limit screens.
 - 2026-11-27 Playwright recordVideo records at CSS size and pads; use the CDP screencast (tools/capture-clips.js) for device-resolution video.
 - 2026-11-27 Google Ads: GAQL change_event only goes back 30 days; campaign has no start_date field in v26. Check change_event before calling a zero-impression week a bug.

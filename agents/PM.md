@@ -46,5 +46,5 @@ ask the owner to paste it into the task's Edit dialog.
 
 ## Backlog (top = next)
 1. Week of 2026-12-04: check Ads installs/day and cost per install at Target CPA 1 ILS; if it barely serves, suggest 1.5-2 ILS.
-2. YouTube Shorts: channel @EggSmashAdventures created 2026-11-27 (see memory reference-analytics-access); next: confirm Composio connection alias eggsmash-yt, upload one test Short, then add Shorts to the X posting routine (separate Google brand channel; connect a SECOND Composio youtube account, the existing one is another business). TikTok skipped by owner 2026-11-27 (API posts only private/drafts for unaudited apps).
+2. YouTube Shorts: channel @EggSmashAdventures (id UCdA6msDaRQkqxuHLCWwUXnQ) connected 2026-11-27 as Composio youtube account youtube_shrub-horde (alias eggsmash-yt; ALWAYS pass it explicitly, the other youtube account is another business). First API call hit the shared Composio YouTube quota (403 quotaExceeded); retry scheduled 2026-11-28 11:05 Israel: verify channel, upload clips/smash.mp4 as unlisted test. Own GCP OAuth client would give own quota but unaudited projects can only upload private videos. TikTok skipped by owner.
 3. Guide page indexing: game root now links to it (v3.12.12 settings links). Re-inspect in Search Console from 2026-12-10; if still not indexed, split the guide into topic pages.
