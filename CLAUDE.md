@@ -114,6 +114,9 @@ colours (`tier-bronze/silver/gold` classes) are fine; they carry no text.
 ### Mr Monkey item boost
 `game.js rollPrize()` — `if (monkey && monkey.id === 'mr_monkey') w.item *= 1.5`
 
+### Beginner boost (v3.12.11)
+`CONFIG.beginnerBoost` = `{ regenInterval: 12, stages: 3, hours: 72 }`. `beginnerBoostActive()` (game.js) is true until `G.stagesCompleted >= stages` or `hours` after `G.firstPlayDate`; `regenIntervalSec()` then uses `min(base, 12)` before The Egg's cut, so every regen site (online, offline, idle sim, push timing) follows it. The hammer row shows a chick while it is on; one log line announces it (`G.beginnerBoostSeen`) and one marks its end. Guarded by `tests/beginner-boost.test.js`. Added after 2 of the first 5 Play reviews complained about waiting for hammers.
+
 ### Starting resources
 `CONFIG.startingHammers`, `CONFIG.startingMaxHammers`, `CONFIG.startingGold` → applied in `DEFAULT_STATE`
 

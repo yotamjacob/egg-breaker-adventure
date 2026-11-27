@@ -62,7 +62,8 @@ const DEFAULT_STATE = {
   multUsed: 0,          // multipliers consumed (fired)
   shopMult5: 0,         // times bought x5 mult from shop
   totalPlayTime: 0, firstPlayDate: 0,
-  firstSmashAt: 0,   // v3.12.10: persisted so first-smash fires once per player, not once per page load
+  firstSmashAt: 0,
+  beginnerBoostSeen: false,   // v3.12.11: the beginner-boost log line was shown   // v3.12.10: persisted so first-smash fires once per player, not once per page load
   achieved: [],
   discoveredEggs: ['normal','silver','gold'], // egg types the player has seen
   soundOn: true,
@@ -1236,6 +1237,9 @@ function checkCollectionComplete(suppressFlash) {
       track('stage-complete', { monkey: curMonkey().name, stage: stage.name });
       G.stagesCompleted++;
       maybeRequestReview();   // self-gates on stage count + spacing
+      if (CONFIG.beginnerBoost && G.stagesCompleted === CONFIG.beginnerBoost.stages) {
+        msg('🐣 Beginner boost done. Every stage you finish still raises your max hammers!');
+      }
       G.crystalBananas += CONFIG.crystalBananasPerStage;
       const refill3 = Math.round(CONFIG.tierRewards.complete.hammerRefill * _tHMult);
       G.hammers += refill3;
@@ -1631,8 +1635,18 @@ function consumeMultiplier() {
 
 // ==================== HAMMER REGEN ====================
 /** Seconds per regenerated hammer: Fast Regen, minus The Egg's regen blessing. */
+// Beginner boost (CONFIG.beginnerBoost): faster refill for new players.
+function beginnerBoostActive(now) {
+  const b = CONFIG.beginnerBoost;
+  if (!b) return false;
+  if ((G.stagesCompleted || 0) >= b.stages) return false;
+  const first = G.firstPlayDate ? new Date(G.firstPlayDate).getTime() : 0;
+  if (!first || isNaN(first)) return true;
+  return (now || Date.now()) - first < b.hours * 3600000;
+}
 function regenIntervalSec() {
-  const base = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  let base = G.fastRegen ? CONFIG.fastRegenInterval : CONFIG.regenInterval;
+  if (beginnerBoostActive()) base = Math.min(base, CONFIG.beginnerBoost.regenInterval);
   const cut = typeof theEggBonus === 'function' ? theEggBonus('regenSec') : 0;
   return Math.max(5, base - cut);
 }
@@ -2256,6 +2270,13 @@ document.addEventListener('keydown', (e) => {
 // ==================== INIT ====================
 loadGame();
 if (!G.firstPlayDate) { G.firstPlayDate = Date.now(); }
+// Tell a new player about the beginner boost once, after the splash clears.
+if (beginnerBoostActive() && !G.beginnerBoostSeen) {
+  G.beginnerBoostSeen = true;
+  setTimeout(() => {
+    try { msg('🐣 Beginner boost: hammers refill every ' + CONFIG.beginnerBoost.regenInterval + 's until you finish ' + CONFIG.beginnerBoost.stages + ' stages!'); } catch (e) {}
+  }, 5000);
+}
 
 // Fire after loadGame() so "returning vs new" reflects the actual save.
 // Never throws — see analytics.js.

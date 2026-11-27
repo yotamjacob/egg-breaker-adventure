@@ -32,18 +32,18 @@ ask the owner to paste it into the task's Edit dialog.
 - Remote Control to owner's Mac: refuses all folders, cause unknown. DEAD END, don't retry
 
 ## Current state (2026-11-27)
-- Live version 3.12.10. CI green.
+- Live version 3.12.11. CI green.
 - Play: 1,000+ installs, no score shown yet, 5 reviews (all answered 2026-11-27).
 - Review prompt now asks at stages 2/6/12 (>=21 days apart). Ships to Android users via the web bundle, no build needed.
 - Search: ~37 impressions / 4 clicks per 28 days, almost all brand queries. Guide page "crawled, not indexed".
 - Discovery shipped: llms.txt, guide FAQ + FAQPage schema, IndexNow on push, noindex on vercel.app host.
 - X: profile set, 0 posts, 2 drafts queued in agents/x-queue.md. First post Fri 2026-11-27 10:30.
-- Ads: App campaign "ESA Installs Tier1", 153 installs Oct 28-Nov 2 at ~0.49 ILS each (15/day). Paused Nov 2-26, back on at 5 ILS/day with Target CPA 8 ILS.
+- Ads: App campaign "ESA Installs Tier1", 153 installs Oct 28-Nov 2 at ~0.49 ILS each (15/day). Paused Nov 2-26, back on at 5 ILS/day. Target CPA lowered 8 -> 1 ILS on 2026-11-27 at the owner's request; never change budget/bids unasked.
+- Beginner boost shipped 3.12.11: 12 s refill until 3 stages or 72 h. Watch reviews and first-break/stage-complete rates for 2 weeks.
 - Umami 7d to 2026-11-27: 54 visitors, 92 visits, avg 219 s. game-started was 0 until v3.12.10 (duplicate track() bug, fixed); first-smash counted per page load until v3.12.10. First clean funnel week ends 2026-12-04: compare game-started -> first-smash -> first-break by visitors.
 
 ## Backlog (top = next)
-1. Owner decision: lower the Ads Target CPA from 8 to ~1 ILS (achieved ~0.49) so a 5 ILS/day budget can serve; watch week 1 at 5/day first.
-2. Proposal to owner: gentler first-session hammer pacing (2 of 5 reviews complain about waiting).
+1. Week of 2026-12-04: check Ads installs/day and cost per install at Target CPA 1 ILS; if it barely serves, suggest 1.5-2 ILS.
+2. Play trader-status declaration (owner decision: trader or non-trader), then a desktop prompt.
 3. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
-4. Play trader-status declaration due Feb 2027 (owner, Play Console banner).
-5. Remove stale "sitemaps.xml" entry in Search Console (harmless).
+4. Remove stale "sitemaps.xml" entry in Search Console (harmless).

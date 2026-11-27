@@ -652,7 +652,11 @@ function updateResources() {
   } else if (G.hammers < G.maxH) {
     hText += ' (' + G.regenCD + 's)';
   }
+  // Beginner boost marker (v3.12.11): the log line scrolls away, this stays.
+  const boost = typeof beginnerBoostActive === 'function' && beginnerBoostActive();
+  if (boost) hText += ' 🐣';
   hRow.textContent = hText;
+  hRow.title = boost ? 'Beginner boost: faster hammer refill until you finish ' + CONFIG.beginnerBoost.stages + ' stages' : '';
   hRow.className = 'hammer-row' + (hexed ? ' hexed' : G.hammers === 0 ? ' zero' : G.hammers < G.maxH ? ' regen' : ' full');
 
   updateStarBtn();

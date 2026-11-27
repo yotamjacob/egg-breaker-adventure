@@ -6,7 +6,7 @@
 //  Tweak these numbers to balance the game.
 // ============================================================
 
-const VERSION = '3.12.10';
+const VERSION = '3.12.11';
 
 // Meta (Facebook/Instagram) Pixel ID for the paid-ads funnel. EMPTY = pixel
 // never loads (no script, no beacon). Set it before the campaign goes live.
@@ -204,6 +204,10 @@ const CONFIG = {
   // ----------------------------------------------------------
   regenInterval:       30,    // seconds per hammer (standard)
   fastRegenInterval:   20,    // seconds per hammer (with upgrade)
+  // Beginner boost (v3.12.11): faster refill while a new player learns the game.
+  // Two of the first five Play reviews were about waiting for hammers. Ends at
+  // whichever comes first: `stages` stages completed, or `hours` after first play.
+  beginnerBoost: { regenInterval: 12, stages: 3, hours: 72 },
 
   // ----------------------------------------------------------
   // 14. STARTING RESOURCES
