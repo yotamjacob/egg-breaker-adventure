@@ -48,4 +48,3 @@ ask the owner to paste it into the task's Edit dialog.
 2. Play trader-status declaration (owner decision: trader or non-trader), then a desktop prompt.
 3. 2026-11-28 with owner: YouTube channel for the game (separate Google brand channel; connect a SECOND Composio youtube account, the existing one is another business). TikTok skipped by owner 2026-11-27 (API posts only private/drafts for unaudited apps).
 4. Guide page indexing: game root now links to it (v3.12.12 settings links). Re-inspect in Search Console from 2026-12-10; if still not indexed, split the guide into topic pages.
-5. Remove stale "sitemaps.xml" entry in Search Console (harmless).
