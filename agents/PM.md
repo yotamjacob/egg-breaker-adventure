@@ -26,23 +26,23 @@ ask the owner to paste it into the task's Edit dialog.
 - Play reviews/replies/vitals: workflow play-console.yml (secret PLAY_SERVICE_ACCOUNT_JSON). OK
 - Play listing rating/installs: Composio GETANYAPI_PLAYSTORE_APP (paid per call, cap $0.02). OK
 - X @EggSmashAdv: Composio browser_use profile (free offer), codes via Composio gmail "eggsmash-mail". OK
-- Umami: needs share URL. PENDING (owner fetching it)
+- Umami: share URL https://cloud.umami.is/share/IdKTt1MwfKtK4y0W (public, read-only). Run `UMAMI_SHARE_URL=<it> node tools/umami-funnel.js --days 7`. OK
 - Google Ads (5 NIS/day campaign): Composio googleads not connected. PENDING
 - GlitchTip: no token. NOT STARTED
 - Remote Control to owner's Mac: refuses all folders, cause unknown. DEAD END, don't retry
 
 ## Current state (2026-11-27)
-- Live version 3.12.9. CI green.
+- Live version 3.12.10. CI green.
 - Play: 1,000+ installs, no score shown yet, 5 reviews (all answered 2026-11-27).
 - Review prompt now asks at stages 2/6/12 (>=21 days apart). Ships to Android users via the web bundle, no build needed.
 - Search: ~37 impressions / 4 clicks per 28 days, almost all brand queries. Guide page "crawled, not indexed".
 - Discovery shipped: llms.txt, guide FAQ + FAQPage schema, IndexNow on push, noindex on vercel.app host.
 - X: profile set, 0 posts, 2 drafts queued in agents/x-queue.md. First post Fri 2026-11-27 10:30.
+- Umami 7d to 2026-11-27: 54 visitors, 92 visits, avg 219 s. game-started was 0 until v3.12.10 (duplicate track() bug, fixed); first-smash counted per page load until v3.12.10. First clean funnel week ends 2026-12-04: compare game-started -> first-smash -> first-break by visitors.
 
 ## Backlog (top = next)
-1. Umami share URL -> wire into Monday report (tools/umami-funnel.js, UMAMI_SHARE_URL).
-2. Google Ads connection -> weekly cost/clicks in Monday report.
+1. Google Ads connection -> weekly cost/clicks in Monday report.
 3. Proposal to owner: gentler first-session hammer pacing (2 of 5 reviews complain about waiting).
-4. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
-5. Play trader-status declaration due Feb 2027 (owner, Play Console banner).
-6. Remove stale "sitemaps.xml" entry in Search Console (harmless).
+3. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
+4. Play trader-status declaration due Feb 2027 (owner, Play Console banner).
+5. Remove stale "sitemaps.xml" entry in Search Console (harmless).

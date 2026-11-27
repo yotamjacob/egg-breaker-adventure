@@ -1,4 +1,6 @@
 # Learnings (one line each, newest first; prune lines that stop being true)
+- 2026-11-27 Umami Cloud share API now lives under the region path (/analytics/eu/api) and needs header x-umami-share-context: 1; tools/umami-funnel.js handles both.
+- 2026-11-27 Verify analytics on the live site with Playwright, intercepting cloud.umami.is/api/send (fulfill locally so nothing is recorded). Source review alone missed a hoisting bug for months.
 - 2026-11-27 Scheduled-task prompt edits from a session are refused by the permission checker; owner pastes them.
 - 2026-11-27 create_trigger cannot attach connectors here; owner adds Repository + Gmail + Composio in the task's Edit dialog.
 - 2026-11-27 X has no free API tier since Feb 2026; posting goes through Composio browser_use with a persistent logged-in profile. First login needed an e-mailed code.
