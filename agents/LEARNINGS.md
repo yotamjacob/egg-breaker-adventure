@@ -1,4 +1,5 @@
 # Learnings (one line each, newest first; prune lines that stop being true)
+- 2026-11-27 Composio's dashboard has no "set as default" for toolkit accounts (only Reconnect/Disconnect), so a game account can never safely share a toolkit with the other business. YouTube for the game needs a separate Composio account or stays on hold.
 - 2026-11-27 The Composio workspace is shared with the owner's other business (top priority). Adding a second account to a toolkit makes the NEW one the default and can redirect their flows. Never add accounts to toolkits they use (youtube, facebook, instagram, metaads, google_analytics, zoho_mail); the game-only toolkits are gmail (eggsmash-mail), googleads, browser_use.
 - 2026-11-27 Composio YouTube uses a shared Google API quota; it can be exhausted (403 quotaExceeded) and resets at midnight Pacific.
 - 2026-11-27 X's "Unlock more on X" after posting is the Premium upsell, not a bot challenge. Real stop signals: captcha, "unusual activity", rate-limit, follow-limit screens.
