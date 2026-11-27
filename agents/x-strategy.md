@@ -6,11 +6,10 @@ install it, and rate it. Followers are a means, not the target.
 ## Mix per week (once at full cadence of 5 posts)
 | Share | Format | Why |
 |---|---|---|
-| 2 of 5 | Short gameplay clip, 6-15 s, vertical, no sound needed (from /clips) | Video gets the most reach on X; a smash + prize reveal reads in 2 s |
+| 2 of 5 | Short gameplay clip, 9-11 s, vertical 1080x1920, no sound (clips/smash.mp4, combo.mp4, theegg.mp4 from tools/capture-clips.js; re-record after visual changes) | Video gets the most reach on X; a smash + prize reveal reads in 2 s |
 | 1 of 5 | One screenshot + one line (from /shots) | Cheap, shows the art and the album |
 | 1 of 5 | Question or poll ("Which monkey do you pick first?") | Replies feed the algorithm; no link |
 | 1 of 5 | Update or tip (new feature, a guide fact, a number from the game) | Gives returning players a reason to come back |
-Before clips exist, use screenshots in their place.
 
 ## Rules
 - Link in at most half the posts (links cut reach); the bio carries the site. Links use utm_source=x&utm_medium=social.

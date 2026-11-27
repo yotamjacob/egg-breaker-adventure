@@ -281,7 +281,9 @@ node tools/capture-shots.js    # gameplay screenshots (full-res + web-sized /sho
 node tools/make-og.js          # 1200x630 og-image.png  (needs capture-shots first)
 node tools/make-presskit.js    # press-kit.zip
 node tools/check-listings.js   # validate store listings against Play's limits
+CHROMIUM_PATH=/opt/pw-browsers/chromium node tools/capture-clips.js   # 9-11 s vertical gameplay clips -> clips/*.mp4 (X + YouTube Shorts)
 ```
+`capture-clips.js` serves this checkout locally, blocks analytics/cloud/ad requests (a recording never counts as a visit), hides overlays with injected CSS, and records through Chrome's screencast at device pixels (1080x1920). Playwright's `recordVideo` records at CSS size and pads the rest, which left the game in a third of the frame.
 `capture-shots.js` injects a rich save state on purpose — captures taken on an empty
 save show "0/5 items" and "???" placeholders and sell the game badly. Eggs are
 `.egg-slot`, **not** `.egg`.
