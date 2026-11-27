@@ -1,0 +1,44 @@
+name: Play Console
+
+# Manual / API-triggered only. The cloud PM sessions dispatch it through the GitHub
+# API: mode=report on Mondays (reviews + vitals into the job summary and the
+# PLAY_REPORT_JSON log line), mode=reply with a JSON list of replies.
+# Needs the PLAY_SERVICE_ACCOUNT_JSON secret (service account eggsmash-pm).
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'report = reviews + vitals; reply = post replies'
+        type: choice
+        options: [report, reply]
+        default: report
+      replies:
+        description: 'reply mode only: JSON [{"reviewId":"...","text":"..."}]'
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  play:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          MODE: ${{ inputs.mode }}
+          REPLIES: ${{ inputs.replies }}
+        run: node tools/play-console.js
+      - name: Upload report
+        if: ${{ inputs.mode == 'report' && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: play-report
+          path: play-report.json
+          if-no-files-found: ignore

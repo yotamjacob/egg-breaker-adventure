@@ -26,6 +26,7 @@
 | `content.css` | Styles for the SEO content pages only — **not** part of `bundle.min.css` |
 | `llms.txt` | Plain-text summary of the game + page index for AI crawlers/chatbots (llmstxt.org convention). Keep its facts in sync with `config.js`/`data.js` like the guide pages |
 | `tools/indexnow.js` | IndexNow ping (Bing, Yandex, Seznam, Naver) with every sitemap URL; key file `indexnow-<key>.txt` sits at the site root and is public by design. Run by `.github/workflows/indexnow.yml` on pushes to main that touch pages. Google ignores IndexNow — its crawl comes from the sitemap in Search Console |
+| `tools/play-console.js` | Google Play access for the PM automation (v3.12.9): `MODE=report` lists reviews from the last 7 days (the API returns nothing older) plus 28-day crash and ANR rates; `MODE=reply` posts replies (350-char limit, skips answered reviews). Runs only in `.github/workflows/play-console.yml` (workflow_dispatch), with the service-account key in the `PLAY_SERVICE_ACCOUNT_JSON` secret (account `eggsmash-pm@egg-breaker-adventures-revival.iam.gserviceaccount.com`, Play permissions: view app info, view app quality, reply to reviews). Never prints the key or token |
 | `sw.js` | Service worker — cache versioning, network-first fetch strategy |
 | `build.js` | Bundles JS+CSS → bundle.min.js + bundle.min.css; `--itch` assembles the static itch.io build; also generates `sitemap.xml` |
 | `itch/itch.js` | itch-only shim — Google Play CTA + desktop phone frame (loaded by the `--itch` build) |
