@@ -1,4 +1,5 @@
 # Learnings (one line each, newest first; prune lines that stop being true)
+- 2026-11-27 Google Ads: GAQL change_event only goes back 30 days; campaign has no start_date field in v26. Check change_event before calling a zero-impression week a bug.
 - 2026-11-27 Umami Cloud share API now lives under the region path (/analytics/eu/api) and needs header x-umami-share-context: 1; tools/umami-funnel.js handles both.
 - 2026-11-27 Verify analytics on the live site with Playwright, intercepting cloud.umami.is/api/send (fulfill locally so nothing is recorded). Source review alone missed a hoisting bug for months.
 - 2026-11-27 Scheduled-task prompt edits from a session are refused by the permission checker; owner pastes them.

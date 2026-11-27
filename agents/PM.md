@@ -27,7 +27,7 @@ ask the owner to paste it into the task's Edit dialog.
 - Play listing rating/installs: Composio GETANYAPI_PLAYSTORE_APP (paid per call, cap $0.02). OK
 - X @EggSmashAdv: Composio browser_use profile (free offer), codes via Composio gmail "eggsmash-mail". OK
 - Umami: share URL https://cloud.umami.is/share/IdKTt1MwfKtK4y0W (public, read-only). Run `UMAMI_SHARE_URL=<it> node tools/umami-funnel.js --days 7`. OK
-- Google Ads (5 NIS/day campaign): Composio googleads not connected. PENDING
+- Google Ads: Composio googleads, customer 2415992841 only (others on the login are not the game's). Read-only. OK
 - GlitchTip: no token. NOT STARTED
 - Remote Control to owner's Mac: refuses all folders, cause unknown. DEAD END, don't retry
 
@@ -38,10 +38,11 @@ ask the owner to paste it into the task's Edit dialog.
 - Search: ~37 impressions / 4 clicks per 28 days, almost all brand queries. Guide page "crawled, not indexed".
 - Discovery shipped: llms.txt, guide FAQ + FAQPage schema, IndexNow on push, noindex on vercel.app host.
 - X: profile set, 0 posts, 2 drafts queued in agents/x-queue.md. First post Fri 2026-11-27 10:30.
+- Ads: App campaign "ESA Installs Tier1", 153 installs Oct 28-Nov 2 at ~0.49 ILS each (15/day). Paused Nov 2-26, back on at 5 ILS/day with Target CPA 8 ILS.
 - Umami 7d to 2026-11-27: 54 visitors, 92 visits, avg 219 s. game-started was 0 until v3.12.10 (duplicate track() bug, fixed); first-smash counted per page load until v3.12.10. First clean funnel week ends 2026-12-04: compare game-started -> first-smash -> first-break by visitors.
 
 ## Backlog (top = next)
-1. Google Ads connection -> weekly cost/clicks in Monday report.
+1. Owner decision: lower the Ads Target CPA from 8 to ~1 ILS (achieved ~0.49) so a 5 ILS/day budget can serve; watch week 1 at 5/day first.
 2. Proposal to owner: gentler first-session hammer pacing (2 of 5 reviews complain about waiting).
 3. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
 4. Play trader-status declaration due Feb 2027 (owner, Play Console banner).
