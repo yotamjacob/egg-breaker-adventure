@@ -57,7 +57,16 @@ jobs:
         run: npm ci
 
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        # The runner image ships a packages.microsoft.com apt source we don't need;
+        # when that mirror returns 403, `--with-deps` aborts before any test runs
+        # (run 45921104460, 2026-11-27). Drop it, then retry the install twice.
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list /etc/apt/sources.list.d/microsoft-prod.sources || true
+          for i in 1 2 3; do
+            npx playwright install --with-deps chromium && exit 0
+            echo "playwright install failed (attempt $i), retrying in 15s"; sleep 15
+          done
+          exit 1
 
       - name: Wait for Vercel deployment
         if: github.event_name == 'push'

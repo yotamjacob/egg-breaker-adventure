@@ -3,7 +3,7 @@
 Written by the cloud Thursday pass (drafts), consumed by the Mac posting task (posts via the
 owner's logged-in Chrome). One entry per post. The Mac task posts the oldest `status: queued`
 entry, then sets `status: posted` with the date and the post URL. Never edit a posted entry.
-Cadence lives here: the Thursday pass queues 2 drafts a week in weeks 1-2, 3 in week 3, 4 in
+Strategy and format mix: agents/x-strategy.md. Cadence lives here: the Thursday pass queues 2 drafts a week in weeks 1-2, 3 in week 3, 4 in
 week 4, 5 from week 5 on. Voice: playful, light, friendly, never cringe, no politics, never the
 original game or its developer. Put the game link in at most half the posts; the bio carries it.
 
