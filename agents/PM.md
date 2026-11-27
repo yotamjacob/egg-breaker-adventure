@@ -17,7 +17,7 @@ rules and architecture in CLAUDE.md. Memory notes (server-side) hold owner decis
 |---|---|---|
 | Monday health + analytics | Mon 07:41 | agents/routine-monday.txt |
 | Thursday discovery + social (drafts X posts) | Thu 08:23 | agents/routine-thursday.txt |
-| X posting (hosted browser) | Tue+Fri 10:30 | agents/routine-x-cloud.txt |
+| X posting + engagement (hosted browser) | Tue/Wed/Fri/Sun 10:30; posts Tue+Fri only | agents/routine-x-cloud.txt |
 This session cannot edit task prompts (permission checker refuses). Change the .txt file, then
 ask the owner to paste it into the task's Edit dialog.
 
@@ -46,6 +46,7 @@ ask the owner to paste it into the task's Edit dialog.
 ## Backlog (top = next)
 1. Week of 2026-12-04: check Ads installs/day and cost per install at Target CPA 1 ILS; if it barely serves, suggest 1.5-2 ILS.
 2. Play trader-status declaration (owner decision: trader or non-trader), then a desktop prompt.
-3. Build tools/capture-clips.js: 6-15 s vertical gameplay clips into /clips (served), for X now and YouTube Shorts/TikTok later (owner decision pending on more socials).
-4. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
-5. Remove stale "sitemaps.xml" entry in Search Console (harmless).
+3. 2026-11-28 with owner: YouTube channel for the game (separate Google brand channel; connect a SECOND Composio youtube account, the existing one is another business) + TikTok (API likely private-only for unaudited apps -> test drafts/inbox or browser route).
+4. Build tools/capture-clips.js: 6-15 s vertical gameplay clips into /clips (served), for X now and YouTube Shorts/TikTok later (owner decision pending on more socials).
+5. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
+6. Remove stale "sitemaps.xml" entry in Search Console (harmless).
