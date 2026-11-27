@@ -42,7 +42,7 @@ ask the owner to paste it into the task's Edit dialog.
 
 ## Backlog (top = next)
 1. Google Ads connection -> weekly cost/clicks in Monday report.
-3. Proposal to owner: gentler first-session hammer pacing (2 of 5 reviews complain about waiting).
+2. Proposal to owner: gentler first-session hammer pacing (2 of 5 reviews complain about waiting).
 3. Get the guide page indexed (stronger internal links, unique title, maybe split into topic pages).
 4. Play trader-status declaration due Feb 2027 (owner, Play Console banner).
 5. Remove stale "sitemaps.xml" entry in Search Console (harmless).
