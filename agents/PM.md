@@ -32,6 +32,7 @@ ask the owner to paste it into the task's Edit dialog.
 - Remote Control to owner's Mac: refuses all folders, cause unknown. DEAD END, don't retry
 
 ## Current state (2026-11-27)
+- Play DSA trader status declared 2026-11-27 (account level, public contact email = the game mailbox).
 - Live version 3.12.12. CI green.
 - Play: 1,000+ installs, no score shown yet, 5 reviews (all answered 2026-11-27).
 - Review prompt now asks at stages 2/6/12 (>=21 days apart). Ships to Android users via the web bundle, no build needed.
@@ -45,6 +46,5 @@ ask the owner to paste it into the task's Edit dialog.
 
 ## Backlog (top = next)
 1. Week of 2026-12-04: check Ads installs/day and cost per install at Target CPA 1 ILS; if it barely serves, suggest 1.5-2 ILS.
-2. Play trader-status declaration (owner decision: trader or non-trader), then a desktop prompt.
-3. 2026-11-28 with owner: YouTube channel for the game (separate Google brand channel; connect a SECOND Composio youtube account, the existing one is another business). TikTok skipped by owner 2026-11-27 (API posts only private/drafts for unaudited apps).
-4. Guide page indexing: game root now links to it (v3.12.12 settings links). Re-inspect in Search Console from 2026-12-10; if still not indexed, split the guide into topic pages.
+2. YouTube Shorts: channel @EggSmashAdventures created 2026-11-27 (see memory reference-analytics-access); next: confirm Composio connection alias eggsmash-yt, upload one test Short, then add Shorts to the X posting routine (separate Google brand channel; connect a SECOND Composio youtube account, the existing one is another business). TikTok skipped by owner 2026-11-27 (API posts only private/drafts for unaudited apps).
+3. Guide page indexing: game root now links to it (v3.12.12 settings links). Re-inspect in Search Console from 2026-12-10; if still not indexed, split the guide into topic pages.
