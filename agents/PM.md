@@ -46,5 +46,5 @@ ask the owner to paste it into the task's Edit dialog.
 
 ## Backlog (top = next)
 1. Week of 2026-12-04: check Ads installs/day and cost per install at Target CPA 1 ILS; if it barely serves, suggest 1.5-2 ILS.
-2. YouTube Shorts ON HOLD: channel @EggSmashAdventures (id UCdA6msDaRQkqxuHLCWwUXnQ) exists, but its Composio connection was REMOVED 2026-11-27 because adding it made it the default YouTube account in the shared Composio workspace, which the owner's other business (top priority) relies on. Never add a second account to a Composio toolkit the other business uses. Revisit only with a path that cannot touch that workspace (e.g. a separate Composio account for the game). TikTok skipped by owner.
+2. YouTube Shorts: 3 scheduled via Studio (agents/yt-queue.md), last one 2026-12-06. Next batch prompt due in the Thursday e-mail of 2026-12-03. No Composio YouTube (other business). TikTok skipped by owner.
 3. Guide page indexing: game root now links to it (v3.12.12 settings links). Re-inspect in Search Console from 2026-12-10; if still not indexed, split the guide into topic pages.
